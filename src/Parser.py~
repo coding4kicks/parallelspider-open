@@ -35,55 +35,58 @@ class Parser:
                 doc - an html document
         """
 
-        try:
+        #try:
             
-            # Set up the beautifulsoup parser with lxml
-            # http://www.crummy.com/software/BeautifulSoup/
-            # http://lxml.de/
-            out = BeautifulSoup(doc, "lxml")
+        # Set up the beautifulsoup parser with lxml
+        # http://www.crummy.com/software/BeautifulSoup/
+        # http://lxml.de/
+        soup = BeautifulSoup(doc, "lxml")
 
-            #output = {}
-        
-            
-            # Find content for specified tags
-            for tag in out.find_all(self.tag_list):
-                self.output[tag] = tag.text.encode('utf-8') 
+        #output = {}
 
-            # Find all the links
-            links = ''
-            for link in out.find_all('a'):
-                # Only add if okay by robots.txt
-                if self.robots_txt.can_fetch('*', str(link)):
-                    links += str(link.get('href')) + " \n"
-    
-            # Process the links so they are absolute urls
-            self.link_list = process_links(links, self.site_url)
+        #initialize dictionary and find content
+        for tag in self.tag_list:
+            self.output[tag] = ""
+        for tag in self.tag_list:
+            for output in soup.find_all(tag):
+                self.output[tag] += (output.text.encode('utf-8') + " ") 
 
-            # Process the links so can be output to a file
-            #link_output = ''
-            #for link in self.link_list:
-            #   link_output += link + '\n'
+        # Find all the links
+        links = ''
+        for link in soup.find_all('a'):
+            # Only add if okay by robots.txt
+            if self.robots_txt.can_fetch('*', str(link)):
+                links += str(link.get('href')) + " \n"
 
-            # Save the content information for the page
-            #### TODO - fix the hardwired file paths
-            #outfile_name = "/home/project/Files/Content/" + doc_name + ".cnt"
-            #data_out = output.encode('utf-8')
-            #outfile = open(outfile_name, "w")
-            #outfile.write(data_out)
+        print links
+        # Process the links so they are absolute urls
+        self.link_list = __process_links(links, self.site_url)
 
-            # Update the file list
-            #self.file_list += [outfile_name]
+        # Process the links so can be output to a file
+        #link_output = ''
+        #for link in self.link_list:
+        #   link_output += link + '\n'
 
-            # Save the link information for the page
-            #linkfile_name = "Files/Links/" + doc_name + ".lk"
-            #linkfile = open(linkfile_name, "w")
-            #linkfile.write(link_output)
+        # Save the content information for the page
+        #### TODO - fix the hardwired file paths
+        #outfile_name = "/home/project/Files/Content/" + doc_name + ".cnt"
+        #data_out = output.encode('utf-8')
+        #outfile = open(outfile_name, "w")
+        #outfile.write(data_out)
+
+        # Update the file list
+        #self.file_list += [outfile_name]
+
+        # Save the link information for the page
+        #linkfile_name = "Files/Links/" + doc_name + ".lk"
+        #linkfile = open(linkfile_name, "w")
+        #linkfile.write(link_output)
             
         #except IOError: # Error opening the file
             #print("Problem opening page file: " + file_name)
         
-        except: 
-            print("Problem parsing the Data")
+        #except: 
+        #    print("Problem parsing the Data")
         
         #finally: # Release the files
             #outfile.close()
@@ -103,7 +106,7 @@ class Parser:
 #       return self.file_list
 
 
-def process_links(links, site):
+def __process_links(links, site):
     """ 
         Process links based upon site name so don't leave the site.
         Returns a list of the links on a page.

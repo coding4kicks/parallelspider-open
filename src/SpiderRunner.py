@@ -36,8 +36,7 @@ class SpiderRunner:
         for site in self.site_list:
             base = site + "::" + timestamp
             self.base_keys.append(base)
- 
-
+    
            
     def execute(self):
         
@@ -51,7 +50,7 @@ class SpiderRunner:
         print self.redis_info
 
         # Download initial page for each site
-        # Later make asynchronous
+        # Later make asynchronous to speed up
         for site in self.site_list:
             f = urllib.urlopen(site)
             data = f.read()
@@ -60,7 +59,12 @@ class SpiderRunner:
             # Hard code tags - later make variable of Analysis Info
             tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
             parser = Parser(site, tag_list)
+            parser.run(data)
+            links = parser.get_links()
+            output = parser.get_output() # test only
 
+            print links
+            print output
 
 
         # Connect to Redis
