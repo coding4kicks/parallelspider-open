@@ -114,23 +114,25 @@ def process_links(links, site):
 
     # List to hold the new links
     link_list = []
-
+    print "site"
+    print site
     # Determine the site name from the site
     # Remove www, https://, http://, .com, .org
     temp1 = site.replace("www.", "")
     temp2 = temp1.replace("https://", "")
     temp3 = temp2.replace("http://", "")
     temp4 = temp3.replace(".com", "")
-    site = temp4.replace(".org", "")
+    temp5 = temp4.replace(".org", "")
+    site = temp5.replace("/", "")
 
     # Split the output into a list
     list = links.split();
-
+    print site
     # Process all the links
     for link in list:
-
+        print link[0:4]
         # If absolute url
-        if link[0:3] == "http":
+        if link[0:4] == "http" or link[0:5] == "https":
             
             # With site name add to list
             if site in link:

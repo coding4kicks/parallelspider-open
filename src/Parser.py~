@@ -60,7 +60,7 @@ class Parser:
 
         print links
         # Process the links so they are absolute urls
-        self.link_list = __process_links(links, self.site_url)
+        self.link_list = process_links(links, self.site_url)
 
         # Process the links so can be output to a file
         #link_output = ''
@@ -106,7 +106,7 @@ class Parser:
 #       return self.file_list
 
 
-def __process_links(links, site):
+def process_links(links, site):
     """ 
         Process links based upon site name so don't leave the site.
         Returns a list of the links on a page.
@@ -114,23 +114,25 @@ def __process_links(links, site):
 
     # List to hold the new links
     link_list = []
-
+    print "site"
+    print site
     # Determine the site name from the site
     # Remove www, https://, http://, .com, .org
     temp1 = site.replace("www.", "")
     temp2 = temp1.replace("https://", "")
     temp3 = temp2.replace("http://", "")
     temp4 = temp3.replace(".com", "")
-    site = temp4.replace(".org", "")
+    temp5 = temp4.replace(".org", "")
+    site = temp5.replace("/", "")
 
     # Split the output into a list
     list = links.split();
-
+    print site
     # Process all the links
     for link in list:
-
+        print link[0:4]
         # If absolute url
-        if link[0:3] == "http":
+        if link[0:4] == "http" or link[0:5] == "https":
             
             # With site name add to list
             if site in link:
@@ -140,10 +142,10 @@ def __process_links(links, site):
             # If absolute without site name skip
         
         # If relative add site
-        if (link[0] == '/' and len(link) > 1):
+        #if (link[0] == '/' and len(link) > 1):
             
-            link_abs = site + link
-            link_list += [link_abs]
+        #    link_abs = site + link
+        #    link_list += [link_abs]
             
             # Else skip, junk
             
