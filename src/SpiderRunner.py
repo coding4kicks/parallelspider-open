@@ -126,15 +126,19 @@ class SpiderRunner:
                 # ??? SECURITY ??? - site name is user provided
                 eval("r.sadd('" + new_link_set + "'," + link_string + ")") 
 
+                # set expiration
+                hour = 60 * 60 # 60 seconds/minute * 60 minutes
+                r.expire(new_link_set, hour)
+
                 # Increment indices
                 start = start + 250
                 finish = finish + 250
                 i = i + 1
 
-                print "here 2"
-                print links_part
+                #print "here 2"
+                #print links_part
             # WHY EMPTY
-            mem = r.smembers("'" + new_link_set + "'")
+            mem = r.smembers(new_link_set)
             print mem
 
         # Create keys for each site's link state: new, processing, finished
