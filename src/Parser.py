@@ -3,17 +3,18 @@ from bs4 import BeautifulSoup
 
 class Parser:
     """ 
-        Parser - recieves a document
-
-        return - a list of links from the page.
-        * Checks robots.txt for permission *
+        Parser - parses a web page for liks to follow and any requested
+        content.  Checks robots.txt for permission.
     """
-    
-    # List of saved content files
-    #file_list = []
 
     def __init__(self, site, tags):
-        """ Initializes the parser for a site address and retrieve robots.txt"""
+        """ Initializes the parser
+        
+            Input
+                site - site name to scrape
+                tags - html tags to retrieve content from                
+                *retrieves robots.txt*
+        """
 
         self.site_url = site    # Site url received from the spider
         self.link_list = []     # List of links
@@ -29,22 +30,18 @@ class Parser:
         self.robots_txt.read()
 
     def run(self, doc):
-        """ Parses document 
+        """ Parses a web page 
         
             Input
                 doc - an html document
         """
-
-        #try:
             
         # Set up the beautifulsoup parser with lxml
         # http://www.crummy.com/software/BeautifulSoup/
         # http://lxml.de/
         soup = BeautifulSoup(doc, "lxml")
 
-        #output = {}
-
-        #initialize dictionary and find content
+        #Initialize dictionary and find content
         for tag in self.tag_list:
             self.output[tag] = ""
         for tag in self.tag_list:
@@ -58,39 +55,9 @@ class Parser:
             if self.robots_txt.can_fetch('*', str(link)):
                 links += str(link.get('href')) + " \n"
 
-        print links
         # Process the links so they are absolute urls
         self.link_list = process_links(links, self.site_url)
 
-        # Process the links so can be output to a file
-        #link_output = ''
-        #for link in self.link_list:
-        #   link_output += link + '\n'
-
-        # Save the content information for the page
-        #### TODO - fix the hardwired file paths
-        #outfile_name = "/home/project/Files/Content/" + doc_name + ".cnt"
-        #data_out = output.encode('utf-8')
-        #outfile = open(outfile_name, "w")
-        #outfile.write(data_out)
-
-        # Update the file list
-        #self.file_list += [outfile_name]
-
-        # Save the link information for the page
-        #linkfile_name = "Files/Links/" + doc_name + ".lk"
-        #linkfile = open(linkfile_name, "w")
-        #linkfile.write(link_output)
-            
-        #except IOError: # Error opening the file
-            #print("Problem opening page file: " + file_name)
-        
-        #except: 
-        #    print("Problem parsing the Data")
-        
-        #finally: # Release the files
-            #outfile.close()
-            #linkfile.close()
 
     def get_links(self):
         """ Return the list of links found on the page. """
@@ -101,21 +68,16 @@ class Parser:
         return self.output
 
 
-#   def get_file_list(self):
-#       """ Return the list of files """
-#       return self.file_list
-
-
 def process_links(links, site):
     """ 
         Process links based upon site name so don't leave the site.
+
         Returns a list of the links on a page.
     """
 
-    # List to hold the new links
+    # List to hold found links
     link_list = []
-    print "site"
-    print site
+
     # Determine the site name from the site
     # Remove www, https://, http://, .com, .org
     temp1 = site.replace("www.", "")
@@ -127,10 +89,10 @@ def process_links(links, site):
 
     # Split the output into a list
     list = links.split();
-    print site
+    
     # Process all the links
     for link in list:
-        print link[0:4]
+      
         # If absolute url
         if link[0:4] == "http" or link[0:5] == "https":
             
