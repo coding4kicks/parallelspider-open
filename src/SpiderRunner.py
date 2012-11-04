@@ -95,13 +95,13 @@ class SpiderRunner:
             # Attempting to process as batch vice adding 1 at a time
             # Can only add 255 elements max at a time
             size = len(links)
-            print size
+            #print size
 
             # Calculate number of breaks
             breaks, remainder = divmod(size, 250)
             if remainder > 0:
                 breaks = breaks + 1
-            print breaks
+            #print breaks
     
             # Set initial indices
             start = 0
