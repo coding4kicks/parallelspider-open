@@ -56,8 +56,8 @@ class Mapper():
         
         yield link, 1
 
-        for tag in output:
-            for word in tag.split():
+        for tag in tag_list:
+            for word in output[tag].split():
                 yield word, 1
 
         for word in value.split():
