@@ -1,4 +1,4 @@
-!/usr/bin/env python
+#!/usr/bin/env python
 """
 	Parallel Spider
 
@@ -9,9 +9,27 @@
         with information to connect to Redis, a data structure server used 
         to maintain link state.
 """
-import redis
+#import redis
 
-def ParallelSpider():
+#from optparse import OptionParser
+
+class Mapper():
+
+    def __init__(self):
+        #self.redis_info = self.params["redisInfo"]
+        we = 2
     
-    return true
+    def __call__(self, key, value):
+
+        for word in value.split():
+            yield word, 1
+
+def reducer(key, values):
+    yield key, sum(values)
+
+if __name__ == "__main__":
+    import dumbo
+    dumbo.run(Mapper, reducer)
+    
+    
 
