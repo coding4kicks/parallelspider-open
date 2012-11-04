@@ -34,7 +34,7 @@ class Mapper():
                               port=int(self.redis_info["port"]), db=0)
 
         # temporary - hard code key name
-        self.new_links = 'http://www.foxnews.com/::2012-11-3-17-43::new_links'
+        self.new_links = 'http://www.foxnews.com/::2012-11-4-10-10::new_links'
         site = "http://www.foxnews.com/"
 
         # Retrieve a a link
@@ -55,6 +55,10 @@ class Mapper():
 
         
         yield link, 1
+
+        for tag in output:
+            for word in tag.split():
+                yield word, 1
 
         for word in value.split():
             yield word, 1
