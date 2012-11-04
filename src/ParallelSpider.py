@@ -24,7 +24,7 @@ class Mapper():
     
     def __call__(self, key, value):
         import redis
-        #import Parser
+        import Parser
 
         # Connect to Redis
         r = redis.StrictRedis(host=self.redis_info["host"],

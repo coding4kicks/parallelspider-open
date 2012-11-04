@@ -35,7 +35,7 @@ class Mapper():
 
         # Retrieve a a link
         # later retrieve 5+? Asynchronously, batch process links to Redis
-        link = r.spop( 'http://www.foxnews.com/::2012-11-3-17-43::new_links')
+        link = r.spop(self.new_links)
 
         
         yield link, 1
