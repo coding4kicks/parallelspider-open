@@ -136,10 +136,11 @@ class SpiderRunner:
 
             cmds = []
             cmds.append('dumbo start /home/parallelspider/ParallelSpider.py \
-                         -input /home/parallelspider/' + base + ' ' + ' \
-                         -output /HDFS/project/out \
-                         -file /home/project/stoplist_msnbc.txt \
+                         -input /HDFS/parallelspider/' + base + ' ' + ' \
+                         -output /HDFS/parallelspider/out/ ' + base + ' ' + '  \
+                         -file Parser.py \
                          -nummaptasks ' + self.max_mappers + ' ' + ' \
+                         -param redisInfo=host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379 \
                          -hadoop starcluster')
 
             # run the commands

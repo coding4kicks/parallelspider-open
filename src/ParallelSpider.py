@@ -24,14 +24,21 @@ class Mapper():
     
     def __call__(self, key, value):
         import redis
+        #import Parser
 
         # Connect to Redis
         r = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
 
-        x = r.spop('set1')
+        # temporary - hard code key name
+        self.new_links = 'http://www.foxnews.com/::2012-11-3-17-43::new_links'
 
-        yield x, 1
+        # Retrieve a a link
+        # later retrieve 5+? Asynchronously, batch process links to Redis
+        link = r.spop(self.new_links)
+
+        
+        yield link, 1
 
         for word in value.split():
             yield word, 1
