@@ -8,6 +8,10 @@
         particular analysis to be performed is included in the input, along 
         with information to connect to Redis, a data structure server used 
         to maintain link state.
+
+    ex.    python SpiderRunner.py
+    http://www.foxnews.com/ -r
+    host=ec2-50-17-32-136.compute-1.amazonaws.com,port=6379
 """
 class Mapper():
 
@@ -23,8 +27,11 @@ class Mapper():
     
     
     def __call__(self, key, value):
+        
         import redis
-        #import Parser
+        import urllib
+
+        from Parser import Parser
 
         # Connect to Redis
         r = redis.StrictRedis(host=self.redis_info["host"],
@@ -32,10 +39,23 @@ class Mapper():
 
         # temporary - hard code key name
         self.new_links = 'http://www.foxnews.com/::2012-11-3-17-43::new_links'
+        site = "http://www.foxnews.com/"
 
         # Retrieve a a link
         # later retrieve 5+? Asynchronously, batch process links to Redis
         link = r.spop(self.new_links)
+
+        # Download page
+        f = urllib.urlopen(link)
+        data = f.read()
+        f.close
+
+        # Hard code tags - later make variable of Analysis Info
+        tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
+        parser = Parser(site, tag_list)
+        parser.run(data)
+        links = parser.get_links()
+        output = parser.get_output() 
 
         
         yield link, 1

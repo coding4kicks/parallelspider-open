@@ -6,6 +6,11 @@
     a txt file. The number of links saved is the number of mappers that will
     be run. Next, it sets up a redis data-structure server. The runner then
     initiates parallel spider, passing all required info.
+
+        ex.    python SpiderRunner.py
+    http://www.foxnews.com/ -r
+    host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379
+
 """
 import sys
 import redis
@@ -134,19 +139,19 @@ class SpiderRunner:
             # Call ParallelSpider (MapReduce)
             # switch to asynchronous
 
-            cmds = []
-            cmds.append('dumbo start /home/parallelspider/ParallelSpider.py \
-                         -input /HDFS/parallelspider/' + base + ' ' + ' \
-                         -output /HDFS/parallelspider/out/ ' + base + ' ' + '  \
-                         -file Parser.py \
-                         -nummaptasks ' + self.max_mappers + ' ' + ' \
-                         -param redisInfo=host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379 \
-                         -hadoop starcluster')
+            #cmds = []
+            #cmds.append('dumbo start /home/parallelspider/ParallelSpider.py \
+            #             -input /HDFS/parallelspider/' + base + ' ' + ' \
+            #             -output /HDFS/parallelspider/out/ ' + base + ' ' + '  \
+            #             -file Parser.py \
+            #             -nummaptasks ' + self.max_mappers + ' ' + ' \
+            #             -param redisInfo=host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379 \
+            #             -hadoop starcluster')
 
             # run the commands
-            for cmd in cmds:
-                print "Running %s" % cmd
-                subprocess.call(cmd, shell=True)
+            #for cmd in cmds:
+            #    print "Running %s" % cmd
+            #    subprocess.call(cmd, shell=True)
 
 
 
@@ -197,14 +202,14 @@ def main():
     if options.analysisInfo:
         temp_list = options.analysisInfo.split(",")
         for item in temp_list:
-            key, delimiter, value = item.partition('=')
+            key, delimiter, value = item.partition(':')
             analysis_info[key] = value
 
     # Convert Redis info to Python Dictionary (keep default)
     redis_info = {}
     temp_list = options.redisInfo.split(",")
     for item in temp_list:
-        key, delimiter, value = item.partition('=')
+        key, delimiter, value = item.partition(':')
         redis_info[key] = value
 
     # Check max mappers is greater than 0

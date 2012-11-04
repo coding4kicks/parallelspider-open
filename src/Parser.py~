@@ -30,7 +30,7 @@ class Parser:
         self.robots_txt.read()
 
     def run(self, doc):
-        """ Parses document 
+        """ Parses a web page 
         
             Input
                 doc - an html document
@@ -85,7 +85,7 @@ def process_links(links, site):
     temp3 = temp2.replace("http://", "")
     temp4 = temp3.replace(".com", "")
     temp5 = temp4.replace(".org", "")
-    site = temp5.replace("/", "")
+    site_stripped = temp5.replace("/", "")
 
     # Split the output into a list
     list = links.split();
@@ -97,7 +97,7 @@ def process_links(links, site):
         if link[0:4] == "http" or link[0:5] == "https":
             
             # With site name add to list
-            if site in link:
+            if site_stripped in link:
                 
                     link_list += [link]
                     
