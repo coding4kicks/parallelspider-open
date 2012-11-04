@@ -69,7 +69,7 @@ class SpiderRunner:
             f.close
             
             # Security for false site name in eval
-            # ??? could still breach with fake websit ???
+            # ??? could still breach with fake website ???
             if data == None:
                 break
 

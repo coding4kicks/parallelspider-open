@@ -9,17 +9,29 @@
         with information to connect to Redis, a data structure server used 
         to maintain link state.
 """
-#import redis
-
-#from optparse import OptionParser
-
 class Mapper():
 
     def __init__(self):
-        #self.redis_info = self.params["redisInfo"]
-        we = 2
+                      
+        # Convert Redis info to Python Dictionary (keep default)
+        self.redis_info = {}
+        param = self.params["redisInfo"]
+        temp_list = param.split(",")
+        for item in temp_list:
+            key, delimiter, value = item.partition(':')
+            self.redis_info[key] = value
+    
     
     def __call__(self, key, value):
+        import redis
+
+        # Connect to Redis
+        r = redis.StrictRedis(host=self.redis_info["host"],
+                              port=int(self.redis_info["port"]), db=0)
+
+        x = r.spop('set1')
+
+        yield x, 1
 
         for word in value.split():
             yield word, 1
