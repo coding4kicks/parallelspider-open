@@ -89,7 +89,7 @@ class SpiderRunner:
             # Create base part of Redis key from timestamp and site name
             base = site + "::" + self.timestamp
             new_link_set = base + "::new_links"
-            x = type(base)
+            #x = type(base)
             
             #Add new links to Redis
 
@@ -129,7 +129,8 @@ class SpiderRunner:
                 finish = finish + 250
                 i = i + 1
                 
-            file_name = base.replace("/","_").replace(":","-") + ".txt"
+            base_path = base.replace("/","_").replace(":","-")
+            file_name = base_path + ".txt"
             path_out = "/home/parallelspider/jobs/"
             file_path = path_out + file_name
             # Create mapper file (file name = base key)
@@ -151,16 +152,37 @@ class SpiderRunner:
             #port = self.redis_info["port"]
             #port = str(port)
 
+            print file_name
+            print base_path
+            print base
+
+            # Distributed mode
             cmds.append("dumbo start /home/parallelspider/ParallelSpider.py" \
                          " -input /HDFS/parallelspider/jobs/" + file_name + \
-                         " -output /HDFS/parallelspider/out/ " + file_name + \
+                         " -output /HDFS/parallelspider/out/" + base_path + \
                          " -file Parser.py" + \
-                         " -nummaptasks " + self.max_mappers + \
+                         " -nummaptasks " + str(self.max_mappers) + \
                          " -param redisInfo=" + \
                          "host:" + self.redis_info["host"] + \
-                         ",port:" + str(self.redis_info["port"]) + \
-                         #",base:" + base + \
+                         ",port:" + self.redis_info["port"] + \
+                         ",base:" + base + \
                          " -hadoop starcluster")
+
+            # Psuedo-distributed for testing
+            cmds.append("dumbo start /home/parallelspider/ParallelSpider.py" \
+                         " -input /home/parallelspider/jobs/" + file_name + \
+                         " -output /home/parallelspider/out/" + base_path + \
+                         " -file Parser.py" + \
+                         " -nummaptasks " + str(self.max_mappers) + \
+                         " -param redisInfo=" + \
+                         "host:" + self.redis_info["host"] + \
+                         ",port:" + self.redis_info["port"] + \
+                         ",base:" + base)
+
+            # uncomment 2, comment 1 for testing
+            #cmds.pop(1)
+            cmds.pop(2)
+
 
             #print cmds[0]
 
