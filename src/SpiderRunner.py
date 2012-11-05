@@ -19,6 +19,7 @@ import subprocess
 
 from datetime import datetime
 from optparse import OptionParser
+from types import *
 
 from Parser import *
 
@@ -88,7 +89,7 @@ class SpiderRunner:
             # Create base part of Redis key from timestamp and site name
             base = site + "::" + self.timestamp
             new_link_set = base + "::new_links"
-
+            x = type(base)
             
             #Add new links to Redis
 
@@ -128,30 +129,45 @@ class SpiderRunner:
                 finish = finish + 250
                 i = i + 1
                 
-            file_name = base.replace("/","_").replace(".","-")
+            file_name = base.replace("/","_").replace(":","-") + ".txt"
+            path_out = "/home/parallelspider/jobs/"
+            file_path = path_out + file_name
             # Create mapper file (file name = base key)
-            with open(file_name, "w") as mapper_file:
+            with open(file_path, "w+") as mapper_file:
                 i = 1
                 while i < self.max_mappers + 1:
                     mapper_file.write("mapper" + str(i) + "\n")
                     i = i + 1
 
             # Call ParallelSpider (MapReduce)
-            # switch to asynchronous
+            # must switch to asynchronous later for multiple sites
 
-            #cmds = []
-            #cmds.append('dumbo start /home/parallelspider/ParallelSpider.py \
-            #             -input /HDFS/parallelspider/' + base + ' ' + ' \
-            #             -output /HDFS/parallelspider/out/ ' + base + ' ' + '  \
-            #             -file Parser.py \
-            #             -nummaptasks ' + self.max_mappers + ' ' + ' \
-            #             -param redisInfo=host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379 \
-            #             -hadoop starcluster')
+            cmds = []
+
+            cmds.append("dumbo put " + file_path + \
+                        " /HDFS/parallelspider/jobs/" + file_name + \
+                        " -hadoop starcluster")
+
+            #port = self.redis_info["port"]
+            #port = str(port)
+
+            cmds.append("dumbo start /home/parallelspider/ParallelSpider.py" \
+                         " -input /HDFS/parallelspider/jobs/" + file_name + \
+                         " -output /HDFS/parallelspider/out/ " + file_name + \
+                         " -file Parser.py" + \
+                         " -nummaptasks " + str(self.max_mappers) + \
+                         " -param redisInfo=" + \
+                         "host:" + self.redis_info["host"] + \
+                         ",port:" + str(self.redis_info["port"]) + \
+                         ",base:" + base + \
+                         " -hadoop starcluster")
+
+            #print cmds[0]
 
             # run the commands
-            #for cmd in cmds:
-            #    print "Running %s" % cmd
-            #    subprocess.call(cmd, shell=True)
+            for cmd in cmds:
+                print "Running %s" % cmd
+                subprocess.call(cmd, shell=True)
 
 
 

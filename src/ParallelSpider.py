@@ -34,11 +34,14 @@ class Mapper():
                               port=int(self.redis_info["port"]), db=0)
 
         # temporary - hard code key name
-        base = 'http://www.foxnews.com/::2012-11-4-20-2'
+        #base = 'http://www.foxnews.com/::2012-11-4-20-2'
         #new_links = 'http://www.foxnews.com/::2012-11-4-10-10::new_links'
-        site = "http://www.foxnews.com/"
+        #site = "http://www.foxnews.com/"
 
+        
         # Create keys for Redis
+        base = self.redis_info["base"]
+        site, d, date = base.partition("::")
         new_links = base + "::new_links"
         processing = base + "::processing"
         finished = base + "::finished"
