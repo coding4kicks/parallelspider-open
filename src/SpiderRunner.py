@@ -7,9 +7,9 @@
     be run. Next, it sets up a redis data-structure server. The runner then
     initiates parallel spider, passing all required info.
 
-        ex.    python SpiderRunner.py
-    http://www.foxnews.com/ -r
-    host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379
+        ex. to call:    python SpiderRunner.py
+                        http://www.foxnews.com/ -r
+                        host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379
 
 """
 import sys
@@ -152,9 +152,9 @@ class SpiderRunner:
             #port = self.redis_info["port"]
             #port = str(port)
 
-            print file_name
-            print base_path
-            print base
+            #print file_name
+            #print base_path
+            #print base
 
             # Distributed mode
             cmds.append("dumbo start /home/parallelspider/ParallelSpider.py" \
@@ -179,7 +179,7 @@ class SpiderRunner:
                          ",port:" + self.redis_info["port"] + \
                          ",base:" + base)
 
-            # uncomment 1, comment 2 for testing
+            # uncomment 1, comment 2 for testing in psuedo distributed
             #cmds.pop(1)
             cmds.pop(2)
 
@@ -190,8 +190,6 @@ class SpiderRunner:
             for cmd in cmds:
                 print "Running %s" % cmd
                 subprocess.call(cmd, shell=True)
-
-
 
             # TEST REDIS
             #mem = r.smembers(new_link_set)
