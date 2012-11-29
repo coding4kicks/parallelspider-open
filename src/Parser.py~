@@ -2,18 +2,25 @@ import robotparser
 from bs4 import BeautifulSoup
 
 class Parser:
+
     """ 
-        Parser - parses a web page for liks to follow and any requested
+        Parser
+        
+        Parses a web page for liks to follow and any requested
         content.  Checks robots.txt for permission.
     """
 
     def __init__(self, site, tags):
         """ Initializes the parser
         
-            Input
-                site - site name to scrape
-                tags - html tags to retrieve content from                
-                *retrieves robots.txt*
+            Arguments:
+            site -- site name to scrape
+            tags -- html tags to retrieve content from                
+                
+            *retrieves robots.txt*
+
+            Returns:
+            output -- dictionary of output for each tag
         """
 
         self.site_url = site    # Site url received from the spider
