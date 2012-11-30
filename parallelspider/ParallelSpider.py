@@ -88,6 +88,7 @@ class Mapper():
 
         stuff_to_scrape = True
         link_count = 0 # Total links downloaded by all mappers
+        max_pages = int(self.redis_info["maxPages"]) # Total pages to scrape
 
         # here we go... yee hah
         while stuff_to_scrape:
@@ -98,6 +99,26 @@ class Mapper():
                 #(r.exists(new_links) == False) or (r.scard(new_links) < 1)):
             #    stuff_to_scrape = False
             #    break
+            still_links = r.exists(new_links)
+            msg = "z_stilllinks_" + str(still_links)
+            yield msg, 1
+
+            msg = str(max_pages)
+            msg = "z_maxPages_" + msg
+            yield msg, 1
+
+            # Update the total count
+            temp_count = r.get(count)
+            if temp_count:
+                link_count = int(temp_count)
+
+            # TEST
+            msg = "z_count_" + str(link_count)
+            yield msg, 1
+            
+            # Goes over by number of mappers
+            if link_count > max_pages:
+                break
 
             # Try to pop a link
             try:
@@ -208,16 +229,7 @@ class Mapper():
                 message = "Unable to finish processing: " + link
                 yield message, 1
                 continue          
-
-            link_count = int(r.get(count))
-            # TEST
-            msg = "z_count_" + str(link_count)
-            yield msg, 1
             
-            # Goes over by number of mappers
-            if link_count > 10:
-                break
-
         # Set 1 hour expirations on all keys
         hour = 60 * 60 # 60 seconds/minute * 60 minutes
         if r.exists(new_links): r.expire(new_links, hour)
