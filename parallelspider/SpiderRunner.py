@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-	spiderrunner - Downloads initial link set and runs parallelspider
+    spiderrunner - Downloads initial link set and runs parallelspider
 
     Downloads the first page for each given site and saves a number of links to 
     a txt file. The number of links saved is the number of mappers that will
@@ -27,7 +27,7 @@ import spiderparser
 
 class SpiderRunner(object):
     """
-    SpiderRunner - downloads initial links and runs parallelspider
+    Downloads initial links and runs parallelspider
 
     __init__ - constructor to initialize variables and create timestamp
     execute  - downloads the links and runs parallel spider for each site
@@ -163,24 +163,16 @@ class SpiderRunner(object):
                     mapper_file.write("mapper" + str(i) + "\n")
                     i = i + 1
 
-            # Call ParallelSpider (MapReduce)
-            # must switch to asynchronous later for multiple sites
-
+            # Put input file on HDFS and call parallelspider
+            # TODO: must switch to asynchronous for multiple sites
+            # and deal with notifying calling process when complete?
             cmds = []
-
             cmds.append("dumbo put " + file_path + \
                         " /HDFS/parallelspider/jobs/" + file_name + \
                         " -hadoop starcluster")
 
-            #port = self.redis_info["port"]
-            #port = str(port)
-
-            #print file_name
-            #print base_path
-            #print base
-
             # Distributed mode
-            cmds.append("dumbo start /home/parallelspider/ParallelSpider.py" \
+            cmds.append("dumbo start /home/parallelspider/parallelspider.py" \
                          " -input /HDFS/parallelspider/jobs/" + file_name + \
                          " -output /HDFS/parallelspider/out/" + base_path + \
                          " -file spiderparser.py" + \
@@ -193,7 +185,7 @@ class SpiderRunner(object):
                          " -hadoop starcluster")
 
             # Psuedo-distributed for testing
-            cmds.append("dumbo start /home/parallelspider/ParallelSpider.py" \
+            cmds.append("dumbo start /home/parallelspider/parallelspider.py" \
                          " -input /home/parallelspider/jobs/" + file_name + \
                          " -output /home/parallelspider/out/" + base_path + \
                          " -file spiderparser.py" + \
@@ -204,32 +196,25 @@ class SpiderRunner(object):
                          ",base:" + base + \
                          ",maxPages:" + str(self.max_pages))
 
-            # uncomment 1, comment 2 for testing in psuedo distributed
+            # Uncomment 1, comment 2 for testing in psuedo distributed
             #cmds.pop(1)
             cmds.pop(2)
 
-
-            #print cmds[0]
-
-            # run the commands
+            # Run the commands
             for cmd in cmds:
                 print "Running %s" % cmd
                 subprocess.call(cmd, shell=True)
 
-            # TEST REDIS
-            #mem = r.smembers(new_link_set)
-            #print mem
-
 
 def main():
-    """ Run program from the command line. """
+    """Run the program from the command line."""
 
     # Parse command line options and arguments.
     usage = "usage: %prog [options] <site1url,site2url,...>"
     parser = optparse.OptionParser(usage)
 
-    # Analysis info from the command line.
-    # Possibly add configuration file
+    # Analysis info from the command line???
+    # TODO: add configuration file instead
     parser.add_option(
             "-a", "-A", "--analysisInfo", action="store", dest="analysisInfo", 
             help="A comma separated list of analysis options.")
@@ -241,7 +226,7 @@ def main():
             help="Set maximum number of mappers. [default: %default]")
 
     # Redis info: host and port
-    # redo defaulat localhost?
+    # TODO: determine localhost and make default?
     parser.add_option(
             "-r", "-R", "--redisInfo", action="store",
             dest="redisInfo", help="Set Redis info.")
@@ -251,7 +236,6 @@ def main():
             "-t", "-T", "--maxPages", action="store",
             default=20, dest="maxPages",
             help="Set total/max pages to download. [default: %default]")
-
 
     # Argument is a comma separted list of site names
     (options, args) = parser.parse_args()
@@ -273,23 +257,25 @@ def main():
             key, delimiter, value = item.partition(':')
             analysis_info[key] = value
 
-    # Convert Redis info to Python Dictionary (keep default)
+    # Convert Redis info to a Python dictionary
+    # TODO: make argument if required or create default
     redis_info = {}
     temp_list = options.redisInfo.split(",")
     for item in temp_list:
         key, delimiter, value = item.partition(':')
         redis_info[key] = value
 
-    # Check max mappers is greater than 0
+    # Check that max_mappers is greater than 0
+    # TODO: make robust against float or string
     max_mappers = int(options.maxMappers)
     if max_mappers < 1:
         parser.error("maxMappers must be greater than 0")
 
     # Check total pages is greater than 0
+    # TODO: make robust against float or string
     max_pages = int(options.maxPages)
     if max_pages < 1:
         parser.error("maxPages must be greater than 0")
-
     
     #  Initialize and execute spider runner
     spider_runner = SpiderRunner(site_list, analysis_info, 

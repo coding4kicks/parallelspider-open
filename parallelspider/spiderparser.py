@@ -1,27 +1,30 @@
+"""
+spiderparser - parses web pages for parallelspider and spiderrunner
+
+Currently uses beautifulsoup and lxml.  
+"""
+
+import bs4
 import robotparser
-from bs4 import BeautifulSoup
 
-# make all classes inherit from object: see google python guide
-class Parser:
-
+class Parser(object):
     """ 
-        Parser
+    Parses a web page for requested content
         
-        Parses a web page for liks to follow and any requested
-        content.  Checks robots.txt for permission.
+    __init__ - Initializes site, tags, and checks robots.txt for permission.
+    run      - parses a page
+    get_links - returns the links found on the page
+    get_output - returns a dictionary of tags with their content
+    processlinks - makes all links absolute
     """
 
     def __init__(self, site, tags):
-        """ Initializes the parser
+        """ 
+        Initializes the parser, retrieves robots.txt
         
-            Arguments:
-            site -- site name to scrape
-            tags -- html tags to retrieve content from                
-                
-            *retrieves robots.txt*
-
-            Returns:
-            output -- dictionary of output for each tag
+        Arguments:
+        site -- name of site to scrape
+        tags -- html tags to retrieve content from                                
         """
 
         self.site_url = site    # Site url received from the spider
@@ -29,7 +32,8 @@ class Parser:
         self.output = {}        # Dictionary of output by tag
         self.tag_list = tags    # List of tags to search for content
 
-        if self.tag_list == None:
+        # Default tag list
+        if not self.tag_list:
             self.tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
 
         # Download robots.txt
@@ -38,16 +42,15 @@ class Parser:
         self.robots_txt.read()
 
     def run(self, doc):
-        """ Parses a web page 
+        """ 
+        Parses a web page 
         
-            Input
-                doc - an html document
+        Arguments
+        doc - the html document to parse
         """
             
         # Set up the beautifulsoup parser with lxml
-        # http://www.crummy.com/software/BeautifulSoup/
-        # http://lxml.de/
-        soup = BeautifulSoup(doc, "lxml")
+        soup = bs4.BeautifulSoup(doc, "lxml")
 
         #Initialize dictionary and find content
         for tag in self.tag_list:
