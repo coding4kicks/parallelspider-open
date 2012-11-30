@@ -1,23 +1,31 @@
-#!/usr/bin/env python
 """
-	Parallel Spider
+    parallelspider
 
-	Parallel Spider performs website analysis. The input is a document of 
-        web pages to download, each separated by a line.  For each page, a 
-        mapper will be called that both parses and analyzes the data.  The 
-        particular analysis to be performed is included in the input, along 
-        with information to connect to Redis, a data structure server used 
-        to maintain link state.
+    Parallel Spider performs website analysis. The input is a document of 
+    web pages to download, each separated by a line.  For each page, a 
+    mapper will be called that both parses and analyzes the data.  The 
+    particular analysis to be performed is included in the input, along 
+    with information to connect to Redis, a data structure server used 
+    to maintain link state.
 
-        * TODO: id mappers by incrementing a counter. *
-        * Use it to replace sharing temp keys *
+    * TODO: id mappers by incrementing a counter. *
+    * Use this id to replace sharing temp keys *
 """
+
 class Mapper():
+    """
+    Downloads and analyzes web pages on parallel computers
 
+    __init__ -- initializes redis info
+    __call__ -- downloads and analyzes pages with links from redis
+    """
     def __init__(self):
-        """ Parallel Spider Mapper Constructor
+        """ 
+        Initializes redis info
 
-            Takes in parameter for Redis information
+        Arguments:
+        param - dictionary passed by dumbo
+           redisInfo : host, port, base key, max mappers
         """
         import sys
                       
@@ -30,23 +38,29 @@ class Mapper():
             self.redis_info[key] = value
 
         # Kill if no Redis info for host
-        if self.redis_info['host'] == None:
+        if not self.redis_info['host']:
             sys.stderr.write('Must specify Redis host information! Please.')
             sys.exit(1)
 
-        # Default port
-        if self.redis_info['port'] == None:
+        # Set default port
+        if not self.redis_info['port']:
             redis_info['port'] = 6379
     
     
     def __call__(self, key, value):
-        """ Parallel Spider Mapper 
+        """ 
+        Performs parallel website downloading, parsing, and analysis 
         
-            Sets up Redis information.
-            Loops downloading pages, feeding them to
-            an analysis engine which emits info to
-            the Reducer.  Stops when no more new links
-            or the max pages has been reached."""
+        Arguments:
+        key -- not used
+        value -- not used
+
+        Sets up Redis information.
+        Loops downloading pages, feeding them to
+        an analysis engine which emits info to
+        the Reducer.  Stops when no more new links
+        or the max pages has been reached.
+       """
         
         import redis
         import urllib
@@ -73,7 +87,6 @@ class Mapper():
         parser = Parser(site, tag_list)
 
         stuff_to_scrape = True
-        #ti = 0 #TEST
 
         cnt = 0 # Holder for counter
 
