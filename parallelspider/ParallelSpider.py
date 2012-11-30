@@ -79,7 +79,7 @@ class Mapper():
         temp1 = base + "::temp1"                # temp keys for set ops
         temp2 = base + "::temp2"
 
-        # Hard code tags - later make variable of Analysis Info
+        # TODO: hard code tags - later make variable of Analysis Info
         tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
 
         # Set up Parser
@@ -87,10 +87,9 @@ class Mapper():
         parser = Parser(site, tag_list)
 
         stuff_to_scrape = True
+        link_count = 0 # Total links downloaded by all mappers
 
-        cnt = 0 # Holder for counter
-
-        # here we go...
+        # here we go... yee hah
         while stuff_to_scrape:
 
             # TODO: Fix - currently hardcoded to stop at particular count on line 212 
@@ -139,18 +138,11 @@ class Mapper():
             # Try to process / emit information
             try:
             
-                # TEST
-                #yield "z_max_pages", int(self.redis_info["maxPages"])
-                # TEST - see links being processed
-                #yield link, 1
 
                 # Simple word count of all tags' content
                 for tag in tag_list:
                     for word in output[tag].split():
                         yield word, 1
-
-                #for word in value.split():
-                #    yield word, 1
 
             # Alert that can't process info
             except:
@@ -183,7 +175,7 @@ class Mapper():
                 if remainder > 0:   # Reminder: crack babies are sad.
                     breaks = breaks + 1
 
-                # Set initial indices
+                # Initialize indices based upon batch size
                 start = 0
                 finish = 250
                 i = 0
@@ -217,13 +209,13 @@ class Mapper():
                 yield message, 1
                 continue          
 
-            cnt = int(r.get(count))
+            link_count = int(r.get(count))
             # TEST
-            msg = "z_count_" + str(cnt)
+            msg = "z_count_" + str(link_count)
             yield msg, 1
             
             # Goes over by number of mappers
-            if cnt > 10:
+            if link_count > 10:
                 break
 
         # Set 1 hour expirations on all keys
