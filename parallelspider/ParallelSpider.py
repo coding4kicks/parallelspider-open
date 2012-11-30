@@ -90,34 +90,18 @@ class Mapper():
         link_count = 0 # Total links downloaded by all mappers
         max_pages = int(self.redis_info["maxPages"]) # Total pages to scrape
 
-        # here we go... yee hah
+        # Here we go... yee hah
         while stuff_to_scrape:
 
-            # TODO: Fix - currently hardcoded to stop at particular count on line 212 
-            # Check conditions: still pages to download and not at max
-            #if (r.get(count) >= self.redis_info["maxPages"]): #or
-                #(r.exists(new_links) == False) or (r.scard(new_links) < 1)):
-            #    stuff_to_scrape = False
-            #    break
-            still_links = r.exists(new_links)
-            msg = "z_stilllinks_" + str(still_links)
-            yield msg, 1
-
-            msg = str(max_pages)
-            msg = "z_maxPages_" + msg
-            yield msg, 1
-
-            # Update the total count
+            # Update total count and check still links to download
             temp_count = r.get(count)
             if temp_count:
                 link_count = int(temp_count)
-
-            # TEST
-            msg = "z_count_" + str(link_count)
-            yield msg, 1
+            still_links = r.exists(new_links)
             
-            # Goes over by number of mappers
-            if link_count > max_pages:
+            # Check conditions and break if done
+            # Goes over by the number of mappers?
+            if link_count > max_pages or not still_links:
                 break
 
             # Try to pop a link
@@ -135,7 +119,6 @@ class Mapper():
                 message = "Unable to pop a link"
                 yield message, 1
                 break
-
 
             # Try to download and parse the page
             try:
