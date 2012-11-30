@@ -7,10 +7,11 @@
     be run? Next, it sets up a redis data-structure server. The runner then
     initiates a ParallelSpider, passing all required info.
 
-        ex. to call:    python SpiderRunner.py
-                        http://www.foxnews.com/ -r
-                        host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379
-
+        ex. to call:    
+        python SpiderRunner.py
+        http://www.foxnews.com/ 
+        -r host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379
+        -m 3
 """
 
 import sys
@@ -18,6 +19,7 @@ import redis
 import urllib
 import datetime
 import optparse
+import contextlib
 import subprocess
 
 import spiderparser
@@ -93,11 +95,10 @@ class SpiderRunner(object):
                               port=int(self.redis_info["port"]), db=0)
 
         # Download initial page for each site
-        # TODO: can make asynchronous to speed things up for multiple sites
+        # TODO: make asynchronous to speed things up for multiple sites
         for site in self.site_list:
-            f = urllib.urlopen(site)
-            data = f.read()
-            f.close
+            with contextlib.closing(urllib.urlopen(site)) as f:
+                data = f.read()
             
             # Security for false site name in eval
             # ??? could still breach with fake website ???
@@ -112,24 +113,19 @@ class SpiderRunner(object):
             output = parser.get_output() # TEST only
 
             # Create base part of Redis key from timestamp and site name
-            base = site + "::" + self.timestamp
-            new_link_set = base + "::new_links"
-            #x = type(base)
+            base = '%s::%s' % (site, self.timestamp)
+            new_link_set = '%s::new_links' % (base)
             
-            #Add new links to Redis
-
-            # Attempting to process as batch vice adding 1 at a time
-            # Can only add 255 elements max at a time
-            size = len(links)
-            #print size
+            # Add new links to Redis
+            # Process as batch vice adding 1 at a time (max 255)
 
             # Calculate number of breaks
+            size = len(links)
             breaks, remainder = divmod(size, 250)
             if remainder > 0:
                 breaks = breaks + 1
-            #print breaks
     
-            # Set initial indices
+            # Initialize indices based upon batch size
             start = 0
             finish = 250
             i = 0
@@ -137,29 +133,30 @@ class SpiderRunner(object):
             while i < breaks:
                 links_part = links[start:finish]
 
-                #Add single quotes around each element in list: map
-                #   Then combine elements to form a string for eval: join
+                # map: add single quotes around each element in list
+                # join: combine elements to form a string for eval
                 link_string = (',').join(map(lambda x: "'" + x + "'",
                                              links_part))
 
-                # ??? SECURITY ??? - site name is user provided
+                # Add links, ??? SECURITY ??? - site name is user provided
                 eval("r.sadd('" + new_link_set + "'," + link_string + ")") 
 
-                # Set key expiration
-                hour = 60 * 60 # 60 seconds/minute * 60 minutes
+                # Set key expiration to 1 hour
+                hour = 60 * 60
                 r.expire(new_link_set, hour)
 
-                # Increment indices
+                # Increment all indices
                 start = start + 250
                 finish = finish + 250
                 i = i + 1
-                
+              
+            # Create valid file name for output  
             base_path = base.replace("/","_").replace(":","-")
-            file_name = base_path + ".txt"
+            file_name = '%s.txt' % (base_path)
             path_out = "/home/parallelspider/jobs/"
             file_path = path_out + file_name
 
-            # Create mapper file (file name = base key)
+            # Create input file: file name equals base key
             with open(file_path, "w+") as mapper_file:
                 i = 1
                 while i < self.max_mappers + 1:
