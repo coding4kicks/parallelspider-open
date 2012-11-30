@@ -50,7 +50,7 @@ class Mapper():
         
         import redis
         import urllib
-        from Parser import Parser
+        from spiderparser import Parser
 
         # Connect to Redis
         r = redis.StrictRedis(host=self.redis_info["host"],

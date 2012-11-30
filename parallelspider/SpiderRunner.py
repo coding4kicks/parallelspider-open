@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-	Spider Runner
+	spiderrunner - Downloads initial link set and runs parallelspider
 
-    Downloads the first page of the given site and saves a number of links to 
+    Downloads the first page for each given site and saves a number of links to 
     a txt file. The number of links saved is the number of mappers that will
     be run? Next, it sets up a redis data-structure server. The runner then
     initiates a ParallelSpider, passing all required info.
@@ -12,34 +12,41 @@
                         host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379
 
 """
+
 import sys
 import redis
 import urllib
+import datetime
+import optparse
 import subprocess
 
-from datetime import datetime
-from optparse import OptionParser
-from types import *
+import spiderparser
 
-from Parser import *
 
-class SpiderRunner:
+class SpiderRunner(object):
+    """
+    SpiderRunner - downloads initial links and runs parallelspider
+
+    __init__ - constructor to initialize variables and create timestamp
+    execute  - downloads the links and runs parallel spider for each site
+    main     - executes the program from the command line
+    """
 
     def __init__(self, site_list, analysis_info, redis_info, 
                  max_mappers, max_pages):
         """ 
-        SpiderRunner Constructor
+        Initializes inputs and creates a timestamp
 
         Arguments:
         site_list       --  a list of urls to crawl 
         analysis_info   --  tags and info to analyze
-        redis_info      --  location of redis
-        max_mappers     --  number of mappers to controls concurrency
+        redis_info      --  host location and port of redis
+        max_mappers     --  number of mappers to control concurrency
         max_pages       --  max number of pages to download
 
         Returns:
-        data_location   -  location in S3 data is saved to
-        must somehow communciate this to calling process
+        data_location   --  location in S3 data is saved to
+        ### must somehow communciate this to calling process
 
         max_mappers and max_pages default to 1 and 20 respectively.  This is
         for the free case.  Otherwise max_mappers should depend upon system
@@ -58,25 +65,28 @@ class SpiderRunner:
 
         # Create a time stamp (no querries should be issued in the same second
         # for the same website - default to cache??? refactor?)
-        d = datetime.now()
-        (y, m, d, h, mn) = (str(d.year), str(d.month), str(d.day), 
-                            str(d.hour), str(d.minute))
-        self.timestamp = y + "-" + m + "-" + d + "-" + h + "-" + mn
-    
+        d = datetime.datetime.now()
+        self.timestamp = '%d-%d-%d-%d-%d' % (d.year, d.month, d.day, 
+                d.hour, d.minute)
+        print self.timestamp
            
     def execute(self):
         """
-        Sets-up and calls ParallelSpider
-
-        Downloads the first page of all the sites.
-        Adds each site's links to a Redis set of new links,
-        with a key based upon the site's name and a timestamp.
+        Downloads the first page and calls parallelspider
         
+        Downloads the first page of links and saves them to redis,
+        Then calls parallelspider, passing the following information:
+          parallelspider.py location
+          input file location (
+          location to save output file
+          spiderparser.py 
+          max number of mappers to start
+          redis info: host, port, and base key (site name + timestamp)
+          max number of pages to download
+   
+        TODO: stop passing spiderparser.py and save on nodes instead,
+        Then pass a file with all the required analysis info
         """
-        # TEST
-        #print self.timestamp
-        #print self.site_list  # TEST only
-        #print self.redis_info
 
         # Connect to Redis
         r = redis.StrictRedis(host=self.redis_info["host"],
@@ -91,12 +101,12 @@ class SpiderRunner:
             
             # Security for false site name in eval
             # ??? could still breach with fake website ???
-            if data == None:
+            if data is None:
                 break
 
             # Hard code tags - later make variable of Analysis Info
             tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
-            parser = Parser(site, tag_list)
+            parser = spiderparser.Parser(site, tag_list)
             parser.run(data)
             links = parser.get_links()
             output = parser.get_output() # TEST only
@@ -176,7 +186,7 @@ class SpiderRunner:
             cmds.append("dumbo start /home/parallelspider/ParallelSpider.py" \
                          " -input /HDFS/parallelspider/jobs/" + file_name + \
                          " -output /HDFS/parallelspider/out/" + base_path + \
-                         " -file Parser.py" + \
+                         " -file spiderparser.py" + \
                          " -nummaptasks " + str(self.max_mappers) + \
                          " -param redisInfo=" + \
                          "host:" + self.redis_info["host"] + \
@@ -189,7 +199,7 @@ class SpiderRunner:
             cmds.append("dumbo start /home/parallelspider/ParallelSpider.py" \
                          " -input /home/parallelspider/jobs/" + file_name + \
                          " -output /home/parallelspider/out/" + base_path + \
-                         " -file Parser.py" + \
+                         " -file spiderparser.py" + \
                          " -nummaptasks " + str(self.max_mappers) + \
                          " -param redisInfo=" + \
                          "host:" + self.redis_info["host"] + \
@@ -219,7 +229,7 @@ def main():
 
     # Parse command line options and arguments.
     usage = "usage: %prog [options] <site1url,site2url,...>"
-    parser = OptionParser(usage)
+    parser = optparse.OptionParser(usage)
 
     # Analysis info from the command line.
     # Possibly add configuration file
