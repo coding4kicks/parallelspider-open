@@ -22,7 +22,8 @@ class TestMrFeynman(unittest.TestCase):
         """Initialize the brains"""
 
         # Test with path: ford, fox
-        # Test with subdomain
+        # Test with subdomain: nasa
+        ### Test various configurations of config
         self.site_brains = {  
             "cnn": Brain("http://www.cnn.com/"),
             "dhs": Brain("http://www.dhs.gov/"),
