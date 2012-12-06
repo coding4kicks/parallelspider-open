@@ -1,0 +1,483 @@
+<!DOCTYPE  HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd"><html xmlns:og="http://ogp.me/ns#"><head><META http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>NASA - 
+Home
+</title><!--SYSTEM DEFINED METADATA--><META content="IE=7" http-equiv="X-UA-Compatible"><META NAME="CMS Document Id" CONTENT="110186"><META NAME="dc.title" CONTENT="NASA - Home"><META NAME="dc.format" CONTENT="text/html"><META NAME="dc.date.modified" CONTENT="2012-07-05"><META NAME="dc.language" CONTENT="en"><META NAME="dc.publisher" CONTENT="Brian Dunbar"><META NAME="dc.publisher.tool" CONTENT="eTouch Digital Asset Management(CMS)"><META NAME="dc.description" CONTENT=""><META NAME="dc.identifier" CONTENT="http://www.nasa.gov/home/index.html"><!--USER DEFINED METADATA--><META NAME="dc.subject" CONTENT=""><meta property="og:title" content="NASA - Home"><meta property="og:description" content="NASA.gov brings you images, videos and interactive features from the unique perspective of America&rsquo;s space agency.  Get the latest updates on NASA missions, subscribe to blogs, RSS feeds and podcasts, watch NASA TV live, or simply read about our mission to pioneer the future in space exploration, scientific discovery and aeronautics research."><META NAME="description" CONTENT="NASA.gov brings you images, videos and interactive features from the unique perspective of America&rsquo;s space agency.  Get the latest updates on NASA missions, subscribe to blogs, RSS feeds and podcasts, watch NASA TV live, or simply read about our mission to pioneer the future in space exploration, scientific discovery and aeronautics research."><meta content="54971236771" property="fb:page_id"><meta content="11348282" property="twitter:account_id"><title>NASA - 
+Home
+</title><!--Standard Includes--><script src="/js/196918main_browser_message.js" type="text/javascript" language="javascript"></script>
+
+
+<script type="text/javascript">
+	/**
+	 *  Browser Detect Class
+	 */
+	function detectBrowserClass(modern){
+		var nBrowser = navigator.appName;
+		var nVersion = navigator.appVersion;
+		var nAgent = navigator.userAgent;
+		this.version;
+		this.browser;
+		this.os;
+		this.modern = (typeof modern == 'object') == true ? modern:0;
+		if(nVersion.indexOf('Windows') !=-1){
+		     this.os = 'win';
+		}else{
+		    this.os = (nVersion.indexOf('Macintosh') !=-1) == true ? 'mac':'other';
+		}
+		if (nAgent.indexOf('Opera') !=-1){
+		    var strIndex = nAgent.indexOf('Opera');
+		    this.version = nAgent.substring((strIndex + 6), (strIndex + 9));
+		    this.browser = 'opera';
+		}
+		else if (nAgent.indexOf('Firefox') !=-1){
+		    var strIndex = nAgent.indexOf('Firefox');
+		    this.version = nAgent.substring((strIndex + 8), (strIndex + 11));
+		    this.browser = 'firefox';
+		}
+		else if(nAgent.indexOf('MSIE') !=-1){
+		    var strIndex = nAgent.indexOf('MSIE');
+		    this.version = nAgent.substring((strIndex + 5), (strIndex + 8));
+		    this.browser = 'ie';
+		}
+		else if (nAgent.indexOf('Safari') !=-1){
+		     if (nAgent.indexOf('Version') !=-1){
+		          var strIndex = nAgent.indexOf('Version')
+		          this.version = nAgent.substring((strIndex + 8), (strIndex + 11))
+		     }else{
+		          this.version = 2;
+		     }
+		this.browser = 'safari';
+		}
+		else if (nAgent.indexOf('Netscape') !=-1){
+		     var strIndex = nAgent.indexOf('Netscape');
+		     this.version = nAgent.substring((strIndex + 9), (strIndex + 12));
+		     this.browser = 'netscape';
+		}else{
+		     this.browser = nBrowser.toLowerCase();
+		     this.version = null;
+		}
+		this.whichBrowser = function (){ return this.browser; }
+		this.whichVersion = function (){ return this.version; }
+		this.whichOS = function (){	return this.os; }
+		this.getInfo = function (){
+		     var info = "Browser name: " + nBrowser + "<br />" +
+		     "Browser version: "+ nVersion + "<br />" +
+		     "User Agent: " + nAgent;
+		      return info;
+		}
+		this.modernBrowser = function (){
+		     var isModern = false;
+		     if(typeof(this.modern[this.browser])=='number' || this.version === null){
+		     isModern = ( this.modern[this.browser] <= this.version || this.version === null ) == true ? true :0;
+		}
+		return isModern;
+		}
+		}
+		// Instantiate browser detect
+		var detectBrowser = new detectBrowserClass({
+		      'opera': 9,
+		      'safari': 2,
+		      'firefox': 1.5,
+		      'ie': 6
+		});			
+                                /* Support legacy browsers*/
+		if(detectBrowser.modernBrowser() == true){
+                                     var css = '<link href="/css/207071main_allpages.css" rel="stylesheet" type="text/css" />';
+                                 if(detectBrowser.whichBrowser()=='firefox'){
+			 css= css + '<link href="/css/207947main_etouch_firefox.css" rel="stylesheet" type="text/css" />';
+			 }
+
+
+		document.write(css);
+		}else{
+		document.write(legacyMsg);
+		}
+
+</script>
+
+
+<link type="text/css" rel="stylesheet" href="/css/207308main_allmodules_homepage.css"><script language="javascript" type="text/javascript" src="/templateimages/redesign/browser/js/conditionalBrowser.js"></script><script src="/js/191731main_prototype.js" type="text/javascript" language="javascript"></script><script src="/js/191696main_builder.js" type="text/javascript" language="javascript"></script><script src="/js/191704main_effects.js" type="text/javascript" language="javascript"></script><script src="/js/191701main_dragdrop.js" type="text/javascript" language="javascript"></script><script src="/js/191738main_slider.js" type="text/javascript" language="javascript"></script><script src="/js/191739main_sound.js" type="text/javascript" language="javascript"></script><script src="/js/191698main_controls.js" type="text/javascript" language="javascript"></script><script src="/js/194940main_RoundedMorph.js" type="text/javascript" language="javascript"></script><script src="/js/191745main_transitions.js" type="text/javascript" language="javascript"></script><script src="/js/191713main_global.js" type="text/javascript" language="javascript"></script><script src="/js/191734main_ScrollRegion.js" type="text/javascript" language="javascript"></script><script src="/js/191730main_PrettyCounter.js" type="text/javascript" language="javascript"></script><script src="/js/191737main_SkinnedSelect.js" type="text/javascript" language="javascript"></script><script src="/js/191695main_Blinds.js" type="text/javascript" language="javascript"></script><script src="/js/194933main_FloatingInfoClass.js" type="text/javascript" language="javascript"></script><script src="/js/191742main_Tabs.js" type="text/javascript" language="javascript"></script><script src="/js/191702main_DropDownMenu.js" type="text/javascript" language="javascript"></script><script src="/js/207309main_club1_homepage.js" type="text/javascript" language="javascript"></script><script src="/js/194938main_may-common_rd.js" type="text/javascript" language="javascript"></script><script src="/js/4564main_index.js" type="text/javascript" language="javascript"></script><script src="/js/196917main_flash_rd.js" type="text/javascript" language="javascript"></script><script src="/js/207088main_club2.js" type="text/javascript" language="javascript"></script><script src="/js/202888main_plugindemandtv_new.js" type="text/javascript" language="javascript"></script><script language="javascript" type="text/javascript" src="/js/445945main_jquery-1.4.2.min.js"></script><script>
+jQuery.noConflict();
+</script><script src="/js/327437main_nasaHome.js" type="text/javascript" language="javascript"></script><script src="/js/359270main_nasaupcomingevents.js" type="text/javascript" language="javascript"></script><script src="/js/376043main_nasaImageRotater.js" type="text/javascript" language="javascript"></script><script src="/js/478910main_UnPacked.js" type="text/javascript" language="javascript"></script><script src="/js/2605main_triggerParams.js" type="text/javascript" language="javascript"></script><script src="/js/2606main_stdLauncher.js" type="text/javascript" language="javascript"></script><script type="text/javascript">Poll();</script><script src="/js/196887main_externalsource_header.js" type="text/javascript" language="javascript"></script></head><body><!--No Script Include starts here-->
+<!--googleoff: snippet-->
+<noscript>
+       <center>
+	<div class="site_errors">
+		<div class="floatType_site_error_top"></div>
+		<div class="floatType_site_error">
+		          <table summary="layout table">
+ 			<tr>
+			   <td bgcolor="#000000">
+			       <font color="#ffffff">
+				<h2><img src="/templateimages/redesign/modules/overlay/site_error.gif" 				  title="Site Error" alt="Site Error"/>There's a problem with your browser or settings.
+                                                                </h2>
+			       </font>
+			      <font color="#ffffff">
+			            <p>Your browser or your browser's settings are not supported. To get the 						   best experience possible, please download a compatible browser. If you 						   know your browser is up to date, you should check to ensure that 
+                                                                   javascript is enabled.
+ 			            </p>
+			      </font>
+ 		            <p><a target="_blank" href="/home/How_to_enable_Javascript.html">&rsaquo; Learn How</a></p>
+			    </td>
+			</tr>
+		          </table>
+		</div>
+		<div class="floatType_site_error_bottom"></div>
+	</div>
+        </center>
+</noscript>
+<!--googleon: snippet-->
+<!--No Script Include ends here--><!--Content Body Starts Here--><div class="content_body"><div class="top"><script src="/js/194928main_ShowRSS.js" type="text/javascript" language="javascript"></script><input value="" id="curr_rssurl" type="hidden"><!-- Skip navigation link --><div class="skiplink"><a href="#maincontent">Follow this link to skip to the main content</a></div><div id="top_header" class="top_header"><div class="header"><h1><a class="nasa_logo" href="/home/index.html"><span class="hide">NASA - National Aeronautics and Space Administration</span></a></h1><div id="header_form"></div><script language="javascript" type="text/javascript">
+		var search_list = [   ];
+                             </script><script>createLoginForm();</script><script>createSearchForm();</script></div><div class="dropper 74" id="main-nav"><script type="text/javascript">
+             addMenuSupport();
+     </script></div></div><div class="top_audience"><ul class="audiences_nav"><li><strong>For Public</strong><span class="light_grey">&#160;&#160;&#160;|&#160;&#160;&#160;</span></li><li><a href="/audience/foreducators/index.html" class="">For Educators</a><span class="light_grey">&#160;&#160;&#160;|&#160;&#160;&#160;</span></li><li><a href="/audience/forstudents/index.html" class="">For Students</a><span class="light_grey">&#160;&#160;&#160;|&#160;&#160;&#160;</span></li><li><a href="/audience/formedia/index.html" class="">For Media</a></li><li id="right_menu"><ul id="utilities_nav"><li><span class="hide"><form method="post" target="myNewWin" name="emailForm" action="http://mynasa.nasa.gov/portal/util/email/nasa_emailform_2007.jsp"><input value="http://www.nasa.gov/home/index.html" id="url" name="url" type="hidden"><input value="Home" id="titleUrl" name="titleUrl" type="hidden"><input value="Home" id="promoTitle" name="promoTitle" type="hidden"><input value="" id="promoDate" name="promoDate" type="hidden"><input value="asan" id="flag" name="flag" type="hidden"><input value="" id="leaderSentence" name="leaderSentence" type="hidden"><input value="110186" id="documentId" name="documentId" type="hidden"></form></span><a class="icons_black icon_send" href="javascript:submitPopUpEmail();">Send</a></li><li><span class="skiplinklogin"><a href="javascript:openUserPref(%22http://www.addthis.com/bookmark.php?u508=true&username=addthisforshare&url=http://www.nasa.gov/home/index.html&title=Home%22)" id="skipLinkShare">Follow this link to Share This Page</a></span><div class="addthis_toolbox"></div><a href="#" class="addthis_button_compact myOverlayBookmark bookmark bottom null icons_black icon_share">Share</a></li></ul></li></ul></div></div><!-- Hidden skip navigation anchor --><a name="maincontent"></a><div class="box_952_cap"><!--Nasa Upcoming Events Collection Starts-->
+<!--Nasa Upcoming Events Collection Starts--> <div id="nasa_coming_up_snippet"> <img id="nasa_upcoming_events_spinner" alt="Spinner" title="Spinner" src="/templateimages/redesign/global/rssloadindicator.gif" /> <div class="nasaupcomingevents" > <div class="nasaupcomingeventsdiv1"> <div class="nasaupcomingevents_heading"> EVENTS: </div> <div id="nasaupcomingeventsprevnextimages" class="nasaupcomingevents_prevnextimages"> <div class="nasaupcomingevents_previmage"> <img id="nasa_upcomingevents_img1" class="nasa_upcomingevents_images nasa_upcomingevents_image1 " src="/templateimages/redesign/home/topstories/event_left.gif" alt="Previous" title="Previous" onclick="javascript:prevNASAUpcomingEvent(); return false;" /> </div> <div class="nasaupcomingevents_nextimage" > <img id="nasa_upcomingevents_img2" class="nasa_upcomingevents_images nasa_upcomingevents_image2 " src="/templateimages/redesign/home/topstories/event_right.gif" alt="Next" title="Next" onclick="javascript:nextNASAUpcomingEvent(); return false;" /> </div> </div> </div> <div class="hide" id="nasa_upcoming_events"></div> </div> <script language="javascript" type="text/javascript"> var nasaupcomingeventsxml = "/home/nasa_upcoming_events.xml"; var nasaupcomingeventsitems=''; new Ajax.Updater('nasa_upcoming_events',nasaupcomingeventsxml, { method:'get', onSuccess: function(transport) { $('nasa_upcoming_events_spinner').hide(); processNASAUpcomingEvents(transport.responseXML,nasaupcomingeventsitems); }, onFailure: function() { $('nasa_coming_up_snippet').hide(); } }); </script> </div> <!--Nasa Upcoming Events Collection Ends-->
+
+
+<!--Nasa Upcoming Events Collection Ends--><div class="top_body_cap"></div><div class="top_body"><div id="feature-events-container"><div class="mainGallery"><div id="carouselBig"><!-- Collection Body starts -->
+<!-- Item 1 starts --><div style="display:none;" class="set">
+<h2>
+<a href="/mission_pages/messenger/media/PressConf20121129.html">New Evidence for Water Ice at Mercury's Poles</a>
+</h2>
+<div class="imgImage">
+<a href="/mission_pages/messenger/media/PressConf20121129.html"><IMG WIDTH="360" ALT="Left: A mosaic of MESSENGER images of Mercury's North Polar Region. Right: Permanently shadowed polar craters." TITLE="Left: A mosaic of MESSENGER images of Mercury's North Polar Region. Right: Permanently shadowed polar craters." SRC="/images/content/709577main_messenger_blind_360.jpg" HEIGHT="225" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="imgCaption">
+<p><br />New observations by the MESSENGER spacecraft provide compelling support for the long-held hypothesis that Mercury harbors abundant water ice and other frozen volatile materials in its permanently shadowed polar craters. <br /><br />Data indicate the ice is buried beneath an unusually dark material across most of the deposits, areas where temperatures are a bit too warm for ice to be stable at the surface itself.</p>
+</div>
+<div class="clear"></div>
+</div>
+<!-- Item 1 Ends --><!-- Item 2 starts --><div style="display:none;" class="set">
+<h2>
+<a href="/topics/earth/features/lake_vida_microbes.html">Researchers Find Ancient Microbes in Antarctica</a>
+</h2>
+<div class="imgImage">
+<a href="/topics/earth/features/lake_vida_microbes.html"><IMG WIDTH="360" ALT="Lake Vida in Antarctica. Credit: NASA" TITLE="Lake Vida in Antarctica. Credit: NASA" SRC="/images/content/710458main_lake_vida_360.jpg" HEIGHT="225" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="imgCaption">
+<p><br />In Antarctica's remote Lake Vida, nearly 65 feet beneath the icy surface, scientists from NASA, the Desert Research Institute in Reno, Nev., the University of Illinois at Chicago, and nine other institutions, have uncovered a community of bacteria. This discovery of life existing in one of Earth's darkest, saltiest and coldest habitats helps increase our limited knowledge of how life can survive in extreme environments on our own planet and beyond. <br /><br /></p>
+</div>
+<div class="clear"></div>
+</div>
+<!-- Item 2 Ends --><!-- Item 3 starts --><div style="display:none;" class="set">
+<h2>
+<a href="/mission_pages/msl/news/msl20121129.html">Update Set About Curiosity Mars Rover</a>
+</h2>
+<div class="imgImage">
+<a href="/mission_pages/msl/news/msl20121129.html"><IMG WIDTH="360" ALT="MSL Rover" TITLE="MSL Rover" SRC="/images/content/668237main_msl_rover360.jpg" HEIGHT="225" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="imgCaption">
+<p><br />NASA will provide a Curiosity update on Monday, <br /> Dec. 3 at noon EST, at the American Geophysical Union. Rumors of major new findings at this early stage are incorrect. <br /><br />The news conference will discuss Curiosity's use of instruments to investigate a drift of sandy soil. Audio and visuals from the briefing will be available via UStream.<br /> <br /></p>
+<p>&nbsp;<a href="/mission_pages/msl/news/msl20121129.html">&rsaquo;&nbsp;Image Gallery</a>
+</p>
+<p>&nbsp;<a href="http://mars.jpl.nasa.gov/msl/multimedia/raw/">&rsaquo;&nbsp;Raw Images</a>
+</p>
+</div>
+<div class="clear"></div>
+</div>
+<!-- Item 3 Ends --><!-- Item 4 starts --><div style="display:none;" class="set">
+<h2>
+<a href="/mission_pages/Grace/news/grace20121129.html">Ice Sheet Loss at Poles Increasing, Study Finds</a>
+</h2>
+<div class="imgImage">
+<a href="/mission_pages/Grace/news/grace20121129.html"><IMG WIDTH="360" ALT="The midnight sun casts a golden glow on an iceberg and its reflection in Disko Bay, Greenland. Much of Greenland's annual ice mass loss occurs through calving of icebergs such as this. Image credit: Ian Joughin, University of Washington" TITLE="The midnight sun casts a golden glow on an iceberg and its reflection in Disko Bay, Greenland. Much of Greenland's annual ice mass loss occurs through calving of icebergs such as this. Image credit: Ian Joughin, University of Washington" SRC="/images/content/709705main_ice_sheet_360.jpg" HEIGHT="225" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="imgCaption">
+<p><br />An international team of experts supported by NASA and the European Space Agency has combined data from multiple satellites and aircraft to produce the most comprehensive and accurate assessment to date of ice sheet losses in Greenland and Antarctica and their contributions to sea level rise.<br /><br />These ice sheets are losing more than three times as much ice each year as they were in the 1990s. About two-thirds of the loss is coming from Greenland, the rest from Antarctica.<br /></p>
+</div>
+<div class="clear"></div>
+</div>
+<!-- Item 4 Ends --><!-- Item 5 starts --><div style="display:none;" class="set">
+<h2>
+<a href="http://nasaweb.ideascale.com/">Call for Feedback as We Prepare the Next NASA.gov</a>
+</h2>
+<div class="imgImage">
+<a href="http://nasaweb.ideascale.com/"><IMG WIDTH="360" ALT="IdeaScale Forum for NASA.gov" TITLE="IdeaScale Forum for NASA.gov" SRC="/images/content/707633main_ideascale360.jpg" HEIGHT="225" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="imgCaption">
+<p><br />We are starting on the next version of what NASA.gov looks like and want to know what you think. <br /><br />Do you like something you've seen? Is something missing? How do you interact with NASA online? Where else do you get your NASA news from? We have set up an online forum at Ideascale to take your feedback. You can offer ideas of your own or comment and vote on others' suggestions. We will take all the data and do some prototyping, then see what you think.</p>
+</div>
+<div class="clear"></div>
+</div>
+<!-- Item 5 Ends -->
+
+<!-- Collection Body ends --></div><div style="width:710px;height:112px;overflow:hidden;padding:0px 0px 0px 10px;" id="navi-container"><div style="float:left;"><ul style="padding-left:2px;padding-right:0px" class="gallerythumb" id="carouselThumb"><!-- Collection Body starts -->
+<!-- Item 1 starts --><li>
+<div class="thumb">
+<img src="/templateimages/redesign/home/topstories/active_item.png" height="12" width="41"></div>
+<div class="inactive_image">
+<a class="navi" href="javascript:void(0);"><IMG WIDTH="100" ALT="Left: A mosaic of MESSENGER images of Mercury's North Polar Region. Right: Permanently shadowed polar craters." TITLE="Left: A mosaic of MESSENGER images of Mercury's North Polar Region. Right: Permanently shadowed polar craters." SRC="/images/content/709579main_messenger_blind_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="text">
+<a title="New Evidence for Water Ice at Mercury's Poles" href="/mission_pages/messenger/media/PressConf20121129.html">Mercury Water Ice</a>
+</div>
+</li>
+<!-- Item 1 Ends --><!-- Item 2 starts --><li>
+<div class="thumb">
+<img src="/templateimages/redesign/home/topstories/active_item.png" height="12" width="41"></div>
+<div class="inactive_image">
+<a class="navi" href="javascript:void(0);"><IMG WIDTH="100" ALT="Lake Vida in Antarctica. Credit: NASA" TITLE="Lake Vida in Antarctica. Credit: NASA" SRC="/images/content/710460main_lake_vida_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="text">
+<a title="Researchers Find Ancient Microbes in Antarctica" href="/topics/earth/features/lake_vida_microbes.html">Ancient Microbes</a>
+</div>
+</li>
+<!-- Item 2 Ends --><!-- Item 3 starts --><li>
+<div class="thumb">
+<img src="/templateimages/redesign/home/topstories/active_item.png" height="12" width="41"></div>
+<div class="inactive_image">
+<a class="navi" href="javascript:void(0);"><IMG WIDTH="100" ALT="This artist's concept features NASA's Mars Science Laboratory Curiosity rover, a mobile robot for investigating Mars' past or present ability to sustain microbial life." TITLE="This artist's concept features NASA's Mars Science Laboratory Curiosity rover, a mobile robot for investigating Mars' past or present ability to sustain microbial life." SRC="/images/content/693888main_curiosity_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="text">
+<a title="Update Set About Curiosity Mars Rover" href="/mission_pages/msl/news/msl20121129.html">Curiosity Update</a>
+</div>
+</li>
+<!-- Item 3 Ends --><!-- Item 4 starts --><li>
+<div class="thumb">
+<img src="/templateimages/redesign/home/topstories/active_item.png" height="12" width="41"></div>
+<div class="inactive_image">
+<a class="navi" href="javascript:void(0);"><IMG WIDTH="100" ALT="The midnight sun casts a golden glow on an iceberg and its reflection in Disko Bay, Greenland. Much of Greenland's annual ice mass loss occurs through calving of icebergs such as this. Image credit: Ian Joughin, University of Washington" TITLE="The midnight sun casts a golden glow on an iceberg and its reflection in Disko Bay, Greenland. Much of Greenland's annual ice mass loss occurs through calving of icebergs such as this. Image credit: Ian Joughin, University of Washington" SRC="/images/content/709704main_ice_sheet_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="text">
+<a title="Ice Sheet Loss at Poles Increasing, Study Finds" href="/mission_pages/Grace/news/grace20121129.html">Ice Sheet Loss</a>
+</div>
+</li>
+<!-- Item 4 Ends --><!-- Item 5 starts --><li>
+<div class="thumb">
+<img src="/templateimages/redesign/home/topstories/active_item.png" height="12" width="41"></div>
+<div class="inactive_image">
+<a class="navi" href="javascript:void(0);"><IMG WIDTH="100" ALT="IdeaScale Forum for NASA.gov" TITLE="IdeaScale Forum for NASA.gov" SRC="/images/content/707634main_ideascale100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<div class="text">
+<a title="Call for Feedback as We Prepare the Next NASA.gov" href="http://nasaweb.ideascale.com/">Web Feedback</a>
+</div>
+</li>
+<!-- Item 5 Ends -->
+
+<!-- Collection Body ends --></ul></div><div style="float:left;"><div style="width:100px;padding-top:15px;" id="more_stories"><a href="/home/archive/topstories_archive_collection_archive_1.html"><img alt="More Stories" src="/templateimages/redesign/home/topstories/nasa-greyscale.png"></a></div><div class="moresstories_text"><a href="/home/archive/topstories_archive_collection_archive_1.html">&gt;&nbsp;More Stories</a></div></div></div></div></div><div class="topicalnav">
+<!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><!--default--><h2></h2><div class="tpn_shuttlestation"><a href="/mission_pages/station/main/index.html"><span>Space Station</span></a></div> <div class="tpn_solarsystem even"><a href="/topics/solarsystem/index.html"><span>Solar System</span></a></div> <!-- div class="tpn_exploration"><a href="/topics/moonmars/index.html"><span> Moon &amp; Mars</span></a></div --> <div class="tpn_beyondearth"><a href="/exploration/home/index.html "><span>Beyond Earth</span></a></div> <div class="tpn_commercialspace even"><a href="/exploration/commercial/index.html"><span>Commercial Space</span></a></div> <div class="tpn_universe"><a href="/topics/universe/index.html"><span>Universe</span></a></div> <div class="tpn_earth even"><a href="/topics/earth/index.html"><span>Earth</span></a></div> <div class="tpn_aeronautics"><a href="/topics/aeronautics/index.html"><span>Aeronautics</span></a></div> <div class="tpn_technology even"><a href="/topics/technology/index.html"><span>Technology</span></a></div> <div class="tpn_nasainyourlife"><a href="/topics/nasalife/index.html"><span>NASA in Your Life</span></a></div> <!-- div class="tpn_nasapeople"><a href="/topics/people/index.html"><span>NASA People</span></a></div --> <div class="tpn_peopleandhistory even"><a href="/topics/history/index.html"><span>History and People</span></a></div>
+
+</div></div></div><div class="wide_left"><div class="left_352"><script>
+     document.getElementById('curr_rssurl').value='none';
+</script>
+<!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><!--Content  For Homepage-Blue-Med Starts Here--><div class="box_350_cap"><div class="top_cap"></div><div class="box_350 box_350_tall box_blue"><h2>NASA Images</h2><ul class="tabs nasatv_350_tabs"><li class="tab_active"><a id="vod" class="tab_350 linkbutton_tab_active" href="#">Image of the Day</a></li><li class="tab_inactive"><a id="live" class="tab_350 linkbutton_tab_inactive" href="#">nasaimages.org</a></li></ul><div class="tab nasatv_350_content prejs_tab"><div id="nasa_image_rotater"><div id="rotate_nasa_image0"><div class="img_wrap">
+<a href="/exploration/systems/sls/multimedia/gallery/tdt1.html"><IMG WIDTH="346" ALT="SLS buffet model in the Langley Researcher Center Transonic Dynamics Tunnel" TITLE="SLS buffet model in the Langley Researcher Center Transonic Dynamics Tunnel" SRC="/images/content/709297main_SLS%20buffet%20model%201_cropped_346-260.jpg" HEIGHT="260" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<h3>SLS Model 'Flies' Through...</h3>
+<p>
+NASA's Space Launch System buffet model in NASA's Langley Researcher Center's Transonic Dynamics Tunnel. The SLS is America's next heavy-lift launch...</p>
+</div><div style="display:none;visibility:hidden;" id="rotate_nasa_image1"><div class="img_wrap">
+<a href="/multimedia/imagegallery/image_feature_2401.html"><IMG WIDTH="346" ALT="True-color image of St. Helena Island and the band of wind-blown cloud vortices trailing towards the island's leeward side. Image credit: NASA/GSFC" TITLE="True-color image of St. Helena Island and the band of wind-blown cloud vortices trailing towards the island's leeward side. Image credit: NASA/GSFC" SRC="/images/content/709519main_cloud_vortices_1600_346-260.jpg" HEIGHT="260" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<h3>Cloud Vortices Off Saint...</h3>
+<p>
+NASA's Terra satellite passed over the South Atlantic Ocean on Nov. 15, 2012, allowing the Moderate Resolution Imaging Spectroradiometer instrument flying...</p>
+</div><div style="display:none;visibility:hidden;" id="rotate_nasa_image2"><div class="img_wrap">
+<a href="/exploration/systems/sls/j2x/j2x_nov27.html"><IMG WIDTH="346" ALT="A J2X power pack assembly burns brightly during a hot fire test Nov. 27 at Stennis Space Center." TITLE="A J2X power pack assembly burns brightly during a hot fire test Nov. 27 at Stennis Space Center." SRC="/images/content/709140main_nov27_j2x_powerpack_test_cropped_346-260.jpg" HEIGHT="260" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<h3>J-2X -- Back in the Saddle Again</h3>
+<p>
+A J-2X power pack assembly burns brightly during a hot fire test Nov. 27 at NASA's Stennis Space Center in Mississippi. Engineers pulled the assembly...</p>
+</div><div style="display:none;visibility:hidden;" id="rotate_nasa_image3"><div class="img_wrap">
+<a href="/multimedia/imagegallery/image_feature_2400.html"><IMG WIDTH="346" ALT="Workers at the Propulsion Systems Laboratory at Lewis Research Center, now John H. Glenn Research Center, develop the Centaur upper stage rocket. The Centaur was an ambitious rocket using liquid oxygen and liquid hydrogen." TITLE="Workers at the Propulsion Systems Laboratory at Lewis Research Center, now John H. Glenn Research Center, develop the Centaur upper stage rocket. The Centaur was an ambitious rocket using liquid oxygen and liquid hydrogen." SRC="/images/content/708830main_atlas_centaur_cropped_346.jpg" HEIGHT="260" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<h3>Centaur - A NASA Workhorse</h3>
+<p>
+Workers at the Propulsion Systems Laboratory at Lewis Research Center, now John H. Glenn Research Center, develop the Centaur upper stage rocket. The...</p>
+</div><div style="display:none;visibility:hidden;" id="rotate_nasa_image4"><div class="img_wrap">
+<a href="/multimedia/imagegallery/image_gallery_2399.html"><IMG WIDTH="346" ALT="NASA astronaut Scott Kelly, Expedition 25 flight engineer, is pictured in the Cupola of the International Space Station on Oct. 14, 2010." TITLE="NASA astronaut Scott Kelly, Expedition 25 flight engineer, is pictured in the Cupola of the International Space Station on Oct. 14, 2010." SRC="/images/content/708300main_scott_kelly_cropped_346-260.jpg" HEIGHT="260" ALIGN="Bottom" BORDER="0" /></a>
+</div>
+<h3>Commander Kelly on the Station</h3>
+<p>
+NASA astronaut Scott Kelly, Expedition 25 flight engineer, is pictured in the Cupola of the International Space Station on Oct. 14, 2010. 
+
+NASA has...</p>
+</div></div><div id="nasa_image_rotater_controls"><input id="nasaImagesCurrentItem" value="0" name="nasaImagesCurrentItem" type="hidden"><script>
+if ($('nasaImagesCurrentItem'))
+{
+$('nasaImagesCurrentItem').value=0;
+}
+</script><a id="image_dot_button0" src="/templateimages/redesign/modules/imagegallery/dot1-light.gif" alt="Item 1" title="Item 1" class="dot_button active" href="javascript:nasaHomeCurrentItem('rotate_nasa_image','nasaImagesCurrentItem',3,'image_dot_button',0)"><span class="hide">1</span></a><a id="image_dot_button1" src="/templateimages/redesign/modules/imagegallery/dot1-dark.gif" alt="Item 2" title="Item 2" class="dot_button inactive" href="javascript:nasaHomeCurrentItem('rotate_nasa_image','nasaImagesCurrentItem',3,'image_dot_button',1)"><span class="hide">2</span></a><a id="image_dot_button2" src="/templateimages/redesign/modules/imagegallery/dot1-dark.gif" alt="Item 3" title="Item 3" class="dot_button inactive" href="javascript:nasaHomeCurrentItem('rotate_nasa_image','nasaImagesCurrentItem',3,'image_dot_button',2)"><span class="hide">3</span></a><a id="prev-button" src="/templateimages/redesign/modules/imagegallery/arrow-lt-4.gif" alt="Previous" title="Previous" href="javascript:nasaHomePrevItem('rotate_nasa_image','nasaImagesCurrentItem',3,'image_dot_button')"><span class="hide">4</span></a><a id="next-button" src="/templateimages/redesign/modules/imagegallery/arrow-rt-4.gif" alt="Next" title="Next" href="javascript:nasaHomeNextItem('rotate_nasa_image','nasaImagesCurrentItem',3,'image_dot_button')"><span class="hide">5</span></a></div><a href="/multimedia/imagegallery/iotd.html" class="linkbutton_on_blue">View Image Gallery</a></div><div class="tab nasatv_350_content"><div class="img_wrap"><a href="http://www.nasaimages.org"><img title="nasaimages.org" alt="nasaimages.org" src="/images/content/709350main_NASAimageslogo346.jpg" class="nasatv"></a></div><p>
+                  The most comprehensive compilation of NASA stills, film and video.
+                 </p><a href="http://www.nasaimages.org" class="linkbutton_on_blue">Start Your Search</a></div><input value="placeholder109203" id="testrss109203" type="hidden"><div id="placeholder109203"></div><script>
+   var rssholderid_label='testrss109203';
+   if (document.getElementById(rssholderid_label) != null) {
+       var rssholder = document.getElementById(rssholderid_label).value;
+       var rssurl=$('curr_rssurl');
+       if ( rssurl != null) { 
+           var rssurlval=rssurl.value;
+           if ( rssurlval.length==0 || rssurlval=='None') rssurlval='none';
+           if ( rssurlval != 'none') { 
+               showBlueIconRSS(rssholder,rssurlval);
+          }
+      }
+}
+</script></div><div class="bottom_cap"></div></div><!--Content Homepage-Blue-Med  Ends Here-->
+<script>
+     document.getElementById('curr_rssurl').value='none';
+</script>
+<div class="box_350_cap"> <div class="top_cap"></div> <div class="box_350 box_350_short box_blue"> <h2>Latest NASA Blog Updates</h2> <!-- blog static html starts--> <div id="blog_static_html" style="display:none;visibility:hidden;" class="box_350_nasablogs_recentpostings"> <ul> <a class="linkbutton_on_blue" href="http://blogs.nasa.gov">View All NASA Blogs</a> <a class="myOverlayRSS rss bottom null (none) icons_blue icon_rss" href="/rss/nasa_blogs_recent_postings.xml"> <span class="hide">NASA Blogs RSS</span> </a> <div id="tempBlogRssBlue"> <li><div><b><a href="http://blogs.nasa.gov/cm/blog/whatonearth" class="titlefield">What On Earth</a></b><span class="datefield">1 day ago</span></div><p>What to Expect from the Arctic</p></li><li><div><b><a href="http://blogs.nasa.gov/cm/blog/waynehalesblog" class="titlefield">Wayne Hale's Blog</a></b><span class="datefield">1 day ago</span></div><p>Moral Hazard</p></li><li><div><b><a href="http://blogs.nasa.gov/cm/blog/NES_Teachers_Corner" class="titlefield">NES Teachers Corner</a></b><span class="datefield">1 day ago</span></div><p>NASA Satellite Images Used to Locate Ticks</p></li> </div> </ul> </div> <!-- blog static html ends--> <div id="blog_dynamic_html" class="box_350_nasablogs_recentpostings" > <ul> <div class="hide" id="nasablogs_recentpostings"></div> <img id="blog_spinner" alt="Spinner" title="Spinner" src="/templateimages/redesign/global/rssloadindicator.gif" /> <script language="javascript" type="text/javascript"> var nasablogsxml = "/rss/nasa_blogs_recent_postings.xml"; new Ajax.Updater('nasablogs_recentpostings',nasablogsxml, { method:'get', onSuccess: function(transport) { $('blog_spinner').hide(); processBlogRSS(transport.responseXML,3,'blogsModule'); }, onFailure: function() { $('blog_spinner').hide(); $('blog_dynamic_html').hide(); document.getElementById('blog_static_html').style.display='block'; document.getElementById('blog_static_html').style.visibility='visible'; } }); </script> <a class="linkbutton_on_blue" href="http://blogs.nasa.gov">View All NASA Blogs</a> <a class="myOverlayRSS rss bottom null (none) icons_blue icon_rss" href="/rss/nasa_blogs_recent_postings.xml"> <span class="hide">NASA Blogs RSS</span> </a> </ul> </div> <div class="bottom_cap"></div> </div> </div>
+
+
+<script>
+     document.getElementById('curr_rssurl').value='none';
+</script>
+<!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><!--Content  For Homepage-DarkBlue-Med Starts Here--><div class="box_350_cap"><div class="top_cap dark_blue_cap"></div><div class="box_350 box_350_short box_dark_blue"><h2>Explore More</h2><div class="NASAMissionDirectorates"><table border="0" cellspacing="0" cellpadding="0"> <tr> <td> <a href="/audience/forkids/kidsclub/flash/index.html"><!-- ?lib name="KidsClub.jpg" id="411665" branchid="main" version="*" elementId="3" ? --> <script> var randonNumber=generate_randomnumber("0","6"); document.write('<img src="'+KidsClubImages[randonNumber]+'" name="kidsclubicon" WIDTH="154" ALT="NASA kids club" TITLE="NASA kids club" SRC="" HEIGHT="116" border=0>') </script> </a></td> <td> <table border="0" cellspacing="0" cellpadding="0"> <tr> <td><a href="http://www.rfcmedia.com/thirdrockradio/"><IMG WIDTH="154" ALT="Third Rock Radio Station" TITLE="Third Rock Radio Station" SRC="/images/content/609725main_3rdrock_154.jpg" HEIGHT="116" ALIGN="Bottom" BORDER="0" /></a></td></tr> </table> </td> </tr> <tr> <td><a href="/audience/forkids/kidsclub/flash/index.html">&rsaquo;&nbsp;Explore the Kids Club</a><br /> <a href="/audience/forstudents/index.html"http://cms.nasa.gov/cm/jsp/document/doccontent.jsp>&rsaquo;&nbsp;Students</a> | <a href="/audience/foreducators/index.html">&rsaquo;&nbsp;Educators</a> <br /> <a href="/offices/education/programs/national/summer/home/index.html">&rsaquo;&nbsp;Summer of Innovation</a> </td> <td> &nbsp;&nbsp;&nbsp;Discover New Worlds of &nbsp;&nbsp;&nbsp;Music<br /> &nbsp;&nbsp;&nbsp;<a href="http://www.rfcmedia.com/thirdrockradio/">&rsaquo;&nbsp;Listen Live to Third Rock</a><br /> </td> </tr> </table>
+</div></div><div class="bottom_cap dark_blue_cap"></div></div><!--Content Homepage-NoBlinds-DarkBlue-Med  Ends Here-->
+
+<div class="subleft_352">
+<div class="box_170_cap">
+<div class="top_cap dark_blue_cap"></div>
+<div class="box_170 box_170_short box_dark_blue">
+<div class="tinyContent">
+<a href="/topics/nasalife/features/space_race_blastoff.html"><IMG WIDTH="154" ALT="Space Race Blast Off" TITLE="Space Race Blast Off" SRC="/images/content/633936main_space_race154.jpg" HEIGHT="116" ALIGN="Bottom" BORDER="0" /></a>
+<h3>Space Race Blast Off</h3>
+<p>NASA's Interactive Facebook Game!</p>
+<ul>
+<li>
+<span class="light_blue">&rsaquo;&nbsp;</span><a href="/topics/nasalife/features/space_race_blastoff.html">Learn More</a>
+</li>
+<li>
+<span class="light_blue">&rsaquo;&nbsp;</span><a href="http://apps.facebook.com/spacerace/">Play the Game!</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="bottom_cap dark_blue_cap"></div>
+</div>
+</div>
+<div class="subright_352">
+<div class="box_170_cap">
+<div class="top_cap dark_blue_cap"></div>
+<div class="box_170 box_170_short box_dark_blue">
+<div class="tinyContent">
+<a href="http://spotthestation.nasa.gov"><IMG WIDTH="154" ALT="Spot The Station" TITLE="Spot The Station" SRC="/images/content/703910main_spotthestation_154_116.jpg" HEIGHT="116" ALIGN="Bottom" BORDER="0" /></a>
+<h3>Spot The Station</h3>
+<p>Get email or text alerts for ISS sighting opportunities near you.</p>
+<ul>
+<li>
+<span class="light_blue">&rsaquo;&nbsp;</span><a href="http://spotthestation.nasa.gov">Learn More</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="bottom_cap dark_blue_cap"></div>
+</div>
+</div>
+
+
+</div><div class="right_352"><script>
+     document.getElementById('curr_rssurl').value='none';
+</script>
+<!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><!--Content  For Homepage-Blue-Med Starts Here--><div class="box_350_cap"><div class="top_cap"></div><div class="box_350 box_350_tall box_blue"><h2>NASA Multimedia</h2><div class="outer_multimedia_box"><div class="multimedia_box"><div class="position0"><input id="nasaMultimediaOnDemandVideosCurrentItem" value="0" name="nasaMultimediaOnDemandVideosCurrentItem" type="hidden"> <div id="homepageFeaturedVideosXml" class="hide"></div> <ul id="homepageFeaturedVideos" class="ondemand_videos"> </ul> <script> if ($('nasaMultimediaOnDemandVideosCurrentItem')) { $('nasaMultimediaOnDemandVideosCurrentItem').value=0; } var homepageFeaturedVideosXml = "/rss/featured_videos.xml"; new Ajax.Updater('homepageFeaturedVideosXml',homepageFeaturedVideosXml, { method:'get', onSuccess: function(transport) { processHomepageFeaturedVideos(transport.responseXML,'homepageFeaturedVideos'); }, onFailure: function() { try{ var featuredVideos='<li id="nasa_multimedia_ondemand0"><a class="img_mul_left" href="javascript:nasaHomePrevItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\')"></a><a id="nasa_multimedia_img_anchor" href="/multimedia/videogallery/index.html?media_id=79936041"><img src="http://cdn-aki.vmixcore.com/imgman.jpg?url=http://cdn-aki.vmixcore.com/423/15623/26/213462631/1421/423/799/f08d949c46a6b5f1fe22e9ee94126d0c.jpg&width=100&height=75&fill=000000000" title="The Space Shuttle (Narrated by William Shatner)" alt="The Space Shuttle (Narrated by William Shatner)" align="Bottom" border="0" height="75" width="100"></a><a class="img_mul_right" href="javascript:nasaHomeNextItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\')"></a><h3>Videos</h3><p><a href="/multimedia/videogallery/index.html?media_id=79936041">The Space Shuttle (Narrated by William Shatner)</a></p><a href="/multimedia/videogallery/index.html" class="nasa_multimedia_more_link"> >&nbsp;More Videos</a></li><li style="display: none; visibility: hidden;" id="nasa_multimedia_ondemand1"><a class="img_mul_left" href="javascript:nasaHomePrevItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\')"></a><a id="nasa_multimedia_img_anchor" href="/multimedia/videogallery/index.html?media_id=15769086"><img src="http://cdn-aki.vmixcore.com/imgman.jpg?width=100&height=75&fill=000000000&url=http://cdn-aki.vmixcore.com/423/0/26/55540901/781/423/5838/ca09f2a51b6a2272182bbc7d2423dbb6.jpg" title="Know Your Earth" alt="Know Your Earth" align="Bottom" border="0" height="75" width="100"></a><a class="img_mul_right" href="javascript:nasaHomeNextItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\')"></a><h3>Videos</h3><p><a href="/multimedia/videogallery/index.html?media_id=15769086">Know Your Earth</a></p><a href="/multimedia/videogallery/index.html" class="nasa_multimedia_more_link"> >&nbsp;More Videos</a></li><li style="display: none; visibility: hidden;" id="nasa_multimedia_ondemand2"><a class="img_mul_left" href="javascript:nasaHomePrevItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\')"></a><a id="nasa_multimedia_img_anchor" href="/multimedia/videogallery/index.html?media_id=49065741"><img src="http://cdn-aki.vmixcore.com/imgman.jpg?width=100&height=75&fill=000000000&url=http://cdn-aki.vmixcore.com/423/0/26/109090961/1311/423/6401/318e7957a5553f07969c68d432799c07.jpg" title="NASA EDGE Tribute to the Space Shuttle" alt="NASA EDGE Tribute to the Space Shuttle" align="Bottom" border="0" height="75" width="100"></a><a class="img_mul_right" href="javascript:nasaHomeNextItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\')"></a><h3>Videos</h3><p><a href="/multimedia/videogallery/index.html?media_id=49065741">NASA EDGE Tribute to the Space Shuttle</a></p><a href="/multimedia/videogallery/index.html" class="nasa_multimedia_more_link"> >&nbsp;More Videos</a></li><div class="nasa_multimedia_box_controls"><a id="ondemand_dot_button0" src="/templateimages/redesign/modules/imagegallery/dot1-light.gif" alt="Item 1" title="Item 1" class="dot_button active" href="javascript:nasaHomeCurrentItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\',0)"><span class="hide">1</span></a><a id="ondemand_dot_button1" src="/templateimages/redesign/modules/imagegallery/dot1-dark.gif" alt="Item 2" title="Item 2" class="dot_button inactive" href="javascript:nasaHomeCurrentItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\',1)"><span class="hide">2</span></a><a id="ondemand_dot_button2" src="/templateimages/redesign/modules/imagegallery/dot1-dark.gif" alt="Item 3" title="Item 3" class="dot_button inactive" href="javascript:nasaHomeCurrentItem(\'nasa_multimedia_ondemand\',\'nasaMultimediaOnDemandVideosCurrentItem\',3,\'ondemand_dot_button\',2)"><span class="hide">3</span></a></div>';jQuery('#homepageFeaturedVideos').html(featuredVideos); }catch(err){} } }); </script>
+</div><div class="position1"><ul class="nasatv"> <li> <a id="nasa_multimedia_nasatv_img_anchor" href="/multimedia/nasatv/index.html"> <IMG WIDTH="100" ALT="NASA Television logo" TITLE="NASA Television logo" SRC="/images/content/345204main_nasatv_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /> </a> <h3>NASA Television</h3> <p class="nasatv"> <a href="/multimedia/nasatv/index.html">Watch Live Now</a><span class="light_grey">&nbsp;</span> </p> <a class="nasa_multimedia_nasatv_more_link" href="/multimedia/nasatv/schedule.html">>&nbsp;View TV Schedule</a> </li> </ul>
+</div><div class="position2"><!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><!--Content For Homepage-Blue-Med Starts Here--><ul class="interactive_features"><input id="nasaMultimediaInteractiveFeaturesCurrentItem" value="0" name="nasaMultimediaInteractiveFeaturesCurrentItem" type="hidden"><script> if ($('nasaMultimediaInteractiveFeaturesCurrentItem')) { $('nasaMultimediaInteractiveFeaturesCurrentItem').value=0; } </script><div class="nasa_multimedia_box_controls"><a id="interactive_dot_button0" src="/templateimages/redesign/modules/imagegallery/dot1-light.gif" alt="Item 1" title="Item 1" class="dot_button active" href="javascript:nasaHomeCurrentItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button',0)"><span class="hide">1</span></a><a id="interactive_dot_button1" src="/templateimages/redesign/modules/imagegallery/dot1-dark.gif" alt="Item 2" title="Item 2" class="dot_button inactive" href="javascript:nasaHomeCurrentItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button',1)"><span class="hide">2</span></a><a id="interactive_dot_button2" src="/templateimages/redesign/modules/imagegallery/dot1-dark.gif" alt="Item 3" title="Item 3" class="dot_button inactive" href="javascript:nasaHomeCurrentItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button',2)"><span class="hide">3</span></a></div><li id="nasa_multimedia_interactive0"><a href="javascript:nasaHomePrevItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button')" class="img_mul_left"></a><a href="/externalflash/postcard/" id="nasa_multimedia_img_anchor"><IMG WIDTH="100" ALT="Postcards" TITLE="Postcards" SRC="/images/content/501753main_postcard_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a><a href="javascript:nasaHomeNextItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button')" class="img_mul_right"></a> <h3>Interactive Features</h3> <p> <a href="/externalflash/postcard/">Send Holiday Greetings to the Space Station</a> </p> <a href="/multimedia/mmgallery/features_archive_1.html" class="nasa_multimedia_more_link"> &gt;&nbsp;More Interactive Features</a> </li><li style="display:none;visibility:hidden;" id="nasa_multimedia_interactive1"><a href="javascript:nasaHomePrevItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button')" class="img_mul_left"></a><a href="http://saturn.jpl.nasa.gov/interactive/missiontimeline/" id="nasa_multimedia_img_anchor"><IMG WIDTH="100" ALT="Cassini-Huygens Mission to Saturn Interactive Feature" TITLE="Cassini-Huygens Mission to Saturn Interactive Feature" SRC="/images/content/706383main_cassini-timeline_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a><a href="javascript:nasaHomeNextItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button')" class="img_mul_right"></a> <h3>Interactive Features</h3> <p> <a href="http://saturn.jpl.nasa.gov/interactive/missiontimeline/">Cassini-Huygens Mission to Saturn</a> </p> <a href="/multimedia/mmgallery/features_archive_1.html" class="nasa_multimedia_more_link"> &gt;&nbsp;More Interactive Features</a> </li><li style="display:none;visibility:hidden;" id="nasa_multimedia_interactive2"><a href="javascript:nasaHomePrevItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button')" class="img_mul_left"></a><a href="/externalflash/nasa_spacesuit/" id="nasa_multimedia_img_anchor"><IMG WIDTH="100" ALT="The NASA Spacesuit" TITLE="The NASA Spacesuit" SRC="/images/content/453951main_spacesuitbanner100x75.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a><a href="javascript:nasaHomeNextItem('nasa_multimedia_interactive','nasaMultimediaInteractiveFeaturesCurrentItem',3,'interactive_dot_button')" class="img_mul_right"></a> <h3>Interactive Features</h3> <p> <a href="/externalflash/nasa_spacesuit/">The NASA Spacesuit</a> </p> <a href="/multimedia/mmgallery/features_archive_1.html" class="nasa_multimedia_more_link"> &gt;&nbsp;More Interactive Features</a> </li></ul><!--Content Homepage-Blue-Med Ends Here-->
+</div><div class="position3"><!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><!--Content For Homepage-Blue-Med Starts Here--><ul class="vodcasts"><input id="nasaMultimediaVodcastsCurrentItem" value="0" name="nasaMultimediaVodcastsCurrentItem" type="hidden"><script> if ($('nasaMultimediaVodcastsCurrentItem')) { $('nasaMultimediaVodcastsCurrentItem').value=0; } </script><div class="nasa_multimedia_box_controls"><a id="vodcast_dot_button0" src="/templateimages/redesign/modules/imagegallery/dot1-light.gif" alt="Item 1" title="Item 1" class="dot_button active" href="javascript:nasaHomeCurrentItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button',0)"><span class="hide">1</span></a><a id="vodcast_dot_button1" src="/templateimages/redesign/modules/imagegallery/dot1-dark.gif" alt="Item 2" title="Item 2" class="dot_button inactive" href="javascript:nasaHomeCurrentItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button',1)"><span class="hide">2</span></a><a id="vodcast_dot_button2" src="/templateimages/redesign/modules/imagegallery/dot1-dark.gif" alt="Item 3" title="Item 3" class="dot_button inactive" href="javascript:nasaHomeCurrentItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button',2)"><span class="hide">3</span></a></div><li id="nasa_multimedia_vodcast0"><a href="javascript:nasaHomePrevItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button')" class="img_mul_left"></a><a href="/multimedia/podcasting/TWAN_11_30_12.html" id="nasa_multimedia_img_anchor"><IMG WIDTH="100" ALT="Watch NASA TV Now!" TITLE="Watch NASA TV Now!" SRC="/images/content/34804main_NASA_TV_HOMETN.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a><a href="javascript:nasaHomeNextItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button')" class="img_mul_right"></a> <h3> Podcasts &amp; Vodcasts </h3> <p> <a href="/multimedia/podcasting/TWAN_11_30_12.html">This Week @ NASA, November 30, 2012</a> </p> <a href="/multimedia/podcasting/index.html" class="nasa_multimedia_more_link">&gt;&nbsp;More Podcasts &amp; Vodcasts</a> </li><li style="display:none;visibility:hidden;" id="nasa_multimedia_vodcast1"><a href="javascript:nasaHomePrevItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button')" class="img_mul_left"></a><a href="/multimedia/podcasting/commercial-humanspaceflight-future.html" id="nasa_multimedia_img_anchor"><IMG WIDTH="100" ALT="Future of human spaceflight and commercial missions to low-Earth orbit" TITLE="Future of human spaceflight and commercial missions to low-Earth orbit" SRC="/images/content/710076main_ksc_112812_ccp_future-t.gif" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a><a href="javascript:nasaHomeNextItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button')" class="img_mul_right"></a> <h3> Podcasts &amp; Vodcasts </h3> <p> <a href="/multimedia/podcasting/commercial-humanspaceflight-future.html">Next-Generation Space Ambitions Keep Rolling</a> </p> <a href="/multimedia/podcasting/index.html" class="nasa_multimedia_more_link">&gt;&nbsp;More Podcasts &amp; Vodcasts</a> </li><li style="display:none;visibility:hidden;" id="nasa_multimedia_vodcast2"><a href="javascript:nasaHomePrevItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button')" class="img_mul_left"></a><a href="/multimedia/podcasting/curiosity20121129.html" id="nasa_multimedia_img_anchor"><IMG WIDTH="100" ALT="Curiosity landing logo" TITLE="Curiosity landing logo" SRC="/images/content/675988main_curiosity_onmars_100x75.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a><a href="javascript:nasaHomeNextItem('nasa_multimedia_vodcast','nasaMultimediaVodcastsCurrentItem',3,'vodcast_dot_button')" class="img_mul_right"></a> <h3> Podcasts &amp; Vodcasts </h3> <p> <a href="/multimedia/podcasting/curiosity20121129.html">Curiosity Roves Again</a> </p> <a href="/multimedia/podcasting/index.html" class="nasa_multimedia_more_link">&gt;&nbsp;More Podcasts &amp; Vodcasts</a> </li></ul><!--Content Homepage-Blue-Med Ends Here-->
+</div></div></div><input value="placeholder216211" id="testrss216211" type="hidden"><div id="placeholder216211"></div><script>
+   var rssholderid_label='testrss216211';
+   if (document.getElementById(rssholderid_label) != null) {
+       var rssholder = document.getElementById(rssholderid_label).value;
+       var rssurl=$('curr_rssurl');
+       if ( rssurl != null) { 
+           var rssurlval=rssurl.value;
+           if ( rssurlval.length==0 || rssurlval=='None') rssurlval='none';
+           if ( rssurlval != 'none') { 
+               showBlueIconRSS(rssholder,rssurlval);
+          }
+      }
+}
+</script></div><div class="bottom_cap"></div></div><!--Content Homepage-Blue-Med  Ends Here-->
+<script>
+     document.getElementById('curr_rssurl').value='none';
+</script>
+<div xmlns:java_code="xalan://gov.nasa.build.Utils2" class="box_350_cap"> <div class="top_cap"></div> <div class="box_350 box_350_short box_blue"> <h2>NASA Calendar</h2> <script type="text/javascript" language="javascript" src="/templateimages/redesign/calendar/js/nasa_calendar.js"></script> <a class="linkbutton_on_blue" href="http://calendar.nasa.gov/calendar/">View Full NASA Calendar</a> <a class="myOverlayCalendar rss bottom null iCal_icon" href="/templateimages/redesign/calendar/iCal/nasa_calendar.ics"><span class="hide">Calendar</span></a> </div> <div class="bottom_cap"></div> </div>
+
+
+<script>
+     document.getElementById('curr_rssurl').value='none';
+</script>
+<!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><!--Content  For Homepage-DarkBlue-Med Starts Here--><div class="box_350_cap"><div class="top_cap dark_blue_cap"></div><div class="box_350 box_350_short box_dark_blue"><h2>NASA Leadership</h2><!-- SIDE BY SIDE OPTION --> <div class="NASALeadership"> <ul> <li> <a href="/about/highlights/bolden_bio.html"><IMG WIDTH="100" ALT="Administrator Charles F. Bolden. Credit: NASA/Bill Ingalls" TITLE="Administrator Charles F. Bolden. Credit: NASA/Bill Ingalls" SRC="/images/content/365066main_bolden_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a> <h4><a href="/about/highlights/bolden_bio.html">Administrator Charles F. Bolden, Jr.</a></h4> <a href="http://blogs.nasa.gov/cm/newui/blog/viewpostlist.jsp?blogname=bolden">&rsaquo;&nbsp;Blog</a> <br /> <span class="light_blue">&rsaquo;&nbsp;</span><A HREF="/news/speeches/admin/index.html" >Speeches and Testimony</A><br /> <a href="/about/highlights/leadership_gallery.html">&rsaquo;&nbsp;Leadership Gallery</a> </li> <li> <a href="/about/highlights/garver_bio.html"><IMG WIDTH="100" ALT="Deputy Administrator Lori B. Garver. Credit: NASA/Bill Ingalls" TITLE="Deputy Administrator Lori B. Garver. Credit: NASA/Bill Ingalls" SRC="/images/content/354447main_garver_100.jpg" HEIGHT="75" ALIGN="Bottom" BORDER="0" /></a> <h4><a href="/about/highlights/garver_bio.html">Deputy Administrator Lori Beth Garver</a></h4> <a href="http://blogs.nasa.gov/cm/blog/garver">&rsaquo;&nbsp;Blog</a> | <a href="http://www.facebook.com/LoriGarver">&rsaquo;&nbsp;Facebook&rarr;</a> | <a href="http://twitter.com/lori_garver">&rsaquo;&nbsp;Twitter&rarr;</a> <br /> <span class="light_blue">&rsaquo;&nbsp;</span><a href="/news/speeches/deputy/index.html">Speeches and Testimony</a><br /> <a href="/about/highlights/leadership_gallery.html">&rsaquo;&nbsp;Leadership Gallery</a> </li> </ul> </div>
+</div><div class="bottom_cap dark_blue_cap"></div></div><!--Content Homepage-NoBlinds-DarkBlue-Med  Ends Here-->
+
+<div class="subleft_352">
+<div class="box_170_cap">
+<div class="top_cap dark_blue_cap"></div>
+<div class="box_170 box_170_short box_dark_blue">
+<div class="tinyContent">
+<a href="http://women.nasa.gov/"><IMG WIDTH="154" ALT="Women of NASA" TITLE="Women of NASA" SRC="/images/content/529761main_main_women_nasa.jpg" HEIGHT="115" ALIGN="Bottom" BORDER="0" /></a>
+<h3>Women@NASA</h3>
+<ul>
+<li>
+<span class="light_blue">&rsaquo;&nbsp;</span><a href="http://women.nasa.gov/">Learn More</a>
+</li>
+<li>
+<span class="light_blue">&rsaquo;&nbsp;</span><a href="http://www.whitehouse.gov/blog/2010/10/15/future-women-science-and-space-exploration">White House Blog: The Future Women of Science and Space Exploration&rarr;</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="bottom_cap dark_blue_cap"></div>
+</div>
+</div>
+<div class="subright_352">
+<div class="box_170_cap">
+<div class="top_cap dark_blue_cap"></div>
+<div class="box_170 box_170_short box_dark_blue">
+<div class="tinyContent">
+<a href="/multimedia/videogallery/index.html?collection_id=85771"><IMG WIDTH="154" ALT="ScienceCast" TITLE="ScienceCast" SRC="/images/content/707293main_science_cast_154.jpg" HEIGHT="116" ALIGN="Bottom" BORDER="0" /></a>
+<h3>ScienceCasts</h3>
+<p>Short videos on fun, unusual topics from NASA's science missions.</p>
+<ul>
+<li>
+<span class="light_blue">&rsaquo;&nbsp;</span><a href="/multimedia/videogallery/index.html?collection_id=85771">Watch Videos</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="bottom_cap dark_blue_cap"></div>
+</div>
+</div>
+
+
+</div></div><div class="right_232">
+<!--NASA Twitter Updates Module Starts Here --> <div xmlns:java_code="xalan://gov.nasa.build.Utils2" class="grip_accordion_gov nasa_ticker"> <div class="cap cap_active">&nbsp;</div> <h3>Twitter <div style="position: absolute;right: 6px;top: 2px; "><a href="http://twitter.com/NASA" class="twitter-follow-button" data-button="grey" data-text-color="#FFFFFF" data-link-color="#00AEFF" data-show-count="false" data-width="200px" data-align="right"><span class="hide">Follow @NASA</span></a> <script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script></div> </h3> <script> var iframeTag = jQuery('.twitter-follow-button'); iframeTag.attr('title','Follow NASA (@NASA) on Twitter'); </script> <div class="content_gov"> <div class="content_outline_grey"> <div class="content_outline_black"> <!-- <div id="nasa_ticker_static_msg"> <p> Error loading NASA Twitter updates. Please follow the <a class="nasa_ticker_static_msg_link" href="http://twitter.com/nasa">link&nbsp;&rarr;</a> for Twitter Updates. </p> </div> --> <div id="nasa_ticker" style="height: 264px;overflow:hidden;"> <img id="twitter_spinner" alt="Loading" title="Loading" src="http://www.nasa.gov/templateimages/redesign/global/rssloadindicator.gif" style="display:block" /> <div><script src="http://widgets.twimg.com/j/2/widget.js"></script> <script> var twitter = new TWTR.Widget({ version: 2, type: 'profile', rpp: 10, interval: 6000, title: '', subject: '', width: 230, height: 245, theme: { shell: { background: '#545454', color: '#ffffff' }, tweets: { background: '#545454', color: '#ffffff', links: '#99ccff' } }, features: { scrollbar: true, loop: false, live: true, hashtags: true, timestamp: true, avatars: true, behavior: 'all' } }).render().setUser('nasa&exclude_replies=true').start(); </script> <script type="text/javascript"> jQuery(document).ready(function() { if($('twitter_spinner')){ $('twitter_spinner').style.display='none'; } if($('moreUpdatesLink')){ $('moreUpdatesLink').style.display='block'; } }); </script> <style> .twtr-widget .twtr-tweet { border-bottom:0px; margin:5px 5px 12px; overflow:hidden; } .twtr-ft div { display:none } .twtr-widget .twtr-tweet-wrap{ padding:0; } .twtr-hd { display:none; overflow:hidden; padding:10px; position:relative; } .twtr-widget i, .twtr-widget .twtr-new-results { display:block; font-size:9px; font-style:normal; margin:2px 0; } .twtr-reply {display:none} .twtr-widget { font-family:Arial,Helvetica,sans-serif !important; } .twtr-ft { display:none; position:relative; } </style> </div> <a id="moreUpdatesLink" class="titlefield" href="http://twitter.com/nasa" style="float: right;display:none;top:246px;left:115px; position:absolute;">&rsaquo;&nbsp;More Updates&nbsp;&rarr;</a> </div> </div> </div> </div> <div class="active_footer_gov"> </div> </div>
+
+<!-- Small GOV DELIVERY Module Starts Here --> <div class="gov_delivery grip_accordion_gov"> <div class="cap cap_active">&nbsp;</div> <h3>Get NASA Updates By Email</h3> <div class="content_gov" style="height:auto;"> <div class="content_outline_grey" > <div class="content_outline_black" > <ul> <li> <div class="gov_deliver_form"> <form action="" name="govdelivery" class="niceform"> <input value="USNASA" name="folder" type="hidden" alt="NASA Gov Delivery"> <input class="textinput" onfocus="this.value=''" size="20" value="Enter E-mail Address" name="textinput" id="textinput" type="text" alt="Enter E-mail Address"> <input onclick="govdelivery_quicksubscribe(); return false;" type="button" title="Subscribe" class="gov_delivery_linkbutton_blue_sm" value="Subscribe"/> <b>Powered by Gov Delivery</b> </form> </div> </li> </ul> </div> </div> </div> <div class="active_footer_gov"> </div> </div> <!-- Small GOV DELIVERY Module Ends Here-->
+
+<!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><div class="blinds 
+                            355
+                       grip_accordion prejs_grip">
+<div class="cap">&nbsp;</div>
+<h3 class="top_header_grip_popular">
+<a href="#">What are people interested in?</a>
+</h3>
+<div class="content" id="baynoteWidget"><!DOCTYPE "xmlns:xsl='http://www.w3.org/1999/XSL/Transform'"><!--default--><h2></h2><!----><!-- baynote widget module start --> <ul class="tabs time_sensitive_tabs"> <li class="tab_active first"><a class="beforelast" href="#">Most Viewed</a></li> <li class="tab_inactive middle"><a class="beforelast1" onclick="javascript:baynoteWidgetScrollBar('label','tab2','/rss/baynoteWidgetRatingsCurrentWeek.xml','ratings_temp5','ratingsModule5',4);" href="#" >Top Rated</a></li> <li class="tab_inactive last"><a href="#">Quick Links</a></li> </ul> <div id="tab1" class="tab time_sensitive_tabs_content prejs_tab"> <div class="tab_labels"> <a id="label_dot_button0" class="label active" href="javascript:nasaHomeBaynoteWidgetCurrentItem('label',4,'label_dot_button',0,'/rss/baynoteWidgetStoriesCurrentWeek.xml','baynote_temp1','baynoteModule1')">Stories</a> <a id="label_dot_button1" class="label inactive" href="javascript:nasaHomeBaynoteWidgetCurrentItem('label',4,'label_dot_button',1,'/rss/baynoteWidgetImagesCurrentWeek.xml','baynote_temp8','baynoteModule8')">Images</a> <a id="label_dot_button2" class="label inactive" href="javascript:nasaHomeBaynoteWidgetCurrentItem('label',4,'label_dot_button',2,'/rss/popular_videos.xml','baynote_temp3','baynoteModule3')">Videos</a> <a id="label_dot_button3" class="label label4 inactive" href="javascript:nasaHomeBaynoteWidgetCurrentItem('label',4,'label_dot_button',3,'/rss/baynoteWidgetInteractiveFeaturesCurrentWeek.xml','baynote_temp4','baynoteModule4')">Interactive</a> </div> <div id="label0" class="content_outline_grey"> <ul class="content_outline_black"> <div id="baynote_temp1" class="hide"></div> <script language="javascript" type="text/javascript"> var baynotewidgetxml = "/rss/baynoteWidgetStoriesCurrentWeek.xml"; new Ajax.Updater('baynote_temp1',baynotewidgetxml, { method:'get', onSuccess: function(transport) { processBaynoteData(transport.responseXML,6,'baynoteModule1','label',0); }, onFailure: function() { $('label0').getElementsBySelector("ul")[0].innerHTML=''; $('label0').getElementsBySelector("ul")[0].innerHTML='<div style="margin: 125px 15px 0 15px">Error Loading Baynote Widget Data</div>'; } }); </script> </ul> </div> <script> try{ Event.observe(window, 'load', function() { if ($('label0')){ if ($('label0').style.display != 'none' && $('label0').getElementsBySelector("div")[1]){ var scrollbar=new ScrollRegion($('label0').getElementsBySelector("div")[1]); } } },false); }catch(err) {} </script> <div id="label1" class="hide content_outline_grey"> <ul class="content_outline_black"> <div id="baynote_temp8" class="hide"></div> </ul> </div> <div id="label2" class="hide content_outline_grey"> <ul class="content_outline_black"> <div id="baynote_temp3" class="hide"></div> </ul> </div> <div id="label3" class="hide content_outline_grey"> <ul class="content_outline_black"> <div id="baynote_temp4" class="hide"></div> </ul> </div> </div> <div id="tab2" class="tab time_sensitive_tabs_content prejs_tab"> <div id="label4" class="content_outline_grey"> <ul class="content_outline_black"> <div id="ratings_temp5" class="hide"></div> </ul> </div> </div> <div id="tab3" class="tab time_sensitive_tabs_content prejs_tab"> <div id="label5" class="content_outline_grey"> <ul class="content_outline_black"> <div id="ratings_temp6" class="hide"></div> <div class="editorPicks"> <a href="/missions/highlights/schedule.html">&rsaquo;&nbsp;NASA Launch Schedule</a><br /> <a href="/missions/current/index.html">&rsaquo;&nbsp;Current Missions A-Z</a><br /> <!--<a href="/topics/earth/features/japanquake/index.html">&rsaquo;&nbsp;NASA's Japan Quake Imagery</a><br /> <a href="/mission_pages/hurricanes/main/index.html">&rsaquo;&nbsp;NASA's Hurricane Imagery</a><br />--> <a href="mission_pages/station/expeditions/index.html">&rsaquo;&nbsp;Current Space Station Crew</a><br /> <a href="/astronauts">&rsaquo;&nbsp;Astronauts Page</a><br /> <a href="http://spaceflight.nasa.gov/realdata/sightings/">&rsaquo;&nbsp;See the ISS&nbsp;&rarr;</a> | <a href="http://spaceflight1.nasa.gov/realdata/tracking/index.html">&rsaquo;&nbsp;Track It&nbsp;&rarr;</a><br /> <a href="http://solarsystem.jpl.nasa.gov/planets/index.cfm">&rsaquo;&nbsp;Our Solar System/Planets&nbsp;&rarr;</a><br /> <!--<a href="http://climate.nasa.gov/">&rsaquo;&nbsp;Global Climate Change&nbsp;&rarr;</a><br />--> <a href="http://hubblesite.org/gallery/">&rsaquo;&nbsp;Hubble Gallery&nbsp;&rarr;</a><br /> <a href="/audience/forstudents/index.html">&rsaquo;&nbsp;NASA For Students</a><br /> <a href="/about/career/index.html">&rsaquo;&nbsp;Want to Work at NASA?</a><br /> <a href="http://www.whitehouse.gov/sites/default/files/national_space_policy_6-28-10.pdf">&rsaquo;&nbsp;National Space Policy&nbsp;&nbsp;&rarr;</a><br /> </div> </ul> </div> </div> <!-- baynote widget module end --></div>
+<div class="footer">&nbsp;</div>
+<h3 class="top_header_grip_popular">
+<a href="#">Careers @ NASA</a>
+</h3>
+<div class="content careers"><div class="content_outline_grey"> <div class="content_outline_black"><ul> <li> <h3>For Job Seekers</h3> <p>Apply for a job, post a resume.</p> <p><span class="link_career">&rsaquo;&nbsp;</span><a href="http://nasajobs.nasa.gov/">NASA Jobs&nbsp;&nbsp;&rarr; </a></p> </li> <li> <h3>For Students</h3> <p>Internships, co-ops, summer programs</p> <p><span class="link_career">&rsaquo;&nbsp;</span><a href="http://nasajobs.nasa.gov/studentopps/employment/programs.htm">Student Opportunities&nbsp;&nbsp;&rarr;</a></p> </li> <li> <h3>For Military or College Graduates</h3> <p><span class="link_career">&rsaquo;&nbsp;</span><a href="http://nasajobs.nasa.gov/astronauts/default.htm">Astronaut Selection&nbsp;&nbsp;&rarr;</a></p> </li> </ul></div> </div></div>
+<div class="footer">&nbsp;</div>
+<h3 class="top_header_grip_popular">
+<a href="#">NASA Centers</a>
+</h3>
+<div class="content expandablebox"><div class="content_outline_grey"> <div class="content_outline_black"><ul> <li> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/ames/home/index.html">Ames Research Center</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/dryden/home/index.html">Dryden Flight Research Center</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/glenn/home/index.html">Glenn Research Center</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/goddard/home/index.html">Goddard Space Flight Center</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/hq/home/index.html">Headquarters</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/jpl/home/index.html">Jet Propulsion Laboratory</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/johnson/home/index.html">Johnson Space Center</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/kennedy/home/index.html">Kennedy Space Center</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/langley/home/index.html">Langley Research Center</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/marshall/home/index.html">Marshall Space Flight Center</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/centers/stennis/home/index.html">Stennis Space Center</a></p> </li> </ul> <!-- <p>NASA's work is performed at locations across the country:</p> <ul> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/ames/home/index.html">Ames Research Center</a> </li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/dryden/home/index.html">Dryden Flight Research Center</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/glenn/home/index.html">Glenn Research Center</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/goddard/home/index.html">Goddard Space FlightCenter</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/hq/home/index.html">Headquarters</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/jpl/home/index.html">Jet Propulsion Laboratory</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/johnson/home/index.html">Johnson Space Center</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/kennedy/home/index.html">Kennedy Space Center</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/langley/home/index.html">Langley Research Center</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/marshall/home/index.html">Marshall Space Flight Center</a></li> <li><span class="light_blue">&rsaquo;&nbsp;</span> <a href="/centers/stennis/home/index.html">Stennis Space Center</a></li> <br /> <li><span class="light_blue">&rsaquo;&nbsp;</span><b><a href="/about/sites/index.html">View Centers and Facilities Map</a></b></li></ul> --></div> </div><a href="/about/sites/index.html" class="linkbutton_on_blue">View Map</a>
+</div>
+<div class="footer">&nbsp;</div>
+<h3 class="top_header_grip_popular">
+<a href="#">NASA Directorates and Offices</a>
+</h3>
+<div class="content expandablebox"><div class="content_outline_grey"> <div class="content_outline_black"><ul> <li> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span><a href="http://aerospace.nasa.gov/">Aeronautics Research&nbsp;&nbsp;&rarr;</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span><a href="/directorates/heo/home/index.html">Human Exploration and Operations</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span><a href="http://science.hq.nasa.gov/">Science&nbsp;&nbsp;&rarr;</a></p> </a></p> <hr width="80%" /> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/offices/ocfo/home/index.html">Chief Financial Officer</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/offices/ochmo/main/">Chief Health and Medical Officer&nbsp;&nbsp;&rarr;</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/offices/ocio/home/index.html">Chief Information Officer</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/offices/oct/home/index.html">Office of the Chief Technologist</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="http://www.hq.nasa.gov/office/oer/">External Relations&nbsp;&nbsp;&rarr;</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="/offices/ogc/about/index.html">General Counsel</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="http://oim.hq.nasa.gov/">Institutions and Management&nbsp;&nbsp;&rarr;</a></p> <p><span class="link_expandablebox">&rsaquo;&nbsp;</span> <a href="http://legislative.nasa.gov/">Legislative and Intergovernmental &nbsp;&nbsp;&nbsp;Affairs&nbsp;&nbsp;&rarr;</a></p> </li> </ul></div> </div><a href="/about/org_index.html" class="linkbutton_on_blue">See All NASA Organizations</a>
+</div>
+<div class="footer bottom_footer">&nbsp;</div>
+</div>
+
+
+</div></div><!--Footer Include Here--><!--Footer Starts Here--><div id="footer"><script type="text/javascript">
+                     createFooterlogo();
+                     createFooterContent('Jim Wilson',
+                                    'November 30, 2012',
+                                    'Brian Dunbar',
+                                   'Contact NASA',
+                                   '/about/contact/index.html',
+                                   '/sitemap/sitemap_nasa.html');
+                  </script><!--Footer Ends Here--></div><!--Footer Include ends Here--><div class="background_layer">&nbsp;</div><script src="/js/196888main_externalsource_footer.js" type="text/javascript" language="javascript"></script></body></html>
