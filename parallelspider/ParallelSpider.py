@@ -64,7 +64,8 @@ class Mapper():
         
         import redis
         import urllib
-        from spiderparser import Parser
+        import lxml.html
+        from mrfeynman import Brain
 
         # Connect to Redis
         r = redis.StrictRedis(host=self.redis_info["host"],
@@ -84,7 +85,8 @@ class Mapper():
 
         # Set up Parser
         site, d, date = base.partition("::")    # determine site name
-        parser = Parser(site, tag_list)
+        #parser = Parser(site, tag_list)
+        brain = Brain(site)
 
         stuff_to_scrape = True
         link_count = 0 # Total links downloaded by all mappers
@@ -123,30 +125,24 @@ class Mapper():
             # Try to download and parse the page
             try:
             
-                # Download page
-                f = urllib.urlopen(link)
-                data = f.read()
-                f.close
-
-                # Parse the page and get the info
-                parser.run(data)
-                links = parser.get_links()
-                output = parser.get_output()
+                # Download and parse page
+                page = lxml.html.parse(link)
+                brain.analyze(page)
+                links = brain.on_site_links
+                output = brain.output
 
             # Alert that can't parse and restart loop
             except:
-                message = "Unable to parse: " + link
+                message = "Unable to download and parse: " + link
                 yield message, 1
                 continue
 
             # Try to process / emit information
-            try:
-            
-
-                # Simple word count of all tags' content
-                for tag in tag_list:
-                    for word in output[tag].split():
-                        yield word, 1
+            try:           
+                for put in output:
+                    word, tag = put
+                    key, value = word, (tag, 1)
+                    yield key, value
 
             # Alert that can't process info
             except:
@@ -221,7 +217,18 @@ class Mapper():
         if r.exists(count):r.expire(count, hour)
 
 def reducer(key, values):
-    yield key, sum(values)
+
+    total_count = 0
+    
+    try:
+        for value in values:
+            tag, count = value
+            total_count = total_count + count
+    except:
+        total_count = sum(values)
+
+    #yield key, total_count
+    yield key, 1
 
 if __name__ == "__main__":
     import dumbo

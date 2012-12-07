@@ -110,7 +110,7 @@ def process_links(links, site):
             # With site name add to list
             if site_stripped in link:
                 
-                    link_list += [link]
+                link_list += [link]
                     
             # If absolute without site name skip
         

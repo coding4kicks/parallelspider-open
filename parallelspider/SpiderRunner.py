@@ -175,7 +175,7 @@ class SpiderRunner(object):
             cmds.append("dumbo start /home/parallelspider/parallelspider.py" \
                          " -input /HDFS/parallelspider/jobs/" + file_name + \
                          " -output /HDFS/parallelspider/out/" + base_path + \
-                         " -file spiderparser.py" + \
+                         " -file mrfeynman.py" + \
                          " -nummaptasks " + str(self.max_mappers) + \
                          " -param redisInfo=" + \
                          "host:" + self.redis_info["host"] + \
@@ -188,7 +188,7 @@ class SpiderRunner(object):
             cmds.append("dumbo start /home/parallelspider/parallelspider.py" \
                          " -input /home/parallelspider/jobs/" + file_name + \
                          " -output /home/parallelspider/out/" + base_path + \
-                         " -file spiderparser.py" + \
+                         " -file mrfeynman.py" + \
                          " -nummaptasks " + str(self.max_mappers) + \
                          " -param redisInfo=" + \
                          "host:" + self.redis_info["host"] + \
@@ -197,8 +197,8 @@ class SpiderRunner(object):
                          ",maxPages:" + str(self.max_pages))
 
             # Uncomment 1, comment 2 for testing in psuedo distributed
-            #cmds.pop(1)
-            cmds.pop(2)
+            cmds.pop(1)
+            #cmds.pop(2)
 
             # Run the commands
             for cmd in cmds:

@@ -1,4 +1,6 @@
 notes/
 *DS_Store
-*[~]
+*~
+*.pyc
+*.pyo
 
