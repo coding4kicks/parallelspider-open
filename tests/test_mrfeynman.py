@@ -54,6 +54,9 @@ class TestMrFeynman(unittest.TestCase):
         os.chdir("testpages")
         for file_name in os.listdir("."):
 
+            if file_name != "nbc0":
+                continue
+
             brain = self.site_brains[file_name[:-1]]
             ### blank parser
             page = lxml.html.parse(file_name)
@@ -63,7 +66,9 @@ class TestMrFeynman(unittest.TestCase):
             print file_name
             print "-----------------------"
             brain.analyze(page)
-
+            output = brain.output
+            for put in output:
+                print put
             #print brain.site_domain
             #print brain.site_url
 
