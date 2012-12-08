@@ -69,6 +69,9 @@ class TestMrFeynman(unittest.TestCase):
             output = brain.output
             for put in output:
                 print put
+
+            print brain.on_site_links
+            print brain.off_site_links
             #print brain.site_domain
             #print brain.site_url
 
