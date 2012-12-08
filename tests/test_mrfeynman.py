@@ -49,13 +49,13 @@ class TestMrFeynman(unittest.TestCase):
         #self.brain = mrfeynman.Brain()
         
         
-    def test_parser_speed(self):
+    def test_parser(self):
 
         os.chdir("testpages")
         for file_name in os.listdir("."):
 
-            if file_name != "nbc0":
-                continue
+            #if file_name != "nbc0":
+            #    continue
 
             brain = self.site_brains[file_name[:-1]]
             ### blank parser
@@ -69,9 +69,9 @@ class TestMrFeynman(unittest.TestCase):
             output = brain.output
             for put in output:
                 print put
-
-            print brain.on_site_links
-            print brain.off_site_links
+                #pass
+            #print brain.on_site_links
+            #print brain.off_site_links
             #print brain.site_domain
             #print brain.site_url
 
