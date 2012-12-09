@@ -65,7 +65,7 @@ class TestMrFeynman(unittest.TestCase):
             print "-----------------------"
             print file_name
             print "-----------------------"
-            brain.analyze(page)
+            brain.analyze(page, file_name)
             output = brain.output
             for put in output:
                 print put
