@@ -54,8 +54,8 @@ class TestMrFeynman(unittest.TestCase):
         os.chdir("testpages")
         for file_name in os.listdir("."):
 
-            #if file_name != "nbc0":
-            #    continue
+            if file_name != "nbc0":
+                continue
 
             brain = self.site_brains[file_name[:-1]]
             ### blank parser
@@ -67,15 +67,65 @@ class TestMrFeynman(unittest.TestCase):
             print "-----------------------"
             brain.analyze(page, file_name)
             output = brain.output
-            for put in output:
-                print put
+
+            # TEST MAPPER OUTPUT
+            #for put in output:
+            #    print put
                 #pass
             #print brain.on_site_links
             #print brain.off_site_links
             #print brain.site_domain
             #print brain.site_url
 
-        print "what up crew"
+            # SET UP FOR REDUCER
+
+            # sort the output
+            sorted_out = sorted(output)
+
+            # determine the number of values
+            length = len(sorted_out[0][1])
+
+            # a list to hold the new output for the reducer
+            new_output = []
+            previous_key = ""
+
+            # initialize a list of lists to hold values
+            list_o_lists = []
+            i = 0
+            while i < length:
+                list_o_lists.append([])
+                i = i + 1
+
+            # for each instance of the same key combine values into lists
+            for out in sorted_out:
+                key, value = out
+                item0, item1, item2, item3 = value
+
+                # if key is same just add items to list
+                if key == previous_key:
+                    i = 0
+                    while i < length:
+                        list_o_lists[i].append(eval("item" + str(i)))
+                        i = i + 1
+
+                # if key is different, output new key_value and reset lists
+                else:
+                    previous_key = key
+                    value = (list_o_lists[0], list_o_lists[1], 
+                             list_o_lists[2], list_o_lists[3])
+                    key_value = (key, value)
+                    new_output.append(key_value)
+
+                    list_o_lists = []
+                    i = 0
+                    while i < length:
+                        list_o_lists.append([eval("item" + str(i))])
+                        i = i + 1
+
+            for out in new_output:
+                print out
+                   
+            print "what up crew"
 
 if __name__ == '__main__':
     unittest.main()
