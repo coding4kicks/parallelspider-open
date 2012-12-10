@@ -68,7 +68,8 @@ class TestMrFeynman(unittest.TestCase):
             brain.analyze(page, file_name)
             output = brain.output
 
-            # TEST MAPPER OUTPUT
+            ### TEST MAPPER OUTPUT ###
+
             #for put in output:
             #    print put
                 #pass
@@ -76,17 +77,19 @@ class TestMrFeynman(unittest.TestCase):
             #print brain.off_site_links
             #print brain.site_domain
             #print brain.site_url
-
-            # SET UP FOR REDUCER
+            
+            ### SET UP FOR REDUCER ###
 
             # sort the output
             sorted_out = sorted(output)
 
             # determine the number of values
             length = len(sorted_out[0][1])
-
+        
             # a list to hold the new output for the reducer
             new_output = []
+
+            # set previous key to be the first one
             previous_key = ""
 
             # initialize a list of lists to hold values
@@ -95,31 +98,46 @@ class TestMrFeynman(unittest.TestCase):
             while i < length:
                 list_o_lists.append([])
                 i = i + 1
+            
+            # Set up first value in list o' lists
+            value = sorted_out[0][1]
+            i = 0
+            while i < length:
+                list_o_lists[i].append(value[i])
+                i = i + 1
 
             # for each instance of the same key combine values into lists
             for out in sorted_out:
                 key, value = out
-                item0, item1, item2, item3 = value
-
+                i = 0
+                item = []
+                while i < length:
+                    item.append(value[i])
+                    i = i + 1
+                  
                 # if key is same just add items to list
                 if key == previous_key:
                     i = 0
                     while i < length:
-                        list_o_lists[i].append(eval("item" + str(i)))
+                        list_o_lists[i].append(item[i])
                         i = i + 1
 
                 # if key is different, output new key_value and reset lists
                 else:
                     previous_key = key
-                    value = (list_o_lists[0], list_o_lists[1], 
-                             list_o_lists[2], list_o_lists[3])
+                    value = []
+                    i = 0
+                    while i < length:
+                        value.append(list_o_lists[i])
+                        i = i + 1
+
                     key_value = (key, value)
                     new_output.append(key_value)
 
                     list_o_lists = []
                     i = 0
                     while i < length:
-                        list_o_lists.append([eval("item" + str(i))])
+                        list_o_lists.append([item[i]])
                         i = i + 1
 
             for out in new_output:
