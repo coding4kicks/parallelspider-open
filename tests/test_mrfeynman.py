@@ -54,15 +54,15 @@ class TestMrFeynman(unittest.TestCase):
         for file_name in os.listdir("."):
 
             # Limit input to one doc for testing
-            if file_name != "nbc0":
-                continue
+            #if file_name != "drudge0":
+            #    continue
 
             # Brain is filename minus number on the end
             brain = self.site_brains[file_name[:-1]]
 
             # Parse the page with lxml.html
             page = lxml.html.parse(file_name)
-
+        
             # Set up output header
             print
             print "-----------------------"
@@ -71,7 +71,7 @@ class TestMrFeynman(unittest.TestCase):
 
             # Analyze the parsed output
             output = brain.analyze(page, file_name)
-
+            
             ### TEST MAPPER OUTPUT ###
             #for put in output:
             #    print put
@@ -91,7 +91,7 @@ class TestMrFeynman(unittest.TestCase):
 
             # A list of lists to hold the lists of values
             list_o_lists = []
-            
+            print sorted_out[0]
             # determine the number of values
             length = len(sorted_out[0][1])
 
