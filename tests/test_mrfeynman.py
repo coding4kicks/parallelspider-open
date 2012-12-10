@@ -17,8 +17,8 @@ class TestMrFeynman(unittest.TestCase):
     """
     Tests mrfeynman on 50 documents
     """
+
     def setUp(self):
-        
         """Initialize the brains"""
 
         # Test with path: ford, fox
@@ -45,68 +45,70 @@ class TestMrFeynman(unittest.TestCase):
             "reddit": Brain("http://www.reddit.com/"),
             "wh": Brain("http://www.whitehouse.gov/"),
             "wiki": Brain("http://www.wikipedia.org/")}
-
-        #self.brain = mrfeynman.Brain()
         
         
     def test_parser(self):
+        """Test both the mapper and reducer."""
 
         os.chdir("testpages")
         for file_name in os.listdir("."):
 
+            # Limit input to one doc for testing
             if file_name != "nbc0":
                 continue
 
+            # Brain is filename minus number on the end
             brain = self.site_brains[file_name[:-1]]
-            ### blank parser
+
+            # Parse the page with lxml.html
             page = lxml.html.parse(file_name)
 
+            # Set up output header
             print
             print "-----------------------"
             print file_name
             print "-----------------------"
-            brain.analyze(page, file_name)
-            output = brain.output
+
+            # Analyze the parsed output
+            output = brain.analyze(page, file_name)
 
             ### TEST MAPPER OUTPUT ###
-
             #for put in output:
             #    print put
                 #pass
-            #print brain.on_site_links
-            #print brain.off_site_links
-            #print brain.site_domain
-            #print brain.site_url
+
             
             ### SET UP FOR REDUCER ###
 
             # sort the output
             sorted_out = sorted(output)
-
-            # determine the number of values
-            length = len(sorted_out[0][1])
         
-            # a list to hold the new output for the reducer
+            # a list to hold the new output
             new_output = []
 
-            # set previous key to be the first one
+            # Save the value of the previous key for comparison
             previous_key = ""
 
-            # initialize a list of lists to hold values
+            # A list of lists to hold the lists of values
             list_o_lists = []
+            
+            # determine the number of values
+            length = len(sorted_out[0][1])
+
+            # Each value should have its own list
             i = 0
             while i < length:
                 list_o_lists.append([])
                 i = i + 1
             
-            # Set up first value in list o' lists
+            # Enter the first value in list o' lists
             value = sorted_out[0][1]
             i = 0
             while i < length:
                 list_o_lists[i].append(value[i])
                 i = i + 1
 
-            # for each instance of the same key combine values into lists
+            # For each instance of the same key combine values into lists
             for out in sorted_out:
                 key, value = out
                 i = 0
@@ -115,14 +117,14 @@ class TestMrFeynman(unittest.TestCase):
                     item.append(value[i])
                     i = i + 1
                   
-                # if key is same just add items to list
+                # If the key is the same just add items to list
                 if key == previous_key:
                     i = 0
                     while i < length:
                         list_o_lists[i].append(item[i])
                         i = i + 1
 
-                # if key is different, output new key_value and reset lists
+                # If key is different, output new key_value and reset lists
                 else:
                     previous_key = key
                     value = []
@@ -140,9 +142,16 @@ class TestMrFeynman(unittest.TestCase):
                         list_o_lists.append([item[i]])
                         i = i + 1
 
-            for out in new_output:
-                print out
-                   
+            # Test mapper output processed correctly
+            #for out in new_output:
+            #    print out
+              
+            # Process key value pairs
+            for put in new_output:
+                red_output = brain.process(put[0], put[1])
+
+                #print red_output
+
             print "what up crew"
 
 if __name__ == '__main__':
