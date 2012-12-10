@@ -77,7 +77,7 @@ class TestMrFeynman(unittest.TestCase):
             #    print put
                 #pass
 
-            
+
             ### SET UP FOR REDUCER ###
 
             # sort the output
@@ -150,7 +150,7 @@ class TestMrFeynman(unittest.TestCase):
             for put in new_output:
                 red_output = brain.process(put[0], put[1])
 
-                #print red_output
+                print red_output
 
             print "what up crew"
 
