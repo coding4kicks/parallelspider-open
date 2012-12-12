@@ -54,7 +54,7 @@ class TestMrFeynman(unittest.TestCase):
         for file_name in os.listdir("."):
 
             # Limit input to one doc for testing
-            #if file_name != "drudge0":
+            #if file_name != "nbc0":
             #    continue
 
             # Brain is filename minus number on the end
@@ -80,76 +80,106 @@ class TestMrFeynman(unittest.TestCase):
 
             ### SET UP FOR REDUCER ###
 
+            # skip if no output
+            if not output:
+                continue
+
             # sort the output
             sorted_out = sorted(output)
-        
+
+            # split the sorted output based upon key types
+            # necessary since different value sizes for key type
+            total_out = [] # list to hold outputs for each key type
+            mini_out = [] # list to hold each type's keys
+            previous_key_type = sorted_out[0][0][0:4]
+            for out in sorted_out:
+                key_type = out[0][0:4]
+                if key_type == previous_key_type:
+                    mini_out.append(out)
+                else:
+                    total_out.append(mini_out)
+                    mini_out = [out]
+                    previous_key_type = key_type
+            total_out.append(mini_out)
+            
             # a list to hold the new output
             new_output = []
 
-            # Save the value of the previous key for comparison
-            previous_key = ""
+            for sorted_out in total_out:
+                
+                # Save the value of the previous key for comparison
+                previous_key = sorted_out[0][0]
+                key = ""
+                value = []
 
-            # A list of lists to hold the lists of values
-            list_o_lists = []
-            print sorted_out[0]
-            # determine the number of values
-            length = len(sorted_out[0][1])
+                # A list of lists to hold the lists of values
+                list_o_lists = []
+               
+                # determine the number of values
+                length = len(sorted_out[0][1])
 
-            # Each value should have its own list
-            i = 0
-            while i < length:
-                list_o_lists.append([])
-                i = i + 1
-            
-            # Enter the first value in list o' lists
-            value = sorted_out[0][1]
-            i = 0
-            while i < length:
-                list_o_lists[i].append(value[i])
-                i = i + 1
-
-            # For each instance of the same key combine values into lists
-            for out in sorted_out:
-                key, value = out
+                # Each value should have its own list
                 i = 0
-                item = []
                 while i < length:
-                    item.append(value[i])
+                    list_o_lists.append([])
                     i = i + 1
-                  
-                # If the key is the same just add items to list
-                if key == previous_key:
-                    i = 0
-                    while i < length:
-                        list_o_lists[i].append(item[i])
-                        i = i + 1
+                
+                # Enter the first value in list o' lists
+                #value = sorted_out[0][1]
+                #i = 0
+                #while i < length:
+                #    list_o_lists[i].append(value[i])
+                #    i = i + 1
 
-                # If key is different, output new key_value and reset lists
-                else:
-                    previous_key = key
-                    value = []
+                # For each instance of the same key combine values into lists
+                for out in sorted_out:
+                    key, value = out
                     i = 0
+                    item = []
                     while i < length:
-                        value.append(list_o_lists[i])
+                        item.append(value[i])
                         i = i + 1
+                      
+                    # If the key is the same just add items to list
+                    if key == previous_key:
+                        i = 0
+                        while i < length:
+                            list_o_lists[i].append(item[i])
+                            i = i + 1
 
-                    key_value = (key, value)
-                    new_output.append(key_value)
+                    # If key is different, output new key_value and reset lists
+                    else:
+                        value = []
+                        i = 0
+                        while i < length:
+                            value.append(list_o_lists[i])
+                            i = i + 1
+                        key_value = (previous_key, value)
+                        new_output.append(key_value)
+                        previous_key = key
+                        list_o_lists = []
+                        i = 0
+                        while i < length:
+                            list_o_lists.append([item[i]])
+                            i = i + 1
 
-                    list_o_lists = []
-                    i = 0
-                    while i < length:
-                        list_o_lists.append([item[i]])
-                        i = i + 1
+                # Clean up last one
+                value = []
+                i = 0
+                while i < length:
+                    value.append(list_o_lists[i])
+                    i = i + 1
+                key_value = (key, value)
+                new_output.append(key_value)
 
             # Test mapper output processed correctly
+            #print "new output --------------"
             #for out in new_output:
             #    print out
               
             # Process key value pairs
             for put in new_output:
                 red_output = brain.process(put[0], put[1])
-
                 print red_output
 
             print "what up crew"
