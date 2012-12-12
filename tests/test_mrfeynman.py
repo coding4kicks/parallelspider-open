@@ -54,8 +54,8 @@ class TestMrFeynman(unittest.TestCase):
         for file_name in os.listdir("."):
 
             # Limit input to one doc for testing
-            #if file_name != "nbc0":
-            #    continue
+            if file_name != "nbc0":
+                continue
 
             # Brain is filename minus number on the end
             brain = self.site_brains[file_name[:-1]]
