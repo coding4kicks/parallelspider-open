@@ -3,7 +3,7 @@
     test_parser - a test for the parser ;)
 
     needs test pages to parse
-    TODO: handle/test PDFs
+    TODO: handle/test PDFs?
 """
 
 import os
@@ -54,8 +54,8 @@ class TestMrFeynman(unittest.TestCase):
         for file_name in os.listdir("."):
 
             # Limit input to one doc for testing
-            if file_name != "nbc0":
-                continue
+            #if file_name != "nbc0":
+            #    continue
 
             # Brain is filename minus number on the end
             brain = self.site_brains[file_name[:-1]]
@@ -75,7 +75,6 @@ class TestMrFeynman(unittest.TestCase):
             ### TEST MAPPER OUTPUT ###
             #for put in output:
             #    print put
-                #pass
 
 
             ### SET UP FOR REDUCER ###
@@ -110,79 +109,73 @@ class TestMrFeynman(unittest.TestCase):
                 # Save the value of the previous key for comparison
                 previous_key = sorted_out[0][0]
                 key = ""
-                value = []
+                value_list = []
 
                 # A list of lists to hold the lists of values
-                list_o_lists = []
+                #list_o_lists = []
                
                 # determine the number of values
-                length = len(sorted_out[0][1])
+                #length = len(sorted_out[0][1])
 
                 # Each value should have its own list
-                i = 0
-                while i < length:
-                    list_o_lists.append([])
-                    i = i + 1
-                
-                # Enter the first value in list o' lists
-                #value = sorted_out[0][1]
                 #i = 0
                 #while i < length:
-                #    list_o_lists[i].append(value[i])
+                #    list_o_lists.append([])
                 #    i = i + 1
 
-                # For each instance of the same key combine values into lists
+                # For each instance of the same key combine values
                 for out in sorted_out:
                     key, value = out
-                    i = 0
-                    item = []
-                    while i < length:
-                        item.append(value[i])
-                        i = i + 1
+                    #i = 0
+                    #item = []
+                    #while i < length:
+                    #    item.append(value[i])
+                    #    i = i + 1
                       
                     # If the key is the same just add items to list
                     if key == previous_key:
-                        i = 0
-                        while i < length:
-                            list_o_lists[i].append(item[i])
-                            i = i + 1
+                        value_list.append(value)
+                        #i = 0
+                        #while i < length:
+                        #    list_o_lists[i].append(item[i])
+                        #    i = i + 1
 
-                    # If key is different, output new key_value and reset lists
+                    # If key is different, output new key_value, reset lists
                     else:
-                        value = []
-                        i = 0
-                        while i < length:
-                            value.append(list_o_lists[i])
-                            i = i + 1
-                        key_value = (previous_key, value)
+                        #value = []
+                        #i = 0
+                        #while i < length:
+                        #    value.append(list_o_lists[i])
+                        #    i = i + 1
+                        key_value = (previous_key, value_list)
                         new_output.append(key_value)
                         previous_key = key
-                        list_o_lists = []
-                        i = 0
-                        while i < length:
-                            list_o_lists.append([item[i]])
-                            i = i + 1
+                        value_list = [value]
+                        #list_o_lists = []
+                        #i = 0
+                        #while i < length:
+                        #    list_o_lists.append([item[i]])
+                        #    i = i + 1
 
                 # Clean up last one
-                value = []
-                i = 0
-                while i < length:
-                    value.append(list_o_lists[i])
-                    i = i + 1
-                key_value = (key, value)
+                #value = []
+                #i = 0
+                #while i < length:
+                #    value.append(list_o_lists[i])
+                #    i = i + 1
+                key_value = (key, value_list)
                 new_output.append(key_value)
 
             # Test mapper output processed correctly
-            #print "new output --------------"
             #for out in new_output:
             #    print out
               
             # Process key value pairs
             for put in new_output:
                 red_output = brain.process(put[0], put[1])
-                print red_output
+                print len(red_output)
 
-            print "what up crew"
+            print "What up crew!"
 
 if __name__ == '__main__':
     unittest.main()
