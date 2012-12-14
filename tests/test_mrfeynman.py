@@ -21,30 +21,74 @@ class TestMrFeynman(unittest.TestCase):
     def setUp(self):
         """Initialize the brains"""
 
+        # Set up configuration file
+        config = {}
+        
+        # Config variables
+        config['text_request'] = True
+        config['header_request']  = True
+        config['meta_request']  = True
+        config['a_tags_request'] = True
+        config['all_links_request'] = True
+        config['external_links_request'] = True
+        config['context_search_tag'] = ['dream']
+        config['wordnet_lists'] = {
+                'list1':['word', 'something', 'loser'],
+                'list2':['news', 'journalism', 'great']}        
+        config['xpath_selectors'] = [
+            {'selector': "//img/@alt", 'name': "image alt", 'analyze': False, 'css_text': False},
+            {'selector': "//div[@class='story']/descendant::text()", 'name': "test1", 'analyze': False, 'css_text': False},
+            {'selector': "//a[@href='http://video.msnbc.msn.com/nightly-news/50032975/']/text()", 'name': "test2", 'analyze': True, 'css_text': False},
+            {'selector': "//div[@id='tbx-29618997']/div/h2/text()", 'name': "test3", 'analyze': False, 'css_text': False}] 
+        config['css_selectors'] = [{'selector': 'p.abstr', 'name': "testCss", 'analyze': True, 'css_text': True}]
+
+        config['paths_to_follow'] = [] #['worldnews'] # list of paths to follow (or domains)
+
+        # Hardcode stop words, later load from pickle config file
+        stop_words = ("a,about,above,after,again,against,all,am,an,and,any,"+
+            "are,aren't,as,at,be,because,been,before,being,below,between,"+
+            "both,but,by,can't,cannot,could,couldn't,did,didn't,do,does,"+
+            "doesn't,doing,don't,down,during,each,few,for,from,further,had,"+
+            "hadn't,has,hasn't,have,haven't,having,he,he'd,he'll,he's,her,"+
+            "here,here's,hers,herself,him,himself,his,how,how's,i,i'd,i'll,"+
+            "i'm,i've,if,in,into,is,isn't,it,it's,its,itself,let's,me,more,"+
+            "most,mustn't,my,myself,no,nor,not,of,off,on,once,only,or,other,"+
+            "ought,our,ours,ourselves,out,over,own,same,shan't,she,she'd,"+
+            "she'll,she's,should,shouldn't,so,some,such,than,that,that's,"+
+            "the,their,theirs,them,themselves,then,there,there's,these,they,"+
+            "they'd,they'll,they're,they've,this,those,through,to,too,under,"+
+            "until,up,very,was,wasn't,we,we'd,we'll,we're,we've,were,weren't,"+
+            "what,what's,when,when's,where,where's,which,while,who,who's,whom,"+
+            "why,why's,with,won't,would,wouldn't,you,you'd,you'll,you're,"+
+            "you've,your,yours,yourself,yourselves,&,<,>,^,(,)")
+
+        config['stop_list'] = stop_words.split(",")
+
+
         # Test with path: ford, fox
         # Test with subdomain: nasa
         ### Test various configurations of config
         self.site_brains = {  
-            "cnn": Brain("http://www.cnn.com/"),
-            "dhs": Brain("http://www.dhs.gov/"),
-            "drudge": Brain("http://www.drudgereport.com/"),
-            "fed": Brain("http://www.federalreserve.gov/"),
-            "ford": Brain("http://www.ford.com/help/sitemap/"),
-            "fox": Brain("http://www.foxnews.com/us/index.html"),
-            "ge": Brain("http://www.ge.com/"),
-            "github": Brain("https://github.com/"),
-            "gm": Brain("http://www.gm.com/"),
-            "google": Brain("http://www.google.com/intl/en/about/"),
-            "hn": Brain("http://news.ycombinator.com/"),
-            "huff": Brain("http://www.huffingtonpost.com/"),
-            "microsoft": Brain("http://www.microsoft.com/en-us/default.aspx"),
-            "mish": Brain("http://globaleconomicanalysis.blogspot.com/"),
-            "nasa": Brain("http://women.nasa.gov/"),
-            "navy": Brain("http://www.navy.mil/"),
-            "nbc": Brain("http://www.nbcnews.com/"),
-            "reddit": Brain("http://www.reddit.com/"),
-            "wh": Brain("http://www.whitehouse.gov/"),
-            "wiki": Brain("http://www.wikipedia.org/")}
+            "cnn": Brain("http://www.cnn.com/", config),
+            "dhs": Brain("http://www.dhs.gov/", config),
+            "drudge": Brain("http://www.drudgereport.com/", config),
+            "fed": Brain("http://www.federalreserve.gov/", config),
+            "ford": Brain("http://www.ford.com/help/sitemap/", config),
+            "fox": Brain("http://www.foxnews.com/us/index.html", config),
+            "ge": Brain("http://www.ge.com/", config),
+            "github": Brain("https://github.com/", config),
+            "gm": Brain("http://www.gm.com/", config),
+            "google": Brain("http://www.google.com/intl/en/about/", config),
+            "hn": Brain("http://news.ycombinator.com/", config),
+            "huff": Brain("http://www.huffingtonpost.com/", config),
+            "microsoft": Brain("http://www.microsoft.com/en-us/default.aspx", config),
+            "mish": Brain("http://globaleconomicanalysis.blogspot.com/", config),
+            "nasa": Brain("http://women.nasa.gov/", config),
+            "navy": Brain("http://www.navy.mil/", config),
+            "nbc": Brain("http://www.nbcnews.com/", config),
+            "reddit": Brain("http://www.reddit.com/", config),
+            "wh": Brain("http://www.whitehouse.gov/", config),
+            "wiki": Brain("http://www.wikipedia.org/", config)}
         
         
     def test_parser(self):
@@ -172,8 +216,10 @@ class TestMrFeynman(unittest.TestCase):
               
             # Process key value pairs
             for put in new_output:
+
+                self.assertEqual(len(put), 2)
                 red_output = brain.process(put[0], put[1])
-                print len(red_output)
+                print red_output
 
             print "What up crew!"
 
