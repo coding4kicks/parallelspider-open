@@ -2,10 +2,11 @@
 """
     spiderrunner - Downloads initial link set and runs parallelspider
 
-    Downloads the first page for each given site and saves a number of links to 
-    a txt file. The number of links saved is the number of mappers that will
-    be run? Next, it sets up a redis data-structure server. The runner then
-    initiates a ParallelSpider, passing all required info.
+    Downloads the first page for each given site 
+    and saves a number of links to a txt file.
+    The number of links saved is the number of mappers that will
+    be run? Next, it sets up a redis data-structure server.
+    The runner then initiates a ParallelSpider, passing all required info.
 
         ex. to call:    
         python SpiderRunner.py
@@ -177,6 +178,7 @@ class SpiderRunner(object):
                          " -output /HDFS/parallelspider/out/" + base_path + \
                          " -file mrfeynman.py" + \
                          " -nummaptasks " + str(self.max_mappers) + \
+                         " -cmdenv PYTHONIOENCODING=utf-8" + \
                          " -param redisInfo=" + \
                          "host:" + self.redis_info["host"] + \
                          ",port:" + self.redis_info["port"] + \
@@ -190,6 +192,7 @@ class SpiderRunner(object):
                          " -output /home/parallelspider/out/" + base_path + \
                          " -file mrfeynman.py" + \
                          " -nummaptasks " + str(self.max_mappers) + \
+                         " -cmdenv PYTHONIOENCODING=utf-8" + \
                          " -param redisInfo=" + \
                          "host:" + self.redis_info["host"] + \
                          ",port:" + self.redis_info["port"] + \

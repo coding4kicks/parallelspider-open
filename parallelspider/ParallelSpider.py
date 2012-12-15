@@ -21,13 +21,15 @@ class Mapper():
     """
     def __init__(self):
         """ 
-        Initializes redis info
+        Initializes redis info and config file
 
         Arguments:
         param - dictionary passed by dumbo
            redisInfo : host, port, base key, max mappers
         """
         import sys
+        import redis
+        import cPickle
                       
         # Convert Redis info to Python Dictionary
         self.redis_info = {}
@@ -46,7 +48,14 @@ class Mapper():
         if not self.redis_info['port']:
             redis_info['port'] = 6379
     
-    
+        # Connect to redis
+        self.redis = redis.StrictRedis(host=self.redis_info["host"],
+                              port=int(self.redis_info["port"]), db=0)
+
+        # Set up configuration file
+        config_file = self.redis.get('config')
+        self.config = cPickle.loads(config_file)       
+
     def __call__(self, key, value):
         """ 
         Performs parallel website downloading, parsing, and analysis 
@@ -65,12 +74,13 @@ class Mapper():
         import redis
         import urllib
         import lxml.html
+        import robotparser
+
         from mrfeynman import Brain
 
-        # Connect to Redis
-        r = redis.StrictRedis(host=self.redis_info["host"],
-                              port=int(self.redis_info["port"]), db=0)
-        
+        # Redis
+        r = self.redis
+
         # Create keys for Redis
         base = self.redis_info["base"]
         new_links = base + "::new_links"        # new links
@@ -80,13 +90,15 @@ class Mapper():
         temp1 = base + "::temp1"                # temp keys for set ops
         temp2 = base + "::temp2"
 
-        # TODO: hard code tags - later make variable of Analysis Info
-        tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
-
-        # Set up Parser
         site, d, date = base.partition("::")    # determine site name
-        #parser = Parser(site, tag_list)
-        brain = Brain(site)
+
+        # Get robots.txt
+        self.robots_txt = robotparser.RobotFileParser()
+        self.robots_txt.set_url(site)
+        self.robots_txt.read() 
+
+        # Set up analysis engine
+        brain = Brain(site, self.config)
 
         stuff_to_scrape = True
         link_count = 0 # Total links downloaded by all mappers
@@ -110,7 +122,8 @@ class Mapper():
             try:
 
                 # Retrieve a a link
-                # later retrieve 5+? Asynchronously, batch process links to Redis
+                # later retrieve 5+? 
+                #Asynchronously, batch process links to Redis
                 link = r.spop(new_links)
 
                 # Add link to processing
@@ -119,7 +132,7 @@ class Mapper():
             # Alert that can't pop a link
             except:
                 message = "Unable to pop a link"
-                yield message, 1
+                yield 'zmsg__error', (message, 1)
                 break
 
             # Try to download and parse the page
@@ -127,27 +140,25 @@ class Mapper():
             
                 # Download and parse page
                 page = lxml.html.parse(link)
-                brain.analyze(page)
+                output = brain.analyze(page, link, self.robots_txt)
                 links = brain.on_site_links
-                output = brain.output
 
             # Alert that can't parse and restart loop
             except:
                 message = "Unable to download and parse: " + link
-                yield message, 1
+                yield 'zmsg__error', (message, 1)
                 continue
 
             # Try to process / emit information
             try:           
                 for put in output:
-                    word, tag = put
-                    key, value = word, (tag, 1)
+                    key, value = put
                     yield key, value
 
             # Alert that can't process info
             except:
                 message = "Unable to process info for: " + link
-                yield message, 1
+                yield 'zmsg__error', (message, 1)
                 continue
 
             # Try to finish processing link
@@ -206,7 +217,7 @@ class Mapper():
             # Alert that can't process info
             except:
                 message = "Unable to finish processing: " + link
-                yield message, 1
+                yield 'zmsg__error', (message, 1)
                 continue          
             
         # Set 1 hour expirations on all keys
@@ -216,23 +227,83 @@ class Mapper():
         if r.exists(finished): r.expire(finished, hour)
         if r.exists(count):r.expire(count, hour)
 
-def reducer(key, values):
+class Reducer():
+    """
+    Condenses web analysis output from mappers
 
-    total_count = 0
+    __init__ -- initializes redis info and config file
+    __call__ -- takes in key - values, and compresses/counts values
+    """
+
+
+    def __init__(self):
+        """ 
+        Initializes redis info and config file
+
+        Config file is only used to initialize the Brain, 
+        but process doesn't make use of parameters.
+        Option to remove or keep later, to remove, config must 
+        be initialized in the analyzer and not __init__.
+        """
+        import sys
+        import redis
+        import cPickle
+                      
+        # Convert Redis info to Python Dictionary
+        self.redis_info = {}
+        param = self.params["redisInfo"]
+        temp_list = param.split(",")
+        for item in temp_list:
+            key, delimiter, value = item.partition(':')
+            self.redis_info[key] = value
+
+        # Kill if no Redis info for host
+        if not self.redis_info['host']:
+            sys.stderr.write('Must specify Redis host information! Please.')
+            sys.exit(1)
+
+        # Set default port
+        if not self.redis_info['port']:
+            redis_info['port'] = 6379
     
-    try:
-        for value in values:
-            tag, count = value
-            total_count = total_count + count
-    except:
-        total_count = sum(values)
+        # Connect to redis
+        self.redis = redis.StrictRedis(host=self.redis_info["host"],
+                              port=int(self.redis_info["port"]), db=0)
 
-    #yield key, total_count
-    yield key, 1
+        # Set up configuration file (HARDCODE for now)
+        config_file = self.redis.get('config')
+        self.config = cPickle.loads(config_file)
+
+    def __call__(self, key, values):
+        """ 
+        Performs parallel website downloading, parsing, and analysis 
+        
+        Arguments:
+        key -- a text key with a label followed by value
+        values -- a list of tubles depending upon key type
+       """
+        
+        from mrfeynman import Brain
+
+        try:
+
+            base = self.redis_info["base"]
+            site, d, date = base.partition("::")    # determine site name
+
+            # Reduce key-value pairs
+            brain = Brain(site, self.config)
+            output = brain.process(key, values)
+            key, new_values = output
+
+            yield key, new_values
+
+        except:
+            message = "Unable to reduce: " + key
+            yield 'zmsg__error', (message, 1)
 
 if __name__ == "__main__":
     import dumbo
-    dumbo.run(Mapper, reducer)
+    dumbo.run(Mapper, Reducer)
     
     
 
