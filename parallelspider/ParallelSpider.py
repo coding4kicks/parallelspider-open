@@ -93,9 +93,9 @@ class Mapper():
         site, d, date = base.partition("::")    # determine site name
 
         # Get robots.txt
-        self.robots_txt = robotparser.RobotFileParser()
-        self.robots_txt.set_url(site)
-        self.robots_txt.read() 
+        robots_txt = robotparser.RobotFileParser()
+        robots_txt.set_url(site)
+        robots_txt.read() 
 
         # Set up analysis engine
         brain = Brain(site, self.config)
@@ -140,7 +140,7 @@ class Mapper():
             
                 # Download and parse page
                 page = lxml.html.parse(link)
-                output = brain.analyze(page, link, self.robots_txt)
+                output = brain.analyze(page, link, robots_txt)
                 links = brain.on_site_links
 
             # Alert that can't parse and restart loop

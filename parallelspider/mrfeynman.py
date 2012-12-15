@@ -300,8 +300,10 @@ class Brain(object):
 
         # Process the links on the page for parallel spider to follow
         (self.on_site_links, self.off_site_links, all_links, 
-                ext_links) = process_links(page_links, self.site_url, 
-                                           self.site_domain, self.scheme, 
+                ext_links) = process_links(page_links, 
+                                           self.site_url, 
+                                           self.site_domain, 
+                                           self.scheme, 
                                            self.paths_to_follow,
                                            robots_txt)
 
@@ -606,7 +608,8 @@ def process_links(links, site_url, site_domain, scheme,
         if link[0:4] == "http" or link[0:5] == "https":
             
             # With site name add to on site list, else off site list
-            if site_domain in link:                
+            if (site_domain in link and
+                robots_txt.can_fetch('*', link)):
                 on_site.append(link)
 
             else:
@@ -616,12 +619,14 @@ def process_links(links, site_url, site_domain, scheme,
         # If schemeless add scheme
         if (link and link[0:2] == '//'):
             link_abs = scheme + link
-            on_site.append(link_abs)
+            if robots_txt.can_fetch('*', link_abs):
+                on_site.append(link_abs)
 
         # If relative add site
         elif (link and link[0] == '/' and len(link) > 1):            
             link_abs = site_url + link
-            on_site.append(link_abs)
+            if robots_txt.can_fetch('*', link_abs):
+                on_site.append(link_abs)
             
         # Else skip, junk
             

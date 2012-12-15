@@ -18,12 +18,17 @@
 import sys
 import redis
 import urllib
+import cPickle
 import datetime
 import optparse
+import lxml.html
 import contextlib
 import subprocess
+import robotparser
 
 import spiderparser
+from mrfeynman import Brain
+
 
 
 class SpiderRunner(object):
@@ -86,7 +91,7 @@ class SpiderRunner(object):
           max number of mappers to start
           redis info: host, port, and base key (site name + timestamp)
           max number of pages to download
-   
+   i
         TODO: stop passing spiderparser.py and save on nodes instead,
         Then pass a file with all the required analysis info
         """
@@ -94,6 +99,10 @@ class SpiderRunner(object):
         # Connect to Redis
         r = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
+
+        # Set up configuration file
+        config_file = r.get('config')
+        config = cPickle.loads(config_file) 
 
         # Download initial page for each site
         # TODO: make asynchronous to speed things up for multiple sites
@@ -107,16 +116,29 @@ class SpiderRunner(object):
                 break
 
             # Hard code tags - later make variable of Analysis Info
-            tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
-            parser = spiderparser.Parser(site, tag_list)
-            parser.run(data)
-            links = parser.get_links()
-            output = parser.get_output() # TEST only
+            #tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
+            #parser = spiderparser.Parser(site, tag_list)
+            #parser.run(data)
+            #links = parser.get_links()
+            #output = parser.get_output() # TEST only
+            #print type(links)
 
+            # Get robots.txt
+            robots_txt = robotparser.RobotFileParser()
+            robots_txt.set_url(site)
+            robots_txt.read() 
+
+            # Download and parse page
+            page = lxml.html.parse(site)
+            brain = Brain(site, config)
+            output = brain.analyze(page, site, robots_txt, no_emit=True)
+            links = brain.on_site_links
+            #print type(links1)
+            #print len(links1)
             # Create base part of Redis key from timestamp and site name
             base = '%s::%s' % (site, self.timestamp)
             new_link_set = '%s::new_links' % (base)
-            
+            #break
             # Add new links to Redis
             # Process as batch vice adding 1 at a time (max 255)
 
