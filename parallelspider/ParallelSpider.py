@@ -54,7 +54,11 @@ class Mapper():
 
         # Set up configuration file
         config_file = self.redis.get('config')
-        self.config = cPickle.loads(config_file)       
+        self.config = cPickle.loads(config_file) 
+
+        # hardcode for now
+        self.config['analyze_external_pages'] = True
+
 
     def __call__(self, key, value):
         """ 
@@ -137,11 +141,27 @@ class Mapper():
 
             # Try to download and parse the page
             try:
+
+                # If link is external, set flag and adjust link
+                external = False
+                if link[0:4] == 'ext_':
+                    external = True
+                    link = link[4:len(link)]
             
                 # Download and parse page
                 page = lxml.html.parse(link)
-                output = brain.analyze(page, link, robots_txt)
+                output = brain.analyze(page, link, robots_txt,
+                                       external=external)
                 links = brain.on_site_links
+
+                if self.config['analyze_external_pages']:
+                    ext_links = brain.off_site_links
+                    
+                    for link in ext_links:
+                        new_link = "ext_" + link
+                        links.append(new_link)
+                    #links.extend(new_links)
+                #yield('zmsg_error', (links, 1)
 
             # Alert that can't parse and restart loop
             except:

@@ -17,7 +17,6 @@
 
 import sys
 import redis
-import urllib
 import cPickle
 import datetime
 import optparse
@@ -26,7 +25,6 @@ import contextlib
 import subprocess
 import robotparser
 
-import spiderparser
 from mrfeynman import Brain
 
 
@@ -40,14 +38,13 @@ class SpiderRunner(object):
     main     - executes the program from the command line
     """
 
-    def __init__(self, site_list, analysis_info, redis_info, 
+    def __init__(self, site_list, redis_info, 
                  max_mappers, max_pages):
         """ 
         Initializes inputs and creates a timestamp
 
         Arguments:
         site_list       --  a list of urls to crawl 
-        analysis_info   --  tags and info to analyze
         redis_info      --  host location and port of redis
         max_mappers     --  number of mappers to control concurrency
         max_pages       --  max number of pages to download
@@ -66,7 +63,6 @@ class SpiderRunner(object):
         """
 
         self.site_list = site_list         
-        self.analysis_info = analysis_info 
         self.redis_info = redis_info      
         self.max_mappers = max_mappers
         self.max_pages = max_pages
@@ -91,7 +87,7 @@ class SpiderRunner(object):
           max number of mappers to start
           redis info: host, port, and base key (site name + timestamp)
           max number of pages to download
-   i
+
         TODO: stop passing spiderparser.py and save on nodes instead,
         Then pass a file with all the required analysis info
         """
@@ -107,21 +103,6 @@ class SpiderRunner(object):
         # Download initial page for each site
         # TODO: make asynchronous to speed things up for multiple sites
         for site in self.site_list:
-            with contextlib.closing(urllib.urlopen(site)) as f:
-                data = f.read()
-            
-            # Security for false site name in eval
-            # ??? could still breach with fake website ???
-            if data is None:
-                break
-
-            # Hard code tags - later make variable of Analysis Info
-            #tag_list = ["p", "h1", "h2", "h3", "h4", "h5", "h6"]
-            #parser = spiderparser.Parser(site, tag_list)
-            #parser.run(data)
-            #links = parser.get_links()
-            #output = parser.get_output() # TEST only
-            #print type(links)
 
             # Get robots.txt
             robots_txt = robotparser.RobotFileParser()
@@ -133,15 +114,12 @@ class SpiderRunner(object):
             brain = Brain(site, config)
             output = brain.analyze(page, site, robots_txt, no_emit=True)
             links = brain.on_site_links
-            #print type(links1)
-            #print len(links1)
+
             # Create base part of Redis key from timestamp and site name
             base = '%s::%s' % (site, self.timestamp)
             new_link_set = '%s::new_links' % (base)
-            #break
+            
             # Add new links to Redis
-            # Process as batch vice adding 1 at a time (max 255)
-
             # Calculate number of breaks
             size = len(links)
             breaks, remainder = divmod(size, 250)
@@ -153,6 +131,7 @@ class SpiderRunner(object):
             finish = 250
             i = 0
 
+            # Process as batch vice adding 1 at a time (max 255)
             while i < breaks:
                 links_part = links[start:finish]
 
@@ -161,7 +140,8 @@ class SpiderRunner(object):
                 link_string = (',').join(map(lambda x: "'" + x + "'",
                                              links_part))
 
-                # Add links, ??? SECURITY ??? - site name is user provided
+                # Add links, SECURITY - site name is user provided
+                # but lxml.html.parse will catch if invalid link
                 eval("r.sadd('" + new_link_set + "'," + link_string + ")") 
 
                 # Set key expiration to 1 hour
@@ -222,12 +202,12 @@ class SpiderRunner(object):
                          ",maxPages:" + str(self.max_pages))
 
             # Uncomment 1, comment 2 for testing in psuedo distributed
-            cmds.pop(1)
-            #cmds.pop(2)
+            #cmds.pop(1)
+            cmds.pop(2)
 
             # Run the commands
             for cmd in cmds:
-                print "Running %s" % cmd
+                #print "Running %s" % cmd
                 subprocess.call(cmd, shell=True)
 
 
@@ -237,12 +217,6 @@ def main():
     # Parse command line options and arguments.
     usage = "usage: %prog [options] <site1url,site2url,...>"
     parser = optparse.OptionParser(usage)
-
-    # Analysis info from the command line???
-    # TODO: add configuration file instead
-    parser.add_option(
-            "-a", "-A", "--analysisInfo", action="store", dest="analysisInfo", 
-            help="A comma separated list of analysis options.")
 
     # Maximum number of mappers (controls download rate)
     parser.add_option(
@@ -274,14 +248,6 @@ def main():
     # Convert string argument to Python list
     site_list = args[0].split(",")
 
-    # Convert Analysis info to Python Dictionary
-    analysis_info = {}
-    if options.analysisInfo:
-        temp_list = options.analysisInfo.split(",")
-        for item in temp_list:
-            key, delimiter, value = item.partition(':')
-            analysis_info[key] = value
-
     # Convert Redis info to a Python dictionary
     # TODO: make argument if required or create default
     redis_info = {}
@@ -303,8 +269,8 @@ def main():
         parser.error("maxPages must be greater than 0")
     
     #  Initialize and execute spider runner
-    spider_runner = SpiderRunner(site_list, analysis_info, 
-                                 redis_info, max_mappers, max_pages) 
+    spider_runner = SpiderRunner(site_list, redis_info, 
+                                 max_mappers, max_pages) 
     spider_runner.execute()
 
 
