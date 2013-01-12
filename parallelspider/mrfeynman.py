@@ -3,6 +3,8 @@
 
     The module takes in a parsed document and emits key value pairs.
     It is designed to be incorporated into a MapReduce solution.
+
+    TODO: Add pagerank for links
 """
 import lxml.html
 import lxml.cssselect
