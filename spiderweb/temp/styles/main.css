@@ -6188,5 +6188,32 @@ a.label:hover, a.badge:hover {
 
 /* line 28, ../../app/styles/main.scss */
 .page {
-  padding: 50px 20px 10px 20px;
+  padding-top: 50px;
+}
+
+/* line 32, ../../app/styles/main.scss */
+.padded {
+  padding: 10px;
+}
+
+/* line 36, ../../app/styles/main.scss */
+.header {
+  background-color: #EEEEEE;
+  margin-top: -10px;
+}
+
+/* line 41, ../../app/styles/main.scss */
+.header img {
+  padding: 10px 20px 0px 0px;
+}
+
+/* line 45, ../../app/styles/main.scss */
+.hanging-spider {
+  text-align: center;
+}
+
+/* line 49, ../../app/styles/main.scss */
+#beta {
+  padding-left: 10px;
+  margin-top: -10px;
 }

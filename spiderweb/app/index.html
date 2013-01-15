@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="styles/main.css"/>
 
     </head>
+
     <body ng-app="spiderwebApp">
 
         <!--[if lt IE 7]>
@@ -24,6 +25,7 @@
         <![endif]-->
 
         <!-- Add your site or application content here -->
+
 
         <!-- Navbar
         ================================================== -->
@@ -67,7 +69,22 @@
           </div>
         </div>
 
+
+        <!-- Header
+        ================================================== -->       
+        <header class="header row-fluid page">
+          <div class="span12 padded">
+            <img src="images/PS_loneSpider.png" class="pull-left" />
+            <h1 class="pull-left">Parallel Spider</h1>
+            <img src="images/PS_beta.png" id="beta" />
+          </div>
+        </header>
+
+
+        <!-- View Insertion
+        ================================================== -->
         <div class="" ng-view></div>
+
 
         <!-- Footer
         ================================================== -->
@@ -96,6 +113,8 @@
           </div>
         </footer>
 
+        <!-- Scripts
+        ================================================== -->
         <script src="scripts/vendor/angular.js"></script>
 
         <!-- build:js scripts/scripts.js -->
