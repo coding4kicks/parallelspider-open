@@ -1,1 +1,10 @@
-/* main.scss */
+@import "compass_twitter_bootstrap";
+
+.navbar .nav > li > p {
+    padding: 10px 0px;
+    margin: 0px
+}
+
+.navbar .brand {
+  margin-left: 0px;
+}
