@@ -6166,3 +6166,27 @@ a.label:hover, a.badge:hover {
 .navbar .brand {
   margin-left: 0px;
 }
+
+/* line 12, ../../app/styles/main.scss */
+.footer {
+  padding: 20px 0px;
+  background-color: #EEEEEE;
+  text-align: center;
+  font-size: 18px;
+}
+
+/* line 19, ../../app/styles/main.scss */
+.footer .social-icons {
+  margin-left: -20px;
+  padding-top: 10px;
+}
+
+/* line 24, ../../app/styles/main.scss */
+.footer a {
+  color: #333333;
+}
+
+/* line 28, ../../app/styles/main.scss */
+.page {
+  padding: 50px 20px 10px 20px;
+}
