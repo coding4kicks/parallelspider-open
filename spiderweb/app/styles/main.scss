@@ -42,11 +42,74 @@
   padding: 10px 20px 0px 0px;
 }
 
+.header h1 {
+  margin-bottom: -10px;
+}
+
+#analyze {
+  margin-left: 160px;
+  margin-bottom: -10px;
+  margin-top: -5px;
+  font-style: italic;
+}
+
 .hanging-spider {
   text-align: center;
+  z-index: 0;
+  position: relative;
+
+  img {
+    &:hover{
+      cursor: pointer;
+    }
+  }
+  
+  h3 {
+    &:hover{
+      cursor: pointer;
+    }
+  }
 }
 
 #beta {
   padding-left: 10px;
   margin-top: -10px;
+}
+
+.for-block {
+  padding: 10px;
+}
+
+.for-block img {
+  margin-left: -30px;
+  padding-top: 20px;
+}
+
+.for-block h4 {
+  margin-top: 20px;
+}
+
+#test-crawl {
+  padding-top: 20px;
+  text-align: center;
+}
+
+#test {
+  color: orange;
+}
+
+#test-crawl h5 {
+  display: inline;
+}
+
+#url {
+  padding-left: 15px;
+}
+
+#spider-diaries {
+  text-align: center;
+}
+
+#spider-diaries h4 {
+  color: blue;
 }
