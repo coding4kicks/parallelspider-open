@@ -36,6 +36,8 @@
 .header {
   background-color: #EEEEEE;
   margin-top: -10px;
+  position: relative;
+  z-index: 10;
 }
 
 .header img {
@@ -59,6 +61,10 @@
   position: relative;
 
   img {
+    height:200px;
+    width: 200px;
+    position: relative;
+    z-index: 5;
     &:hover{
       cursor: pointer;
     }
@@ -69,6 +75,18 @@
       cursor: pointer;
     }
   }
+
+  p {
+    text-align: left;
+  }
+}
+
+.spider-text {
+  width: 200px;
+  position: relative;
+  z-index: 0;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #beta {
@@ -78,11 +96,15 @@
 
 .for-block {
   padding: 10px;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .for-block img {
   margin-left: -30px;
-  padding-top: 20px;
+  padding-top: 10px;
 }
 
 .for-block h4 {

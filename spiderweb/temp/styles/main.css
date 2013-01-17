@@ -6200,19 +6200,21 @@ a.label:hover, a.badge:hover {
 .header {
   background-color: #EEEEEE;
   margin-top: -10px;
+  position: relative;
+  z-index: 10;
 }
 
-/* line 41, ../../app/styles/main.scss */
+/* line 43, ../../app/styles/main.scss */
 .header img {
   padding: 10px 20px 0px 0px;
 }
 
-/* line 45, ../../app/styles/main.scss */
+/* line 47, ../../app/styles/main.scss */
 .header h1 {
   margin-bottom: -10px;
 }
 
-/* line 49, ../../app/styles/main.scss */
+/* line 51, ../../app/styles/main.scss */
 #analyze {
   margin-left: 160px;
   margin-bottom: -10px;
@@ -6220,70 +6222,94 @@ a.label:hover, a.badge:hover {
   font-style: italic;
 }
 
-/* line 56, ../../app/styles/main.scss */
+/* line 58, ../../app/styles/main.scss */
 .hanging-spider {
   text-align: center;
   z-index: 0;
   position: relative;
 }
-/* line 62, ../../app/styles/main.scss */
+/* line 63, ../../app/styles/main.scss */
+.hanging-spider img {
+  height: 200px;
+  width: 200px;
+  position: relative;
+  z-index: 5;
+}
+/* line 68, ../../app/styles/main.scss */
 .hanging-spider img:hover {
   cursor: pointer;
 }
-/* line 68, ../../app/styles/main.scss */
+/* line 74, ../../app/styles/main.scss */
 .hanging-spider h3:hover {
   cursor: pointer;
 }
+/* line 79, ../../app/styles/main.scss */
+.hanging-spider p {
+  text-align: left;
+}
 
-/* line 74, ../../app/styles/main.scss */
+/* line 84, ../../app/styles/main.scss */
+.spider-text {
+  width: 200px;
+  position: relative;
+  z-index: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* line 92, ../../app/styles/main.scss */
 #beta {
   padding-left: 10px;
   margin-top: -10px;
 }
 
-/* line 79, ../../app/styles/main.scss */
+/* line 97, ../../app/styles/main.scss */
 .for-block {
   padding: 10px;
 }
-
-/* line 83, ../../app/styles/main.scss */
-.for-block img {
-  margin-left: -30px;
-  padding-top: 20px;
+/* line 100, ../../app/styles/main.scss */
+.for-block:hover {
+  cursor: pointer;
 }
 
-/* line 88, ../../app/styles/main.scss */
+/* line 105, ../../app/styles/main.scss */
+.for-block img {
+  margin-left: -30px;
+  padding-top: 10px;
+}
+
+/* line 110, ../../app/styles/main.scss */
 .for-block h4 {
   margin-top: 20px;
 }
 
-/* line 92, ../../app/styles/main.scss */
+/* line 114, ../../app/styles/main.scss */
 #test-crawl {
   padding-top: 20px;
   text-align: center;
 }
 
-/* line 97, ../../app/styles/main.scss */
+/* line 119, ../../app/styles/main.scss */
 #test {
   color: orange;
 }
 
-/* line 101, ../../app/styles/main.scss */
+/* line 123, ../../app/styles/main.scss */
 #test-crawl h5 {
   display: inline;
 }
 
-/* line 105, ../../app/styles/main.scss */
+/* line 127, ../../app/styles/main.scss */
 #url {
   padding-left: 15px;
 }
 
-/* line 109, ../../app/styles/main.scss */
+/* line 131, ../../app/styles/main.scss */
 #spider-diaries {
   text-align: center;
 }
 
-/* line 113, ../../app/styles/main.scss */
+/* line 135, ../../app/styles/main.scss */
 #spider-diaries h4 {
   color: blue;
 }

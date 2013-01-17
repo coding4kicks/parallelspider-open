@@ -6,33 +6,63 @@
 ================================================== -->
 <div class="row-fluid">
   <div class="span2 offset1 hanging-spider"  ng-click="move('spider1Margin')">
-    <img src="images/PS_hangingSpider.png" ng-style="{ 'margin-top':spider1Margin }" />
-    <h3>FAST</h3>
+    <div class="row-fluid">
+      <img src="images/PS_hangingSpider.jpg" ng-style="{ 'margin-top':spider1Margin }" />
+      <div class="spider-text" ng-style="{ 'margin-top': text1Margin }">
+        <p>Sample text that I want to hide.  This will talk about how fast the spider can go.  It will then give the person the option to click on a link and find out more information.  I can have a little bit more.<a href="">learn more</a></p>
+      </div>
+    </div>
+    <div class="row-fluid">
+      <h3>FAST</h3>
+    </div>
   </div>
   <div class="span2 hanging-spider" ng-click="move('spider2Margin')">
-    <img src="images/PS_hangingSpider.png" ng-style="{ 'margin-top':spider2Margin }" />
-    <h3>EASY</h3>
+    <div class="row-fluid">
+      <img src="images/PS_hangingSpider.jpg" ng-style="{ 'margin-top':spider2Margin }" />
+      <div class="spider-text" ng-style="{ 'margin-top': text2Margin }">
+        <p>Sample text that I want to hide.  This will talk about how fast the spider can go.  It will then give the person the option to click on a link and find out more information.  I can have a little bit more.<a href="">learn more</a></p>
+      </div>
+    </div>
+    <div class="row-fluid">
+      <h3>EASY</h3>
+    </div>
   </div>
   <div class="span2 hanging-spider" ng-click="move('spider3Margin')">
-    <img src="images/PS_hangingSpider.png" ng-style="{ 'margin-top':spider3Margin }" />
-    <h3>FREE</h3>
+    <div class="row-fluid">
+      <img src="images/PS_hangingSpider.jpg" ng-style="{ 'margin-top':spider3Margin }" />
+      <div class="spider-text" ng-style="{ 'margin-top': text3Margin }">
+        <p>Sample text that I want to hide.  This will talk about how fast the spider can go.  It will then give the person the option to click on a link and find out more information.  I can have a little bit more.<a href="">learn more</a></p>
+      </div>
+    </div>
+    <div class="row-fluid">
+      <h3>FREE</h3>
+    </div>
   </div>
 
 <!-- For Block
 ================================================== -->
   <div class="span4 offset1 padded">
-    <span class="for-block">
+    <div class="for-block" ng-click="animate('for1Margin')" ng-style="{ 'margin-left': for1MarginLeft, 'margin-top': for1MarginTop }">
       <img src="images/PS_angledFor.png" class="pull-left" />
       <h4>Academic Research</h4>
-    </span>
-    <span class="for-block">
+    </div>
+    <div ng-style="{ 'margin-top': text1MarginTop, 'visibility': text1Visibility }" >
+      <p>This is some mother f'ing hidden text.  When the user clicks on the for block I am going to tell them all about some awesome stuff, really.  I hope this isn't too long.  <a href="">Learn More</a></p>
+    </div>
+    <div class="for-block" ng-click="animate('for2Margin')" ng-style="{ 'margin-left': for2MarginLeft, 'margin-top': for2MarginTop }">
       <img src="images/PS_angledFor.png" class="pull-left" />
       <h4>Business Intelligence</h4>
-    </span>
-    <span class="for-block">
+    </div>
+    <div ng-style="{ 'margin-top': text2MarginTop, 'visibility': text2Visibility }" >
+      <p>This is some mother f'ing hidden text.  When the user clicks on the for block I am going to tell them all about some awesome stuff, really.  I hope this isn't too long.  <a href="">Learn More</a></p>
+    </div>
+    <div class="for-block" ng-click="animate('for3Margin')" ng-style="{ 'margin-left': for3MarginLeft, 'margin-top': for3MarginTop }">
       <img src="images/PS_angledFor.png" class="pull-left" />
       <h4>The Curious</h4>
-    </span>
+    </div>
+    <div ng-style="{ 'margin-top': text3MarginTop, 'visibility': text3Visibility }" >
+      <p>This is some mother f'ing hidden text.  When the user clicks on the for block I am going to tell them all about some awesome stuff, really.  I hope this isn't too long.  <a href="">Learn More</a></p>
+    </div>
   </div>
 </div>
 
