@@ -6156,18 +6156,18 @@ a.label:hover, a.badge:hover {
   box-sizing: border-box;
 }
 
-/* line 3, ../../app/styles/main.scss */
+/* line 7, ../../app/styles/main.scss */
 .navbar .nav > li > p {
   padding: 10px 0px;
   margin: 0px;
 }
 
-/* line 8, ../../app/styles/main.scss */
+/* line 12, ../../app/styles/main.scss */
 .navbar .brand {
   margin-left: 0px;
 }
 
-/* line 12, ../../app/styles/main.scss */
+/* line 16, ../../app/styles/main.scss */
 .footer {
   padding: 20px 0px;
   background-color: #EEEEEE;
@@ -6175,46 +6175,44 @@ a.label:hover, a.badge:hover {
   font-size: 18px;
 }
 
-/* line 19, ../../app/styles/main.scss */
+/* line 23, ../../app/styles/main.scss */
 .footer .social-icons {
   margin-left: -20px;
   padding-top: 10px;
 }
 
-/* line 24, ../../app/styles/main.scss */
+/* line 28, ../../app/styles/main.scss */
 .footer a {
   color: #333333;
 }
 
-/* line 28, ../../app/styles/main.scss */
+/* line 32, ../../app/styles/main.scss */
 .page {
-  padding-top: 50px;
+  padding-top: 34px;
 }
 
-/* line 32, ../../app/styles/main.scss */
+/* line 36, ../../app/styles/main.scss */
 .padded {
   padding: 10px;
 }
 
-/* line 36, ../../app/styles/main.scss */
+/* line 40, ../../app/styles/main.scss */
 .header {
   background-color: #EEEEEE;
-  margin-top: -10px;
   position: relative;
   z-index: 10;
 }
-
-/* line 43, ../../app/styles/main.scss */
+/* line 45, ../../app/styles/main.scss */
 .header img {
   padding: 10px 20px 0px 0px;
 }
-
-/* line 47, ../../app/styles/main.scss */
+/* line 49, ../../app/styles/main.scss */
 .header h1 {
   margin-bottom: -10px;
+  color: #333333;
 }
 
-/* line 51, ../../app/styles/main.scss */
+/* line 55, ../../app/styles/main.scss */
 #analyze {
   margin-left: 160px;
   margin-bottom: -10px;
@@ -6222,33 +6220,34 @@ a.label:hover, a.badge:hover {
   font-style: italic;
 }
 
-/* line 58, ../../app/styles/main.scss */
+/* line 62, ../../app/styles/main.scss */
 .hanging-spider {
   text-align: center;
   z-index: 0;
   position: relative;
 }
-/* line 63, ../../app/styles/main.scss */
+/* line 67, ../../app/styles/main.scss */
 .hanging-spider img {
   height: 200px;
   width: 200px;
   position: relative;
   z-index: 5;
+  min-width: 200px;
 }
-/* line 68, ../../app/styles/main.scss */
+/* line 73, ../../app/styles/main.scss */
 .hanging-spider img:hover {
   cursor: pointer;
 }
-/* line 74, ../../app/styles/main.scss */
+/* line 79, ../../app/styles/main.scss */
 .hanging-spider h3:hover {
   cursor: pointer;
 }
-/* line 79, ../../app/styles/main.scss */
+/* line 84, ../../app/styles/main.scss */
 .hanging-spider p {
   text-align: left;
 }
 
-/* line 84, ../../app/styles/main.scss */
+/* line 89, ../../app/styles/main.scss */
 .spider-text {
   width: 200px;
   position: relative;
@@ -6257,59 +6256,174 @@ a.label:hover, a.badge:hover {
   margin-right: auto;
 }
 
-/* line 92, ../../app/styles/main.scss */
+/* line 97, ../../app/styles/main.scss */
 #beta {
   padding-left: 10px;
   margin-top: -10px;
 }
 
-/* line 97, ../../app/styles/main.scss */
+/* line 102, ../../app/styles/main.scss */
 .for-block {
   padding: 10px;
 }
-/* line 100, ../../app/styles/main.scss */
+/* line 105, ../../app/styles/main.scss */
 .for-block:hover {
   cursor: pointer;
 }
 
-/* line 105, ../../app/styles/main.scss */
+/* line 110, ../../app/styles/main.scss */
 .for-block img {
   margin-left: -30px;
   padding-top: 10px;
 }
 
-/* line 110, ../../app/styles/main.scss */
+/* line 115, ../../app/styles/main.scss */
 .for-block h4 {
   margin-top: 20px;
 }
 
-/* line 114, ../../app/styles/main.scss */
+/* line 119, ../../app/styles/main.scss */
 #test-crawl {
   padding-top: 20px;
   text-align: center;
 }
 
-/* line 119, ../../app/styles/main.scss */
+/* line 124, ../../app/styles/main.scss */
 #test {
   color: orange;
 }
 
-/* line 123, ../../app/styles/main.scss */
+/* line 128, ../../app/styles/main.scss */
 #test-crawl h5 {
   display: inline;
 }
 
-/* line 127, ../../app/styles/main.scss */
+/* line 132, ../../app/styles/main.scss */
 #url {
   padding-left: 15px;
 }
 
-/* line 131, ../../app/styles/main.scss */
+/* line 136, ../../app/styles/main.scss */
 #spider-diaries {
   text-align: center;
 }
 
-/* line 135, ../../app/styles/main.scss */
+/* line 140, ../../app/styles/main.scss */
 #spider-diaries h4 {
   color: blue;
+}
+
+/* line 144, ../../app/styles/main.scss */
+#advanced-opts {
+  margin-left: 500px;
+}
+/* line 147, ../../app/styles/main.scss */
+#advanced-opts hr {
+  margin-top: -3px;
+}
+
+/* line 155, ../../app/styles/main.scss */
+.adv-opts form {
+  background-color: #EEEEEE;
+  padding-bottom: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+}
+/* line 162, ../../app/styles/main.scss */
+.adv-opts legend {
+  background-color: #FFF;
+  border-color: #333;
+}
+/* line 167, ../../app/styles/main.scss */
+.adv-opts h5 {
+  margin-top: 0px;
+}
+/* line 171, ../../app/styles/main.scss */
+.adv-opts input {
+  margin-bottom: 0px;
+}
+
+/* line 178, ../../app/styles/main.scss */
+.crawl-opts a {
+  display: block;
+  margin-left: 250px;
+}
+/* line 183, ../../app/styles/main.scss */
+.crawl-opts div {
+  float: left;
+  padding: 0px 25px;
+  text-align: center;
+}
+
+/* line 192, ../../app/styles/main.scss */
+.text-opts .checkbox.inline, .link-opts .checkbox.inline {
+  display: block;
+  margin-left: 0px !important;
+  padding-bottom: 10px;
+}
+
+/* line 202, ../../app/styles/main.scss */
+.word-opts a, .syn-opts a, .cust-opts a, .cont-opts a,
+.stop-opts a, .xpath-opts a, .css-opts a {
+  display: block;
+  margin-left: 150px;
+}
+/* line 207, ../../app/styles/main.scss */
+.word-opts input, .syn-opts input, .cust-opts input, .cont-opts input,
+.stop-opts input, .xpath-opts input, .css-opts input {
+  margin-bottom: 10px;
+}
+/* line 211, ../../app/styles/main.scss */
+.word-opts textarea, .syn-opts textarea, .cust-opts textarea, .cont-opts textarea,
+.stop-opts textarea, .xpath-opts textarea, .css-opts textarea {
+  margin-bottom: 10px;
+  width: 70%;
+}
+
+/* line 219, ../../app/styles/main.scss */
+.icon-remove:hover {
+  cursor: pointer;
+}
+
+/* line 228, ../../app/styles/main.scss */
+.css-opts input[type="checkbox"] {
+  margin-left: 30px;
+}
+
+/* line 232, ../../app/styles/main.scss */
+#wordnet {
+  padding-left: 14px;
+}
+
+/* line 236, ../../app/styles/main.scss */
+#word-list {
+  padding-left: 10px;
+}
+
+/* line 244, ../../app/styles/main.scss */
+.side-nav a {
+  color: #333333;
+  padding-left: 10px;
+  margin-top: -20px;
+}
+/* line 250, ../../app/styles/main.scss */
+.side-nav h3 {
+  margin-bottom: -5px;
+}
+
+/* line 257, ../../app/styles/main.scss */
+.sub-links a {
+  padding-left: 20px;
+}
+
+/* line 265, ../../app/styles/main.scss */
+.inline {
+  display: inline;
+}
+
+/* line 269, ../../app/styles/main.scss */
+.liner {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
 }

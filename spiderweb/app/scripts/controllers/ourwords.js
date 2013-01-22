@@ -6,6 +6,15 @@ spiderwebApp.controller('OurwordsCtrl', function($scope, $routeParams) {
     'AngularJS',
     'Testacular'
   ];
+ 
+  // Need to change to dictionary because Dev Team and devteam are different
+  // one is the links name, the Other the path to the teamplate
+  $scope.aboutPages = ['about',
+                      'privacy',
+                      'terms',
+                      'devteam',
+                      'pricing',
+                      'contact'];
 
   // Open to directory traversal but it is all on the client anyway.
   // Should check to see if it is in a list of possibilities so can redirect on bad entry.

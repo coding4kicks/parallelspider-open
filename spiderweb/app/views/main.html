@@ -262,6 +262,7 @@
             <h5 class="inline">Predefined:</h5>
             <select multiple="multiple">
               <!-- TODO: use ng-repeat ot fill in options, set max-height too if needed -->
+              <option>None</option>
               <option>Curse Words</option>
               <option>Racist Language</option>
               <option>Drug References</option>
@@ -306,17 +307,24 @@
   <div class="row-fluid">
     <div class="span4 offset1 xpath-opts">
 
-      <form name="xpathOpts" class="">
+      <form name="xpathOpts" ng-submit="add('xpathSelectors')" class="">
         <fieldset>
           <legend>XPath Selector</legend>
           <div class="liner">
 
-          <label>
-            <h5 id="wordnet" class="inline">Selector:</h5>
-            <input type="text" ng-model="xpathSelector1">
-          </label>
+          <ul class="unstyled">
+            <li ng-repeat="xpath in crawl.xpathSelectors">
+              <h5 class="inline">Selector {{$index + 1}}: </h5>
+              <span class="">{{xpath}}</span>
+              <i class="icon-remove" ng-click="remove('xpathSelectors', $index)"></i>
+            </li>
+          </ul>
 
-          <a>Add another XPath selector</a>
+          <label>
+            <h5 class="inline">Selector:</h5>
+            <input type="text" ng-model="xpathSelector">
+            <input class="btn-primary inline" type="submit" value="add">
+          </label>
 
           </div>
         </fieldset>

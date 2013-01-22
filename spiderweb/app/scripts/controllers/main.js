@@ -1,6 +1,5 @@
 'use strict';
 
-
 spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
@@ -141,4 +140,45 @@ spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
     };
   }
 
+  ////////////////////////////
+  // ADVANCED OPTIONS DISPLAY
+  ////////////////////////////
+  $scope.showAdvOpts = false;
+  $scope.spanSize = 'span8';
+  $scope.advOptMargin = '-30px';
+
+  $scope.showOptions = function() {
+
+    if ($scope.spanSize==='span12') {
+      $scope.spanSize='span8';
+    }
+    else {
+      $scope.spanSize='span12';
+    }
+    $scope.showAdvOpts=!$scope.showAdvOpts;
+  }
+
+  ////////////////////////////
+  // CRAWL INFO + ADV OPTS FORMS
+  ////////////////////////////
+  $scope.crawl = {};
+  $scope.crawl.xpathSelectors = [];
+
+
+  //$scope.xpathSelectors = [];
+
+  $scope.add = function(type) {
+    if (typeof $scope.xpathSelector !== "undefined") {
+      //alert ($scope.crawl);
+      //alert (type);
+      //alert ($scope.crawl[type]);
+      $scope.crawl[type].push($scope.xpathSelector);
+    }    
+  }
+
+  $scope.remove = function(type, index) {
+    $scope.crawl[type].remove(index);        
+  }
+
 });
+
