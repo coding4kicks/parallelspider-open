@@ -1,0 +1,24 @@
+<div class="row-fluid">
+  <div ng-include src="template" class="span10 padded">
+  </div>
+  <div class="span2 padded side-nav">
+
+    <h3>Spider Diaries</h3>
+
+    <h4><a href="" ng-click="showLinks('tutorials')">Tutorials</a></h4>
+    <div class="sub-links" ng-show="pageType.tutorials">
+      <span ng-repeat="tutorial in tutorials">
+        <h5><a href="#/spiderdiaries/tutorials/{{tutorial}}">{{tutorial}}</a></h5>
+      </span>
+    </div>
+
+    <h4><a href="" ng-click="showLinks('examples')">Examples</a></h4>
+    <div class="sub-links" ng-show="pageType.examples">
+      <span ng-repeat="example in examples"> 
+        <h5><a href="#/spiderdiaries/examples/{{example}}">{{example}}</a></h5>
+      </span>
+    </div>
+
+  </div>
+</div>
+
