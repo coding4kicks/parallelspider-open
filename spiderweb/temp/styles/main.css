@@ -6379,51 +6379,56 @@ a.label:hover, a.badge:hover {
   margin-bottom: 10px;
   width: 70%;
 }
+/* line 216, ../../app/styles/main.scss */
+.word-opts .btn-primary, .syn-opts .btn-primary, .cust-opts .btn-primary, .cont-opts .btn-primary,
+.stop-opts .btn-primary, .xpath-opts .btn-primary, .css-opts .btn-primary {
+  margin-left: 10px;
+}
 
-/* line 219, ../../app/styles/main.scss */
+/* line 224, ../../app/styles/main.scss */
 .icon-remove:hover {
   cursor: pointer;
 }
 
-/* line 228, ../../app/styles/main.scss */
+/* line 235, ../../app/styles/main.scss */
 .css-opts input[type="checkbox"] {
-  margin-left: 30px;
+  margin-left: 10px;
 }
 
-/* line 232, ../../app/styles/main.scss */
+/* line 240, ../../app/styles/main.scss */
 #wordnet {
   padding-left: 14px;
 }
 
-/* line 236, ../../app/styles/main.scss */
+/* line 244, ../../app/styles/main.scss */
 #word-list {
   padding-left: 10px;
 }
 
-/* line 244, ../../app/styles/main.scss */
+/* line 252, ../../app/styles/main.scss */
 .side-nav a {
   color: #333333;
   padding-left: 10px;
   margin-top: -20px;
 }
-/* line 250, ../../app/styles/main.scss */
+/* line 258, ../../app/styles/main.scss */
 .side-nav h3 {
   margin-bottom: -5px;
 }
 
-/* line 257, ../../app/styles/main.scss */
+/* line 265, ../../app/styles/main.scss */
 .sub-links a {
   padding-left: 20px;
 }
 
-/* line 265, ../../app/styles/main.scss */
+/* line 273, ../../app/styles/main.scss */
 .inline {
   display: inline;
 }
 
-/* line 269, ../../app/styles/main.scss */
+/* line 277, ../../app/styles/main.scss */
 .liner {
-  width: 80%;
+  width: 90%;
   margin-left: auto;
   margin-right: auto;
 }

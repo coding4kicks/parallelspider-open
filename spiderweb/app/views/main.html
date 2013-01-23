@@ -100,6 +100,8 @@
   </div>
 </div>
 
+<!-- Crawl Options
+================================================== -->
 <div class="row-fluid adv-opts" ng-show="showAdvOpts">
   <div class="row-fluid">
     <div class="span10 offset1 crawl-opts">
@@ -139,6 +141,8 @@
     </div>
   </div>
 
+<!-- Text Analysis Options
+================================================== -->
   <div class="row-fluid">
     <div class="span2 offset1 text-opts">
 
@@ -167,6 +171,8 @@
       </form>
     </div>
 
+<!-- Link Analysis Options
+================================================== -->
     <div class="span2 offset1 link-opts">
 
       <form name="linkOpts" class="">
@@ -194,37 +200,57 @@
       </form>
     </div>
 
+<!-- Word Search Options
+================================================== -->
     <div class="span4 offset1 word-opts">
 
-      <form name="wordOpts" class="">
+      <form name="wordOpts" ng-submit="add('wordSearches')" class="">
         <fieldset>
           <legend>Word Search</legend>
           <div class="liner">
 
+          <ul class="unstyled">
+            <li ng-repeat="word in crawl.wordSearches">
+              <h5 class="inline">Search Word {{$index + 1}}: </h5>
+              <span class="">{{word}}</span>
+              <i class="icon-remove" ng-click="remove('wordSearches', $index)"></i>
+            </li>
+          </ul>
+            
           <label>
-            <h5 class="inline">Word:</h5>
-            <input type="text" ng-model="searchWord">
-            <a>Add another word</a>
+            <h5 class="inline">Search Word:</h5>
+            <input type="text" ng-model="wordSearches">
+            <input class="btn-primary inline" type="submit" value="add">
           </label>
 
           </div>
         </fieldset>
       </form>
     </div>
-
   </div>
+
+<!-- Word Context Options
+================================================== -->
   <div class="row-fluid">
     <div class="span4 offset1 cont-opts">
 
-      <form name="contOpts" class="">
+      <form name="contOpts" ng-submit="add('wordContexts')" class="">
         <fieldset>
           <legend>Word Context Analysis</legend>
           <div class="liner">
 
+          <ul class="unstyled">
+            <li ng-repeat="word in crawl.wordContexts">
+              <h5 class="inline">Context Word {{$index + 1}}: </h5>
+              <span class="">{{word}}</span>
+              <i class="icon-remove" ng-click="remove('wordContexts', $index)"></i>
+            </li>
+          </ul>
+
           <label>
-            <h5 id="context" class="inline">Word:</h5>
-            <input type="text" ng-model="searchWord">
-            <a>Add another context word</a>
+            <h5 id="context" class="inline">Context Word:</h5>
+            <input type="text" ng-model="wordContexts">
+            <input class="btn-primary inline" type="submit" value="add">
           </label>
 
           </div>
@@ -232,6 +258,8 @@
       </form>
     </div>
 
+<!-- Stop Word List Options
+================================================== -->
     <div class="span5 offset1 stop-opts">
 
       <form name="stopOpts" class="">
@@ -241,19 +269,21 @@
 
           <label>
             <h5 id="stop-list" class="inline">Stop Words:</h5>
-            <textarea ng-model="stopWords" placeholder="a, list, of, stop, words, pulled, from, the, model"></textarea>
+            <textarea ng-model="crawl.stopWords" placeholder="a, list, of, stop, words, pulled, from, the, model"></textarea>
           </label>
 
           </div>
         </fieldset>
       </form>
     </div>
-
   </div>
+
+<!-- Synonym Ring Options
+================================================== -->
   <div class="row-fluid">
     <div class="span4 offset1 syn-opts">
 
-      <form name="synOpts" class="">
+      <form name="synOpts" ng-submit="add('wordnets')" class="">
         <fieldset>
           <legend>Synonym Ring Analysis</legend>
           <div class="liner">
@@ -261,18 +291,22 @@
           <label>
             <h5 class="inline">Predefined:</h5>
             <select multiple="multiple">
-              <!-- TODO: use ng-repeat ot fill in options, set max-height too if needed -->
-              <option>None</option>
-              <option>Curse Words</option>
-              <option>Racist Language</option>
-              <option>Drug References</option>
+              <option ng-repeat="ring in predefinedSynRings" ng-selected="crawl.predefined.{{ring.name}}">{{ring.title}}</option>
             </select>
           </label>
+          
+          <ul class="unstyled">
+            <li ng-repeat="wordnet in crawl.wordnets">
+              <h5 class="inline">WordNet {{$index + 1}}: </h5>
+              <span class="">{{wordnet}}</span>
+              <i class="icon-remove" ng-click="remove('wordnets', $index)"></i>
+            </li>
+          </ul>
 
           <label>
             <h5 id="wordnet" class="inline">WordNet:</h5>
-            <input type="text" ng-model="wordnet">
-            <a>Add another WordNet</a>
+            <input type="text" ng-model="wordnets">
+            <input class="btn-primary inline" type="submit" value="add">
           </label>
 
           </div>
@@ -280,30 +314,44 @@
       </form>
     </div>
 
+<!-- Custom Synonym Ring Options
+================================================== -->
     <div class="span5 offset1 cust-opts">
 
-      <form name="custOpts" class="">
+      <form name="custOpts" ng-submit="add('customSynRings')" class="">
         <fieldset>
           <legend>Custom Synonym Ring</legend>
           <div class="liner">
 
+           <ul class="unstyled">
+            <li ng-repeat="ring in crawl.customSynRings">
+              <h5 class="inline">Ring {{$index + 1}}: </h5>
+              <span class=""> {{ring.name}} </span>
+              <i class="icon-remove" ng-click="remove('customSynRings', $index)"></i><br>
+              <h6 class="inline">Word List: </h6>
+              <span>{{ring.text}} </span>
+              </li>
+          </ul>
+
           <label>
             <h5 class="inline">Ring Name:</h5>
-            <input type="text" ng-model="ringName">
+            <input type="text" ng-model="customSynRings.name">
+            <input class="btn-primary inline" type="submit" value="add">
           </label>
 
           <label>
             <h5 id="word-list" class="inline">Word List:</h5>
-            <textarea ng-model="custSynonymList" placeholder="a, comma, separated, list, of, words"></textarea>
-            <a>Add another word list</a>
+            <textarea ng-model="customSynRings.text" placeholder="a, comma, separated, list, of, words"></textarea>
           </label>
 
           </div>
         </fieldset>
       </form>
     </div>
-
   </div>
+
+<!-- XPath Selector Options
+================================================== -->
   <div class="row-fluid">
     <div class="span4 offset1 xpath-opts">
 
@@ -322,7 +370,7 @@
 
           <label>
             <h5 class="inline">Selector:</h5>
-            <input type="text" ng-model="xpathSelector">
+            <input type="text" ng-model="xpathSelectors">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
 
@@ -331,21 +379,31 @@
       </form>
     </div>
 
+<!-- CSS Selector Options
+================================================== -->
     <div class="span5 offset1 css-opts">
 
-      <form name="cssOpts" class="">
+      <form name="cssOpts" ng-submit="add('cssSelectors')" class="">
         <fieldset>
           <legend>CSS Selector</legend>
           <div class="liner">
 
+          <ul class="unstyled">
+            <li ng-repeat="css in crawl.cssSelectors">
+              <h5 class="inline">Selector {{$index + 1}}: </h5>
+              <span class=""> {{css.selector}} </span>
+              <span ng-show="css.text"> (text) </span>
+              <i class="icon-remove" ng-click="remove('cssSelectors', $index)"></i>
+            </li>
+          </ul>
+
           <label>
             <h5 class="inline">Selector:</h5>
-            <input type="text" ng-model="cssSelector1">
-            <input type="checkbox" ng-model="cssText1">
+            <input type="text" ng-model="cssSelectors.selector">
+            <input type="checkbox" ng-model="cssSelectors.text">
             <h5 class="inline">Text</h5>
+            <input class="btn-primary inline" type="submit" value="add">
           </label>
-
-          <a>Add another CSS selector</a>
 
           </div>
         </fieldset>

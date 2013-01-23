@@ -211,7 +211,12 @@
   textarea {
     margin-bottom: 10px;
     width: 70%;
-  }  
+  } 
+
+  .btn-primary {
+    margin-left: 10px;
+  }
+ 
 }
 
 .icon-remove {
@@ -225,8 +230,11 @@
 //  margin-left: 300px;
 //}
 
-.css-opts input[type="checkbox"] {
-  margin-left: 30px;
+.css-opts {
+
+  input[type="checkbox"] {
+    margin-left: 10px;
+  }
 }
 
 #wordnet {
@@ -267,7 +275,7 @@
 }
 
 .liner {
-  width: 80%;  
+  width: 90%;  
   margin-left: auto;
   margin-right: auto;
 }

@@ -162,17 +162,45 @@ spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
   // CRAWL INFO + ADV OPTS FORMS
   ////////////////////////////
   $scope.crawl = {};
+
+  $scope.predefinedSynRings = [{name: 'none', title: 'None'}, 
+                               {name: 'curseWords', title: 'Curse Words'},
+                               {name: 'racistLang', title: 'Racist Language'},
+                               {name: 'drugRefs', title: 'Drug References'}];
+
+  $scope.crawl.wordSearches = [];
+  $scope.wordSearches;
+
+  $scope.crawl.wordContexts = [];
+  $scope.wordContexts;
+
+  $scope.crawl.wordnets = [];
+  $scope.wordnets;
+
+  $scope.crawl.customSynRings = [];
+  $scope.customSynRings;
+
   $scope.crawl.xpathSelectors = [];
+  $scope.xpathSelectors;
 
+  $scope.crawl.cssSelectors = [];
+  $scope.cssSelectors;
 
-  //$scope.xpathSelectors = [];
-
+  // scope[type] is the the model item in the form input
+  // scope.crawl[type] is the list of all items added
   $scope.add = function(type) {
-    if (typeof $scope.xpathSelector !== "undefined") {
-      //alert ($scope.crawl);
-      //alert (type);
-      //alert ($scope.crawl[type]);
-      $scope.crawl[type].push($scope.xpathSelector);
+    alert('here');
+    var input = $scope[type]
+    if (typeof input !== "undefined") {
+      // need to copy objects
+      if (input instanceof Object) {
+        var copy = {};
+				for ( var property in input ) copy[property] = input[property];
+        $scope.crawl[type].push(copy);        
+      }
+      else { // other type is array, and strings are immutable
+        $scope.crawl[type].push(input);
+      }
     }    
   }
 
