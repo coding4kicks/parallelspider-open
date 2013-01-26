@@ -166,10 +166,35 @@
 
   h5 {
     margin-top: 0px;
+    margin-bottom: 0px;
   }
 
   input {
     margin-bottom: 0px;
+  }
+
+  .need-help {
+    float: right;
+    padding-right: 30%;
+    margin-top: -10px;
+    margin-bottom: -30px;
+    position: relative;
+    z-index: 5;
+
+    .help-sub {
+      float: right;
+      text-align: right;
+      padding-left: 10px;
+    }
+
+    h4 {
+      color: orange;
+      display: inline;
+    }
+
+    h5 {
+      display: inline;
+    }
   }
 }
 
@@ -182,8 +207,12 @@
 
   div {
     float: left;
-    padding: 0px 25px;
+    padding: 0px 20px;
     text-align: center;
+  }
+
+  .crawlNumInput {
+    width: 150px;
   }
 }
 
@@ -226,9 +255,13 @@
   }
 }
 
-//.cust-opts a {
-//  margin-left: 300px;
-//}
+.error {
+  color: red;
+}
+
+.compare ul{
+  text-align: left;
+}
 
 .css-opts {
 
@@ -279,3 +312,8 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+.pointer {
+  cursor: pointer;
+}
+

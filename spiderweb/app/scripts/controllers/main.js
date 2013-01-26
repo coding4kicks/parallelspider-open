@@ -163,16 +163,19 @@ spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
   ////////////////////////////
   $scope.crawl = {};
 
-  $scope.predefinedSynRings = [{name: 'none', title: 'None'}, 
-                               {name: 'curseWords', title: 'Curse Words'},
-                               {name: 'racistLang', title: 'Racist Language'},
-                               {name: 'drugRefs', title: 'Drug References'}];
+  $scope.crawl.additionalSites = [];
+  $scope.additionalSites;
 
   $scope.crawl.wordSearches = [];
   $scope.wordSearches;
 
   $scope.crawl.wordContexts = [];
   $scope.wordContexts;
+
+  $scope.predefinedSynRings = [{name: 'none', title: 'None'}, 
+                               {name: 'curseWords', title: 'Curse Words'},
+                               {name: 'racistLang', title: 'Racist Language'},
+                               {name: 'drugRefs', title: 'Drug References'}];
 
   $scope.crawl.wordnets = [];
   $scope.wordnets;
@@ -189,9 +192,8 @@ spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
   // scope[type] is the the model item in the form input
   // scope.crawl[type] is the list of all items added
   $scope.add = function(type) {
-    alert('here');
     var input = $scope[type]
-    if (typeof input !== "undefined") {
+    if (typeof input !== "undefined" && input != "") {
       // need to copy objects
       if (input instanceof Object) {
         var copy = {};
@@ -208,5 +210,9 @@ spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
     $scope.crawl[type].remove(index);        
   }
 
+  ////////////////////////////
+  // CRAWL SUBMISSION
+  ////////////////////////////
+  $scope.attemptedSubmission = false;
 });
 

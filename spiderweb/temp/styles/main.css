@@ -6337,98 +6337,142 @@ a.label:hover, a.badge:hover {
 /* line 167, ../../app/styles/main.scss */
 .adv-opts h5 {
   margin-top: 0px;
+  margin-bottom: 0px;
 }
-/* line 171, ../../app/styles/main.scss */
+/* line 172, ../../app/styles/main.scss */
 .adv-opts input {
   margin-bottom: 0px;
 }
+/* line 176, ../../app/styles/main.scss */
+.adv-opts .need-help {
+  float: right;
+  padding-right: 30%;
+  margin-top: -10px;
+  margin-bottom: -30px;
+  position: relative;
+  z-index: 5;
+}
+/* line 184, ../../app/styles/main.scss */
+.adv-opts .need-help .help-sub {
+  float: right;
+  text-align: right;
+  padding-left: 10px;
+}
+/* line 190, ../../app/styles/main.scss */
+.adv-opts .need-help h4 {
+  color: orange;
+  display: inline;
+}
+/* line 195, ../../app/styles/main.scss */
+.adv-opts .need-help h5 {
+  display: inline;
+}
 
-/* line 178, ../../app/styles/main.scss */
+/* line 203, ../../app/styles/main.scss */
 .crawl-opts a {
   display: block;
   margin-left: 250px;
 }
-/* line 183, ../../app/styles/main.scss */
+/* line 208, ../../app/styles/main.scss */
 .crawl-opts div {
   float: left;
-  padding: 0px 25px;
+  padding: 0px 20px;
   text-align: center;
 }
+/* line 214, ../../app/styles/main.scss */
+.crawl-opts .crawlNumInput {
+  width: 150px;
+}
 
-/* line 192, ../../app/styles/main.scss */
+/* line 221, ../../app/styles/main.scss */
 .text-opts .checkbox.inline, .link-opts .checkbox.inline {
   display: block;
   margin-left: 0px !important;
   padding-bottom: 10px;
 }
 
-/* line 202, ../../app/styles/main.scss */
+/* line 231, ../../app/styles/main.scss */
 .word-opts a, .syn-opts a, .cust-opts a, .cont-opts a,
 .stop-opts a, .xpath-opts a, .css-opts a {
   display: block;
   margin-left: 150px;
 }
-/* line 207, ../../app/styles/main.scss */
+/* line 236, ../../app/styles/main.scss */
 .word-opts input, .syn-opts input, .cust-opts input, .cont-opts input,
 .stop-opts input, .xpath-opts input, .css-opts input {
   margin-bottom: 10px;
 }
-/* line 211, ../../app/styles/main.scss */
+/* line 240, ../../app/styles/main.scss */
 .word-opts textarea, .syn-opts textarea, .cust-opts textarea, .cont-opts textarea,
 .stop-opts textarea, .xpath-opts textarea, .css-opts textarea {
   margin-bottom: 10px;
   width: 70%;
 }
-/* line 216, ../../app/styles/main.scss */
+/* line 245, ../../app/styles/main.scss */
 .word-opts .btn-primary, .syn-opts .btn-primary, .cust-opts .btn-primary, .cont-opts .btn-primary,
 .stop-opts .btn-primary, .xpath-opts .btn-primary, .css-opts .btn-primary {
   margin-left: 10px;
 }
 
-/* line 224, ../../app/styles/main.scss */
+/* line 253, ../../app/styles/main.scss */
 .icon-remove:hover {
   cursor: pointer;
 }
 
-/* line 235, ../../app/styles/main.scss */
+/* line 258, ../../app/styles/main.scss */
+.error {
+  color: red;
+}
+
+/* line 262, ../../app/styles/main.scss */
+.compare ul {
+  text-align: left;
+}
+
+/* line 268, ../../app/styles/main.scss */
 .css-opts input[type="checkbox"] {
   margin-left: 10px;
 }
 
-/* line 240, ../../app/styles/main.scss */
+/* line 273, ../../app/styles/main.scss */
 #wordnet {
   padding-left: 14px;
 }
 
-/* line 244, ../../app/styles/main.scss */
+/* line 277, ../../app/styles/main.scss */
 #word-list {
   padding-left: 10px;
 }
 
-/* line 252, ../../app/styles/main.scss */
+/* line 285, ../../app/styles/main.scss */
 .side-nav a {
   color: #333333;
   padding-left: 10px;
   margin-top: -20px;
 }
-/* line 258, ../../app/styles/main.scss */
+/* line 291, ../../app/styles/main.scss */
 .side-nav h3 {
   margin-bottom: -5px;
 }
 
-/* line 265, ../../app/styles/main.scss */
+/* line 298, ../../app/styles/main.scss */
 .sub-links a {
   padding-left: 20px;
 }
 
-/* line 273, ../../app/styles/main.scss */
+/* line 306, ../../app/styles/main.scss */
 .inline {
   display: inline;
 }
 
-/* line 277, ../../app/styles/main.scss */
+/* line 310, ../../app/styles/main.scss */
 .liner {
   width: 90%;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* line 316, ../../app/styles/main.scss */
+.pointer {
+  cursor: pointer;
 }

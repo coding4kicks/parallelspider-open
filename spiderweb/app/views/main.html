@@ -74,7 +74,7 @@
       <h4 id="test">Take a Test Crawl</h4>
       <form name="siteToCrawl" class="form-search">
         <h5 id="url">URL:</h5>
-        <input type="text" class="input-xlarge search-query" placeholder="http://www.cnn.com" ng-model="site1">
+        <input type="url" name="primarySite" class="input-xlarge search-query" placeholder="http://www.cnn.com" ng-model="crawl.primarySite" required>
         <button type="submit" class="btn">Crawl</button>
         <h4>Enter a Website</h4>
       </form>
@@ -103,35 +103,62 @@
 <!-- Crawl Options
 ================================================== -->
 <div class="row-fluid adv-opts" ng-show="showAdvOpts">
+
+  <div class="need-help">
+    <div class="inline">
+      <h4>Need Help:</h4>
+    </div>
+    <div class="help-sub inline">
+      <h5>Hover over any text to learn more</h5><br />
+      <h5>...or go to the <a href="#/launchpad">Launch Pad</a></h5>
+    </div>
+  </div>
   <div class="row-fluid">
     <div class="span10 offset1 crawl-opts">
 
-      <form name="crawlOpts" class="">
+      <form name="crawlOpts" ng-submit="add('additionalSites')" class="">
         <fieldset>
           <legend>Crawl Options</legend>
           <div class="liner">
 
-          <div>
-            <h5 class="inline">Compare:</h5>
-            <input type="text" class="input-xlarge search-query" placeholder="another website" ng-model="site2">
-            <!-- Study TO-DO applications for "addable" -->
-            <a>Add another site</a>
+          <div class="compare">
+            <ul class="unstyled">
+
+              <li>
+                <h5 class="inline">Site 1: </h5>
+                <span class="">{{crawl.primarySite}}</span>
+              </li>
+
+              <li ng-repeat="site in crawl.additionalSites">
+                <h5 class="inline">Site {{$index + 2}}: </h5>
+                <span class="">{{site}}</span>
+                <i class="icon-remove" ng-click="remove('additionalSites', $index)"></i>
+              </li>
+            </ul>
+
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Compare:</h5>
+            <input type="url" name="additionalSites" class="input-xlarge search-query" placeholder="another website" ng-model="additionalSites">
+            <input class="btn-primary inline" type="submit" value="add">
           </div>
 
-          <div>
-            <input type="number" class="input-small" placeholder="20" ng-model="magPages">
-            <h5>Max Pages</h5>
+          <div class="crawlNumInput">
+            <input type="number" name="maxPages" class="input-small" placeholder="20" ng-model="crawl.maxPages" min="1" integer>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="pointer">Max Pages</h5>
+            <span class="error" ng-show="crawlOpts.maxPages.$error.integer">Must be an integer</span>
+            <span class="error" ng-show="crawlOpts.maxPages.$error.min">Must be greater than 0</span>
           </div>
 
-          <div>
-            <input type="number" class="input-small" placeholder="100" ng-model="totalResults">
-            <h5>Total Results</h5>
+          <div class="crawlNumInput">
+            <input type="number" name="totalResults" class="input-small" placeholder="1000" ng-model="crawl.totalResults" min="100" integer>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="pointer">Total Results</h5>
+            <span class="error" ng-show="crawlOpts.totalResults.$error.integer">Must be an integer</span>
+            <span class="error" ng-show="crawlOpts.totalResults.$error.min">Must be greater than 99</span>
           </div>
 
           <div>
             <label class="checkbox inline">
-            <input type="checkbox" ng-model="externalSites">
-            <h5 class="inline">External Sites</h5>
+            <input type="checkbox" ng-model="crawl.externalSites">
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">External Sites</h5>
             </label>
           </div>
 
@@ -152,18 +179,18 @@
           <div class="liner">
 
           <label class="checkbox inline">
-            <input type="checkbox" ng-model="visibleText">
-            <h5 class="inline">Visible Text</h5>
+            <input type="checkbox" ng-model="crawl.text.visible">
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Visible Text</h5>
           </label>
 
           <label class="checkbox inline">
-            <input type="checkbox" ng-model="headlines">
-            <h5 class="inline">Headlines</h5>
+            <input type="checkbox" ng-model="crawl.text.headlines">
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Headlines</h5>
           </label>
 
           <label class="checkbox inline">
-            <input type="checkbox" ng-model="hiddenDescriptionss">
-            <h5 class="inline">Hidden Descriptions</h5>
+            <input type="checkbox" ng-model="crawl.text.hidden">
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Hidden Descriptions</h5>
           </label>
 
         </div>
@@ -181,18 +208,18 @@
           <div class="liner">
 
           <label class="checkbox inline">
-            <input type="checkbox" ng-model="linkText">
-            <h5 class="inline">Link Text</h5>
+            <input type="checkbox" ng-model="crawl.links.text">
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Link Text</h5>
           </label>
 
           <label class="checkbox inline">
-            <input type="checkbox" ng-model="allLinks">
-            <h5 class="inline">All Links</h5>
+            <input type="checkbox" ng-model="crawl.links.all">
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">All Links</h5>
           </label>
 
           <label class="checkbox inline">
-            <input type="checkbox" ng-model="externalLinks">
-            <h5 class="inline">External Links</h5>
+            <input type="checkbox" ng-model="crawl.links.external">
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">External Links</h5>
           </label>
 
         </div>
@@ -218,7 +245,7 @@
           </ul>
             
           <label>
-            <h5 class="inline">Search Word:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Search Word:</h5>
             <input type="text" ng-model="wordSearches">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
@@ -248,7 +275,7 @@
           </ul>
 
           <label>
-            <h5 id="context" class="inline">Context Word:</h5>
+            <h5 id="context" tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Context Word:</h5>
             <input type="text" ng-model="wordContexts">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
@@ -268,7 +295,7 @@
           <div class="liner">
 
           <label>
-            <h5 id="stop-list" class="inline">Stop Words:</h5>
+            <h5 id="stop-list" tooltip-placement="left" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Stop Words:</h5>
             <textarea ng-model="crawl.stopWords" placeholder="a, list, of, stop, words, pulled, from, the, model"></textarea>
           </label>
 
@@ -289,7 +316,7 @@
           <div class="liner">
 
           <label>
-            <h5 class="inline">Predefined:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Predefined:</h5>
             <select multiple="multiple">
               <option ng-repeat="ring in predefinedSynRings" ng-selected="crawl.predefined.{{ring.name}}">{{ring.title}}</option>
             </select>
@@ -304,7 +331,7 @@
           </ul>
 
           <label>
-            <h5 id="wordnet" class="inline">WordNet:</h5>
+            <h5 id="wordnet" tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">WordNet:</h5>
             <input type="text" ng-model="wordnets">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
@@ -334,13 +361,13 @@
           </ul>
 
           <label>
-            <h5 class="inline">Ring Name:</h5>
+            <h5 tooltip-placement="left" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Ring Name:</h5>
             <input type="text" ng-model="customSynRings.name">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
 
           <label>
-            <h5 id="word-list" class="inline">Word List:</h5>
+            <h5 id="word-list" tooltip-placement="left" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Word List:</h5>
             <textarea ng-model="customSynRings.text" placeholder="a, comma, separated, list, of, words"></textarea>
           </label>
 
@@ -369,7 +396,7 @@
           </ul>
 
           <label>
-            <h5 class="inline">Selector:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Selector:</h5>
             <input type="text" ng-model="xpathSelectors">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
@@ -398,10 +425,10 @@
           </ul>
 
           <label>
-            <h5 class="inline">Selector:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Selector:</h5>
             <input type="text" ng-model="cssSelectors.selector">
             <input type="checkbox" ng-model="cssSelectors.text">
-            <h5 class="inline">Text</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Text</h5>
             <input class="btn-primary inline" type="submit" value="add">
           </label>
 
