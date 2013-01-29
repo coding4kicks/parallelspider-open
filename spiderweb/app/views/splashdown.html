@@ -1,12 +1,33 @@
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
-<p>This is the splashdown view.</p>
+<div class="row-fluid">
+  <div class="span10 padded">
+    <div class="row-fluid analysis-header">
+      <h2 class="inline">{{currentAnalysis.name}}</h2>
+      <h4 class="inline">date: {{currentAnalysis.date}}</h4>
+    </div>
+    <div class="row-fluid">
+      <!--<div ng-include src="template" class="span10 padded">-->
+      <p>{{analysis.name}}</p>
+      <p>{{analysis.date}}</p>
+      <p>{{analysis.sites[0].url}}</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+      <p>This is the splashdown view.</p>
+    </div>
+  </div>
+  <div class="span2 padded side-nav">
+    <h3>My Analysis</h3>
+    <span ng-repeat="analysis in analysisList">
+      <h4><a href="#/splasdown/{{analysis}}">{{analysis}}</a></h4>
+    </span> 
+  </div>
+</div>
+
 

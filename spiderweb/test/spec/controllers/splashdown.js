@@ -5,6 +5,10 @@ describe('Controller: SplashdownCtrl', function() {
   // load the controller's module
   beforeEach(module('spiderwebApp'));
 
+  beforeEach(inject(function($httpBackend) {
+    $httpBackend.whenGET('results.json').respond({});
+  }));  
+
   var SplashdownCtrl,
     scope;
 
@@ -15,6 +19,10 @@ describe('Controller: SplashdownCtrl', function() {
       $scope: scope
     });
   }));
+
+  //beforeEach(inject($httpBacked) {
+  //  $httpBackend.whenGET('results.json').respond('fakeData');
+  //});
 
   it('should attach a list of awesomeThings to the scope', function() {
     expect(scope.awesomeThings.length).toBe(3);
