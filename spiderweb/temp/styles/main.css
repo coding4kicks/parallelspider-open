@@ -6444,46 +6444,192 @@ a.label:hover, a.badge:hover {
   padding-left: 10px;
 }
 
-/* line 284, ../../app/styles/main.scss */
+/* line 283, ../../app/styles/main.scss */
+.analysis-header {
+  margin-bottom: 10px;
+}
+/* line 287, ../../app/styles/main.scss */
 .analysis-header h2 {
   padding-left: 50px;
   font-weight: normal;
 }
-/* line 288, ../../app/styles/main.scss */
+/* line 291, ../../app/styles/main.scss */
 .analysis-header h4 {
   padding-left: 50px;
   font-weight: normal;
 }
 
-/* line 298, ../../app/styles/main.scss */
+/* line 297, ../../app/styles/main.scss */
+.tabbable {
+  padding-left: 20px;
+}
+
+/* line 301, ../../app/styles/main.scss */
+.nav-tabs {
+  border-bottom: 1px solid #333333;
+  margin-bottom: 0px;
+}
+/* line 306, ../../app/styles/main.scss */
+.nav-tabs li > a {
+  font-size: 16px;
+  color: #BBBBBB;
+  padding: 8px 15px;
+}
+/* line 312, ../../app/styles/main.scss */
+.nav-tabs li > a:hover {
+  background-color: white;
+  color: #333333;
+  border-color: #dddddd #dddddd #333333 #dddddd;
+}
+/* line 318, ../../app/styles/main.scss */
+.nav-tabs .active {
+  background-color: #EEEEEE;
+}
+/* line 321, ../../app/styles/main.scss */
+.nav-tabs .active a, .nav-tabs .active a:hover {
+  background-color: #EEEEEE;
+  border-color: #333333 #333333 transparent;
+  color: #333333;
+  margin-right: 0px;
+}
+
+/* line 330, ../../app/styles/main.scss */
+.tab-content {
+  background-color: #EEEEEE;
+  padding-top: 20px;
+  border-radius: 0px 0px 10px 10px;
+}
+
+/* line 336, ../../app/styles/main.scss */
+.analysis {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* line 341, ../../app/styles/main.scss */
+.analysis-content {
+  padding-left: 20px;
+}
+
+/* line 345, ../../app/styles/main.scss */
+.analysis-box {
+  text-align: center;
+  width: 250px;
+  padding-top: 10px;
+  display: inline-block;
+  margin: 0px 40px;
+}
+
+/* line 352, ../../app/styles/main.scss */
+.url {
+  font-weight: normal;
+}
+
+/* line 356, ../../app/styles/main.scss */
+.search-filter {
+  margin-left: 50px;
+}
+
+/* line 360, ../../app/styles/main.scss */
+.word-pane {
+  width: 250px;
+  height: 300px;
+  overflow-y: scroll;
+  background-color: white;
+  text-align: center;
+  margin: 10px;
+}
+
+/* line 369, ../../app/styles/main.scss */
+.word-box {
+  border-bottom: 1px solid #eeeeee;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 8px 0 5px;
+  padding: 8px 0;
+}
+
+/* line 377, ../../app/styles/main.scss */
+.title {
+  border-bottom: 1px solid #333333;
+  padding-bottom: 0px;
+}
+
+/* line 382, ../../app/styles/main.scss */
+.rank {
+  float: left;
+  width: 30px;
+}
+
+/* line 387, ../../app/styles/main.scss */
+.count {
+  float: right;
+  width: 52px;
+}
+
+/* line 392, ../../app/styles/main.scss */
+.word {
+  width: 134px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* line 398, ../../app/styles/main.scss */
+.common {
+  text-align: left;
+}
+/* line 402, ../../app/styles/main.scss */
+.common .word {
+  float: right;
+  width: inherit;
+}
+/* line 407, ../../app/styles/main.scss */
+.common .rank {
+  float: none;
+  display: inline;
+}
+
+/* line 413, ../../app/styles/main.scss */
+.compare-sites {
+  margin-left: 30%;
+  margin-top: 0px;
+}
+
+/* line 418, ../../app/styles/main.scss */
+.sites {
+  margin-top: -50px;
+  margin-left: 38%;
+}
+
+/* line 427, ../../app/styles/main.scss */
 .side-nav a {
   color: #333333;
   padding-left: 10px;
   margin-top: -20px;
 }
-/* line 304, ../../app/styles/main.scss */
+/* line 433, ../../app/styles/main.scss */
 .side-nav h3 {
   margin-bottom: -5px;
 }
 
-/* line 311, ../../app/styles/main.scss */
+/* line 440, ../../app/styles/main.scss */
 .sub-links a {
   padding-left: 20px;
 }
 
-/* line 319, ../../app/styles/main.scss */
+/* line 448, ../../app/styles/main.scss */
 .inline {
   display: inline;
 }
 
-/* line 323, ../../app/styles/main.scss */
+/* line 452, ../../app/styles/main.scss */
 .liner {
   width: 90%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 329, ../../app/styles/main.scss */
+/* line 458, ../../app/styles/main.scss */
 .pointer {
   cursor: pointer;
 }

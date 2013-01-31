@@ -281,6 +281,9 @@
 // Splashdown 
 //////////////////////////
 .analysis-header {
+
+  margin-bottom: 10px;
+
   h2 {
     padding-left: 50px;
     font-weight: normal;
@@ -289,6 +292,132 @@
     padding-left: 50px;
     font-weight: normal;
   }
+}
+
+.tabbable {
+  padding-left: 20px;
+}
+
+.nav-tabs {
+
+  border-bottom: 1px solid #333333;
+  margin-bottom: 0px;
+
+  li > a {
+    font-size: 16px;
+    color: #BBBBBB;
+    padding: 8px 15px;
+  }
+
+  li > a:hover {
+    background-color: white;
+    color: #333333;
+    border-color: #DDDDDD #DDDDDD #333333 #DDDDDD;
+  }
+
+  .active {
+    background-color: #EEEEEE;
+
+    a, a:hover {
+      background-color: #EEEEEE;
+      border-color: #333333 #333333 transparent;
+      color: #333333;
+      margin-right: 0px;
+    }
+  }
+}
+
+.tab-content {
+   background-color: #EEEEEE;
+   padding-top: 20px;
+   border-radius: 0px 0px 10px 10px;
+}
+
+.analysis {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.analysis-content {
+  padding-left: 20px;
+}
+
+.analysis-box {
+  text-align: center;
+  width: 250px;
+  padding-top: 10px;
+  display: inline-block;
+  margin: 0px 40px;
+}
+.url {
+  font-weight: normal;
+}
+
+.search-filter {
+  margin-left: 50px;
+}
+
+.word-pane {
+  width: 250px;
+  height: 300px;
+  overflow-y: scroll;
+  background-color: white;
+  text-align: center;
+  margin: 10px;
+}
+
+.word-box {
+    border-bottom: 1px solid #EEEEEE;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 8px 0 5px;
+    padding: 8px 0;
+}
+
+.title {
+  border-bottom: 1px solid #333333;
+  padding-bottom: 0px;
+}
+
+.rank {
+  float: left;
+  width: 30px;
+}
+
+.count {
+  float: right;
+  width: 52px;
+}
+
+.word {
+  width: 134px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.common {
+
+  text-align: left;
+
+  .word {
+    float:right;
+    width: inherit;
+  }
+
+  .rank {
+    float: none;
+    display: inline;
+  }
+}
+
+.compare-sites {
+  margin-left: 30%;
+  margin-top: 0px;
+}
+
+.sites {
+  margin-top: -50px;
+  margin-left: 38%;
 }
 
 // SUBVIEW SIDE NAVIGATION

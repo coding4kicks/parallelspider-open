@@ -265,7 +265,7 @@ var spiderwebApp = angular.module('spiderwebApp', [])
       transclude: true,
       scope: {},
       controller: 'TabsController',
-      templateUrl: 'template/tabs/tabs.html',
+      templateUrl: 'views/tabs/tabs.html',
       replace: true
     };
   })
@@ -303,7 +303,7 @@ var spiderwebApp = angular.module('spiderwebApp', [])
           tabsCtrl.removePane(scope);
         });
       },
-      templateUrl: 'template/tabs/pane.html',
+      templateUrl: 'views/tabs/pane.html',
       replace: true
     };
   }]);

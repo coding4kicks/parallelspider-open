@@ -4,24 +4,135 @@
       <h2 class="inline">{{currentAnalysis.name}}</h2>
       <h4 class="inline">date: {{currentAnalysis.date}}</h4>
     </div>
+
+<!-- RESULT TABS
+================================================== -->
     <div class="row-fluid">
-      <!--<div ng-include src="template" class="span10 padded">-->
-      <p>{{analysis.name}}</p>
-      <p>{{analysis.date}}</p>
-      <p>{{analysis.sites[0].url}}</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
-      <p>This is the splashdown view.</p>
+      <tabs>
+        <pane heading="Text">
+          <div ng-repeat="site in analysis.sites" class="analysis">
+            <h4 class="inline">Site {{$index + 1}}:</h4><h4 class="inline url"> {{site.url}}</h4>
+            <h5 class="inline search-filter">Search: </h5><input ng-model="searchText">
+            <div class="analysis-content">
+              <div class="analysis-box" ng-init="resultVisible = site.results[0]" ng-show="resultVisible.words">
+                <h4>Visible Text</h4>
+                <div class="word-pane">
+                  <div class="word-box title">
+                    <div class="rank">Rank</div>
+                    <div class="count">Count</div>
+                    <div class="word">Word</div>
+                  </div>
+                  <div ng-repeat="word in resultVisible.words | limitTo:100 | filter:searchText" class="word-box">
+                    <div class="rank">{{word.rank}}</div>
+                    <div class="count">{{word.count}}</div>
+                    <div class="word">{{word.word}}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="analysis-box" ng-init="resultHeadline = site.results[1]" ng-show="resultHeadline.words">
+                <h4>Headline Text</h4>
+                <div class="word-pane">
+                  <div class="word-box title">
+                    <div class="rank">Rank</div>
+                    <div class="count">Count</div>
+                    <div class="word">Word</div>
+                  </div>
+                  <div ng-repeat="word in resultHeadline.words | limitTo:100 | filter:searchText" class="word-box">
+                    <div class="rank">{{word.rank}}</div>
+                    <div class="count">{{word.count}}</div>
+                    <div class="word">{{word.word}}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="analysis-box" ng-init="resultHidden = site.results[2]" ng-show="resultHidden.words">
+                <h4>Hidden Text</h4>
+                <div class="word-pane">
+                  <div class="word-box title">
+                    <div class="rank">Rank</div>
+                    <div class="count">Count</div>
+                    <div class="word">Word</div>
+                  </div>
+                  <div ng-repeat="word in resultHidden.words | limitTo:100 | filter:searchText" class="word-box">
+                    <div class="rank">{{word.rank}}</div>
+                    <div class="count">{{word.count}}</div>
+                    <div class="word">{{word.word}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr />
+          </div>
+
+<!-- COMMON GROUND
+================================================== -->
+          <div ng-show="commonGround" class="analysis">
+            <h4 class="">Common Ground</h4>
+            <button ng-click="compareSites()" class="compare-sites">
+              Compare
+            </button>
+            <div class="sites">
+              <div ng-repeat="site in analysis.sites">
+                <label class="checkbox inline">
+                  <input type="checkbox" ng-model="site.include">
+                  <h5 class="inline">Site {{$index + 1}}:</h5>
+                  <h5 class="inline url"> {{site.url}}</h5>
+              </label>
+              </div>
+            </div>
+            <div class="analysis-content">
+              <div class="analysis-box" ng-show="analysis.sites[0].results[0].words">
+                <h4>Visible Text</h4>
+                <div class="word-pane  common">
+                  <div class="word-box title">
+                    <div class="rank">Rank</div>
+                    <div class="word">Word</div>
+                  </div>
+                  <div ng-repeat="word in commonWords[0] | limitTo:100" class="word-box">
+                    <div class="rank">{{word.rank}}</div>
+                    <div class="word">{{word.word}}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="analysis-box" ng-show="analysis.sites[0].results[1].words">
+                <h4>Headline Text</h4>
+                <div class="word-pane  common">
+                  <div class="word-box title">
+                    <div class="rank">Rank</div>
+                    <div class="word">Word</div>
+                  </div>
+                  <div ng-repeat="word in commonWords[1] | limitTo:100" class="word-box">
+                    <div class="rank">{{word.rank}}</div>
+                    <div class="word">{{word.word}}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="analysis-box" ng-show="analysis.sites[0].results[2].words">
+                <h4>Hidden Text</h4>
+                <div class="word-pane common">
+                  <div class="word-box title">
+                    <div class="rank">Rank</div>
+                    <div class="word">Word</div>
+                  </div>
+                  <div ng-repeat="word in commonWords[2] | limitTo:100" class="word-box">
+                    <div class="rank">{{word.rank}}</div>
+                    <div class="word">{{word.word}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr />
+          </div>
+        </pane>
+        <pane heading="Links">link content</pane>
+        <pane heading="Context">context content</pane>
+        <pane heading="Synonyms">synonyms content</pane>
+        <pane heading="Selectors">selector content</pane>
+      </tabs>
     </div>
   </div>
+
+<!-- Side Navigation
+================================================== -->
   <div class="span2 padded side-nav">
     <h3>My Analysis</h3>
     <span ng-repeat="analysis in analysisList">
