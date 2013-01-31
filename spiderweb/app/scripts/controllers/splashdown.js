@@ -33,11 +33,8 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
         $scope.analysis = results.data;
 
         // Add property "include" for comparison
-        for (var site in $scope.analysis.sites) {
-          // Only add to real sites, not length attribute
-          if ($scope.analysis.sites[site].url) {
-            $scope.analysis.sites[site].include = true;
-          }
+        for (var i = 0; i < $scope.analysis.sites.length; i++) {
+          $scope.analysis.sites[i].include = true;
         }
     });
 
@@ -45,20 +42,39 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
     var wordsList = [],
         startList = {},
         tempList = {},
+        words = [],
         sites = $scope.analysis.sites;
 
-    for (var site in sites) {
-      if (sites[site].include === true) {
-        //wordsList.push({ 'site' :$scope.analysis.sites[site].words});
-        wordsList.push({'howdy': sites[site].results[0].words});
+    for (var i = 0; i < sites.length; i++) {
+      if (sites[i].include === true) {
+        wordsList.push({'site': i + 1, 'words': sites[i].results[0].words});
       }
     }
-    //if (wordsList.length > 1) {
-    //  for (var word in wordsList[0]) {
-    //    alert(word);
-    //  }
-    //}
-    alert(wordsList[0]['howdy']);
+
+    if (wordsList.length > 0) {
+
+      // set up initial start list
+      words = wordsList[0].words
+      for (var i = 0; i < words.length; i++) {
+        startList[words[i].word] = [words[i].rank];
+      }
+
+      // compare the other lists, skip the first
+      for (var i = 1; i < wordsList.length; i++) {
+        
+        alert(i);
+        //words = list.words
+       // for (var word in words) {
+       //   if (typeof startList[words[word].word] !== "undefined") {
+       //     alert(words[word].word);
+       //   }
+
+       // }
+
+
+      }
+    }
+    alert('howdy');
   }
 
 });
