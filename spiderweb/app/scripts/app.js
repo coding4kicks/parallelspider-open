@@ -68,6 +68,43 @@ var spiderwebApp = angular.module('spiderwebApp', [])
     }  
   })
 
+  // ON HOLD - unable to get filter working, haven't even tried linking addInfo box
+  //  <analysisbox title="visibleText" name="Visible Text" site="site" results="results" searchText="searchText"></analysisbox>
+  // Analysis box to display word, links, domains, etc.
+  // Depends upon site, request, and searchText in parent scope
+//  .directive( 'analysisbox', function () {
+//    return {
+//      restrict: 'E',
+//      replace: true,
+//      scope: { type: "@title", name: "@", site: "&", results: "&", searchText: "&"},
+//      templateUrl: 'views/analysisbox/analysisbox.html',
+//      link: function(scope, element, attrs) {
+//
+//        scope.$watch(function() {
+//          return scope.site()
+//          }, 
+//          function(value) {
+//            scope.localSite = value;     
+//          });
+//
+//        scope.$watch(function() {
+//          return scope.results()
+//          }, 
+//          function(value) {
+//            scope.localResults = value;     
+//          });
+//
+//        scope.$watch(function() {
+//          return scope.searchText()
+//          }, 
+//          function(value) {
+//            scope.localSearchText = value;     
+//          });
+//      }
+//    };
+//
+//  })
+
   // Validates integers (from Angular websites)
   .directive('integer', function() {
     var INTEGER_REGEXP = /^\-?\d*$/;

@@ -12,47 +12,51 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
 
   $scope.analysis = {};
   $scope.commonGround = true;
-  $scope.commonWords = [];
-  $scope.commonWords.push( [{'word': 'hope', 'count': 32, 'rank': 1},
-                        {'word': 'hope', 'count': 32, 'rank': 1},
-                        {'word': 'hope', 'count': 32, 'rank': 1}] );
+  $scope.commonWords = {};
+  $scope.commonColors = [];
+  $scope.results = 'internalResults'
+  $scope.internal = true;
+  $scope.external = false;
 
-  $scope.commonWords.push( [{'word': 'hope', 'count': 32, 'rank': 1},
-                        {'word': 'hope', 'count': 32, 'rank': 1},
-                        {'word': 'hope', 'count': 32, 'rank': 1}] );
-
-  $scope.commonWords.push( [{'word': 'hope', 'count': 32, 'rank': 1},
-                        {'word': 'hope', 'count': 32, 'rank': 1},
-                        {'word': 'hope', 'count': 32, 'rank': 1}] );
-
-  $scope.analysis.name = "hope to change";
-
-  $http.get('results1.json')
+  $http.get('results2.json')
     .then(function(results){
 
         $scope.analysis = results.data;
 
-        // Add property "include" for comparison
+        // Add property "include" for comparison & additionalInfo
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
           $scope.analysis.sites[i].include = true;
+          $scope.analysis.sites[i].additionalInfo = {word: "None Selected"};
+          $scope.analysis.sites[i].additionalInfo.type = "";
+          $scope.analysis.sites[i].additionalInfo.selected = false;
+          $scope.analysis.sites[i].additionalInfo.pagesSel = true;
+          $scope.analysis.sites[i].additionalInfo.tagsSel = false;
+
         }
+
+        // Perform initial comparison for all sites
+        $scope.compareSites();
+
     });
 
+  // Compare which words are common between sites
   $scope.compareSites = function() {
 
-    var compare = function(resNum) {
+    // Function to compare for each result type
+    var compare = function(resultType) {
       var wordsList = [],
           startList = {},
           tempList = {},
           words = [],
           sites = $scope.analysis.sites;
-
+     
       for (var i = 0; i < sites.length; i++) {
         if (sites[i].include === true) {
-          wordsList.push({'site': i + 1, 'words': sites[i].results[resNum].words});
+          wordsList.push({'site': i + 1, 'words': sites[i][$scope.results][resultType].words});
         }
       }
 
+      // Only process if there are lists to process
       if (wordsList.length > 0) {
 
         // set up initial start list
@@ -83,8 +87,6 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
 
           // set new start list to current templist
           startList = tempList
-
-
         }
 
         // Common items are last start list
@@ -96,13 +98,73 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
           }
         } 
         return commonFormat;
-
       }
-      alert('howdy');
+
+      // else return undefined, no sites chosen
     }
-    $scope.commonWords[0] = compare(0);
-    $scope.commonWords[1] = compare(1);
-    $scope.commonWords[2] = compare(2);
+
+    // Compare all three formats
+    $scope.commonWords['visibleText'] = compare('visibleText');
+    $scope.commonWords['headlineText'] = compare('headlineText');
+    $scope.commonWords['hiddenText'] = compare('hiddenText');
+
+    // Set up common colors
+    $scope.commonColors = [];
+    var sites = $scope.analysis.sites;
+
+    for (var i = 0; i < sites.length; i++) {
+      if (sites[i].include === true) {
+        $scope.commonColors.push((i + 1) % 5);
+      }
+    }
+
   }
 
+  $scope.addInfo = function(word, site, type) {
+    // TODO: refacctor so don't overrite additional info every time
+    // and have to reset added parameters: selected, pagesSel, and tagsSel
+    var tags = site.additionalInfo.tagsSel,
+        pages = site.additionalInfo.pagesSel;
+
+    
+    if (site.additionalInfo === word) {
+      site.additionalInfo = {word: "None Selected"};
+      site.additionalInfo.type = "";
+      site.additionalInfo.selected = false;
+      site.additionalInfo.tagsSel = tags;
+      site.additionalInfo.pagesSel = pages;
+    }
+    else {
+      site.additionalInfo = word;
+      site.additionalInfo.type = type;
+      site.additionalInfo.selected = true;
+      site.additionalInfo.tagsSel = tags;
+      site.additionalInfo.pagesSel = pages;
+    }
+  }
+
+  $scope.addInfoChoice = function(site, choice) {
+    if (choice === 'pages') {
+      site.additionalInfo.pagesSel = true;
+      site.additionalInfo.tagsSel = false;
+    }
+    if (choice === 'tags') {
+      site.additionalInfo.tagsSel = true;
+      site.additionalInfo.pagesSel = false;
+    }
+  }
+
+  $scope.resultsChoice = function(type) {
+    if (type === 'internal') {
+      $scope.results = 'internalResults';
+      $scope.internal = true;
+      $scope.external = false;
+    }
+    if (type === 'external') {
+      $scope.results = 'externalResults';
+      $scope.external = true;
+      $scope.internal = false;
+    }
+    $scope.compareSites();
+  }
 });
