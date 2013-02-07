@@ -359,11 +359,16 @@
 
 .analysis-box {
   text-align: center;
-  width: 250px;
+  width: 270px;
   padding-top: 10px;
   display: inline-block;
-  margin: 0px 45px;
+  margin: 0px 35px;
 }
+
+.link {
+  width: 400px;
+}
+
 
 .info-box {
   width: 592px;
@@ -390,7 +395,6 @@
 }
 
 .word-pane {
-  width: 250px;
   height: 300px;
   overflow-y: scroll;
   background-color: white;
@@ -456,6 +460,17 @@
   margin-right: auto;
 }
 
+.link-box {
+  width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+
+  &:hover {
+    cursor: pointer;
+    color: blue;
+  }
+
+}
 
 .common {
 
@@ -463,6 +478,11 @@
 
   .word {
     float:right;
+    width: inherit;
+  }
+
+  .link-box {
+    float: right;
     width: inherit;
   }
 

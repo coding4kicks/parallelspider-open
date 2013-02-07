@@ -25,12 +25,18 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
 
         // Add property "include" for comparison & additionalInfo
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
+
+          // include is used in Common Ground to enable/disable site inclusion in comparison
           $scope.analysis.sites[i].include = true;
+
+          // additional info is display boxes for each word, link, etc.'s additional info
           $scope.analysis.sites[i].additionalInfo = {word: "None Selected"};
           $scope.analysis.sites[i].additionalInfo.type = "";
           $scope.analysis.sites[i].additionalInfo.selected = false;
           $scope.analysis.sites[i].additionalInfo.pagesSel = true;
           $scope.analysis.sites[i].additionalInfo.tagsSel = false;
+          $scope.analysis.sites[i].additionalInfo.wordsSel = false;
+          $scope.analysis.sites[i].additionalInfo.linksSel = false;
 
         }
 
@@ -147,11 +153,24 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
     if (choice === 'pages') {
       site.additionalInfo.pagesSel = true;
       site.additionalInfo.tagsSel = false;
+      site.additionalInfo.wordsSel = false;
+      site.additionalInfo.linksSel = false;
     }
     if (choice === 'tags') {
       site.additionalInfo.tagsSel = true;
       site.additionalInfo.pagesSel = false;
     }
+    if (choice === 'words') {
+      site.additionalInfo.wordsSel = true;
+      site.additionalInfo.pagesSel = false;
+      site.additionalInfo.linksSel = false;
+    }
+    if (choice === 'links') {
+      site.additionalInfo.linksSel = true;
+      site.additionalInfo.pagesSel = false;
+      site.additionalInfo.wordsSel = false;
+    }
+
   }
 
   $scope.resultsChoice = function(type) {

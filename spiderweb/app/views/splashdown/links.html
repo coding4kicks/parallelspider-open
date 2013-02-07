@@ -1,73 +1,66 @@
+<!-- SITES
+================================================== -->
 <div ng-repeat="site in analysis.sites" class="analysis">
   <h4 class="inline">Site {{$index + 1}}:</h4><h4 class="inline url"> {{site.url}}</h4>
   <h5 class="inline search-filter">Search: </h5><input ng-model="searchText">
   <div class="analysis-content">
 
-    <div class="analysis-box" ng-show="site[results].visibleText.words">
-      <h4>Visible Text</h4>
+<!-- ALL LINKS
+================================================== -->    
+    <div class="analysis-box link" ng-show="site[results].allLinks.links">
+      <h4>All Links</h4>
+      <div class="word-pane">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="count">Count</div>
+          <div class="word">Link</div>
+        </div>
+        <div ng-repeat="link in site[results].allLinks.links | limitTo:100 | filter:searchText" class="word-box">
+          <div class="rank">{{link.rank}}</div>
+          <div class="count">{{link.count}}</div>
+          <div class="link-box" ng-click="addInfo(link, site, '- (all links)')">{{link.link}}</div>
+        </div>
+      </div>
+    </div>
+
+<!-- EXTERNAL DOMAINS
+================================================== -->
+    <div class="analysis-box link" ng-show="site[results].externalDomains.domains">
+      <h4>External Domains</h4>
+      <div class="word-pane">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="count">Count</div>
+          <div class="word">Domain</div>
+        </div>
+        <div ng-repeat="domain in site[results].externalDomains.domains | limitTo:100 | filter:searchText" class="word-box">
+          <div class="rank">{{domain.rank}}</div>
+          <div class="count">{{domain.count}}</div>
+          <div class="link-box" ng-click="addInfo(domain, site, '- (external domains)')">{{domain.domain}}</div>
+        </div>
+      </div>
+    </div>
+
+<!-- LINK TEXT
+================================================== -->    
+    <div class="analysis-box" ng-show="site[results].linkText.words">
+      <h4>Link Text</h4>
       <div class="word-pane">
         <div class="word-box title">
           <div class="rank">Rank</div>
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in site[results].visibleText.words | limitTo:100 | filter:searchText" class="word-box">
+        <div ng-repeat="word in site[results].linkText.words | limitTo:100 | filter:searchText" class="word-box">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="addInfo(word, site, '- (visible text)')">{{word.word}}</div>
+          <div class="word" ng-click="addInfo(word, site, '- (link text)')">{{word.word}}</div>
         </div>
       </div>
     </div>
 
-    <div class="analysis-box" ng-show="site[results].headlineText.words">
-      <h4>Headline Text</h4>
-      <div class="word-pane">
-        <div class="word-box title">
-          <div class="rank">Rank</div>
-          <div class="count">Count</div>
-          <div class="word">Word</div>
-        </div>
-        <div ng-repeat="word in site[results].headlineText.words | limitTo:100 | filter:searchText" class="word-box">
-          <div class="rank">{{word.rank}}</div>
-          <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="addInfo(word, site, '- (headline text)')">{{word.word}}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="analysis-box" ng-show="site[results].hiddenText.words">
-      <h4>Hidden Text</h4>
-      <div class="word-pane">
-        <div class="word-box title">
-          <div class="rank">Rank</div>
-          <div class="count">Count</div>
-          <div class="word">Word</div>
-        </div>
-        <div ng-repeat="word in site[results].hiddenText.words | limitTo:100 | filter:searchText" class="word-box">
-          <div class="rank">{{word.rank}}</div>
-          <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="addInfo(word, site, '- (hidden text)')">{{word.word}}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="analysis-box" ng-show="site[results].searchWords.words">
-      <h4>Search Words</h4>
-      <div class="word-pane">
-        <div class="word-box title">
-          <div class="rank">Rank</div>
-          <div class="count">Count</div>
-          <div class="word">Word</div>
-        </div>
-        <div ng-repeat="word in site[results].searchWords.words | limitTo:100 | filter:searchText" class="word-box">
-          <div class="rank">{{$index}}</div>
-          <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="addInfo(word, site, '- (search words)')">{{word.word}}</div>
-        </div>
-      </div>
-    </div>
-
-    
+<!-- ADDITIONAL INFO FOOL!
+================================================== -->    
     <div class="info-box">
       <h4>Additional Info</h4>
       <div class="btn-group add-info-btns">
@@ -75,7 +68,10 @@
         <button class="btn active-{{site.additionalInfo.tagsSel}}" ng-click="addInfoChoice(site, 'tags')">Tags</button>
       </div>
       <div class="info-pane">
-        <h4>Word: <span class="url">{{site.additionalInfo.word}} {{site.additionalInfo.type}}</span></h4>
+        <h4 ng-show="site.additionalInfo.link">Link: <span class="url">{{site.additionalInfo.link}} {{site.additionalInfo.type}}</span></h4>
+        <h4 ng-show="site.additionalInfo.domain">Domain: <span class="url">{{site.additionalInfo.domain}} {{site.additionalInfo.type}}</span></h4>
+        <h4 ng-show="site.additionalInfo.word">Word: <span class="url">{{site.additionalInfo.word}} {{site.additionalInfo.type}}</span></h4>
+        
         <div class="page-pane" ng-show="site.additionalInfo.selected && site.additionalInfo.pagesSel">
           <div class="word-box title">
             <div class="rank">Rank</div>
@@ -88,6 +84,7 @@
             <div class="page-box">{{page.page}}</div>
           </div>
         </div>
+
         <div class="page-pane" ng-show="site.additionalInfo.selected && site.additionalInfo.tagsSel">
           <div class="word-box title">
             <div class="rank">Rank</div>
@@ -105,7 +102,8 @@
 
   </div>
   <hr />
-</div>
+</div><!-- END SITES -->
+
 
 <!-- COMMON GROUND
 ================================================== -->
@@ -126,8 +124,8 @@
 
   <div class="analysis-content">
     <!-- only show comparison if results exists and more than 1 site -->
-    <div class="analysis-box" ng-show="analysis.sites[1][results].visibleText.words">
-      <h4>Visible Text</h4>
+    <div class="analysis-box link" ng-show="analysis.sites[1][results].visibleText.words">
+      <h4>All Links</h4>
       <div class="word-pane  common">
         <div class="word-box title">
           <div class="rank">Rank</div>
@@ -137,13 +135,13 @@
           <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
             <span>{{rank}}</span>
           </div>
-          <div class="word">{{word.word}}</div>
+          <div class="link-box">{{word.word}}</div>
         </div>
       </div>
     </div>
 
-    <div class="analysis-box" ng-show="analysis.sites[1][results].headlineText.words">
-      <h4>Headline Text</h4>
+    <div class="analysis-box link" ng-show="analysis.sites[1][results].headlineText.words">
+      <h4>External Domains</h4>
       <div class="word-pane  common">
         <div class="word-box title">
           <div class="rank">Rank</div>
@@ -153,13 +151,13 @@
           <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
             <span>{{rank}}</span>
           </div>
-          <div class="word">{{word.word}}</div>
+          <div class="link-box">{{word.word}}</div>
         </div>
       </div>
     </div>
 
     <div class="analysis-box" ng-show="analysis.sites[1][results].hiddenText.words">
-      <h4>Hidden Text</h4>
+      <h4>Link Text</h4>
       <div class="word-pane common">
         <div class="word-box title">
           <div class="rank">Rank</div>
@@ -175,5 +173,5 @@
     </div>
   </div>
   <hr />
-</div>
+</div><!-- END COMMON GROUND -->
 

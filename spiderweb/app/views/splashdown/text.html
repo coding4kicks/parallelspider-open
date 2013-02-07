@@ -1,8 +1,12 @@
+<!-- SITES
+================================================== -->
 <div ng-repeat="site in analysis.sites" class="analysis">
   <h4 class="inline">Site {{$index + 1}}:</h4><h4 class="inline url"> {{site.url}}</h4>
   <h5 class="inline search-filter">Search: </h5><input ng-model="searchText">
   <div class="analysis-content">
 
+<!-- VISIBLE TEXT
+================================================== -->
     <div class="analysis-box" ng-show="site[results].visibleText.words">
       <h4>Visible Text</h4>
       <div class="word-pane">
@@ -19,6 +23,8 @@
       </div>
     </div>
 
+<!-- HEADLINE TEXT
+================================================== -->
     <div class="analysis-box" ng-show="site[results].headlineText.words">
       <h4>Headline Text</h4>
       <div class="word-pane">
@@ -35,6 +41,8 @@
       </div>
     </div>
 
+<!-- HIDDEN TEXT
+================================================== -->
     <div class="analysis-box" ng-show="site[results].hiddenText.words">
       <h4>Hidden Text</h4>
       <div class="word-pane">
@@ -51,6 +59,8 @@
       </div>
     </div>
 
+<!-- SEARCH WORDS
+================================================== -->
     <div class="analysis-box" ng-show="site[results].searchWords.words">
       <h4>Search Words</h4>
       <div class="word-pane">
@@ -67,7 +77,8 @@
       </div>
     </div>
 
-    
+<!-- ADDITIONAL INFO GHETTO MO'FO
+================================================== -->    
     <div class="info-box">
       <h4>Additional Info</h4>
       <div class="btn-group add-info-btns">
@@ -105,7 +116,8 @@
 
   </div>
   <hr />
-</div>
+</div><!-- END SITES -->
+
 
 <!-- COMMON GROUND
 ================================================== -->
@@ -175,5 +187,5 @@
     </div>
   </div>
   <hr />
-</div>
+</div><!-- END COMMON GROUND -->
 
