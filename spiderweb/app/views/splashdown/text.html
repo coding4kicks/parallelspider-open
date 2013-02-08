@@ -18,7 +18,7 @@
         <div ng-repeat="word in site[results].visibleText.words | limitTo:100 | filter:searchText" class="word-box">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="addInfo(word, site, '- (visible text)')">{{word.word}}</div>
+          <div class="word" ng-click="showInfo(site, 'text', word, 'Word', 'Visible Text', 'visibleText')">{{word.word}}</div>
         </div>
       </div>
     </div>
@@ -36,7 +36,7 @@
         <div ng-repeat="word in site[results].headlineText.words | limitTo:100 | filter:searchText" class="word-box">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="addInfo(word, site, '- (headline text)')">{{word.word}}</div>
+          <div class="word" ng-click="showInfo(site, 'text', word, 'Word', 'Headline Text', 'headlineText')">{{word.word}}</div>
         </div>
       </div>
     </div>
@@ -54,7 +54,7 @@
         <div ng-repeat="word in site[results].hiddenText.words | limitTo:100 | filter:searchText" class="word-box">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="addInfo(word, site, '- (hidden text)')">{{word.word}}</div>
+          <div class="word" ng-click="showInfo(site, 'text', word, 'Word', 'Hidden Text', 'hiddenText')">{{word.word}}</div>
         </div>
       </div>
     </div>
@@ -72,48 +72,45 @@
         <div ng-repeat="word in site[results].searchWords.words | limitTo:100 | filter:searchText" class="word-box">
           <div class="rank">{{$index}}</div>
           <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="addInfo(word, site, '- (search words)')">{{word.word}}</div>
+          <div class="word" ng-click="showInfo(site, 'text', word, 'Word', 'Search Words', 'searchWords')">{{word.word}}</div>
         </div>
       </div>
     </div>
 
 <!-- ADDITIONAL INFO GHETTO MO'FO
 ================================================== -->    
-    <div class="info-box">
+    <div class="info-box" ng-init="additionalInfo=site.additionalInfo.text">
       <h4>Additional Info</h4>
-      <div class="btn-group add-info-btns">
-        <button class="btn active-{{site.additionalInfo.pagesSel}}" ng-click="addInfoChoice(site, 'pages')">Pages</button>
-        <button class="btn active-{{site.additionalInfo.tagsSel}}" ng-click="addInfoChoice(site, 'tags')">Tags</button>
-      </div>
-      <div class="info-pane">
-        <h4>Word: <span class="url">{{site.additionalInfo.word}} {{site.additionalInfo.type}}</span></h4>
-        <div class="page-pane" ng-show="site.additionalInfo.selected && site.additionalInfo.pagesSel">
-          <div class="word-box title">
-            <div class="rank">Rank</div>
-            <div class="count">Count</div>
-            <div class="word">Page</div>
-          </div>
-          <div ng-repeat="page in site.additionalInfo.pages | limitTo:9" class="word-box">
-            <div class="rank">{{$index + 1}}</div>
-            <div class="count">{{page.count}}</div>
-            <div class="page-box">{{page.page}}</div>
-          </div>
-        </div>
-        <div class="page-pane" ng-show="site.additionalInfo.selected && site.additionalInfo.tagsSel">
-          <div class="word-box title">
-            <div class="rank">Rank</div>
-            <div class="count">Count</div>
-            <div class="word">Tag</div>
-          </div>
-          <div ng-repeat="tag in site.additionalInfo.tags | limitTo:9" class="word-box">
-            <div class="rank">{{$index + 1}}</div>
-            <div class="count">{{tag.count}}</div>
-            <div class="page-box">{{tag.tag}}</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
+      <div class="btn-group add-info-btns" ng-show="additionalInfo.showing">
+        <button ng-repeat="button in additionalInfo.buttonTypes" class="btn active-{{button.active}}" ng-click="switchInfoType(additionalInfo, button)">{{button.label}}</button>
+      </div>
+
+      <div class="info-pane">
+        <h4 class="nothing-selected" ng-hide="additionalInfo.showing">Nothing Selected</h4>
+        <h4 class="item-header" ng-show="additionalInfo.showing">{{additionalInfo.currentType}}: 
+          <span class="url">{{additionalInfo.currentItem[(additionalInfo.currentType | lowercase)]}}</span>
+        </h4>
+        <h4 class="type-header" ng-show="additionalInfo.showing">Type:  
+          <span class="url"> {{additionalInfo.currentLabel}}</span>
+        </h4> 
+
+        <div class="page-pane" ng-show="additionalInfo.showing">
+          <div class="word-box title">
+            <div class="rank">Rank</div>
+            <div class="count">Count</div>
+            <div class="word">{{additionalInfo.currentButton.label}}</div>
+          </div>
+
+          <div ng-repeat="item in additionalInfo.currentItem[additionalInfo.currentButton.type] | limitTo:9" class="word-box">
+            <div class="rank">{{$index + 1}}</div>
+            <div class="count">{{item.count}}</div>
+            <div class="page-box">{{item[additionalInfo.currentButton.itemType]}}</div>
+          </div>
+
+        </div>
+      </div>
+    </div> 
   </div>
   <hr />
 </div><!-- END SITES -->

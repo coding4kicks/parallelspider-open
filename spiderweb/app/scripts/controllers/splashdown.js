@@ -18,6 +18,23 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
   $scope.internal = true;
   $scope.external = false;
 
+  // additional info button types for each type of results
+  $scope.buttonTypes = {};
+  var wordButtons = [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'},
+                     {'type': 'tags', 'active': false, 'label': 'Tags', 'itemType': 'tag'}];
+  $scope.buttonTypes.visibleText = wordButtons;
+  $scope.buttonTypes.headlineText = wordButtons;
+  $scope.buttonTypes.hiddenText = wordButtons;
+  $scope.buttonTypes.searchWords = wordButtons;
+  $scope.buttonTypes.allLinks = [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'},
+                                 {'type': 'words', 'active': false, 'label': 'Words', 'itemType': 'words'}];
+  $scope.buttonTypes.externalDomains = [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'},
+                                        {'type': 'words', 'active': false, 'label': 'Words', 'itemType': 'words'},
+                                        {'type': 'links', 'active': false, 'label': 'Links', 'itemType': 'link'}];
+  $scope.buttonTypes.linkText = [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
+
+
+  
   $http.get('results2.json')
     .then(function(results){
 
@@ -29,15 +46,12 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
           // include is used in Common Ground to enable/disable site inclusion in comparison
           $scope.analysis.sites[i].include = true;
 
-          // additional info is display boxes for each word, link, etc.'s additional info
-          $scope.analysis.sites[i].additionalInfo = {word: "None Selected"};
-          $scope.analysis.sites[i].additionalInfo.type = "";
-          $scope.analysis.sites[i].additionalInfo.selected = false;
-          $scope.analysis.sites[i].additionalInfo.pagesSel = true;
-          $scope.analysis.sites[i].additionalInfo.tagsSel = false;
-          $scope.analysis.sites[i].additionalInfo.wordsSel = false;
-          $scope.analysis.sites[i].additionalInfo.linksSel = false;
-
+          // Create additional info for each site and for each splashdown page type
+          $scope.analysis.sites[i].additionalInfo = {};
+          $scope.analysis.sites[i].additionalInfo.text = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+                                                            'currentItem': {}, 'currentType': "", 'currentLabel': ""};;
+          $scope.analysis.sites[i].additionalInfo.links = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+                                                            'currentItem': {}, 'currentType': "", 'currentLabel': ""};
         }
 
         // Perform initial comparison for all sites
@@ -126,53 +140,6 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
 
   }
 
-  $scope.addInfo = function(word, site, type) {
-    // TODO: refacctor so don't overrite additional info every time
-    // and have to reset added parameters: selected, pagesSel, and tagsSel
-    var tags = site.additionalInfo.tagsSel,
-        pages = site.additionalInfo.pagesSel;
-
-    
-    if (site.additionalInfo === word) {
-      site.additionalInfo = {word: "None Selected"};
-      site.additionalInfo.type = "";
-      site.additionalInfo.selected = false;
-      site.additionalInfo.tagsSel = tags;
-      site.additionalInfo.pagesSel = pages;
-    }
-    else {
-      site.additionalInfo = word;
-      site.additionalInfo.type = type;
-      site.additionalInfo.selected = true;
-      site.additionalInfo.tagsSel = tags;
-      site.additionalInfo.pagesSel = pages;
-    }
-  }
-
-  $scope.addInfoChoice = function(site, choice) {
-    if (choice === 'pages') {
-      site.additionalInfo.pagesSel = true;
-      site.additionalInfo.tagsSel = false;
-      site.additionalInfo.wordsSel = false;
-      site.additionalInfo.linksSel = false;
-    }
-    if (choice === 'tags') {
-      site.additionalInfo.tagsSel = true;
-      site.additionalInfo.pagesSel = false;
-    }
-    if (choice === 'words') {
-      site.additionalInfo.wordsSel = true;
-      site.additionalInfo.pagesSel = false;
-      site.additionalInfo.linksSel = false;
-    }
-    if (choice === 'links') {
-      site.additionalInfo.linksSel = true;
-      site.additionalInfo.pagesSel = false;
-      site.additionalInfo.wordsSel = false;
-    }
-
-  }
-
   $scope.resultsChoice = function(type) {
     if (type === 'internal') {
       $scope.results = 'internalResults';
@@ -184,6 +151,62 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
       $scope.external = true;
       $scope.internal = false;
     }
+    
+    // Set all additional info to null
+    for (var i = 0; i < $scope.analysis.sites.length; i++) {
+      var addInfo = $scope.analysis.sites[i].additionalInfo;
+      addInfo.text.showing = false;
+      addInfo.text.currentItem = {};
+      addInfo.links.showing = false;
+      addInfo.links.currentItem = {};
+    }
+
+    // Re-compare sites for common ground with current result type
     $scope.compareSites();
+  }
+
+  /*
+   * showInfo - shows the additional information of a selected item
+   *
+   * args:
+   *  site - the site to which the item belongs
+   *  page - the page the item is on: text, links
+   *  item - the itme itself: word, link, domain
+   *  type - the item type as a text string: Word, Link, Domain
+   *  label - the label for the category: Visible Text, All Links, etc.
+   *  buttonType - the buttonType associated with the item: visibleText, allLinks, etc.
+   */
+  $scope.showInfo = function(site, page, item, type, label, buttonType) 
+  {
+    var addInfo = site.additionalInfo[page];
+
+    // Allow ability to deselect item
+    if (addInfo.currentItem == item) {
+      addInfo.showing = false;
+      addInfo.currentItem = {};
+    }
+    else {
+      addInfo.showing = true;
+      addInfo.currentItem = item;
+      addInfo.currentType = type;
+      addInfo.currentLabel = label;
+      addInfo.buttonTypes = $scope.buttonTypes[buttonType];
+      addInfo.currentButton.active = false;
+      addInfo.currentButton = $scope.buttonTypes[buttonType][0];
+      addInfo.currentButton.active = true;
+    }
+  }
+
+  /*
+   * switchInfoType - switches the additional information type displayed
+   *
+   * args:
+   *  additionalInfo - the site and page info to switch
+   *  button - the button/info to display
+   */
+  $scope.switchInfoType = function(additionalInfo, button) {
+    additionalInfo.currentButton.active = false;
+    button.active = true;
+    additionalInfo.currentButton = button;
   }
 });
