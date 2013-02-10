@@ -15,7 +15,7 @@
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in site[results].visibleText.words | limitTo:100 | filter:searchText" class="word-box">
+        <div ng-repeat="word in site[results].visibleText.words | limitTo:limitTo.text | filter:searchText" class="word-box">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
           <div class="word" ng-click="showInfo(site, 'text', word, 'Word', 'Visible Text', 'visibleText')">{{word.word}}</div>
@@ -33,7 +33,7 @@
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in site[results].headlineText.words | limitTo:100 | filter:searchText" class="word-box">
+        <div ng-repeat="word in site[results].headlineText.words | limitTo:limitTo.text | filter:searchText" class="word-box">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
           <div class="word" ng-click="showInfo(site, 'text', word, 'Word', 'Headline Text', 'headlineText')">{{word.word}}</div>
@@ -51,7 +51,7 @@
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in site[results].hiddenText.words | limitTo:100 | filter:searchText" class="word-box">
+        <div ng-repeat="word in site[results].hiddenText.words | limitTo:limitTo.text | filter:searchText" class="word-box">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
           <div class="word" ng-click="showInfo(site, 'text', word, 'Word', 'Hidden Text', 'hiddenText')">{{word.word}}</div>
@@ -69,7 +69,7 @@
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in site[results].searchWords.words | limitTo:100 | filter:searchText" class="word-box">
+        <div ng-repeat="word in site[results].searchWords.words | limitTo:limitTo.text | filter:searchText" class="word-box">
           <div class="rank">{{$index}}</div>
           <div class="count">{{word.count}}</div>
           <div class="word" ng-click="showInfo(site, 'text', word, 'Word', 'Search Words', 'searchWords')">{{word.word}}</div>
@@ -142,7 +142,7 @@
           <div class="rank">Rank</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in commonWords['visibleText'] | limitTo:100" class="word-box">
+        <div ng-repeat="word in commonWords['visibleText'] | limitTo:limitTo.text" class="word-box">
           <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
             <span>{{rank}}</span>
           </div>
@@ -158,7 +158,7 @@
           <div class="rank">Rank</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in commonWords['headlineText'] | limitTo:100" class="word-box">
+        <div ng-repeat="word in commonWords['headlineText'] | limitTo:limitTo.text" class="word-box">
           <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
             <span>{{rank}}</span>
           </div>
@@ -174,7 +174,7 @@
           <div class="rank">Rank</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in commonWords['hiddenText'] | limitTo:100" class="word-box">
+        <div ng-repeat="word in commonWords['hiddenText'] | limitTo:limitTo.text" class="word-box">
           <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
             <span>{{rank}}</span>
           </div>

@@ -356,3 +356,10 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
+function isEmpty(obj) {
+    for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+    }
+    return true;
+}

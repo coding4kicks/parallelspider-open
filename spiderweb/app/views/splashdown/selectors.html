@@ -1,0 +1,108 @@
+<!-- SITES
+================================================== -->
+<div ng-repeat="site in analysis.sites" class="analysis">
+  <h4 class="inline">Site {{$index + 1}}:</h4><h4 class="inline url"> {{site.url}}</h4>
+  <h5 class="inline search-filter">Search: </h5><input ng-model="searchText">
+  <div class="analysis-content">
+
+<!-- SELECTORS
+================================================== -->
+    <div ng-repeat="selector in site[results].selectors" class="analysis-box">
+      <h4 ng-click="showInfo(site, 'selectors', selector, 'Name', 'Selector', 'selectors')" class="clickable">{{selector.name}}</h4>
+      <div class="count-and-percent">
+        <h5 class="count-total">Count: <span class="url">{{selector.count}}</span></h5><br />
+        <h5 class="selector" tooltip-placement="bottom" tooltip-animation="true" tooltip="{{selector.selector}}" >Selector: <span class="url">{{selector.selector}}</span></h5>
+      </div>
+      <div class="word-pane">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="count">Count</div>
+          <div class="word">Word</div>
+        </div>
+        <div ng-repeat="word in selector.words | limitTo:limitTo.selectors | filter:searchText" class="word-box">
+          <div class="rank">{{word.rank}}</div>
+          <div class="count">{{word.count}}</div>
+          <div class="word" ng-click="showInfo(site, 'selectors', word, 'Word', selector.word, 'selectors')">{{word.word}}</div>
+        </div>
+      </div>
+    </div>
+
+<!-- ADDITIONAL INFO GHETTO MO'FO
+================================================== -->    
+    <div class="info-box" ng-init="additionalInfo=site.additionalInfo.selectors">
+      <h4>Additional Info</h4>
+
+      <div class="btn-group add-info-btns" ng-show="additionalInfo.showing">
+        <button ng-repeat="button in additionalInfo.buttonTypes" class="btn active-{{button.active}}" ng-click="switchInfoType(additionalInfo, button)">{{button.label}}</button>
+      </div>
+
+      <div class="info-pane">
+        <h4 class="nothing-selected" ng-hide="additionalInfo.showing">Nothing Selected</h4>
+        <h4 class="item-header" ng-show="additionalInfo.showing">{{additionalInfo.currentType}}: 
+          <span class="url">{{additionalInfo.currentItem[(additionalInfo.currentType | lowercase)]}}</span>
+        </h4>
+        <h4 class="type-header" ng-show="additionalInfo.showing">Type:  
+          <span class="url"> {{additionalInfo.currentLabel}}</span>
+        </h4> 
+
+        <div class="page-pane" ng-show="additionalInfo.showing">
+          <div class="word-box title">
+            <div class="rank">Rank</div>
+            <div class="count">Count</div>
+            <div class="word">{{additionalInfo.currentButton.label}}</div>
+          </div>
+
+          <div ng-repeat="item in additionalInfo.currentItem[additionalInfo.currentButton.type] | limitTo:9" class="word-box">
+            <div class="rank">{{$index + 1}}</div>
+            <div class="count">{{item.count}}</div>
+            <div class="page-box">{{item[additionalInfo.currentButton.itemType]}}</div>
+          </div>
+
+        </div>
+      </div>
+    </div> 
+  </div>
+  <hr />
+</div><!-- END SITES -->
+
+
+<!-- COMMON GROUND
+================================================== -->
+<div ng-show="commonGround" class="analysis">
+  <h4 class="">Common Ground</h4>
+  <button ng-click="compareSites()" class="compare-sites">
+    Compare
+  </button>
+  <div class="sites">
+    <div ng-repeat="site in analysis.sites">
+      <label class="checkbox inline">
+        <input type="checkbox" ng-model="site.include">
+        <h5 class="inline color-{{($index + 1) % 5}} include-{{site.include}}">Site {{$index + 1}}:</h5>
+        <h5 class="inline url color-{{($index + 1) % 5}} include-{{site.include}}"> {{site.url}}</h5>
+      </label>
+    </div>
+  </div>
+
+  <div class="analysis-content">
+    <!-- only show comparison if results exists and more than 1 site -->
+    <div ng-repeat="selector in analysis.sites[0][results].selectors" class="analysis-box" ng-show="analysis.sites[1][results].selectors[0].words">
+      <h4>{{selector.name}}</h4>
+      <div class="word-pane  common">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="word">Word</div>
+        </div>
+        <div ng-repeat="word in commonWords[selector.name] | limitTo:limitTo.selectors" class="word-box">
+          <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
+            <span>{{rank}}</span>
+          </div>
+          <div class="word">{{word.word}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr />
+</div><!-- END COMMON GROUND -->
+
+
+

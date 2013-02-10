@@ -345,6 +345,15 @@
    border-radius: 0px 0px 10px 10px;
 }
 
+.not-included {
+  height: 200px;
+  text-align: center;
+
+  h3 {
+    padding-top: 50px;
+  }
+}
+
 .analysis {
   padding-left: 10px;
   padding-right: 10px;
@@ -358,11 +367,49 @@
 }
 
 .analysis-box {
-  text-align: center;
-  width: 270px;
-  padding-top: 10px;
   display: inline-block;
   margin: 0px 35px;
+  padding-top: 10px;
+  text-align: center;
+  width: 270px;
+
+  .clickable {
+
+    &:hover {
+      cursor: pointer;
+      color: blue;
+    } 
+  }
+
+  h5 {
+    margin-top: 0px;
+  }
+
+  .count-and-percent {
+    @include clearfix;
+    padding: 0px 15px;
+
+    .count-total {
+      display: inline;
+      float: left;
+    }
+
+    .percent-total {
+      display: inline;
+      float: right;
+    }
+
+    .selector {
+      height: 20px;
+      overflow: hidden;
+      text-align: left;
+      width: 250px; 
+      
+      &:hover{
+        cursor: pointer;
+      }  
+    }
+  }
 }
 
 .link {

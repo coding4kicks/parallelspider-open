@@ -15,7 +15,7 @@
           <div class="count">Count</div>
           <div class="word">Link</div>
         </div>
-        <div ng-repeat="link in site[results].allLinks.links | limitTo:100 | filter:searchText" class="word-box">
+        <div ng-repeat="link in site[results].allLinks.links | limitTo:limitTo.links | filter:searchText" class="word-box">
           <div class="rank">{{link.rank}}</div>
           <div class="count">{{link.count}}</div>
           <div class="link-box" ng-click="showInfo(site, 'links', link, 'Link', 'All Links', 'allLinks')">{{link.link}}</div>
@@ -33,7 +33,7 @@
           <div class="count">Count</div>
           <div class="word">Domain</div>
         </div>
-        <div ng-repeat="domain in site[results].externalDomains.domains | limitTo:100 | filter:searchText" class="word-box">
+        <div ng-repeat="domain in site[results].externalDomains.domains | limitTo:limitTo.links | filter:searchText" class="word-box">
           <div class="rank">{{domain.rank}}</div>
           <div class="count">{{domain.count}}</div>
           <div class="link-box" ng-click="showInfo(site, 'links', domain, 'Domain', 'External Domains', 'externalDomains')">{{domain.domain}}</div>
@@ -51,7 +51,7 @@
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in site[results].linkText.words | limitTo:100 | filter:searchText" class="word-box">
+        <div ng-repeat="word in site[results].linkText.words | limitTo:limitTo.links | filter:searchText" class="word-box">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
           <div class="word" ng-click="showInfo(site, 'links', word, 'Word', 'Link Text', 'linkText')">{{word.word}}</div>
@@ -115,40 +115,46 @@
     </div>
   </div>
 
+<!-- ALL LINKS COMPARISON
+================================================== --> 
   <div class="analysis-content">
     <!-- only show comparison if results exists and more than 1 site -->
-    <div class="analysis-box link" ng-show="analysis.sites[1][results].visibleText.words">
+    <div class="analysis-box link" ng-show="analysis.sites[1][results].allLinks.links">
       <h4>All Links</h4>
       <div class="word-pane  common">
         <div class="word-box title">
           <div class="rank">Rank</div>
-          <div class="word">Word</div>
+          <div class="word">Link</div>
         </div>
-        <div ng-repeat="word in commonWords['visibleText'] | limitTo:100" class="word-box">
-          <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
+        <div ng-repeat="link in commonWords['allLinks'] | limitTo:limitTo.links" class="word-box">
+          <div ng-repeat="rank in link.rank" class="rank color-{{commonColors[$index]}}">
             <span>{{rank}}</span>
           </div>
-          <div class="link-box">{{word.word}}</div>
+          <div class="link-box">{{link.word}}</div>
         </div>
       </div>
     </div>
 
-    <div class="analysis-box link" ng-show="analysis.sites[1][results].headlineText.words">
+<!-- EXTERNAL DOMAINS COMPARISON
+================================================== -->     
+    <div class="analysis-box link" ng-show="analysis.sites[1][results].externalDomains.domains">
       <h4>External Domains</h4>
       <div class="word-pane  common">
         <div class="word-box title">
           <div class="rank">Rank</div>
-          <div class="word">Word</div>
+          <div class="word">Domain</div>
         </div>
-        <div ng-repeat="word in commonWords['headlineText'] | limitTo:100" class="word-box">
-          <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
+        <div ng-repeat="domain in commonWords['externalDomains'] | limitTo:limitTo.links" class="word-box">
+          <div ng-repeat="rank in domain.rank" class="rank color-{{commonColors[$index]}}">
             <span>{{rank}}</span>
           </div>
-          <div class="link-box">{{word.word}}</div>
+          <div class="link-box">{{domain.word}}</div>
         </div>
       </div>
     </div>
 
+<!-- LINK TEXT COMPARISON
+================================================== -->     
     <div class="analysis-box" ng-show="analysis.sites[1][results].hiddenText.words">
       <h4>Link Text</h4>
       <div class="word-pane common">
@@ -156,7 +162,7 @@
           <div class="rank">Rank</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in commonWords['hiddenText'] | limitTo:100" class="word-box">
+        <div ng-repeat="word in commonWords['linkText'] | limitTo:limitTo.links" class="word-box">
           <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
             <span>{{rank}}</span>
           </div>

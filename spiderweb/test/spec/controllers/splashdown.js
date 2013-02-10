@@ -6,7 +6,7 @@ describe('Controller: SplashdownCtrl', function() {
   beforeEach(module('spiderwebApp'));
 
   beforeEach(inject(function($httpBackend) {
-    $httpBackend.whenGET('results2.json').respond({});
+    $httpBackend.whenGET('results4.json').respond({});
   }));  
 
   var SplashdownCtrl,

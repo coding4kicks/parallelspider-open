@@ -9,19 +9,30 @@
 ================================================== -->
     <div class="row-fluid">
       <div class="btn-group result-btns">
-        <button class="btn active-{{internal}}" ng-click="resultsChoice('internal')">Internal</button>
-        <button class="btn active-{{external}}" ng-click="resultsChoice('external')">External</button>
+        <button class="btn active-{{internal}}" ng-click="resultsChoice('internal')" >Internal</button>
+        <button class="btn active-{{external}}" ng-click="resultsChoice('external')" >External</button>
       </div>
       <tabs>
         <pane heading="Text">
-          <div ng-include src="'views/splashdown/text.html'"></div>        
+          <div ng-include src="'views/splashdown/text.html'" ng-show="show.text"></div>
+          <div class="not-included" ng-hide="show.text"><h3>No text analysis included in the crawl.</h3></div>        
         </pane>
         <pane heading="Links">
-          <div ng-include src="'views/splashdown/links.html'"></div>
+          <div ng-include src="'views/splashdown/links.html'" ng-show="show.links"></div>
+          <div class="not-included" ng-hide="show.links"><h3>{{show.links}}No link analysis included in the crawl.</h3></div>
         </pane>
-        <pane heading="Context">context content</pane>
-        <pane heading="Synonyms">synonyms content</pane>
-        <pane heading="Selectors">selector content</pane>
+        <pane heading="Context">
+          <div ng-include src="'views/splashdown/context.html'" ng-show="show.context"></div>
+          <div class="not-included" ng-hide="show.context"><h3>No word context analysis included in the crawl.</h3></div>
+        </pane>
+        <pane heading="Synonyms">
+          <div ng-include src="'views/splashdown/synonyms.html'" ng-show="show.synonyms"></div>
+          <div class="not-included" ng-hide="show.synonyms"><h3>No synonym ring analysis included in the crawl.</h3></div>
+        </pane>
+        <pane heading="Selectors" ng-show="show.selectors">
+          <div ng-include src="'views/splashdown/selectors.html'" ng-show="show.selectors"></div>
+          <div class="not-included" ng-hide="show.selectors"><h3>No selector analysis included in the crawl.</h3></div>
+        </pane>
       </tabs>
     </div>
   </div>
