@@ -112,7 +112,6 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
             $scope.show[pages[i]] = true;
           }
         }
-
         // Perform initial comparison for all sites
         $scope.compareSites();
     });
@@ -226,26 +225,28 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
     $scope.commonWords['visibleText'] = compare('visibleText', 'word');
     $scope.commonWords['headlineText'] = compare('headlineText', 'word');
     $scope.commonWords['hiddenText'] = compare('hiddenText', 'word');
- 
+    
     $scope.commonWords['allLinks'] = compare('allLinks', 'link');
     $scope.commonWords['externalDomains'] = compare('externalDomains', 'domain');
     $scope.commonWords['linkText'] = compare('linkText', 'word');
 
+
     // Special handling for context synonymRings, selectors,
     // itemType is the incrementor for contextWord[i], rings[i], selectors[i]
-    var contextWords = $scope.analysis.sites[0][$scope.results].context.contextWords;
+    var contextWords = $scope.analysis.sites[0][$scope.results].context.contextWords || [];
     for (var i = 0; i < contextWords.length; i++) {
       $scope.commonWords[contextWords[i].word] = compare('context', i);
     }
-    var synonymRings = $scope.analysis.sites[0][$scope.results].synonymRings.rings;
+
+    var synonymRings = $scope.analysis.sites[0][$scope.results].synonymRings.rings || [];
     for (var i = 0; i < synonymRings.length; i++) {
       $scope.commonWords[synonymRings[i].net] = compare('synonymRings', i);
     }
-    var selectors = $scope.analysis.sites[0][$scope.results].selectors;
+
+    var selectors = $scope.analysis.sites[0][$scope.results].selectors || [];
     for (var i = 0; i < selectors.length; i++) {
       $scope.commonWords[selectors[i].name] = compare('selectors', i);
     }
-
 
     // Set up common colors
     $scope.commonColors = [];
