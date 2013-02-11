@@ -78,14 +78,6 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
         // Add property "include" for comparison & additionalInfo
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
-<<<<<<< Updated upstream
-          //$scope.analysis.sites[i].internalResults.selectors = {};
-          //$scope.analysis.sites[i].externalResults.selectors = {};
-          //$scope.analysis.sites[i].internalResults.synonymRings = {};
-          //$scope.analysis.sites[i].externalResults.synonymRings = {};
-          //$scope.analysis.sites[i].internalResults.context = {};
-          //$scope.analysis.sites[i].externalResults.context = {};
-=======
           // Eliminate certain resutls for testing
           $scope.analysis.sites[i].internalResults.selectors = {};
           $scope.analysis.sites[i].externalResults.selectors = {};
@@ -98,9 +90,8 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
           //$scope.analysis.sites[i].internalResults.linkText = {};
           //$scope.analysis.sites[i].externalResults.linkText = {};
 
-          //$scope.analysis.sites[i].externalResults = {}
+          $scope.analysis.sites[i].externalResults = {}
           //$scope.analysis.sites[i].internalResults = {};
->>>>>>> Stashed changes
 
           // include is used in Common Ground to enable/disable site inclusion in comparison
           $scope.analysis.sites[i].include = true;

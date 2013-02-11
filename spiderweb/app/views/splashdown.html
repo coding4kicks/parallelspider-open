@@ -15,7 +15,7 @@
       <tabs>
         <pane heading="Text">
           <div ng-include src="'views/splashdown/text.html'" ng-show="show.text"></div>
-          <div class="not-included" ng-hide="show.text"><h3>No text analysis included in the crawl.</h3></div>        
+          <div class="not-included" ng-hide="show.text"><h3>No text analysis included in the crawl.</h3></div>       
         </pane>
         <pane heading="Links">
           <div ng-include src="'views/splashdown/links.html'" ng-show="show.links"></div>
@@ -29,7 +29,7 @@
           <div ng-include src="'views/splashdown/synonyms.html'" ng-show="show.synonyms"></div>
           <div class="not-included" ng-hide="show.synonyms"><h3>No synonym ring analysis included in the crawl.</h3></div>
         </pane>
-        <pane heading="Selectors" ng-show="show.selectors">
+        <pane heading="Selectors">
           <div ng-include src="'views/splashdown/selectors.html'" ng-show="show.selectors"></div>
           <div class="not-included" ng-hide="show.selectors"><h3>No selector analysis included in the crawl.</h3></div>
         </pane>
