@@ -9,8 +9,8 @@
 ================================================== -->
     <div class="row-fluid">
       <div class="btn-group result-btns">
-        <button class="btn active-{{internal}}" ng-click="resultsChoice('internal')" >Internal</button>
-        <button class="btn active-{{external}}" ng-click="resultsChoice('external')" >External</button>
+        <button class="btn active-{{internal}} no-btn-{{soloResults}}" ng-click="resultsChoice('internal')" ng-show="show.internal">Internal</button>
+        <button class="btn active-{{external}} no-btn-{{soloResults}}" ng-click="resultsChoice('external')" ng-show="show.external">External</button>
       </div>
       <tabs>
         <pane heading="Text">
@@ -19,7 +19,7 @@
         </pane>
         <pane heading="Links">
           <div ng-include src="'views/splashdown/links.html'" ng-show="show.links"></div>
-          <div class="not-included" ng-hide="show.links"><h3>{{show.links}}No link analysis included in the crawl.</h3></div>
+          <div class="not-included" ng-hide="show.links"><h3>No link analysis included in the crawl.</h3></div>
         </pane>
         <pane heading="Context">
           <div ng-include src="'views/splashdown/context.html'" ng-show="show.context"></div>

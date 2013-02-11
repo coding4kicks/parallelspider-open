@@ -1,6 +1,8 @@
 'use strict';
 
 spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
+
+  // A reminder to write some mother f'ing tests, dude!
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -17,12 +19,12 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
   $scope.internal = true;
   $scope.external = false;
 
-  // Common Ground Variables
+  // Common Ground variables to hold common words and colors
   $scope.commonGround = true;
   $scope.commonWords = {};
   $scope.commonColors = [];
 
-  // Limit to variables for different result pages
+  // LimitTo variables for different result pages
   // Hard coded for know, later user choose
   $scope.limitTo = {}
   $scope.limitTo.text = 50;
@@ -38,8 +40,14 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
   $scope.show.context = false;
   $scope.show.synonyms = false;
   $scope.show.selectors = false;
+  // And the display of internal/external buttons
+  $scope.show.internal = true; // assume internal results exist
+  $scope.show.external = false;
 
-  // Additional Info button types for each type of result
+  // Hides pointer if only one button
+  $scope.soloResults = false;
+
+  // Additional Info button settings for each type of result
   $scope.buttonTypes = {};
   var wordButtons = 
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'},
@@ -61,7 +69,6 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
   $scope.buttonTypes.linkText = 
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
 
-
   // Get the results of tha analysis
   $http.get('results4.json')
     .then(function(results){
@@ -71,12 +78,29 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
         // Add property "include" for comparison & additionalInfo
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
+<<<<<<< Updated upstream
+          //$scope.analysis.sites[i].internalResults.selectors = {};
+          //$scope.analysis.sites[i].externalResults.selectors = {};
+          //$scope.analysis.sites[i].internalResults.synonymRings = {};
+          //$scope.analysis.sites[i].externalResults.synonymRings = {};
+          //$scope.analysis.sites[i].internalResults.context = {};
+          //$scope.analysis.sites[i].externalResults.context = {};
+=======
+          // Eliminate certain resutls for testing
           $scope.analysis.sites[i].internalResults.selectors = {};
           $scope.analysis.sites[i].externalResults.selectors = {};
           $scope.analysis.sites[i].internalResults.synonymRings = {};
           $scope.analysis.sites[i].externalResults.synonymRings = {};
           $scope.analysis.sites[i].internalResults.context = {};
           $scope.analysis.sites[i].externalResults.context = {};
+          //$scope.analysis.sites[i].internalResults.visibleText = {};
+          //$scope.analysis.sites[i].externalResults.visibleText = {};
+          //$scope.analysis.sites[i].internalResults.linkText = {};
+          //$scope.analysis.sites[i].externalResults.linkText = {};
+
+          //$scope.analysis.sites[i].externalResults = {}
+          //$scope.analysis.sites[i].internalResults = {};
+>>>>>>> Stashed changes
 
           // include is used in Common Ground to enable/disable site inclusion in comparison
           $scope.analysis.sites[i].include = true;
@@ -92,26 +116,45 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
           $scope.analysis.sites[i].additionalInfo.selectors = infoSetup;           
         }
 
+        // Show external results if internal is empty and hide button
+        if (isEmpty($scope.analysis.sites[0].internalResults)) { 
+          $scope.results = 'externalResults';
+          $scope.external = true;
+          $scope.show.internal = false;
+        }
+        // Show external button if exist
+        if (!isEmpty($scope.analysis.sites[0].externalResults)) { 
+          $scope.show.external = true;
+        }
+        // Don't show pointer if only one button exists
+        if (isEmpty($scope.analysis.sites[0].internalResults) || isEmpty($scope.analysis.sites[0].externalResults)) {
+          $scope.soloResults = true;
+        }
+
         // Check which pages are empty
         var textPage = ['visibleText', 'hiddenText', 'headlineText', 'searchWords'],
             linkPage = ['allLinks', 'externalDomains', 'linkText'],
             pages = ['context', 'synonyms', 'selectors'];
+
         for (var i = 0; i < textPage.length; i++) {
-          if (!isEmpty( $scope.analysis.sites[0].internalResults[textPage[i]])) {
+          if (!isEmpty( $scope.analysis.sites[0][$scope.results][textPage[i]])) {
             $scope.show.text = true;
           }
         }
+        
         for (var i = 0; i < linkPage.length; i++) {
-          if (!isEmpty( $scope.analysis.sites[0].internalResults[linkPage[i]])) {
-            $scope.show.text = true;
+          if (!isEmpty( $scope.analysis.sites[0][$scope.results][linkPage[i]])) {
+            $scope.show.links = true;
           }
         }
+
         for (var i = 0; i < pages.length; i++) {
           if (!isEmpty($scope.analysis.sites[0].internalResults[pages[i]]) || 
               !isEmpty($scope.analysis.sites[0].externalResults[pages[i]]) ) {
             $scope.show[pages[i]] = true;
           }
         }
+
         // Perform initial comparison for all sites
         $scope.compareSites();
     });
@@ -222,13 +265,25 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
     }
 
     // Compare all formats
-    $scope.commonWords['visibleText'] = compare('visibleText', 'word');
-    $scope.commonWords['headlineText'] = compare('headlineText', 'word');
-    $scope.commonWords['hiddenText'] = compare('hiddenText', 'word');
-    
-    $scope.commonWords['allLinks'] = compare('allLinks', 'link');
-    $scope.commonWords['externalDomains'] = compare('externalDomains', 'domain');
-    $scope.commonWords['linkText'] = compare('linkText', 'word');
+    if (!isEmpty($scope.analysis.sites[0][$scope.results].visibleText)) {
+      $scope.commonWords['visibleText'] = compare('visibleText', 'word');
+    }
+    if (!isEmpty($scope.analysis.sites[0][$scope.results].headlineText)) {
+      $scope.commonWords['headlineText'] = compare('headlineText', 'word');
+    }
+    if (!isEmpty($scope.analysis.sites[0][$scope.results].hiddenText)) {
+      $scope.commonWords['hiddenText'] = compare('hiddenText', 'word');
+    }
+      
+    if (!isEmpty($scope.analysis.sites[0][$scope.results].allLinks)) {
+      $scope.commonWords['allLinks'] = compare('allLinks', 'link');
+    }
+    if (!isEmpty($scope.analysis.sites[0][$scope.results].externalDomains)) {
+      $scope.commonWords['externalDomains'] = compare('externalDomains', 'domain');
+    }
+    if (!isEmpty($scope.analysis.sites[0][$scope.results].linkText)) {
+      $scope.commonWords['linkText'] = compare('linkText', 'word');
+    }
 
 
     // Special handling for context synonymRings, selectors,
