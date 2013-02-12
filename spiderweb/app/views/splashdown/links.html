@@ -15,10 +15,10 @@
           <div class="count">Count</div>
           <div class="word">Link</div>
         </div>
-        <div ng-repeat="link in site[results].allLinks.links | limitTo:limitTo.links | filter:searchText" class="word-box">
+        <div ng-repeat="link in site[results].allLinks.links | limitTo:limitTo.links | filter:searchText" ng-click="showInfo(site, 'links', link, 'Link', 'All Links', 'allLinks')" class="word-box clickable">
           <div class="rank">{{link.rank}}</div>
           <div class="count">{{link.count}}</div>
-          <div class="link-box" ng-click="showInfo(site, 'links', link, 'Link', 'All Links', 'allLinks')">{{link.link}}</div>
+          <div class="link-box">{{link.link}}</div>
         </div>
       </div>
     </div>
@@ -33,10 +33,10 @@
           <div class="count">Count</div>
           <div class="word">Domain</div>
         </div>
-        <div ng-repeat="domain in site[results].externalDomains.domains | limitTo:limitTo.links | filter:searchText" class="word-box">
+        <div ng-repeat="domain in site[results].externalDomains.domains | limitTo:limitTo.links | filter:searchText" ng-click="showInfo(site, 'links', domain, 'Domain', 'External Domains', 'externalDomains')" class="word-box clickable">
           <div class="rank">{{domain.rank}}</div>
           <div class="count">{{domain.count}}</div>
-          <div class="link-box" ng-click="showInfo(site, 'links', domain, 'Domain', 'External Domains', 'externalDomains')">{{domain.domain}}</div>
+          <div class="link-box">{{domain.domain}}</div>
         </div>
       </div>
     </div>
@@ -51,10 +51,10 @@
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in site[results].linkText.words | limitTo:limitTo.links | filter:searchText" class="word-box">
+        <div ng-repeat="word in site[results].linkText.words | limitTo:limitTo.links | filter:searchText" ng-click="showInfo(site, 'links', word, 'Word', 'Link Text', 'linkText')" class="word-box clickable">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="showInfo(site, 'links', word, 'Word', 'Link Text', 'linkText')">{{word.word}}</div>
+          <div class="word">{{word.word}}</div>
         </div>
       </div>
     </div>

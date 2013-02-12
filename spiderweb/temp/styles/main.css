@@ -6771,128 +6771,118 @@ a.label:hover, a.badge:hover {
   margin-left: auto;
   margin-right: auto;
 }
-/* line 570, ../../app/styles/main.scss */
-.word:hover {
-  cursor: pointer;
-  color: blue;
-}
 
-/* line 576, ../../app/styles/main.scss */
+/* line 571, ../../app/styles/main.scss */
 .page-box {
   width: 400px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 582, ../../app/styles/main.scss */
+/* line 577, ../../app/styles/main.scss */
 .link-box {
   width: 350px;
   margin-left: auto;
   margin-right: auto;
 }
-/* line 587, ../../app/styles/main.scss */
-.link-box:hover {
-  cursor: pointer;
-  color: blue;
-}
 
-/* line 594, ../../app/styles/main.scss */
+/* line 583, ../../app/styles/main.scss */
 .common {
   text-align: left;
 }
-/* line 598, ../../app/styles/main.scss */
+/* line 587, ../../app/styles/main.scss */
 .common .word {
   float: right;
   width: inherit;
 }
-/* line 603, ../../app/styles/main.scss */
+/* line 592, ../../app/styles/main.scss */
 .common .link-box {
   float: right;
   width: inherit;
 }
-/* line 608, ../../app/styles/main.scss */
+/* line 597, ../../app/styles/main.scss */
 .common .rank {
   float: none;
   display: inline;
 }
 
-/* line 614, ../../app/styles/main.scss */
+/* line 603, ../../app/styles/main.scss */
 .color-1 {
   color: blue;
 }
 
-/* line 615, ../../app/styles/main.scss */
+/* line 604, ../../app/styles/main.scss */
 .color-2 {
   color: red;
 }
 
-/* line 616, ../../app/styles/main.scss */
+/* line 605, ../../app/styles/main.scss */
 .color-3 {
   color: green;
 }
 
-/* line 617, ../../app/styles/main.scss */
+/* line 606, ../../app/styles/main.scss */
 .color-4 {
   color: yellow;
 }
 
-/* line 618, ../../app/styles/main.scss */
+/* line 607, ../../app/styles/main.scss */
 .color-5 {
   color: purple;
 }
 
-/* line 620, ../../app/styles/main.scss */
+/* line 609, ../../app/styles/main.scss */
 .include-false {
   text-decoration: line-through;
   color: grey;
 }
 
-/* line 625, ../../app/styles/main.scss */
+/* line 614, ../../app/styles/main.scss */
 .compare-sites {
   margin-left: 30%;
   margin-top: 0px;
 }
 
-/* line 630, ../../app/styles/main.scss */
+/* line 619, ../../app/styles/main.scss */
 .sites {
   margin-top: -50px;
   margin-left: 38%;
 }
 
-/* line 639, ../../app/styles/main.scss */
+/* line 628, ../../app/styles/main.scss */
 .side-nav a {
   color: #333333;
   padding-left: 10px;
   margin-top: -20px;
 }
-/* line 645, ../../app/styles/main.scss */
+/* line 634, ../../app/styles/main.scss */
 .side-nav h3 {
   margin-bottom: -5px;
 }
 
-/* line 652, ../../app/styles/main.scss */
+/* line 641, ../../app/styles/main.scss */
 .sub-links a {
   padding-left: 20px;
 }
 
-/* line 660, ../../app/styles/main.scss */
+/* line 649, ../../app/styles/main.scss */
 .inline {
   display: inline;
 }
 
-/* line 664, ../../app/styles/main.scss */
+/* line 653, ../../app/styles/main.scss */
 .liner {
   width: 90%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 670, ../../app/styles/main.scss */
+/* line 659, ../../app/styles/main.scss */
 .pointer {
   cursor: pointer;
 }
 
-/* line 674, ../../app/styles/main.scss */
+/* line 663, ../../app/styles/main.scss */
 .no-bold {
   font-weight: normal;
 }

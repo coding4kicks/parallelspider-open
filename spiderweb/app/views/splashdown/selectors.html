@@ -19,10 +19,10 @@
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in selector.words | limitTo:limitTo.selectors | filter:searchText" class="word-box">
+        <div ng-repeat="word in selector.words | limitTo:limitTo.selectors | filter:searchText" ng-click="showInfo(site, 'selectors', word, 'Word', selector.word, 'selectors')" class="word-box clickable">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="showInfo(site, 'selectors', word, 'Word', selector.word, 'selectors')">{{word.word}}</div>
+          <div class="word">{{word.word}}</div>
         </div>
       </div>
     </div>

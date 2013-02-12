@@ -19,10 +19,10 @@
           <div class="count">Count</div>
           <div class="word">Word</div>
         </div>
-        <div ng-repeat="word in ring.words | limitTo:limitTo.synonyms | filter:searchText" class="word-box">
+        <div ng-repeat="word in ring.words | limitTo:limitTo.synonyms | filter:searchText" ng-click="showInfo(site, 'synonyms', word, 'Word', ring.net, 'synonymRings')" class="word-box clickable">
           <div class="rank">{{word.rank}}</div>
           <div class="count">{{word.count}}</div>
-          <div class="word" ng-click="showInfo(site, 'synonyms', word, 'Word', ring.net, 'synonymRings')">{{word.word}}</div>
+          <div class="word">{{word.word}}</div>
         </div>
       </div>
     </div>
