@@ -15,9 +15,15 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
   $scope.analysis = {};
 
   // Variables to control whether internal or external results are shown
-  $scope.results = 'internalResults'
+  $scope.results = 'internalResults';
   $scope.internal = true;
   $scope.external = false;
+
+  // Summary page variables
+  $scope.summary = {}
+  $scope.summary.totalPages = 0;
+  $scope.summary.totalWords = 0;
+  $scope.summary.numberOfSites = 0;
 
   // Common Ground variables to hold common words and colors
   $scope.commonGround = true;
@@ -38,7 +44,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
   $scope.show.text = false;
   $scope.show.links = false;
   $scope.show.context = false;
-  $scope.show.synonyms = false;
+  $scope.show.synonymRings = false;
   $scope.show.selectors = false;
   // And the display of internal/external buttons
   $scope.show.internal = true; // assume internal results exist
@@ -70,7 +76,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
 
   // Get the results of tha analysis
-  $http.get('results4.json')
+  $http.get('results5.json')
     .then(function(results){
 
         $scope.analysis = results.data;
@@ -85,10 +91,26 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
           $scope.analysis.sites[i].externalResults.synonymRings = {};
           $scope.analysis.sites[i].internalResults.context = {};
           $scope.analysis.sites[i].externalResults.context = {};
-          //$scope.analysis.sites[i].internalResults.visibleText = {};
-          //$scope.analysis.sites[i].externalResults.visibleText = {};
-          //$scope.analysis.sites[i].internalResults.linkText = {};
-          //$scope.analysis.sites[i].externalResults.linkText = {};
+          $scope.analysis.sites[i].internalResults.visibleText = {};
+          $scope.analysis.sites[i].externalResults.visibleText = {};
+          $scope.analysis.sites[i].internalResults.hiddenText = {};
+          $scope.analysis.sites[i].externalResults.hiddenText = {};
+          $scope.analysis.sites[i].internalResults.headlineText = {};
+          $scope.analysis.sites[i].externalResults.headlineText = {};
+          $scope.analysis.sites[i].internalResults.allLinks = {};
+          $scope.analysis.sites[i].externalResults.allLinks = {};
+          $scope.analysis.sites[i].internalResults.externalDomains = {};
+          $scope.analysis.sites[i].externalResults.externalDomains = {};
+          $scope.analysis.sites[i].internalResults.linkText = {};
+          $scope.analysis.sites[i].externalResults.linkText = {};
+
+          $scope.summary.totalPages = $scope.summary.totalPages + $scope.analysis.sites[i].internalResults.summary.pages.count;
+          $scope.summary.totalPages = $scope.summary.totalPages + $scope.analysis.sites[i].externalResults.summary.pages.count;
+
+          $scope.summary.totalWords = $scope.summary.totalWords + $scope.analysis.sites[i].internalResults.summary.words.count;
+          $scope.summary.totalWords = $scope.summary.totalWords + $scope.analysis.sites[i].externalResults.summary.words.count;  
+
+          $scope.summary.numberOfSites = $scope.summary.numberOfSites + 1;
 
           $scope.analysis.sites[i].externalResults = {}
           //$scope.analysis.sites[i].internalResults = {};
@@ -125,7 +147,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
         // Check which pages are empty
         var textPage = ['visibleText', 'hiddenText', 'headlineText', 'searchWords'],
             linkPage = ['allLinks', 'externalDomains', 'linkText'],
-            pages = ['context', 'synonyms', 'selectors'];
+            pages = ['context', 'synonymRings', 'selectors'];
 
         for (var i = 0; i < textPage.length; i++) {
           if (!isEmpty( $scope.analysis.sites[0][$scope.results][textPage[i]])) {

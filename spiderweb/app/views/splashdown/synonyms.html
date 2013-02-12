@@ -11,7 +11,7 @@
       <h4 ng-click="showInfo(site, 'synonyms', ring, 'Net', 'Synonym Ring', 'synonymRings')" class="clickable">{{ring.net}}</h4>
       <div class="count-and-percent">
         <h5 class="count-total">Count: <span class="url">{{ring.count}}</span></h5>
-        <h5 class="percent-total">Percent: <span class="url">{{ring.count/site[results].totals.count}}</span></h5>
+        <h5 class="percent-total">Percent: <span class="url">{{ring.count/site[results].summary.words.count}}</span></h5>
       </div>
       <div class="word-pane">
         <div class="word-box title">

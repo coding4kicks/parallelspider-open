@@ -13,6 +13,9 @@
         <button class="btn active-{{external}} no-btn-{{soloResults}}" ng-click="resultsChoice('external')" ng-show="show.external">External</button>
       </div>
       <tabs>
+        <pane heading="Summary">
+          <div ng-include src="'views/splashdown/summary.html'"></div>     
+        </pane>
         <pane heading="Text">
           <div ng-include src="'views/splashdown/text.html'" ng-show="show.text"></div>
           <div class="not-included" ng-hide="show.text"><h3>No text analysis included in the crawl.</h3></div>       
@@ -26,8 +29,8 @@
           <div class="not-included" ng-hide="show.context"><h3>No word context analysis included in the crawl.</h3></div>
         </pane>
         <pane heading="Synonyms">
-          <div ng-include src="'views/splashdown/synonyms.html'" ng-show="show.synonyms"></div>
-          <div class="not-included" ng-hide="show.synonyms"><h3>No synonym ring analysis included in the crawl.</h3></div>
+          <div ng-include src="'views/splashdown/synonyms.html'" ng-show="show.synonymRings"></div>
+          <div class="not-included" ng-hide="show.synonymRings"><h3>No synonym ring analysis included in the crawl.</h3></div>
         </pane>
         <pane heading="Selectors">
           <div ng-include src="'views/splashdown/selectors.html'" ng-show="show.selectors"></div>
