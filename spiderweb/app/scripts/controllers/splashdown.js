@@ -24,6 +24,8 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
   $scope.summary.totalPages = 0;
   $scope.summary.totalWords = 0;
   $scope.summary.numberOfSites = 0;
+  $scope.summary.minutes = 0;
+  $scope.summary.seconds = 0;
 
   // Common Ground variables to hold common words and colors
   $scope.commonGround = true;
@@ -81,6 +83,10 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
 
         $scope.analysis = results.data;
 
+        // determin analysis time in minute and seconds
+        $scope.summary.minutes = Math.floor($scope.analysis.time/60);
+        $scope.summary.seconds = $scope.analysis.time%60;
+
         // Add property "include" for comparison & additionalInfo
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
@@ -91,11 +97,11 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
           $scope.analysis.sites[i].externalResults.synonymRings = {};
           $scope.analysis.sites[i].internalResults.context = {};
           $scope.analysis.sites[i].externalResults.context = {};
-          $scope.analysis.sites[i].internalResults.visibleText = {};
+          //$scope.analysis.sites[i].internalResults.visibleText = {};
           $scope.analysis.sites[i].externalResults.visibleText = {};
-          $scope.analysis.sites[i].internalResults.hiddenText = {};
+          //$scope.analysis.sites[i].internalResults.hiddenText = {};
           $scope.analysis.sites[i].externalResults.hiddenText = {};
-          $scope.analysis.sites[i].internalResults.headlineText = {};
+          //$scope.analysis.sites[i].internalResults.headlineText = {};
           $scope.analysis.sites[i].externalResults.headlineText = {};
           $scope.analysis.sites[i].internalResults.allLinks = {};
           $scope.analysis.sites[i].externalResults.allLinks = {};
