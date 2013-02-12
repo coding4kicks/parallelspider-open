@@ -126,13 +126,16 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
 
           // Create additionalInfo for each site and for each splashdown page type: text, links, context, etc?
           $scope.analysis.sites[i].additionalInfo = {};
-          var infoSetup = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
-                            'currentItem': {}, 'currentType': "", 'currentLabel': ""};
-          $scope.analysis.sites[i].additionalInfo.text = infoSetup;
-          $scope.analysis.sites[i].additionalInfo.links = infoSetup;
-          $scope.analysis.sites[i].additionalInfo.context = infoSetup;
-          $scope.analysis.sites[i].additionalInfo.synonyms = infoSetup;
-          $scope.analysis.sites[i].additionalInfo.selectors = infoSetup;           
+          $scope.analysis.sites[i].additionalInfo.text = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+                                                           'currentItem': {}, 'currentType': "", 'currentLabel': ""};          
+          $scope.analysis.sites[i].additionalInfo.links = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+                                                            'currentItem': {}, 'currentType': "", 'currentLabel': ""};
+          $scope.analysis.sites[i].additionalInfo.context = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+                                                              'currentItem': {}, 'currentType': "", 'currentLabel': ""};
+          $scope.analysis.sites[i].additionalInfo.synonyms = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+                                                               'currentItem': {}, 'currentType': "", 'currentLabel': ""};
+          $scope.analysis.sites[i].additionalInfo.selectors = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+                                                                'currentItem': {}, 'currentType': "", 'currentLabel': ""};          
         }
 
         // Show external results if internal is empty and hide button
