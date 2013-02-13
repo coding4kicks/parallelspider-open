@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
+spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService) {
 
   // A reminder to write some mother f'ing tests, dude!
   $scope.awesomeThings = [
@@ -76,6 +76,8 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http) {
      {'type': 'links', 'active': false, 'label': 'Links', 'itemType': 'link'}];
   $scope.buttonTypes.linkText = 
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
+
+  resultsService.getAnalysis('testAnalysis');
 
   // Get the results of tha analysis
   $http.get('results5.json')

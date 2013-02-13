@@ -55,6 +55,35 @@ var spiderwebApp = angular.module('spiderwebApp', [])
 
   }])
 
+  ////////////////////////////
+  // SERVICES
+  ////////////////////////////
+  .service('resultsService', function ($http) {
+    var currentAnalysis = {};
+    
+    return {
+      getAnalysis:function (analysis) {
+        $http.get('results5.json')
+          .then(function(results){
+            alert(results.data.name);
+            return(results);
+        });
+  
+        // Must later account for user 
+        return currentAnalysis;
+      },
+      listAnalyses:function () {
+        // This function will take the "user"??? and list their analyses
+        // later funcionality should also allow them to place analysis into folders like gmail
+        // even later timeseries analysis should be enabled.
+      }
+    };
+  })
+
+  ////////////////////////////
+  // DIRECTIVES
+  ////////////////////////////
+
   // Adjusts view size so footer is never higher up than bottom of page
   // Made 10 px too big so scroll bar is always there and things don't jump
   .directive('psFullscreen', function() {
@@ -104,6 +133,7 @@ var spiderwebApp = angular.module('spiderwebApp', [])
 //    };
 //
 //  })
+//
 
   // Validates integers (from Angular websites)
   .directive('integer', function() {
