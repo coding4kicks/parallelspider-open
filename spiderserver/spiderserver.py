@@ -165,7 +165,7 @@ if __name__ == "__main__":
     p.registerChecker(PasswordDictChecker(passwords))
 
     root = resource.Resource()
-    root.putChild('', static.File('../spiderweb/app/index.html'))
+    root.putChild('', HomePage())
     root.putChild('initiatecrawl', InitiateCrawl())
     root.putChild('checkcrawlstatus', InitiateCrawl())
     root.putChild('addnewuser', AddNewUser())

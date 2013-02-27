@@ -58,19 +58,23 @@ var spiderwebApp = angular.module('spiderwebApp', [])
   ////////////////////////////
   // SERVICES
   ////////////////////////////
-  .service('resultsService', function ($http) {
+  .service('resultsService', function ($http, $q) {
     var currentAnalysis = {};
     
     return {
       getAnalysis:function (analysis) {
+
+        var deferred = $q.defer();
+
         $http.get('results5.json')
           .then(function(results){
-            alert(results.data.name);
-            return(results);
+            //alert(results.data.name);
+            //return(results);
+            deferred.resolve(results);
         });
-  
-        // Must later account for user 
-        return currentAnalysis;
+        return deferred.promise;
+        // Must later account for user ???
+        //return currentAnalysis;
       },
       listAnalyses:function () {
         // This function will take the "user"??? and list their analyses

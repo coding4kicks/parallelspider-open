@@ -77,9 +77,9 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
   $scope.buttonTypes.linkText = 
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
 
-  resultsService.getAnalysis('testAnalysis')
 
   // Get the results of tha analysis
+  resultsService.getAnalysis('testAnalysis')
   //$http.get('results5.json')
     .then(function(results){
 
