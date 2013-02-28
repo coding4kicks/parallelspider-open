@@ -56,19 +56,23 @@ class TestRealm(object):
 class HomePage(resource.Resource):
     """TEST ONLY"""
     def render(self, request):
-        return """
-        <html>
-        <head><title>testHome</title></head>
-        <body>
-        <h1>HOME MO'FO</h1>
-        <form name="input" action="checkusercredentials" method="get">
-        Username: <input type="text" name="user"><br />
-        Username: <input type="text" name="password">
-        <input type="submit" value="Submit">
-        </form>         
-        </body>
-        </html>
-        """
+        request.setHeader('Content-Type', 'application/json')
+        value = request.args['callback'][0]
+        value += """({"found":12,"what":2});"""
+        return value
+       ## return """
+       ## <html>
+       ## <head><title>testHome</title></head>
+       ## <body>
+       ## <h1>HOME MO'FO</h1>
+       ## <form name="input" action="checkusercredentials" method="get">
+       ## Username: <input type="text" name="user"><br />
+       ## Username: <input type="text" name="password">
+       ## <input type="submit" value="Submit">
+       ## </form>         
+       ## </body>
+       ## </html>
+       ## """
 
 class CheckUserCredentials(resource.Resource):
     """ Validate user's credentials for login """
@@ -78,6 +82,8 @@ class CheckUserCredentials(resource.Resource):
 
     def render(self, request):
         self.request = request
+        self.request.setHeader('Content-Type', 'application/json')
+        self.request.write(request.args['callback'][0])
 
         creds = credentials.UsernamePassword(
                 request.args['user'][0],
@@ -88,19 +94,11 @@ class CheckUserCredentials(resource.Resource):
         return server.NOT_DONE_YET
     
     def _loginSucceeded(self, avatarInfo):
-        self.request.write("""
-            <html>
-                <head><title>success</title></head>
-                <body><h1>Login Succeded</h1></body>
-            </html>""")
+        self.request.write("""({"login": "success", "session_token": "ABC123"});""")
         self.request.finish()
 
     def _loginFailed(self, failure):
-        self.request.write("""
-            <html>
-                <head><title>success</title></head>
-                <body><h1>Login Failed</h1><h2>
-            """)
+        self.request.write("""({"login": "fail"});""")
         self.request.write(str(failure))
         self.request.write("""
                 </h2></body>
