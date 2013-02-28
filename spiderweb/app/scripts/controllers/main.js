@@ -214,5 +214,8 @@ spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
   // CRAWL SUBMISSION
   ////////////////////////////
   $scope.attemptedSubmission = false;
+
+
+  
 });
 

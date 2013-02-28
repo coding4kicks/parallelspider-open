@@ -82,27 +82,40 @@ class CheckUserCredentials(resource.Resource):
 
     def render(self, request):
         self.request = request
+
+        # Add headers prior to writing
         self.request.setHeader('Content-Type', 'application/json')
-        self.request.write(request.args['callback'][0])
+
+        # Set access control: CORS 
+        #(TODO: should only respond with OPTION request - factor out to
+        # function)
+        # TODO: limit origins on live site?
+        self.request.setHeader('Access-Control-Allow-Origin', '*')
+        self.request.setHeader('Access-Control-Allow-Methods', 'GET')
+        # Echo back all request headers
+        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
 
         creds = credentials.UsernamePassword(
                 request.args['user'][0],
                 request.args['password'][0])
+
         self.portal.login(creds, None, INamedUserAvatar).addCallback(
-                self._loginSucceeded).addErrback(self._loginFailed)
+            self._loginSucceeded).addErrback(self._loginFailed)
 
         return server.NOT_DONE_YET
     
     def _loginSucceeded(self, avatarInfo):
-        self.request.write("""({"login": "success", "session_token": "ABC123"});""")
+        k = 'testCookie'
+        v = 'yumyumcookies'
+        self.request.addCookie(k, v, expires=None, domain=None, path=None, 
+                                max_age=None, comment=None, secure=None)
+        self.request.write(""")]}',\n{"login": "success", "session_token": "ABC123"}""")
         self.request.finish()
 
     def _loginFailed(self, failure):
-        self.request.write("""({"login": "fail"});""")
-        self.request.write(str(failure))
-        self.request.write("""
-                </h2></body>
-            </html>""")
+        self.request.write(""")]}',\n{"login": "fail"}""")
+        #self.request.write(str(failure))
         self.request.finish()
 
 
