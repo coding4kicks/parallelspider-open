@@ -3,6 +3,8 @@ from twisted.internet import protocol, reactor, defer
 from twisted.web import resource, static, server
 from zope.interface import Interface, implements
 
+import json
+
 
 # AUTHENTICATION
 ##################
@@ -87,18 +89,24 @@ class CheckUserCredentials(resource.Resource):
         self.request.setHeader('Content-Type', 'application/json')
 
         # Set access control: CORS 
-        #(TODO: should only respond with OPTION request - factor out to
-        # function)
+
         # TODO: limit origins on live site?
         self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'GET')
+        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
         # Echo back all request headers
         access_headers = self.request.getHeader('Access-Control-Request-Headers')
         self.request.setHeader('Access-Control-Allow-Headers', access_headers)
 
+        # Return if preflight request
+        if request.method == "OPTIONS":
+            return ""
+
+        # Get json payload from post request
+        data = json.loads(request.content.getvalue())
+
         creds = credentials.UsernamePassword(
-                request.args['user'][0],
-                request.args['password'][0])
+                data['user'],
+                data['password'])
 
         self.portal.login(creds, None, INamedUserAvatar).addCallback(
             self._loginSucceeded).addErrback(self._loginFailed)

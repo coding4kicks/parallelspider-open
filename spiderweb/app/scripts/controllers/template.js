@@ -72,11 +72,14 @@ function LoginController($scope, $http, dialog){
           result.user !== "" &&
           typeof result.password !== 'undefined' &&
           result.password !== "") {
-            
-        var url = 'http://localhost:8000/checkusercredentials?user='
-                  + result.user + '&' + 'password=' + result.password;
-       
-        $http.get(url)
+
+        var url = 'http://localhost:8000/checkusercredentials',
+            data = {};
+
+        data.user = result.user;
+        data.password = result.password;
+
+        $http.post(url, data)
           .success(function(data, status, headers, config){
             
             if (data.login === "success") {
