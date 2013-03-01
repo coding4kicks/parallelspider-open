@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
+spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -215,9 +215,49 @@ spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
   ////////////////////////////
   $scope.attemptedSubmission = false;
 
+  // TODO: refactor crawl to list of items so can iterate through on server
+
   $scope.crawlSite = function() {
+    var url = 'http://localhost:8000/initiatecrawl';
+
+    if (typeof $scope.crawl.maxPages !== "undefined" &&
+        $scope.crawl.maxPages > 20) {
+      if ($scope.name !== "") {
+
+        // TODO: refactor to crawl service
+        $http.post(url, $scope.crawl)
+          .success(function(data, status, headers, config){
+            
+            if (data.loggedIn) {
+              alert("initiated");              
+            }
+            else {
+              $scope.openLogin();
+            }
+
+          })
+          .error(function(data, status, headers, config){
+            alert("Server Error. Unable to Crawl, Sorry.");
+          });       
+      }
+      else {
+        alert("Must sign in to initiate crawl greater than 20 pages.");
+        $scope.openLogin();
+      }
+    }
+    else{
+
+      $http.post(url, $scope.crawl)
+        .success(function(data, status, headers, config){
+          
+            alert("initiated");              
+
+        })
+        .error(function(data, status, headers, config){
+          alert("Server Error. Unable to Crawl, Sorry.");
+        }); 
+    }
     console.log($scope.crawl);
-    alert('here');
   }
   
 });

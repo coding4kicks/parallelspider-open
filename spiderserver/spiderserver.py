@@ -165,12 +165,31 @@ class PasswordReminder(resource.Resource):
 class InitiateCrawl(resource.Resource):
     """ Initiate a crawl and return the crawl id """
     def render(self, request):
-        return """
-        <html>
-        <head><title>testHome</title></head>
-        <body><h1>CrawlInitiated</h1></body>
-        </html>
-        """
+        print('here')
+        self.request = request
+
+        # Add headers prior to writing
+        self.request.setHeader('Content-Type', 'application/json')
+
+        # Set access control: CORS 
+        # TODO: refactor stuff out to function
+
+        # TODO: limit origins on live site?
+        self.request.setHeader('Access-Control-Allow-Origin', '*')
+        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
+        # Echo back all request headers
+        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+
+        # Return if preflight request
+        if request.method == "OPTIONS":
+            return ""
+
+        # TODO: Get purchase session key from Redis to make sure logged in
+
+        value = """)]}',\n{"loggedIn": false}"""
+
+        return value
 
 class CheckCrawlStatus(resource.Resource):
     """ Check status of a crawl based upon an id """
