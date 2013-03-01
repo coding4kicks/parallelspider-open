@@ -72,7 +72,7 @@
   <div class="span8 padded">
     <div id="test-crawl">
       <h4 id="test">Take a Test Crawl</h4>
-      <form name="siteToCrawl" class="form-search">
+      <form name="siteToCrawl" ng-submit="crawlSite()" class="form-search">
         <h5 id="url">URL:</h5>
         <input type="url" name="primarySite" class="input-xlarge search-query" placeholder="http://www.cnn.com" ng-model="crawl.primarySite" required>
         <button type="submit" class="btn">Crawl</button>
@@ -317,8 +317,10 @@
 
           <label>
             <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Predefined:</h5>
-            <select multiple="multiple">
-              <option ng-repeat="ring in predefinedSynRings" ng-selected="crawl.predefined.{{ring.name}}">{{ring.title}}</option>
+            <!--<select multiple="multiple">-->
+              <select multiple="multiple" ng-model="crawl.predefinedSynRings" ng-options="ring.title for ring in predefinedSynRings">
+                <!--<option ng-repeat="ring in predefinedSynRings" ng-selected="$parent.crawl.predefined.{{ring.name}}">{{ring.title}}</option>-->
+              <option value=""></option>
             </select>
           </label>
           

@@ -215,7 +215,10 @@ spiderwebApp.controller('MainCtrl', function($scope, $timeout) {
   ////////////////////////////
   $scope.attemptedSubmission = false;
 
-
+  $scope.crawlSite = function() {
+    console.log($scope.crawl);
+    alert('here');
+  }
   
 });
 

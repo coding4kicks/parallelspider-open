@@ -130,16 +130,17 @@ class CheckUserCredentials(resource.Resource):
         self.request.write(value)
         self.request.finish()
 
-        # TODO: set both Session and Purchase cookie
+        # TODO: set both Session and Purchase cookie in Browser and Redis
         # TODO: retrieve user info from Database?
         # TODO: retrieve Analyses folder information - db or s3?
+        # TODO: retrieve user info for account page, payment info?
 
     def _loginFailed(self, failure):
         self.request.write(""")]}',\n{"login": "fail"}""")
         #self.request.write(str(failure))
         self.request.finish()
 
-
+#TODO: later
 class AddNewUser(resource.Resource):
     """ Add a new user to the system """
     def render(self, request):
@@ -150,6 +151,7 @@ class AddNewUser(resource.Resource):
         </html>
         """
 
+#TODO: later
 class PasswordReminder(resource.Resource):
     """ Send an email reminder of a password to a user """
     def render(self, request):
@@ -180,6 +182,27 @@ class CheckCrawlStatus(resource.Resource):
         </html>
         """
 
+class CheckCrawlStatus(resource.Resource):
+    """ Check status of a crawl based upon an id """
+    def render(self, request):
+        return """
+        <html>
+        <head><title>testHome</title></head>
+        <body><h1>CrawlInitiated</h1></body>
+        </html>
+        """
+
+class GetS3Signature(resource.Resource):
+    """ Sign a Url to retrieve objects from S3 """
+    def render(self, request):
+        return """
+        <html>
+        <head><title>testHome</title></head>
+        <body><h1>CrawlInitiated</h1></body>
+        </html>
+        """
+
+
 users = {
     'a': 'super mo',
     'spidertester': 'me mo',
@@ -202,6 +225,7 @@ if __name__ == "__main__":
     root.putChild('', HomePage())
     root.putChild('initiatecrawl', InitiateCrawl())
     root.putChild('checkcrawlstatus', InitiateCrawl())
+    root.putChild('gets3signature', GetS3Signature())
     root.putChild('addnewuser', AddNewUser())
     root.putChild('checkusercredentials', CheckUserCredentials(p))
     root.putChild('passwordreminder', PasswordReminder())
