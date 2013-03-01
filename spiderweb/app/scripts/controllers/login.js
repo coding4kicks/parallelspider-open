@@ -1,5 +1,5 @@
 'use strict';
-
+// NOT USING - logic is in template
 spiderwebApp.controller('LoginCtrl', function($scope, $http) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
@@ -20,7 +20,7 @@ spiderwebApp.controller('LoginCtrl', function($scope, $http) {
     $http.get(url)
       .success(function(data, status, headers, config){
         console.log(data.login);
-        $scope.returnValue = data.login;
+        $scope.returnValue = data.fullname;
       });
 
   };  

@@ -12,7 +12,7 @@
         <link rel="stylesheet" href="styles/main.css"/>
     </head>
 
-    <body ng-app="spiderwebApp">
+    <body ng-app="spiderwebApp" ng-controller="TemplateCtrl">
 
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
@@ -64,9 +64,21 @@
                     <a ng-href="#/ourwords"><i class="icon-star icon-white"></i> Our Words</a>
                   </li>
                 </ul>
-                <ul class="nav pull-right">
+
+                <ul class="nav pull-right" ng-show="name">
                   <li class="">
-                    <a ng-click="openDialog()">Sign In</a>
+                  <a>Welcome {{name}}</a>
+                  </li>
+                  <li class="">
+                    <p> || </p>
+                  </li>
+                  <li class="">
+                    <a ng-click="signout()">Sign Out</a>
+                  </li>
+                </ul>
+                <ul class="nav pull-right" ng-hide="name">
+                  <li class="">
+                    <a ng-click="openLogin()">Sign In</a>
                   </li>
                   <li class="">
                     <p> || </p>
@@ -139,6 +151,7 @@
         <script src="scripts/controllers/login.js"></script>
         <script src="scripts/controllers/myaccount.js"></script>
         <script src="scripts/controllers/signup.js"></script>
+        <script src="scripts/controllers/template.js"></script>
         <!-- endbuild -->
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->

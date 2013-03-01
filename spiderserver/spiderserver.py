@@ -106,12 +106,25 @@ class CheckUserCredentials(resource.Resource):
         return server.NOT_DONE_YET
     
     def _loginSucceeded(self, avatarInfo):
+
+        avatarInterface, avatar, logout = avatarInfo
+
         k = 'testCookie'
         v = 'yumyumcookies'
         self.request.addCookie(k, v, expires=None, domain=None, path=None, 
                                 max_age=None, comment=None, secure=None)
-        self.request.write(""")]}',\n{"login": "success", "session_token": "ABC123"}""")
+
+        value = """)]}',\n{"login": "success", 
+                            "name": "%s", 
+                            "session_token": "ABC123"}""" % avatar.fullname
+
+        #self.request.write(""")]}',\n{"login": "success", "session_token": "ABC123"}""")
+        self.request.write(value)
         self.request.finish()
+
+        # TODO: set both Session and Purchase cookie
+        # TODO: retrieve user info from Database?
+        # TODO: retrieve Analyses folder information - db or s3?
 
     def _loginFailed(self, failure):
         self.request.write(""")]}',\n{"login": "fail"}""")
@@ -160,11 +173,13 @@ class CheckCrawlStatus(resource.Resource):
         """
 
 users = {
+    'a': 'super mo',
     'spidertester': 'me mo',
     'spideradmin': 'mo mo'
     }
 
 passwords = {
+    'a': 'b',
     'spidertester': 'abc',
     'spideradmin': '123'
     }

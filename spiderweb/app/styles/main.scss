@@ -643,6 +643,17 @@
   }
 }
 
+// Login Modal
+//////////////////////////
+.modal {
+  margin-left: -180px;
+  width: 360px;
+
+  .error {
+    text-align: center;
+  }
+}
+
 // HELPER FUNCS
 //////////////////////////
 

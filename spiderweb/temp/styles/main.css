@@ -6865,24 +6865,34 @@ a.label:hover, a.badge:hover {
   padding-left: 20px;
 }
 
-/* line 649, ../../app/styles/main.scss */
+/* line 648, ../../app/styles/main.scss */
+.modal {
+  margin-left: -180px;
+  width: 360px;
+}
+/* line 652, ../../app/styles/main.scss */
+.modal .error {
+  text-align: center;
+}
+
+/* line 660, ../../app/styles/main.scss */
 .inline {
   display: inline;
 }
 
-/* line 653, ../../app/styles/main.scss */
+/* line 664, ../../app/styles/main.scss */
 .liner {
   width: 90%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 659, ../../app/styles/main.scss */
+/* line 670, ../../app/styles/main.scss */
 .pointer {
   cursor: pointer;
 }
 
-/* line 663, ../../app/styles/main.scss */
+/* line 674, ../../app/styles/main.scss */
 .no-bold {
   font-weight: normal;
 }
