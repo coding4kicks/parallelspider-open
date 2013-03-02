@@ -4,6 +4,10 @@ from twisted.web import resource, static, server
 from zope.interface import Interface, implements
 
 import json
+import redis
+import uuid
+import datetime
+import base64
 
 
 # AUTHENTICATION
@@ -78,9 +82,17 @@ class HomePage(resource.Resource):
 
 class CheckUserCredentials(resource.Resource):
     """ Validate user's credentials for login """
-    def __init__(self, portal):
+    def __init__(self, portal, redis):
         self.portal = portal
+        self.redis = redis
         self.request = ""
+
+        # cookie info
+        # TODO: set proper domains
+        self.longExpire= (60 * 60 * 24) # 1 day
+        self.shortExpire = (60 * 60) # 1 hour
+        self.domain = None;
+        self.secure = None;
 
     def render(self, request):
         self.request = request
@@ -117,10 +129,34 @@ class CheckUserCredentials(resource.Resource):
 
         avatarInterface, avatar, logout = avatarInfo
 
-        k = 'testCookie'
-        v = 'yumyumcookies'
-        self.request.addCookie(k, v, expires=None, domain=None, path=None, 
-                                max_age=None, comment=None, secure=None)
+        # Set XSRF cookie
+        k = 'XSRF-TOKEN'
+        v = uuid.uuid4().bytes.encode("base64")
+        self.request.addCookie(k, v, expires=None, domain=self.domain, 
+                               path=None, max_age=self.longExpire, 
+                               comment=None, secure=self.secure)
+        self.redis.set(v, 'X-XSRF-TOKEN')
+        self.redis.expire(v, self.longExpire)
+
+        # Set short session cookie (random)
+        k = 'ps_shortsession'
+        v = uuid.uuid4().bytes.encode("base64")
+        self.request.addCookie(k, v, expires=None, domain=self.domain, 
+                               path=None, max_age=self.shortExpire, 
+                               comment=None, secure=self.secure)
+        self.redis.set(v, 'ps_shortsession') #any info in value? userid?
+        self.redis.expire(v, self.shortExpire)
+
+       # # Set long session cookie
+       # k = 'ps_longsession'
+       # u = uuid.uuid4().bytes.encode("base64")[:8]
+       # # Place name so can reload from cookie, and date for logging
+       # v = base64.b64encode(avatar.fullname + '///' + str(datetime.datetime.now))
+       # v = v + u
+       # self.request.addCookie(k, v, expires=None, domain=None, path=None, 
+       #                         max_age=None, comment=None, secure=None)
+       # redis.sadd('ps_longsession', v)
+
 
         value = """)]}',\n{"login": "success", 
                             "name": "%s", 
@@ -155,6 +191,9 @@ class AddNewUser(resource.Resource):
 class PasswordReminder(resource.Resource):
     """ Send an email reminder of a password to a user """
     def render(self, request):
+
+        # TODO: check XSRF header
+
         return """
         <html>
         <head><title>testHome</title></head>
@@ -165,8 +204,10 @@ class PasswordReminder(resource.Resource):
 class InitiateCrawl(resource.Resource):
     """ Initiate a crawl and return the crawl id """
     def render(self, request):
-        print('here')
+
         self.request = request
+
+        # TODO: check XSRF header
 
         # Add headers prior to writing
         self.request.setHeader('Content-Type', 'application/json')
@@ -194,16 +235,9 @@ class InitiateCrawl(resource.Resource):
 class CheckCrawlStatus(resource.Resource):
     """ Check status of a crawl based upon an id """
     def render(self, request):
-        return """
-        <html>
-        <head><title>testHome</title></head>
-        <body><h1>CrawlInitiated</h1></body>
-        </html>
-        """
 
-class CheckCrawlStatus(resource.Resource):
-    """ Check status of a crawl based upon an id """
-    def render(self, request):
+        # TODO: check XSRF header
+
         return """
         <html>
         <head><title>testHome</title></head>
@@ -213,14 +247,17 @@ class CheckCrawlStatus(resource.Resource):
 
 class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
+
     def render(self, request):
+   
+        # TODO: check XSRF header
+
         return """
         <html>
         <head><title>testHome</title></head>
         <body><h1>CrawlInitiated</h1></body>
         </html>
         """
-
 
 users = {
     'a': 'super mo',
@@ -240,13 +277,18 @@ if __name__ == "__main__":
     p = portal.Portal(TestRealm(users))
     p.registerChecker(PasswordDictChecker(passwords))
 
+    # hardcode for now
+    redis_info = {'host': 'localhost', 'port': 6379}
+    r = redis.StrictRedis(host=redis_info["host"],
+                              port=int(redis_info["port"]), db=0)
+
     root = resource.Resource()
     root.putChild('', HomePage())
     root.putChild('initiatecrawl', InitiateCrawl())
     root.putChild('checkcrawlstatus', InitiateCrawl())
     root.putChild('gets3signature', GetS3Signature())
     root.putChild('addnewuser', AddNewUser())
-    root.putChild('checkusercredentials', CheckUserCredentials(p))
+    root.putChild('checkusercredentials', CheckUserCredentials(p,r))
     root.putChild('passwordreminder', PasswordReminder())
     site = server.Site(root)
 
