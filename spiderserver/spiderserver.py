@@ -130,37 +130,40 @@ class CheckUserCredentials(resource.Resource):
         avatarInterface, avatar, logout = avatarInfo
 
         # Set XSRF cookie
-        k = 'XSRF-TOKEN'
-        v = uuid.uuid4().bytes.encode("base64")
-        self.request.addCookie(k, v, expires=None, domain=self.domain, 
-                               path=None, max_age=self.longExpire, 
-                               comment=None, secure=self.secure)
-        self.redis.set(v, 'X-XSRF-TOKEN')
-        self.redis.expire(v, self.longExpire)
+       # k = 'XSRF-TOKEN'
+       # v = uuid.uuid4().bytes.encode("base64")
+       # self.request.addCookie(k, v, expires=None, domain=self.domain, 
+       #                        path=None, max_age=self.longExpire, 
+       #                        comment=None, secure=self.secure)
+       # self.redis.set(v, 'X-XSRF-TOKEN')
+       # self.redis.expire(v, self.longExpire)
 
-        # Set short session cookie (random)
-        k = 'ps_shortsession'
-        v = uuid.uuid4().bytes.encode("base64")
-        self.request.addCookie(k, v, expires=None, domain=self.domain, 
-                               path=None, max_age=self.shortExpire, 
-                               comment=None, secure=self.secure)
-        self.redis.set(v, 'ps_shortsession') #any info in value? userid?
-        self.redis.expire(v, self.shortExpire)
+       # # Set short session cookie (random)
+       # k = 'ps_shortsession'
+        short_session = uuid.uuid4().bytes.encode("base64")[:21]
+       # self.request.addCookie(k, v, expires=None, domain=self.domain, 
+       #                        path=None, max_age=self.shortExpire, 
+       #                        comment=None, secure=self.secure)
+       # self.redis.set(v, 'ps_shortsession') #any info in value? userid?
+       # self.redis.expire(v, self.shortExpire)
 
        # # Set long session cookie
        # k = 'ps_longsession'
-       # u = uuid.uuid4().bytes.encode("base64")[:8]
-       # # Place name so can reload from cookie, and date for logging
-       # v = base64.b64encode(avatar.fullname + '///' + str(datetime.datetime.now))
-       # v = v + u
+        u = uuid.uuid4().bytes.encode("base64")[:8]
+        # Place name so can reload from cookie, and date for logging
+        v = base64.b64encode(avatar.fullname + '///' + str(datetime.datetime.now))
+        long_session = v + u
        # self.request.addCookie(k, v, expires=None, domain=None, path=None, 
        #                         max_age=None, comment=None, secure=None)
        # redis.sadd('ps_longsession', v)
 
-
         value = """)]}',\n{"login": "success", 
                             "name": "%s", 
-                            "session_token": "ABC123"}""" % avatar.fullname
+                            "short_session": "%s", 
+                            "long_session": "%s"}
+                            """ % (avatar.fullname, 
+                                   short_session,
+                                   long_session)
 
         #self.request.write(""")]}',\n{"login": "success", "session_token": "ABC123"}""")
         self.request.write(value)
