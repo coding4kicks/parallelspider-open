@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, sessionService) {
+spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location, sessionService, crawlService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -253,7 +253,9 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, sessionSer
           .success(function(data, status, headers, config){
             
             if (data.loggedIn) {
-              alert(data.crawlId);
+              crawlService.setCrawlId(data.crawlId);
+              $location.path('/crawling');
+              $scope.apply;
              
             }
             else {
@@ -274,9 +276,16 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, sessionSer
 
       $http.post(url, requestData)
         .success(function(data, status, headers, config){
-          
-            alert("Free Crawl of 20 pages is unavailble at this time to avoid potential use in DDOS attacks.  Once caching is implemented, this feature will be enabled. Please log-in to try the system.");              
-
+          if (data.loggedIn) {
+            crawlService.setCrawlId(data.crawlId);
+            $location.path('/crawling');
+            $scope.apply;
+           
+          }
+          else {
+            alert("Free Crawl of 20 pages is currently disabled to avoid potential use in DDOS attacks.  Once caching is implemented, this feature will be enabled. Please log-in to try the system.");  
+            $scope.openLogin();
+          }                      
         })
         .error(function(data, status, headers, config){
           alert("Server Error. Unable to Crawl, Sorry.");
