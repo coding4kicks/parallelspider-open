@@ -87,12 +87,9 @@ class CheckUserCredentials(resource.Resource):
         self.redis = redis
         self.request = ""
 
-        # cookie info
-        # TODO: set proper domains
+        # Expiration Info
         self.longExpire= (60 * 60 * 24) # 1 day
         self.shortExpire = (60 * 60) # 1 hour
-        self.domain = None;
-        self.secure = None;
 
     def render(self, request):
         self.request = request
@@ -144,8 +141,8 @@ class CheckUserCredentials(resource.Resource):
        # self.request.addCookie(k, v, expires=None, domain=self.domain, 
        #                        path=None, max_age=self.shortExpire, 
        #                        comment=None, secure=self.secure)
-       # self.redis.set(v, 'ps_shortsession') #any info in value? userid?
-       # self.redis.expire(v, self.shortExpire)
+        self.redis.set(short_session, 'ps_shortsession') #any info in value? userid?
+        self.redis.expire(short_session, self.shortExpire)
 
        # # Set long session cookie
        # k = 'ps_longsession'
@@ -153,9 +150,8 @@ class CheckUserCredentials(resource.Resource):
         # Place name so can reload from cookie, and date for logging
         v = base64.b64encode(avatar.fullname + '///' + str(datetime.datetime.now))
         long_session = v + u
-       # self.request.addCookie(k, v, expires=None, domain=None, path=None, 
-       #                         max_age=None, comment=None, secure=None)
-       # redis.sadd('ps_longsession', v)
+        self.redis.set(long_session, 'ps_longsession') #any info in value? userid?
+        self.redis.expire(long_session, self.longExpire)
 
         value = """)]}',\n{"login": "success", 
                             "name": "%s", 
@@ -206,6 +202,10 @@ class PasswordReminder(resource.Resource):
 
 class InitiateCrawl(resource.Resource):
     """ Initiate a crawl and return the crawl id """
+
+    def __init__(self, redis):
+        self.redis = redis
+
     def render(self, request):
 
         self.request = request
@@ -230,6 +230,10 @@ class InitiateCrawl(resource.Resource):
             return ""
 
         # TODO: Get purchase session key from Redis to make sure logged in
+        print request.content.getvalue()
+
+        data = json.loads(request.content.getvalue())
+
 
         value = """)]}',\n{"loggedIn": false}"""
 
@@ -237,6 +241,10 @@ class InitiateCrawl(resource.Resource):
 
 class CheckCrawlStatus(resource.Resource):
     """ Check status of a crawl based upon an id """
+
+    def __init__(self, redis):
+        self.redis = redis
+
     def render(self, request):
 
         # TODO: check XSRF header
@@ -287,8 +295,8 @@ if __name__ == "__main__":
 
     root = resource.Resource()
     root.putChild('', HomePage())
-    root.putChild('initiatecrawl', InitiateCrawl())
-    root.putChild('checkcrawlstatus', InitiateCrawl())
+    root.putChild('initiatecrawl', InitiateCrawl(r))
+    root.putChild('checkcrawlstatus', InitiateCrawl(r))
     root.putChild('gets3signature', GetS3Signature())
     root.putChild('addnewuser', AddNewUser())
     root.putChild('checkusercredentials', CheckUserCredentials(p,r))

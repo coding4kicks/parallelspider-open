@@ -84,6 +84,30 @@ var spiderwebApp = angular.module('spiderwebApp', [])
     };
   })
 
+  // Manage Session State
+  .service('sessionService', function() {
+    var longSession = "", // General info and analysis access
+        shortSession = "";// Purchase and change user info session
+
+    return {
+      setShortSession:function (session) {
+        shortSession = session;
+        // set in cookie too?
+      },
+      getShortSession:function () {
+        // try to retrieve from cookie if empty
+        return shortSession;
+      },
+      setLongSession:function (session) {
+        longSession = session;
+        // set in cookie
+      },
+      getLongSession:function (session) {
+        return longSession;
+      }
+    };
+  })
+
   ////////////////////////////
   // DIRECTIVES
   ////////////////////////////

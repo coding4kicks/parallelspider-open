@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('TemplateCtrl', function($scope, $dialog) {
+spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, sessionService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -23,7 +23,9 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog) {
     d.open().then(function(result){
       if(result) {
         if (result.login === 'success') {
-          $scope.name = result.name
+          $scope.name = result.name;
+          sessionService.setShortSession(result.short_session);
+          sessionService.setLongSession(result.long_session);
         }
         else {
           // login cancelled
@@ -83,10 +85,6 @@ function LoginController($scope, $http, dialog){
           .success(function(data, status, headers, config){
             
             if (data.login === "success") {
-              var ps_shortsession = data.short_session;
-              var ps_longsession = data.long_session;
-              alert(ps_shortsession);
-              alert(ps_longsession);
               dialog.close(data);              
             }
             else {

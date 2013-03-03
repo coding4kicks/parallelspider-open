@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout) {
+spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, sessionService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -218,14 +218,21 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout) {
   // TODO: refactor crawl to list of items so can iterate through on server
 
   $scope.crawlSite = function() {
-    var url = 'http://localhost:8000/initiatecrawl';
+    var url = 'http://localhost:8000/initiatecrawl',
+        requestData = {};
+
+    requestData.shortSession = sessionService.getShortSession();
+    requestData.longSession = sessionService.getLongSession();
+    requestData.crawl = $scope.crawl 
 
     if (typeof $scope.crawl.maxPages !== "undefined" &&
         $scope.crawl.maxPages > 20) {
-      if ($scope.name !== "") {
+
+      if ($scope.name !== "" &&
+          requestData.shortSession !== "") {
 
         // TODO: refactor to crawl service
-        $http.post(url, $scope.crawl)
+        $http.post(url, requestData)
           .success(function(data, status, headers, config){
             
             if (data.loggedIn) {
@@ -247,7 +254,7 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout) {
     }
     else{
 
-      $http.post(url, $scope.crawl)
+      $http.post(url, requestData)
         .success(function(data, status, headers, config){
           
             alert("initiated");              
