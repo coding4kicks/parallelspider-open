@@ -86,8 +86,9 @@ var spiderwebApp = angular.module('spiderwebApp', [])
 
   // Manage Session State
   .service('sessionService', function() {
-    var longSession = "", // General info and analysis access
-        shortSession = "";// Purchase and change user info session
+    var longSession = "",  // General info and analysis access
+        shortSession = "", // Purchase and change user info session
+        userName = "";
 
     return {
       setShortSession:function (session) {
@@ -104,6 +105,13 @@ var spiderwebApp = angular.module('spiderwebApp', [])
       },
       getLongSession:function (session) {
         return longSession;
+      },
+      setUserName: function (name) {
+        userName = name;
+      },
+      getUserName: function (name) {
+        // try to get from cookie if empty
+        return userName;
       }
     };
   })

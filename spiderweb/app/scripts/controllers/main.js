@@ -163,6 +163,11 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, sessionSer
   ////////////////////////////
   $scope.crawl = {};
 
+  // need field to enter crawl name
+  // don't need on main page, just on launchpad
+  $scope.crawl.name = ""
+  $scope.crawlName = "";
+
   $scope.crawl.additionalSites = [];
   $scope.additionalSites;
 
@@ -219,11 +224,23 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, sessionSer
 
   $scope.crawlSite = function() {
     var url = 'http://localhost:8000/initiatecrawl',
-        requestData = {};
+        requestData = {},
+        now = new Date().toString();
 
+    // Set sessioin info in response
     requestData.shortSession = sessionService.getShortSession();
     requestData.longSession = sessionService.getLongSession();
-    requestData.crawl = $scope.crawl 
+    requestData.userName = sessionService.getUserName();
+
+    // Determine crawl name
+    // First is always empty since no field on main page
+    $scope.crawl.name = $scope.crawlName || $scope.crawl.primarySite;
+
+    // Set the time
+    $scope.crawl.time = now;
+
+    // Set crawl data in response
+    requestData.crawl = $scope.crawl; 
 
     if (typeof $scope.crawl.maxPages !== "undefined" &&
         $scope.crawl.maxPages > 20) {
@@ -257,7 +274,7 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, sessionSer
       $http.post(url, requestData)
         .success(function(data, status, headers, config){
           
-            alert("initiated");              
+            alert("Free Crawl of 20 pages is unavailble at this time to avoid potential use in DDOS attacks.  Once caching is implemented, this feature will be enabled. Please log-in to try the system.");              
 
         })
         .error(function(data, status, headers, config){

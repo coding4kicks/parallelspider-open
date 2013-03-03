@@ -24,6 +24,7 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, sessionService
       if(result) {
         if (result.login === 'success') {
           $scope.name = result.name;
+          sessionService.setUserName(result.name);
           sessionService.setShortSession(result.short_session);
           sessionService.setLongSession(result.long_session);
         }

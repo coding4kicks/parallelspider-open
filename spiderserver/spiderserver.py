@@ -206,6 +206,10 @@ class InitiateCrawl(resource.Resource):
     def __init__(self, redis):
         self.redis = redis
 
+        # Expiration Info TODO: factor out so don't repeat
+        self.longExpire= (60 * 60 * 24) # 1 day
+        self.shortExpire = (60 * 60) # 1 hour
+
     def render(self, request):
 
         self.request = request
@@ -229,13 +233,40 @@ class InitiateCrawl(resource.Resource):
         if request.method == "OPTIONS":
             return ""
 
-        # TODO: Get purchase session key from Redis to make sure logged in
-        print request.content.getvalue()
-
         data = json.loads(request.content.getvalue())
 
+        short_session = data['shortSession'] 
+        long_session = data['longSession']
 
-        value = """)]}',\n{"loggedIn": false}"""
+        if self.redis.exists(short_session):
+
+            # set new expirations
+            self.redis.expire(short_session, self.shortExpire)
+            self.redis.expire(long_session, self.longExpire)
+    
+            # Create crawl id (username, crawlname, date, random)
+            crawl = data['crawl']
+            user = base64.b64encode(data['userName'])
+            name = base64.b64encode(crawl['name'])
+            time = base64.b64encode(crawl['time'])
+            rand = uuid.uuid4().bytes.encode("base64")[:4]
+
+            crawl_id = user + "-" + name + "-" + time + "-" + rand
+            print crawl_id
+            print crawl
+
+            # Set crawl info into Redis
+            self.redis.set(crawl_id, crawl)
+            self.redis.expire(crawl_id, (60*60))
+
+            # Set crawl id into Redis crawl queue
+            self.redis.lpush("crawl_queue", crawl_id)
+
+            # return success
+            value = """)]}',\n{"loggedIn": true}"""
+
+        else:
+            value = """)]}',\n{"loggedIn": false}"""
 
         return value
 
@@ -244,6 +275,10 @@ class CheckCrawlStatus(resource.Resource):
 
     def __init__(self, redis):
         self.redis = redis
+
+        # Expiration Info
+        self.longExpire= (60 * 60 * 24) # 1 day
+        self.shortExpire = (60 * 60) # 1 hour
 
     def render(self, request):
 
