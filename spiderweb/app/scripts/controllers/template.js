@@ -83,6 +83,10 @@ function LoginController($scope, $http, dialog){
           .success(function(data, status, headers, config){
             
             if (data.login === "success") {
+              var ps_shortsession = data.short_session;
+              var ps_longsession = data.long_session;
+              alert(ps_shortsession);
+              alert(ps_longsession);
               dialog.close(data);              
             }
             else {
