@@ -126,33 +126,21 @@ class CheckUserCredentials(resource.Resource):
 
         avatarInterface, avatar, logout = avatarInfo
 
-        # Set XSRF cookie
-       # k = 'XSRF-TOKEN'
-       # v = uuid.uuid4().bytes.encode("base64")
-       # self.request.addCookie(k, v, expires=None, domain=self.domain, 
-       #                        path=None, max_age=self.longExpire, 
-       #                        comment=None, secure=self.secure)
-       # self.redis.set(v, 'X-XSRF-TOKEN')
-       # self.redis.expire(v, self.longExpire)
-
-       # # Set short session cookie (random)
-       # k = 'ps_shortsession'
+        # Short session token - for crawl purchases and changing user info
         short_session = uuid.uuid4().bytes.encode("base64")[:21]
-       # self.request.addCookie(k, v, expires=None, domain=self.domain, 
-       #                        path=None, max_age=self.shortExpire, 
-       #                        comment=None, secure=self.secure)
-        self.redis.set(short_session, 'ps_shortsession') #any info in value? userid?
+        self.redis.set(short_session, 'ps_shortsession') #any info in value?
         self.redis.expire(short_session, self.shortExpire)
 
-       # # Set long session cookie
-       # k = 'ps_longsession'
+        # Long session token - for user info and data analysis
         u = uuid.uuid4().bytes.encode("base64")[:8]
         # Place name so can reload from cookie, and date for logging
-        v = base64.b64encode(avatar.fullname + '///' + str(datetime.datetime.now))
+        v = base64.b64encode(avatar.fullname + '///' + 
+                             str(datetime.datetime.now))
         long_session = v + u
-        self.redis.set(long_session, 'ps_longsession') #any info in value? userid?
+        self.redis.set(long_session, 'ps_longsession') #any info in value?
         self.redis.expire(long_session, self.longExpire)
 
+    
         value = """)]}',\n{"login": "success", 
                             "name": "%s", 
                             "short_session": "%s", 
@@ -161,7 +149,6 @@ class CheckUserCredentials(resource.Resource):
                                    short_session,
                                    long_session)
 
-        #self.request.write(""")]}',\n{"login": "success", "session_token": "ABC123"}""")
         self.request.write(value)
         self.request.finish()
 
@@ -252,18 +239,17 @@ class InitiateCrawl(resource.Resource):
             rand = uuid.uuid4().bytes.encode("base64")[:4]
 
             crawl_id = user + "-" + name + "-" + time + "-" + rand
-            print crawl_id
-            print crawl
 
             # Set crawl info into Redis
             self.redis.set(crawl_id, crawl)
             self.redis.expire(crawl_id, (60*60))
 
             # Set crawl id into Redis crawl queue
-            self.redis.lpush("crawl_queue", crawl_id)
+            self.redis.rpush("crawl_queue", crawl_id)
 
             # return success
-            value = """)]}',\n{"loggedIn": true}"""
+            value = """)]}',\n{"loggedIn": true, "crawlId": "%s"}
+                      """ % (crawl_id)
 
         else:
             value = """)]}',\n{"loggedIn": false}"""

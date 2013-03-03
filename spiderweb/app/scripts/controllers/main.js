@@ -253,7 +253,8 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, sessionSer
           .success(function(data, status, headers, config){
             
             if (data.loggedIn) {
-              alert("initiated");              
+              alert(data.crawlId);
+             
             }
             else {
               $scope.openLogin();

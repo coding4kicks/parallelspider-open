@@ -47,6 +47,10 @@ var spiderwebApp = angular.module('spiderwebApp', [])
         templateUrl: 'views/signup.html',
         controller: 'SignupCtrl'
       })
+      .when('/crawling', {
+        templateUrl: 'views/crawling.html',
+        controller: 'CrawlingCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });
@@ -112,6 +116,29 @@ var spiderwebApp = angular.module('spiderwebApp', [])
       getUserName: function (name) {
         // try to get from cookie if empty
         return userName;
+      }
+    };
+  })
+
+  .service('crawlService', function ($http) {
+    var crawlId = "";
+    
+    return {
+      setCrawlId:function (id) {
+        crawlId = id
+      },
+
+      getCrawlStatus:function () {
+       // var deferred = $q.defer();
+
+       // $http.get('results5.json')
+       //   .then(function(results){
+       //     //alert(results.data.name);
+       //     //return(results);
+       //     deferred.resolve(results);
+       // });
+       // return deferred.promise;
+
       }
     };
   })
