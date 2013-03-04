@@ -7,7 +7,11 @@ describe('Controller: CrawlingCtrl', function() {
 
   beforeEach(inject(function($httpBackend) {
     $httpBackend.whenGET('quote-file.json').respond({});
-  })); 
+  }));
+
+  beforeEach(inject(function($httpBackend) {
+    $httpBackend.expectPOST('checkcrawlstatus').respond({});
+  }));
 
   var CrawlingCtrl,
     scope;
@@ -20,7 +24,7 @@ describe('Controller: CrawlingCtrl', function() {
     });
   }));
 
-  it('should attach a list of awesomeThings to the scope', function() {
-    expect(scope.awesomeThings.length).toBe(3);
-  });
+  //it('should attach a list of awesomeThings to the scope', function() {
+  //  expect(scope.awesomeThings.length).toBe(3);
+  //});
 });

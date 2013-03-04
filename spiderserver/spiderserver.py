@@ -266,16 +266,33 @@ class CheckCrawlStatus(resource.Resource):
         self.longExpire= (60 * 60 * 24) # 1 day
         self.shortExpire = (60 * 60) # 1 hour
 
+        self.request = ""
+
     def render(self, request):
 
-        # TODO: check XSRF header
+        self.request = request
 
-        return """
-        <html>
-        <head><title>testHome</title></head>
-        <body><h1>CrawlInitiated</h1></body>
-        </html>
-        """
+        # Add headers prior to writing
+        self.request.setHeader('Content-Type', 'application/json')
+
+        # Set access control: CORS 
+        # TODO: refactor stuff out to function
+
+        # TODO: limit origins on live site?
+        self.request.setHeader('Access-Control-Allow-Origin', '*')
+        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
+        # Echo back all request headers
+        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+
+        # Return if preflight request
+        if request.method == "OPTIONS":
+            return ""
+
+        # TODO: check XSRF header
+        print('here we are')
+
+        return """)]}',\n{"count": 10}"""
 
 class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
@@ -317,7 +334,7 @@ if __name__ == "__main__":
     root = resource.Resource()
     root.putChild('', HomePage())
     root.putChild('initiatecrawl', InitiateCrawl(r))
-    root.putChild('checkcrawlstatus', InitiateCrawl(r))
+    root.putChild('checkcrawlstatus', CheckCrawlStatus(r))
     root.putChild('gets3signature', GetS3Signature())
     root.putChild('addnewuser', AddNewUser())
     root.putChild('checkusercredentials', CheckUserCredentials(p,r))

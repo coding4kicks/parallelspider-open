@@ -120,7 +120,7 @@ var spiderwebApp = angular.module('spiderwebApp', [])
     };
   })
 
-  .service('crawlService', function ($http) {
+  .service('crawlService', function ($http, $q) {
     var crawlId = "";
     
     return {
@@ -130,35 +130,20 @@ var spiderwebApp = angular.module('spiderwebApp', [])
 
       getCrawlStatus:function () {
 
-        var url = 'http://localhost:8000/getCrawlStatus',
-            data = {'id': crawlId};
+        var url = 'http://localhost:8000/checkcrawlstatus',
+            data = {'id': crawlId},
+            deferred = $q.defer();
+
 
         $http.post(url, data)
           .success(function(data, status, headers, config){
-            
-            if (data.login === "success") {
-              dialog.close(data);              
-            }
-            else {
-              $scope.error.show = true;
-              $scope.error.message = "Invalid Email and Password."
-            }
-
+            deferred.resolve(data);
           })
           .error(function(data, status, headers, config){
-            $scope.error.show = true;
-            $scope.error.message = "Server Error."
+            console.log('error');
           });
-       // var deferred = $q.defer();
 
-       // $http.get('results5.json')
-       //   .then(function(results){
-       //     //alert(results.data.name);
-       //     //return(results);
-       //     deferred.resolve(results);
-       // });
-       // return deferred.promise;
-
+        return deferred.promise;
       }
     };
   })

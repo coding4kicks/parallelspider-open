@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http) {
+spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, crawlService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -16,7 +16,7 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http) {
   $scope.pagesCrawled = 0; // get from crawlService
 
   // get the page count
-  // $scope.pageCount = crawlService.getCrawlStatus();
+  $scope.pageCount = {} //crawlService.getCrawlStatus();
 
   var progressNumber = 10;
   $scope.progress = progressNumber + "%";
@@ -63,6 +63,15 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http) {
       $scope.quote = $scope.quoteList[Math.floor((Math.random()*$scope.quoteList.length))];
     }
 
+    // Update page count every 5 seconds
+    if (counter % 100 === 0) {
+      crawlService.getCrawlStatus()
+        .then(function(results){
+          $scope.pageCount = results
+        });
+      console.log($scope.pageCount);
+    }
+
     // Count 1/20th of a second
     counter += 1;
     $timeout( function() {
@@ -73,24 +82,4 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http) {
   progressNumber = 0;
   progress(progressNumber);
 
-
-    // Animate up if at the bottom (account for -0px at end of down)
-   // if ($scope[spider] === '0px' || $scope[spider] === '-0px') {
-   //   var animateUp = function(position, textPosition) {
-   //     position = position + 5;
-   //     $scope[spider] = '-' + position + 'px';
-
-   //     // Adjust text margin
-   //     textPosition = textPosition - 5;
-   //     $scope[text] = (-1 * textPosition) + 'px';
-
-   //     // Call again if not done
-   //     if (position < 175){
-   //       $timeout( function() {
-   //         animateUp(position, textPosition);
-   //       }, 10);
-   //     }
-   //   };
-   //   animateUp(0, 150);  
-   // }
 });
