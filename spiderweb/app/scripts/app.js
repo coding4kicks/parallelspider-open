@@ -129,6 +129,26 @@ var spiderwebApp = angular.module('spiderwebApp', [])
       },
 
       getCrawlStatus:function () {
+
+        var url = 'http://localhost:8000/getCrawlStatus',
+            data = {'id': crawlId};
+
+        $http.post(url, data)
+          .success(function(data, status, headers, config){
+            
+            if (data.login === "success") {
+              dialog.close(data);              
+            }
+            else {
+              $scope.error.show = true;
+              $scope.error.message = "Invalid Email and Password."
+            }
+
+          })
+          .error(function(data, status, headers, config){
+            $scope.error.show = true;
+            $scope.error.message = "Server Error."
+          });
        // var deferred = $q.defer();
 
        // $http.get('results5.json')

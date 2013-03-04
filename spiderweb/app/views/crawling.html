@@ -5,24 +5,24 @@
     <h1>Crawling</h1>
     <div class="counters">
       <div class="estimated-time">
-        <h4>4 min 25 sec</h4>
+        <h4>{{time.minutes}} min {{time.seconds}} sec</h4>
         <h5>Time Remaining</h5>
       </div>
       <div class="pages-crawled">
-        <h4>1322</h4>
+        <h4>{{pagesCrawled}}</h4>
         <h5>Pages Crawled</h5>
       </div>
       <div class="max-pages">
-        <h4>5000</h4>
+        <h4>{{maxPages}}</h4>
         <h5>Max Pages</h5>
       </div>
     </div>
     <div class="meter">
-	    <span style="width: 25%"></span>
+	    <span ng-style="{ 'width': progress }"></span>
     </div>
     <div id="quote">
-      <h3>A word to the wise ain't necessary - it's the stupid ones that need the advice.</h3>
-      <h4>Bill Cosby</h4>
+      <h3>{{quote.words}}</h3>
+      <h4>{{quote.author}}</h4>
     </div>
   </div>
 <div>

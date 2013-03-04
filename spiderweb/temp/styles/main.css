@@ -6922,20 +6922,22 @@ a.label:hover, a.badge:hover {
 /* line 702, ../../app/styles/main.scss */
 .counters div {
   display: inline-block;
-  margin: 0px 80px;
+  margin: 0px 40px;
+  width: 200px;
 }
-/* line 706, ../../app/styles/main.scss */
+/* line 707, ../../app/styles/main.scss */
 .counters div h4 {
   margin-bottom: 0px;
 }
-/* line 710, ../../app/styles/main.scss */
+/* line 711, ../../app/styles/main.scss */
 .counters div h5 {
   margin: 0px;
 }
 
-/* line 715, ../../app/styles/main.scss */
+/* line 716, ../../app/styles/main.scss */
 #quote {
   *zoom: 1;
+  height: 150px;
   margin: 10px 50px;
 }
 /* line 15, ../../app/styles/compass_twitter_bootstrap/_mixins.scss */
@@ -6948,18 +6950,17 @@ a.label:hover, a.badge:hover {
 #quote:after {
   clear: both;
 }
-/* line 719, ../../app/styles/main.scss */
+/* line 722, ../../app/styles/main.scss */
 #quote h4 {
   float: right;
-  margin-top: -20px;
+  margin-top: -10px;
   padding-right: 50px;
   color: orange;
 }
 
-/* line 730, ../../app/styles/main.scss */
+/* line 733, ../../app/styles/main.scss */
 .meter {
   height: 20px;
-  /* Can be anything */
   position: relative;
   margin: 10px 0 20px 0;
   background: #555;
@@ -6972,7 +6973,7 @@ a.label:hover, a.badge:hover {
   box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.3);
 }
 
-/* line 743, ../../app/styles/main.scss */
+/* line 746, ../../app/styles/main.scss */
 .meter > span {
   display: block;
   height: 100%;
@@ -6998,7 +6999,7 @@ a.label:hover, a.badge:hover {
   overflow: hidden;
 }
 
-/* line 783, ../../app/styles/main.scss */
+/* line 786, ../../app/styles/main.scss */
 .meter > span:after, .animate > span > span {
   content: "";
   position: absolute;
@@ -7011,7 +7012,9 @@ a.label:hover, a.badge:hover {
   z-index: 1;
   -webkit-background-size: 50px 50px;
   -moz-background-size: 50px 50px;
+  background-size: 50px 50px;
   -webkit-animation: move 2s linear infinite;
+  -moz-animation: move 2s linear infinite;
   -webkit-border-top-right-radius: 8px;
   -webkit-border-bottom-right-radius: 8px;
   -moz-border-radius-topright: 8px;
@@ -7027,24 +7030,36 @@ a.label:hover, a.badge:hover {
   overflow: hidden;
 }
 
-/* line 825, ../../app/styles/main.scss */
+/* line 830, ../../app/styles/main.scss */
 .animate > span:after {
   display: none;
 }
 
 @-webkit-keyframes move {
-  /* line 830, ../../app/styles/main.scss */
+  /* line 835, ../../app/styles/main.scss */
   0% {
     background-position: 0 0;
   }
 
-  /* line 833, ../../app/styles/main.scss */
+  /* line 838, ../../app/styles/main.scss */
   100% {
     background-position: 50px 50px;
   }
 }
 
-/* line 838, ../../app/styles/main.scss */
+@-moz-keyframes move {
+  /* line 844, ../../app/styles/main.scss */
+  0% {
+    background-position: 0 0;
+  }
+
+  /* line 847, ../../app/styles/main.scss */
+  100% {
+    background-position: 50px 50px;
+  }
+}
+
+/* line 853, ../../app/styles/main.scss */
 .orange > span {
   background-color: #f1a165;
   background-image: -moz-linear-gradient(top, #f1a165, #f36d0a);
@@ -7052,7 +7067,7 @@ a.label:hover, a.badge:hover {
   background-image: -webkit-linear-gradient(#f1a165, #f36d0a);
 }
 
-/* line 845, ../../app/styles/main.scss */
+/* line 860, ../../app/styles/main.scss */
 .red > span {
   background-color: #f0a3a3;
   background-image: -moz-linear-gradient(top, #f0a3a3, #f42323);
@@ -7060,8 +7075,9 @@ a.label:hover, a.badge:hover {
   background-image: -webkit-linear-gradient(#f0a3a3, #f42323);
 }
 
-/* line 852, ../../app/styles/main.scss */
+/* line 867, ../../app/styles/main.scss */
 .nostripes > span > span, .nostripes > span:after {
   -webkit-animation: none;
+  -moz-animation: none;
   background-image: none;
 }

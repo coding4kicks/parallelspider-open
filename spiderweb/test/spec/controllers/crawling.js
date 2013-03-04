@@ -5,6 +5,10 @@ describe('Controller: CrawlingCtrl', function() {
   // load the controller's module
   beforeEach(module('spiderwebApp'));
 
+  beforeEach(inject(function($httpBackend) {
+    $httpBackend.whenGET('quote-file.json').respond({});
+  })); 
+
   var CrawlingCtrl,
     scope;
 
