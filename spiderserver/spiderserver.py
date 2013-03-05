@@ -8,6 +8,7 @@ import redis
 import uuid
 import datetime
 import base64
+import boto
 
 
 # AUTHENTICATION
@@ -365,12 +366,18 @@ class GetS3Signature(resource.Resource):
               self.redis.expire(short_session, self.shortExpire)
             self.redis.expire(long_session, self.longExpire)
 
-            # sign url 
+            # sign url / assumes keys are in .bashrc
+            s3conn = boto.connect_s3()
+            url = s3conn.generate_url(30, 'GET', bucket='ps_users', key='test/results5.json')
+ 
+            # Temporarily overwrite url so don't continuously pull 10mb from AWS
+            url = "results5.json"
 
-            return """)]}',\n{'result': 'test'}"""
+            return """)]}',\n{"url": "%s"}""" % url
+
 
         else:
-            return """)]}',\n{"result": "error"}"""
+            return """)]}',\n{"url": "error"}"""
 
 
 users = {

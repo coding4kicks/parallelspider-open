@@ -83,7 +83,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
   //$http.get('results5.json')
     .then(function(results){
         console.log(results);
-        $scope.analysis = results.data;
+        $scope.analysis = results;
 
         // determin analysis time in minute and seconds
         $scope.summary.minutes = Math.floor($scope.analysis.time/60);

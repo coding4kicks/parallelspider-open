@@ -70,22 +70,35 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
       getAnalysis:function (analysis) {
 
         var url = 'http://localhost:8000/gets3signature',
-            data = {'analysis': 'test', 
+            data = {'analysis': 'results.json', 
                     'shortSession': sessionService.getShortSession(),
                     'longSession': sessionService.getLongSession() },
             deferred = $q.defer();
 
-        //$http.post(url, data)
-        $http.get('results5.json')
-          .then(function(results) {
-            deferred.resolve(data);
+       // $http.get('results5.json')
+       //   .then(function(results) {
+       //     console.log(results);
+       //     deferred.resolve(results);
+       //   });
+        $http.post(url, data)
+          .success(function(data, status, headers, config){
+            console.log(data.url);
+            if (data.url !== 'error') {
+              $http.get(data.url)
+                .success(function(data, status, headers, config){
+                  deferred.resolve(data);
+                })
+                .error(function(data, status, headers, config){
+                  console.log('error');
+                });
+            }
+            else {
+              console.log('error');
+            }
+          })
+          .error(function(data, status, headers, config){
+            console.log("error");
           });
-         // .success(function(data, status, headers, config){
-         //   deferred.resolve(data);
-         // })
-         // .error(function(data, status, headers, config){
-         //   console.log('error');
-         // });
 
         return deferred.promise;
         // Must later account for user ???

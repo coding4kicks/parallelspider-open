@@ -5,9 +5,9 @@ describe('Controller: SplashdownCtrl', function() {
   // load the controller's module
   beforeEach(module('spiderwebApp'));
 
-  //beforeEach(inject(function($httpBackend) {
-  //  $httpBackend.whenGET('results5.json').respond({});
-  //})); 
+ // beforeEach(inject(function($httpBackend) {
+ //   $httpBackend.whenGET('results5.json').respond({});
+ // })); 
 
   beforeEach(inject(function($httpBackend) {
     $httpBackend.whenPOST('http://localhost:8000/gets3signature').respond({});
