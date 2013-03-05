@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService) {
+spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService, sessionService) {
 
   // A reminder to write some mother f'ing tests, dude!
   $scope.awesomeThings = [
@@ -8,7 +8,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     'AngularJS',
     'Testacular'
   ];
-
+  
   // General Analysis Information
   $scope.analysisList = ['myFirstAnalysis'];
   $scope.currentAnalysis = {'name': 'myFirstAnalysis', 'date': '10/12/2030'};
@@ -82,7 +82,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
   resultsService.getAnalysis('testAnalysis')
   //$http.get('results5.json')
     .then(function(results){
-
+        console.log(results);
         $scope.analysis = results.data;
 
         // determin analysis time in minute and seconds

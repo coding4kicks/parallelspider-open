@@ -2,24 +2,42 @@
 <div id="crawling">
   <div id="progress">
     <h3 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="info pointer">Info</h3>
-    <h1>Crawling</h1>
-    <div class="counters">
-      <div class="estimated-time">
-        <h4>{{time.minutes}} min {{time.seconds}} sec</h4>
-        <h5>Time Remaining</h5>
-      </div>
-      <div class="pages-crawled">
-        <h4>{{pagesCrawled}}</h4>
-        <h5>Pages Crawled</h5>
-      </div>
-      <div class="max-pages">
-        <h4>{{maxPages}}</h4>
-        <h5>Max Pages</h5>
+
+    <div ng-show="status.initializing">
+      <h1>Initializing</h1>      
+      <div id="floatingBarsG">
+        <div class="blockG" id="rotateG_01"></div>
+        <div class="blockG" id="rotateG_02"></div>
+        <div class="blockG" id="rotateG_03"></div>
+        <div class="blockG" id="rotateG_04"></div>
+        <div class="blockG" id="rotateG_05"></div>
+        <div class="blockG" id="rotateG_06"></div>
+        <div class="blockG" id="rotateG_07"></div>
+        <div class="blockG" id="rotateG_08"></div>
       </div>
     </div>
-    <div class="meter">
-	    <span ng-style="{ 'width': progress }"></span>
+
+    <div ng-show="status.crawling">
+      <h1>Crawling</h1>
+      <div class="counters">
+        <div class="estimated-time">
+          <h4>{{time.minutes}} min {{time.seconds}} sec</h4>
+          <h5>Time Remaining</h5>
+        </div>
+        <div class="pages-crawled">
+          <h4>{{pagesCrawled}}</h4>
+          <h5>Pages Crawled</h5>
+        </div>
+        <div class="max-pages">
+          <h4>{{maxPages}}</h4>
+          <h5>Max Pages</h5>
+        </div>
+      </div>
+      <div class="meter">
+	      <span ng-style="{ 'width': progress }"></span>
+      </div>
     </div>
+
     <div id="quote">
       <h3>{{quote.words}}</h3>
       <h4>{{quote.author}}</h4>

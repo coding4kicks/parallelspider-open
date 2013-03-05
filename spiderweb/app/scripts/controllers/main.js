@@ -254,6 +254,7 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
             
             if (data.loggedIn) {
               crawlService.setCrawlId(data.crawlId);
+              crawlService.setMaxPages($scope.crawl.maxPages);
               $location.path('/crawling');
               $scope.apply;
              
@@ -277,7 +278,11 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
       $http.post(url, requestData)
         .success(function(data, status, headers, config){
           if (data.loggedIn) {
+            if (typeof $scope.crawl.maxPages === "undefined") {
+              $scope.crawl.maxPages = 20;
+            }
             crawlService.setCrawlId(data.crawlId);
+            crawlService.setMaxPages($scope.crawl.maxPages);
             $location.path('/crawling');
             $scope.apply;
            

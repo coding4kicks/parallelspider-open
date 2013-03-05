@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, sessionService) {
+spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, $cookieStore, sessionService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -8,7 +8,7 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, sessionService
   ];
 
   // TODO: onload need to check for (and set) name in cookies
-  $scope.name = "" //empty if not logged in
+  $scope.name = sessionService.getUserName(); //empty if not logged in
 
   $scope.opts = {
     backdrop: true,
@@ -23,10 +23,19 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, sessionService
     d.open().then(function(result){
       if(result) {
         if (result.login === 'success') {
+
+          // set displayed name 
           $scope.name = result.name;
+
+          // set in session service
           sessionService.setUserName(result.name);
           sessionService.setShortSession(result.short_session);
           sessionService.setLongSession(result.long_session);
+
+          // set in cookie store
+          $cookieStore.put('ps_longsession', result.long_session);
+          $cookieStore.put('ps_shortsession', result.short_session);
+          $cookieStore.put('ps_username', result.name);
         }
         else {
           // login cancelled
@@ -38,8 +47,10 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, sessionService
 
   $scope.signout = function() {
 
+    // TODO:
     // need to logout out on server and remove session id from redis
     // need to remove local session cookie with user name
+    // shouldn't remove name until succeessful reply from server
     $scope.name = "";
   };
 

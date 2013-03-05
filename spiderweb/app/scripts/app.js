@@ -1,6 +1,6 @@
 'use strict';
 
-var spiderwebApp = angular.module('spiderwebApp', [])
+var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
   .config(['$routeProvider','$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider
       .when('/', {
@@ -56,26 +56,37 @@ var spiderwebApp = angular.module('spiderwebApp', [])
       });
 
     //$locationProvider.html5Mode(true);
-
+    
   }])
+
 
   ////////////////////////////
   // SERVICES
   ////////////////////////////
-  .service('resultsService', function ($http, $q) {
+  .service('resultsService', function ($http, $q, sessionService) {
     var currentAnalysis = {};
     
     return {
       getAnalysis:function (analysis) {
 
-        var deferred = $q.defer();
+        var url = 'http://localhost:8000/gets3signature',
+            data = {'analysis': 'test', 
+                    'shortSession': sessionService.getShortSession(),
+                    'longSession': sessionService.getLongSession() },
+            deferred = $q.defer();
 
+        //$http.post(url, data)
         $http.get('results5.json')
-          .then(function(results){
-            //alert(results.data.name);
-            //return(results);
-            deferred.resolve(results);
-        });
+          .then(function(results) {
+            deferred.resolve(data);
+          });
+         // .success(function(data, status, headers, config){
+         //   deferred.resolve(data);
+         // })
+         // .error(function(data, status, headers, config){
+         //   console.log('error');
+         // });
+
         return deferred.promise;
         // Must later account for user ???
         //return currentAnalysis;
@@ -120,18 +131,32 @@ var spiderwebApp = angular.module('spiderwebApp', [])
     };
   })
 
-  .service('crawlService', function ($http, $q) {
-    var crawlId = "";
+  .service('crawlService', function ($http, $q, sessionService) {
+    var crawlId = "",
+        maxPages = 0;
     
     return {
+      getCrawlId:function () {
+        return crawlId;
+      },
       setCrawlId:function (id) {
-        crawlId = id
+        crawlId = id;
+      },
+
+      getMaxPages:function () {
+        return maxPages;
+      },
+
+      setMaxPages:function (pages) {
+        maxPages = pages;
       },
 
       getCrawlStatus:function () {
 
         var url = 'http://localhost:8000/checkcrawlstatus',
-            data = {'id': crawlId},
+            data = {'id': crawlId, 
+                    'shortSession': sessionService.getShortSession(),
+                    'longSession': sessionService.getLongSession() },
             deferred = $q.defer();
 
 
@@ -147,6 +172,7 @@ var spiderwebApp = angular.module('spiderwebApp', [])
       }
     };
   })
+
 
   ////////////////////////////
   // DIRECTIVES
@@ -812,8 +838,19 @@ function Dialog(opts) {
       }
     };
   }];
-});
+})
 
+
+  ////////////////////////////
+  // Page Load Configuration
+  ////////////////////////////
+
+.run(function($cookieStore, sessionService) {
+  // Check for session tokens and name in cookies, yum yum
+  sessionService.setLongSession($cookieStore.get('ps_longsession'));
+  sessionService.setShortSession($cookieStore.get('ps_shortsession'));
+  sessionService.setUserName($cookieStore.get('ps_username'));    
+});
   ////////////////////////////
   // HELPER FUNCS
   ////////////////////////////

@@ -244,6 +244,10 @@ class InitiateCrawl(resource.Resource):
             self.redis.set(crawl_id, crawl)
             self.redis.expire(crawl_id, (60*60))
 
+            # Set crawl count key into Redis
+            self.redis.set(crawl_id + "_count", -1)
+            self.redis.expire(crawl_id + "_count", (60*60))
+
             # Set crawl id into Redis crawl queue
             self.redis.rpush("crawl_queue", crawl_id)
 
@@ -289,24 +293,85 @@ class CheckCrawlStatus(resource.Resource):
         if request.method == "OPTIONS":
             return ""
 
-        # TODO: check XSRF header
-        print('here we are')
+        data = json.loads(request.content.getvalue())
 
-        return """)]}',\n{"count": 10}"""
+        crawl_id = data['id']
+        short_session = data['shortSession'] 
+        long_session = data['longSession']
+
+        print crawl_id
+        print short_session
+
+        if self.redis.exists(short_session):
+
+            # set new expirations
+            self.redis.expire(short_session, self.shortExpire)
+            self.redis.expire(long_session, self.longExpire)
+
+            # retrieve crawl status
+            count = self.redis.get(crawl_id + "_count")
+            self.redis.expire(crawl_id + "_count", (60*60))
+
+            return """)]}',\n{"count": %s}""" % count
+
+        else:
+          return """)]}',\n{"count": -99}"""
+
 
 class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
 
+    def __init__(self, redis):
+        self.redis = redis
+
+        # Expiration Info
+        self.longExpire= (60 * 60 * 24) # 1 day
+        self.shortExpire = (60 * 60) # 1 hour
+
+        self.request = ""
+
     def render(self, request):
    
-        # TODO: check XSRF header
+        self.request = request
 
-        return """
-        <html>
-        <head><title>testHome</title></head>
-        <body><h1>CrawlInitiated</h1></body>
-        </html>
-        """
+        # Add headers prior to writing
+        self.request.setHeader('Content-Type', 'application/json')
+
+        # Set access control: CORS 
+        # TODO: refactor stuff out to function
+
+        # TODO: limit origins on live site?
+        self.request.setHeader('Access-Control-Allow-Origin', '*')
+        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
+        # Echo back all request headers
+        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+
+        # Return if preflight request
+        if request.method == "OPTIONS":
+            return ""
+
+        data = json.loads(request.content.getvalue())
+
+        userId = 'test' # get from longSession
+        analysis_object = data['analysis']
+        short_session = data['shortSession'] 
+        long_session = data['longSession']
+
+        if self.redis.exists(long_session):
+
+            # set new expirations
+            if self.redis.exists(short_session):
+              self.redis.expire(short_session, self.shortExpire)
+            self.redis.expire(long_session, self.longExpire)
+
+            # sign url 
+
+            return """)]}',\n{'result': 'test'}"""
+
+        else:
+            return """)]}',\n{"result": "error"}"""
+
 
 users = {
     'a': 'super mo',
@@ -335,7 +400,7 @@ if __name__ == "__main__":
     root.putChild('', HomePage())
     root.putChild('initiatecrawl', InitiateCrawl(r))
     root.putChild('checkcrawlstatus', CheckCrawlStatus(r))
-    root.putChild('gets3signature', GetS3Signature())
+    root.putChild('gets3signature', GetS3Signature(r))
     root.putChild('addnewuser', AddNewUser())
     root.putChild('checkusercredentials', CheckUserCredentials(p,r))
     root.putChild('passwordreminder', PasswordReminder())

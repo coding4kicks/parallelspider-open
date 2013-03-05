@@ -7081,3 +7081,237 @@ a.label:hover, a.badge:hover {
   -moz-animation: none;
   background-image: none;
 }
+
+/* line 875, ../../app/styles/main.scss */
+#floatingBarsG {
+  position: relative;
+  width: 62px;
+  height: 77px;
+  margin: 0px auto;
+}
+
+/* line 882, ../../app/styles/main.scss */
+.blockG {
+  position: absolute;
+  background-color: #DDDDDD;
+  width: 10px;
+  height: 24px;
+  -moz-border-radius: 8px 8px 0 0;
+  -moz-transform: scale(0.4);
+  -moz-animation-name: fadeG;
+  -moz-animation-duration: 0.8s;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-direction: linear;
+  -webkit-border-radius: 8px 8px 0 0;
+  -webkit-transform: scale(0.4);
+  -webkit-animation-name: fadeG;
+  -webkit-animation-duration: 0.8s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-direction: linear;
+  -ms-border-radius: 8px 8px 0 0;
+  -ms-transform: scale(0.4);
+  -ms-animation-name: fadeG;
+  -ms-animation-duration: 0.8s;
+  -ms-animation-iteration-count: infinite;
+  -ms-animation-direction: linear;
+  -o-border-radius: 8px 8px 0 0;
+  -o-transform: scale(0.4);
+  -o-animation-name: fadeG;
+  -o-animation-duration: 0.8s;
+  -o-animation-iteration-count: infinite;
+  -o-animation-direction: linear;
+  border-radius: 8px 8px 0 0;
+  transform: scale(0.4);
+  animation-name: fadeG;
+  animation-duration: 0.8s;
+  animation-iteration-count: infinite;
+  animation-direction: linear;
+}
+
+/* line 919, ../../app/styles/main.scss */
+#rotateG_01 {
+  left: 0;
+  top: 28px;
+  -moz-animation-delay: 0.3s;
+  -moz-transform: rotate(-90deg);
+  -webkit-animation-delay: 0.3s;
+  -webkit-transform: rotate(-90deg);
+  -ms-animation-delay: 0.3s;
+  -ms-transform: rotate(-90deg);
+  -o-animation-delay: 0.3s;
+  -o-transform: rotate(-90deg);
+  animation-delay: 0.3s;
+  transform: rotate(-90deg);
+}
+
+/* line 934, ../../app/styles/main.scss */
+#rotateG_02 {
+  left: 8px;
+  top: 10px;
+  -moz-animation-delay: 0.4s;
+  -moz-transform: rotate(-45deg);
+  -webkit-animation-delay: 0.4s;
+  -webkit-transform: rotate(-45deg);
+  -ms-animation-delay: 0.4s;
+  -ms-transform: rotate(-45deg);
+  -o-animation-delay: 0.4s;
+  -o-transform: rotate(-45deg);
+  animation-delay: 0.4s;
+  transform: rotate(-45deg);
+}
+
+/* line 949, ../../app/styles/main.scss */
+#rotateG_03 {
+  left: 26px;
+  top: 3px;
+  -moz-animation-delay: 0.5s;
+  -moz-transform: rotate(0deg);
+  -webkit-animation-delay: 0.5s;
+  -webkit-transform: rotate(0deg);
+  -ms-animation-delay: 0.5s;
+  -ms-transform: rotate(0deg);
+  -o-animation-delay: 0.5s;
+  -o-transform: rotate(0deg);
+  animation-delay: 0.5s;
+  transform: rotate(0deg);
+}
+
+/* line 964, ../../app/styles/main.scss */
+#rotateG_04 {
+  right: 8px;
+  top: 10px;
+  -moz-animation-delay: 0.6s;
+  -moz-transform: rotate(45deg);
+  -webkit-animation-delay: 0.6s;
+  -webkit-transform: rotate(45deg);
+  -ms-animation-delay: 0.6s;
+  -ms-transform: rotate(45deg);
+  -o-animation-delay: 0.6s;
+  -o-transform: rotate(45deg);
+  animation-delay: 0.6s;
+  transform: rotate(45deg);
+}
+
+/* line 979, ../../app/styles/main.scss */
+#rotateG_05 {
+  right: 0;
+  top: 28px;
+  -moz-animation-delay: 0.7s;
+  -moz-transform: rotate(90deg);
+  -webkit-animation-delay: 0.7s;
+  -webkit-transform: rotate(90deg);
+  -ms-animation-delay: 0.7s;
+  -ms-transform: rotate(90deg);
+  -o-animation-delay: 0.7s;
+  -o-transform: rotate(90deg);
+  animation-delay: 0.7s;
+  transform: rotate(90deg);
+}
+
+/* line 994, ../../app/styles/main.scss */
+#rotateG_06 {
+  right: 8px;
+  bottom: 7px;
+  -moz-animation-delay: 0.8s;
+  -moz-transform: rotate(135deg);
+  -webkit-animation-delay: 0.8s;
+  -webkit-transform: rotate(135deg);
+  -ms-animation-delay: 0.8s;
+  -ms-transform: rotate(135deg);
+  -o-animation-delay: 0.8s;
+  -o-transform: rotate(135deg);
+  animation-delay: 0.8s;
+  transform: rotate(135deg);
+}
+
+/* line 1009, ../../app/styles/main.scss */
+#rotateG_07 {
+  bottom: 0;
+  left: 26px;
+  -moz-animation-delay: 0.9s;
+  -moz-transform: rotate(180deg);
+  -webkit-animation-delay: 0.9s;
+  -webkit-transform: rotate(180deg);
+  -ms-animation-delay: 0.9s;
+  -ms-transform: rotate(180deg);
+  -o-animation-delay: 0.9s;
+  -o-transform: rotate(180deg);
+  animation-delay: 0.9s;
+  transform: rotate(180deg);
+}
+
+/* line 1024, ../../app/styles/main.scss */
+#rotateG_08 {
+  left: 8px;
+  bottom: 7px;
+  -moz-animation-delay: 1s;
+  -moz-transform: rotate(-135deg);
+  -webkit-animation-delay: 1s;
+  -webkit-transform: rotate(-135deg);
+  -ms-animation-delay: 1s;
+  -ms-transform: rotate(-135deg);
+  -o-animation-delay: 1s;
+  -o-transform: rotate(-135deg);
+  animation-delay: 1s;
+  transform: rotate(-135deg);
+}
+
+@-moz-keyframes fadeG {
+  /* line 1040, ../../app/styles/main.scss */
+  0% {
+    background-color: #4650BD;
+  }
+
+  /* line 1043, ../../app/styles/main.scss */
+  100% {
+    background-color: #DDDDDD;
+  }
+}
+
+@-webkit-keyframes fadeG {
+  /* line 1049, ../../app/styles/main.scss */
+  0% {
+    background-color: #4650BD;
+  }
+
+  /* line 1052, ../../app/styles/main.scss */
+  100% {
+    background-color: #DDDDDD;
+  }
+}
+
+@-ms-keyframes fadeG {
+  /* line 1058, ../../app/styles/main.scss */
+  0% {
+    background-color: #4650BD;
+  }
+
+  /* line 1061, ../../app/styles/main.scss */
+  100% {
+    background-color: #DDDDDD;
+  }
+}
+
+@-o-keyframes fadeG {
+  /* line 1067, ../../app/styles/main.scss */
+  0% {
+    background-color: #4650BD;
+  }
+
+  /* line 1070, ../../app/styles/main.scss */
+  100% {
+    background-color: #DDDDDD;
+  }
+}
+
+@keyframes fadeG {
+  /* line 1076, ../../app/styles/main.scss */
+  0% {
+    background-color: #4650BD;
+  }
+
+  /* line 1079, ../../app/styles/main.scss */
+  100% {
+    background-color: #DDDDDD;
+  }
+}
