@@ -10,7 +10,6 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
 
   // Get the max number of pages to crawl
   $scope.maxPages = crawlService.getMaxPages(); //TODO: get from crawlService
-  alert($scope.maxPages);
 
   // TODO: need to adjust for 20 page free, just start at 10 seconds?
   var remainingTime = $scope.maxPages/20; // (20 pages per second)

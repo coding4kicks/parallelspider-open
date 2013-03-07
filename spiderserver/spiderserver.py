@@ -221,7 +221,8 @@ class InitiateCrawl(resource.Resource):
         if request.method == "OPTIONS":
             return ""
 
-        data = json.loads(request.content.getvalue())
+        crawl_json = request.content.getvalue()
+        data = json.loads(crawl_json)
 
         short_session = data['shortSession'] 
         long_session = data['longSession']
@@ -241,8 +242,8 @@ class InitiateCrawl(resource.Resource):
 
             crawl_id = user + "-" + name + "-" + time + "-" + rand
 
-            # Set crawl info into Redis
-            self.redis.set(crawl_id, crawl)
+            # Set crawl json info into Redis
+            self.redis.set(crawl_id, crawl_json)
             self.redis.expire(crawl_id, (60*60))
 
             # Set crawl count key into Redis
@@ -299,9 +300,6 @@ class CheckCrawlStatus(resource.Resource):
         crawl_id = data['id']
         short_session = data['shortSession'] 
         long_session = data['longSession']
-
-        print crawl_id
-        print short_session
 
         if self.redis.exists(short_session):
 
