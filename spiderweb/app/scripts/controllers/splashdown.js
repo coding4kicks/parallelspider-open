@@ -93,24 +93,24 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
           // Eliminate certain resutls for testing
-          $scope.analysis.sites[i].internalResults.selectors = {};
-          $scope.analysis.sites[i].externalResults.selectors = {};
-          $scope.analysis.sites[i].internalResults.synonymRings = {};
-          $scope.analysis.sites[i].externalResults.synonymRings = {};
-          $scope.analysis.sites[i].internalResults.context = {};
-          $scope.analysis.sites[i].externalResults.context = {};
-          $scope.analysis.sites[i].internalResults.visibleText = {};
-          $scope.analysis.sites[i].externalResults.visibleText = {};
-          $scope.analysis.sites[i].internalResults.hiddenText = {};
-          $scope.analysis.sites[i].externalResults.hiddenText = {};
-          $scope.analysis.sites[i].internalResults.headlineText = {};
-          $scope.analysis.sites[i].externalResults.headlineText = {};
-          //$scope.analysis.sites[i].internalResults.allLinks = {};
-          $scope.analysis.sites[i].externalResults.allLinks = {};
-          //$scope.analysis.sites[i].internalResults.externalDomains = {};
-          $scope.analysis.sites[i].externalResults.externalDomains = {};
-          //$scope.analysis.sites[i].internalResults.linkText = {};
-          $scope.analysis.sites[i].externalResults.linkText = {};
+         // $scope.analysis.sites[i].internalResults.selectors = {};
+         // $scope.analysis.sites[i].externalResults.selectors = {};
+         // $scope.analysis.sites[i].internalResults.synonymRings = {};
+         // $scope.analysis.sites[i].externalResults.synonymRings = {};
+         // $scope.analysis.sites[i].internalResults.context = {};
+         // $scope.analysis.sites[i].externalResults.context = {};
+         // $scope.analysis.sites[i].internalResults.visibleText = {};
+         // $scope.analysis.sites[i].externalResults.visibleText = {};
+         // $scope.analysis.sites[i].internalResults.hiddenText = {};
+         // $scope.analysis.sites[i].externalResults.hiddenText = {};
+         // $scope.analysis.sites[i].internalResults.headlineText = {};
+         // $scope.analysis.sites[i].externalResults.headlineText = {};
+         // $scope.analysis.sites[i].internalResults.allLinks = {};
+         // $scope.analysis.sites[i].externalResults.allLinks = {};
+         // $scope.analysis.sites[i].internalResults.externalDomains = {};
+         // $scope.analysis.sites[i].externalResults.externalDomains = {};
+         // $scope.analysis.sites[i].internalResults.linkText = {};
+         // $scope.analysis.sites[i].externalResults.linkText = {};
 
           $scope.summary.totalPages = $scope.summary.totalPages + $scope.analysis.sites[i].internalResults.summary.pages.count;
           $scope.summary.totalPages = $scope.summary.totalPages + $scope.analysis.sites[i].externalResults.summary.pages.count;

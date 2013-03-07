@@ -14,9 +14,10 @@ class MockCrawl(object):
 
         if self.count < self.max_pages:
             self.local_redis.set(self.crawl_id + "_count", self.count)
-            #self.count = self.count + 100 # Normal speed
-            self.count = self.count + 50 # Slow Speed
-            print self.count
+            self.count = self.count + 100 # Normal speed
+            #self.count = self.count + 50 # Slow speed
+            #self.count = self.count + 150 # Fast speed
+            #print self.count
 
         else:
             self.local_redis.set(self.crawl_id + "_count", -2)

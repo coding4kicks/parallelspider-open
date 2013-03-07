@@ -69,12 +69,24 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
   };
 
   var crawling = function(progressNumber) {
+
+
+    // Once complete, redirect to splashdown
+    if ($scope.pageCount.count === -2) {
+      $location.path('/splashdown');
+      $scope.apply;
+    }
+
+    // If too far behind server count, jump pages crawled
+    // TODO: Need separate adjustment for time?
+    if (($scope.pageCount.count - $scope.pagesCrawled) > 100) {
+      $scope.pagesCrawled = $scope.pageCount.count;
+    }
    
     // Only increment bar and counters if less than max
-    if ($scope.pagesCrawled < $scope.maxPages) {
-
-      // Need a mechanism to slow down and stop counter if pageCount.count
-      // gets too far behind
+    // and if not too far ahead of actual count on server
+    if ($scope.pagesCrawled < $scope.maxPages &&
+        ($scope.pagesCrawled - $scope.pageCount.count) < 100) {
     
       // Time remaining should count down evey second
       if (counter % 20 === 0) {
@@ -95,12 +107,6 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
         $scope.quote = $scope.quoteList[Math.floor((Math.random()*$scope.quoteList.length))];
       }
 
-    }
-
-    // Once complete, redirect to splashdown
-    if ($scope.pageCount.count === -2) {
-      $location.path('/splashdown');
-      $scope.apply;
     }
 
     // Update page count every 5 seconds
