@@ -257,7 +257,7 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
               crawlService.setMaxPages($scope.crawl.maxPages);
               $location.path('/crawling');
               $scope.apply;
-             
+  
             }
             else {
               $scope.openLogin();

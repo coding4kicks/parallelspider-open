@@ -9,6 +9,7 @@ import uuid
 import datetime
 import base64
 import boto
+import optparse
 
 
 # AUTHENTICATION
@@ -393,11 +394,35 @@ passwords = {
 
 if __name__ == "__main__":
 
+    # Parse command line options and arguments.
+    usage = "usage: %prog [options]"
+    parser = optparse.OptionParser(usage)
+
+    # Central Redis host info - default is localhost
+    parser.add_option(
+            "-c", "-C", "--centralRedisHost", action="store", 
+            default="localhost", dest="centralRedisHost", 
+            help="Set Central Redis host information. [default: %default]")
+
+    # Central Redis port info - default is 6379
+    parser.add_option(
+            "-p", "-P", "--centralRedisPort", action="store", 
+            default="6379", dest="centralRedisPort", 
+            help="Set Central Redis port information. [default: %default]")
+
+    (options, args) = parser.parse_args()
+    central_redis_host = options.centralRedisHost
+    central_redis_port = int(options.centralRedisPort)
+    if central_redis_port < 1:
+        parser.error("Central Redis port number must be greater than 0")
+
+    # Credentials / Authentication info
     p = portal.Portal(TestRealm(users))
     p.registerChecker(PasswordDictChecker(passwords))
 
-    # hardcode for now
-    redis_info = {'host': 'localhost', 'port': 6379}
+    # Initialize Central Redis connection to 
+    redis_info = {'host': central_redis_host, 
+                  'port': central_redis_port}
     r = redis.StrictRedis(host=redis_info["host"],
                               port=int(redis_info["port"]), db=0)
 

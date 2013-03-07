@@ -87,18 +87,20 @@ class CrawlTracker(object):
     reactor.callLater(5, self.checkCrawlStatus)
 
 
-# hardcode for now
-# Central Redis Info 
-central_redis_info = {'host': 'localhost', 'port': 6379}
-central_redis = redis.StrictRedis(host=central_redis_info["host"],
-                      port=int(central_redis_info["port"]), db=0)
-# local redis is for one particular analysis engine
-local_redis_info = {'host': 'localhost', 'port': 6389}
-local_redis = redis.StrictRedis(host=local_redis_info["host"],
-                      port=int(local_redis_info["port"]), db=0)
+if __name__ == "__main__":
+
+    # hardcode for now
+    # Central Redis Info 
+    central_redis_info = {'host': 'localhost', 'port': 6379}
+    central_redis = redis.StrictRedis(host=central_redis_info["host"],
+                          port=int(central_redis_info["port"]), db=0)
+    # local redis is for one particular analysis engine
+    local_redis_info = {'host': 'localhost', 'port': 6389}
+    local_redis = redis.StrictRedis(host=local_redis_info["host"],
+                          port=int(local_redis_info["port"]), db=0)
 
 
-tracker = CrawlTracker(central_redis, local_redis)
-reactor.callWhenRunning(tracker.checkRedisQueue)
-reactor.callWhenRunning(tracker.checkCrawlStatus)
-reactor.run()
+    tracker = CrawlTracker(central_redis, local_redis)
+    reactor.callWhenRunning(tracker.checkRedisQueue)
+    reactor.callWhenRunning(tracker.checkCrawlStatus)
+    reactor.run()
