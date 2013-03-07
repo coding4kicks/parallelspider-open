@@ -6935,6 +6935,14 @@ a.label:hover, a.badge:hover {
 }
 
 /* line 716, ../../app/styles/main.scss */
+.crawl-image {
+  float: left;
+  height: 100px;
+  width: 100px;
+  margin-top: -100px;
+}
+
+/* line 723, ../../app/styles/main.scss */
 #quote {
   *zoom: 1;
   height: 150px;
@@ -6950,7 +6958,7 @@ a.label:hover, a.badge:hover {
 #quote:after {
   clear: both;
 }
-/* line 722, ../../app/styles/main.scss */
+/* line 729, ../../app/styles/main.scss */
 #quote h4 {
   float: right;
   margin-top: -10px;
@@ -6958,7 +6966,7 @@ a.label:hover, a.badge:hover {
   color: orange;
 }
 
-/* line 733, ../../app/styles/main.scss */
+/* line 740, ../../app/styles/main.scss */
 .meter {
   height: 20px;
   position: relative;
@@ -6973,7 +6981,7 @@ a.label:hover, a.badge:hover {
   box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.3);
 }
 
-/* line 746, ../../app/styles/main.scss */
+/* line 753, ../../app/styles/main.scss */
 .meter > span {
   display: block;
   height: 100%;
@@ -6999,7 +7007,7 @@ a.label:hover, a.badge:hover {
   overflow: hidden;
 }
 
-/* line 786, ../../app/styles/main.scss */
+/* line 793, ../../app/styles/main.scss */
 .meter > span:after, .animate > span > span {
   content: "";
   position: absolute;
@@ -7030,36 +7038,36 @@ a.label:hover, a.badge:hover {
   overflow: hidden;
 }
 
-/* line 830, ../../app/styles/main.scss */
+/* line 837, ../../app/styles/main.scss */
 .animate > span:after {
   display: none;
 }
 
 @-webkit-keyframes move {
-  /* line 835, ../../app/styles/main.scss */
+  /* line 842, ../../app/styles/main.scss */
   0% {
     background-position: 0 0;
   }
 
-  /* line 838, ../../app/styles/main.scss */
+  /* line 845, ../../app/styles/main.scss */
   100% {
     background-position: 50px 50px;
   }
 }
 
 @-moz-keyframes move {
-  /* line 844, ../../app/styles/main.scss */
+  /* line 851, ../../app/styles/main.scss */
   0% {
     background-position: 0 0;
   }
 
-  /* line 847, ../../app/styles/main.scss */
+  /* line 854, ../../app/styles/main.scss */
   100% {
     background-position: 50px 50px;
   }
 }
 
-/* line 853, ../../app/styles/main.scss */
+/* line 860, ../../app/styles/main.scss */
 .orange > span {
   background-color: #f1a165;
   background-image: -moz-linear-gradient(top, #f1a165, #f36d0a);
@@ -7067,7 +7075,7 @@ a.label:hover, a.badge:hover {
   background-image: -webkit-linear-gradient(#f1a165, #f36d0a);
 }
 
-/* line 860, ../../app/styles/main.scss */
+/* line 867, ../../app/styles/main.scss */
 .red > span {
   background-color: #f0a3a3;
   background-image: -moz-linear-gradient(top, #f0a3a3, #f42323);
@@ -7075,14 +7083,14 @@ a.label:hover, a.badge:hover {
   background-image: -webkit-linear-gradient(#f0a3a3, #f42323);
 }
 
-/* line 867, ../../app/styles/main.scss */
+/* line 874, ../../app/styles/main.scss */
 .nostripes > span > span, .nostripes > span:after {
   -webkit-animation: none;
   -moz-animation: none;
   background-image: none;
 }
 
-/* line 875, ../../app/styles/main.scss */
+/* line 882, ../../app/styles/main.scss */
 #floatingBarsG {
   position: relative;
   width: 62px;
@@ -7090,7 +7098,7 @@ a.label:hover, a.badge:hover {
   margin: 0px auto;
 }
 
-/* line 882, ../../app/styles/main.scss */
+/* line 889, ../../app/styles/main.scss */
 .blockG {
   position: absolute;
   background-color: #DDDDDD;
@@ -7128,7 +7136,7 @@ a.label:hover, a.badge:hover {
   animation-direction: linear;
 }
 
-/* line 919, ../../app/styles/main.scss */
+/* line 926, ../../app/styles/main.scss */
 #rotateG_01 {
   left: 0;
   top: 28px;
@@ -7144,7 +7152,7 @@ a.label:hover, a.badge:hover {
   transform: rotate(-90deg);
 }
 
-/* line 934, ../../app/styles/main.scss */
+/* line 941, ../../app/styles/main.scss */
 #rotateG_02 {
   left: 8px;
   top: 10px;
@@ -7160,7 +7168,7 @@ a.label:hover, a.badge:hover {
   transform: rotate(-45deg);
 }
 
-/* line 949, ../../app/styles/main.scss */
+/* line 956, ../../app/styles/main.scss */
 #rotateG_03 {
   left: 26px;
   top: 3px;
@@ -7176,7 +7184,7 @@ a.label:hover, a.badge:hover {
   transform: rotate(0deg);
 }
 
-/* line 964, ../../app/styles/main.scss */
+/* line 971, ../../app/styles/main.scss */
 #rotateG_04 {
   right: 8px;
   top: 10px;
@@ -7192,7 +7200,7 @@ a.label:hover, a.badge:hover {
   transform: rotate(45deg);
 }
 
-/* line 979, ../../app/styles/main.scss */
+/* line 986, ../../app/styles/main.scss */
 #rotateG_05 {
   right: 0;
   top: 28px;
@@ -7208,7 +7216,7 @@ a.label:hover, a.badge:hover {
   transform: rotate(90deg);
 }
 
-/* line 994, ../../app/styles/main.scss */
+/* line 1001, ../../app/styles/main.scss */
 #rotateG_06 {
   right: 8px;
   bottom: 7px;
@@ -7224,7 +7232,7 @@ a.label:hover, a.badge:hover {
   transform: rotate(135deg);
 }
 
-/* line 1009, ../../app/styles/main.scss */
+/* line 1016, ../../app/styles/main.scss */
 #rotateG_07 {
   bottom: 0;
   left: 26px;
@@ -7240,7 +7248,7 @@ a.label:hover, a.badge:hover {
   transform: rotate(180deg);
 }
 
-/* line 1024, ../../app/styles/main.scss */
+/* line 1031, ../../app/styles/main.scss */
 #rotateG_08 {
   left: 8px;
   bottom: 7px;
@@ -7257,60 +7265,60 @@ a.label:hover, a.badge:hover {
 }
 
 @-moz-keyframes fadeG {
-  /* line 1040, ../../app/styles/main.scss */
+  /* line 1047, ../../app/styles/main.scss */
   0% {
     background-color: #4650BD;
   }
 
-  /* line 1043, ../../app/styles/main.scss */
+  /* line 1050, ../../app/styles/main.scss */
   100% {
     background-color: #DDDDDD;
   }
 }
 
 @-webkit-keyframes fadeG {
-  /* line 1049, ../../app/styles/main.scss */
+  /* line 1056, ../../app/styles/main.scss */
   0% {
     background-color: #4650BD;
   }
 
-  /* line 1052, ../../app/styles/main.scss */
+  /* line 1059, ../../app/styles/main.scss */
   100% {
     background-color: #DDDDDD;
   }
 }
 
 @-ms-keyframes fadeG {
-  /* line 1058, ../../app/styles/main.scss */
+  /* line 1065, ../../app/styles/main.scss */
   0% {
     background-color: #4650BD;
   }
 
-  /* line 1061, ../../app/styles/main.scss */
+  /* line 1068, ../../app/styles/main.scss */
   100% {
     background-color: #DDDDDD;
   }
 }
 
 @-o-keyframes fadeG {
-  /* line 1067, ../../app/styles/main.scss */
+  /* line 1074, ../../app/styles/main.scss */
   0% {
     background-color: #4650BD;
   }
 
-  /* line 1070, ../../app/styles/main.scss */
+  /* line 1077, ../../app/styles/main.scss */
   100% {
     background-color: #DDDDDD;
   }
 }
 
 @keyframes fadeG {
-  /* line 1076, ../../app/styles/main.scss */
+  /* line 1083, ../../app/styles/main.scss */
   0% {
     background-color: #4650BD;
   }
 
-  /* line 1079, ../../app/styles/main.scss */
+  /* line 1086, ../../app/styles/main.scss */
   100% {
     background-color: #DDDDDD;
   }
