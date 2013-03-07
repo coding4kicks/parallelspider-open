@@ -426,6 +426,7 @@ if __name__ == "__main__":
     r = redis.StrictRedis(host=redis_info["host"],
                               port=int(redis_info["port"]), db=0)
 
+    # Set up site and resources
     root = resource.Resource()
     root.putChild('', HomePage())
     root.putChild('initiatecrawl', InitiateCrawl(r))
@@ -436,6 +437,7 @@ if __name__ == "__main__":
     root.putChild('passwordreminder', PasswordReminder())
     site = server.Site(root)
 
+    # Run the twisted server
     reactor.listenTCP(8000, site)
     reactor.run()
 
