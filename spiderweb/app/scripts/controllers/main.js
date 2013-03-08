@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location, sessionService, crawlService) {
+spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location, sessionService, crawlService, configService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -220,10 +220,13 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
   ////////////////////////////
   $scope.attemptedSubmission = false;
 
-  // TODO: refactor crawl to list of items so can iterate through on server
-
+  // TODO: refactor crawl to list of items so can iterate through on server???
+  // TODO: Need a configuration service so host can be adjusted for local/deploy
   $scope.crawlSite = function() {
-    var url = 'http://localhost:8000/initiatecrawl',
+
+    // Configure resource fetch details
+    var url = configService.getProtocol() + '://' + 
+              configService.getHost() + '/initiatecrawl',
         requestData = {},
         now = new Date().toString();
 

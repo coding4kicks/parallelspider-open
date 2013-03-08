@@ -69,7 +69,7 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, $cookieStore, 
 });
 
 // the dialog is injected in the specified controller
-function LoginController($scope, $http, dialog){
+function LoginController($scope, $http, dialog, configService){
 
   $scope.error = {};
   $scope.error.show = false;
@@ -87,7 +87,9 @@ function LoginController($scope, $http, dialog){
           typeof result.password !== 'undefined' &&
           result.password !== "") {
 
-        var url = 'http://localhost:8000/checkusercredentials',
+        // Configure resource fetch details
+        var url = configService.getProtocol() + '://' + 
+                  configService.getHost() + '/checkusercredentials',
             data = {};
 
         data.user = result.user;

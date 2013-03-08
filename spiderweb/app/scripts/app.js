@@ -63,14 +63,41 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
   ////////////////////////////
   // SERVICES
   ////////////////////////////
-  .service('resultsService', function ($http, $q, sessionService) {
+  .service('configService', function() {
+    // change4deployment
+    var host = 'localhost:8000',
+        protocol = 'http';
+
+    return {
+      setHost: function (configHost) {
+        host = configHost;
+      },
+      getHost: function () {
+        return host;
+      },
+      setProtocol: function (configProtocol) {
+        protocol = configProtocol;
+      },
+      getProtocol: function () {
+        return protocol;
+      }
+
+    };
+  })
+
+  .service('resultsService', function ($http, $q, sessionService, configService) {
+
+    // Where am I setting this???
+    // Either get the results passed, the current if one is set, or none
     var currentAnalysis = {};
     
     return {
       getAnalysis:function (analysis) {
 
-        var url = 'http://localhost:8000/gets3signature',
-            data = {'analysis': 'results.json', 
+        // Configure resource fetch details
+        var url = configService.getProtocol() + '://' + 
+                  configService.getHost() + '/gets3signature',
+            data = {'analysis': 'results.json', // TODO: Need to get this from somewher???
                     'shortSession': sessionService.getShortSession(),
                     'longSession': sessionService.getLongSession() },
             deferred = $q.defer();
@@ -137,14 +164,14 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
       setUserName: function (name) {
         userName = name;
       },
-      getUserName: function (name) {
+      getUserName: function () {
         // try to get from cookie if empty
         return userName;
       }
     };
   })
 
-  .service('crawlService', function ($http, $q, sessionService) {
+  .service('crawlService', function ($http, $q, sessionService, configService) {
     var crawlId = "",
         maxPages = 0;
     
@@ -166,7 +193,9 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
 
       getCrawlStatus:function () {
 
-        var url = 'http://localhost:8000/checkcrawlstatus',
+        // Configure resource fetch details
+        var url = configService.getProtocol() + '://' + 
+                  configService.getHost() + '/checkcrawlstatus',
             data = {'id': crawlId, 
                     'shortSession': sessionService.getShortSession(),
                     'longSession': sessionService.getLongSession() },

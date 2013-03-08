@@ -54,10 +54,14 @@ class CrawlTracker(object):
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
 
-        # Add it to Sun Grid Engine
+        ###
+        ### Add it to Sun Grid Engine
+        ### (should enable and disable depending upon if mocking remote)
+        ###
         print('starting crawl job')
 
         # FOR TESTING
+        # (should enable and disable depending upon if mocking remote)
         crawl_data = json.loads(crawl_info)
         crawl_details = crawl_data['crawl']
         if 'maxPages' in crawl_details:

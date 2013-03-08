@@ -370,6 +370,7 @@ class GetS3Signature(resource.Resource):
             url = s3conn.generate_url(30, 'GET', bucket='ps_users', key='test/results5.json')
  
             # Temporarily overwrite url so don't continuously pull 10mb from AWS
+            # TODO: make so disable/enable with mock backend
             url = "results5.json"
 
             return """)]}',\n{"url": "%s"}""" % url
