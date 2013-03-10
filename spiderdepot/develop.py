@@ -5,11 +5,11 @@ import fabric.api as fab
 import os
 import subprocess
 
-import server
 
 @fab.task
 def test(word=None):
-
+    
+    import server
     server.start('local')
 
     #if word:
@@ -29,7 +29,9 @@ def test(word=None):
 
 @fab.task(default=True)
 def local():
-    """ Start local development environment for Parallel Spider """
+
+    import server
+    import engine
     
     # Start central Redis
     cmd_line = "redis-server"
@@ -44,13 +46,17 @@ def local():
     cwd="/Users/scottyoung/projects/parallelspider/spiderweb"
     p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
-    # Start Spider Server 
+    # Start Spider Server
     server.start('local')
+    #cmd_line = "python spiderserver.py"
+    #cwd="/Users/scottyoung/projects/parallelspider/spiderserver"
+    #p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
-    # Start Spider Client
-    cmd_line = "python spiderclient.py"
-    cwd="/Users/scottyoung/projects/parallelspider/parallelspider"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    # Start Spider Engine (local mock client only)
+    engine.start('local')
+    #cmd_line = "python spiderclient.py"
+    #cwd="/Users/scottyoung/projects/parallelspider/parallelspider"
+    #p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
     # Start testacular
     # Use fab for last/one item so ctrl-c will kill all processes
