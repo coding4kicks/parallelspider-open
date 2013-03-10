@@ -8,18 +8,28 @@ def hello():
     #p = subprocess.Popen(cmd_line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     #out = p.communicate()[0]
     
-    # Start central redis
+    # Start central Redis
     cmd_line = "redis-server"
     p = subprocess.Popen(cmd_line, shell=True)
 
-    # Start local redis
+    # Start local Redis
     cmd_line = "echo 'port 6389' | redis-server -"
     p = subprocess.Popen(cmd_line, shell=True)
 
-    # Start yeoman
+    # Start Yeoman
     cmd_line = "yeoman server"
     p = subprocess.Popen(cmd_line, shell=True,
                          cwd="/Users/scottyoung/projects/parallelspider/spiderweb")
+
+    # Start Spider Server
+    cmd_line = "python spiderserver.py"
+    p = subprocess.Popen(cmd_line, shell=True,
+                         cwd="/Users/scottyoung/projects/parallelspider/spiderserver")
+
+    # Start Spider Client
+    cmd_line = "python spiderclient.py"
+    p = subprocess.Popen(cmd_line, shell=True,
+                         cwd="/Users/scottyoung/projects/parallelspider/parallelspider")
 
     # Start testacular
     with lcd("~/projects/parallelspider/spiderweb/"):
