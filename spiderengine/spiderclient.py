@@ -6,33 +6,33 @@ import optparse
 
 
 class MockCrawl(object):
-    def __init__(self, crawl_id, max_pages, local_redis):
+    def __init__(self, crawl_id, max_pages, engine_redis):
         self.crawl_id = crawl_id
         self.max_pages = max_pages
-        self.local_redis = local_redis
+        self.engine_redis = engine_redis
         self.count = 0
 
     def run(self):
 
         if self.count < self.max_pages:
-            self.local_redis.set(self.crawl_id + "_count", self.count)
+            self.engine_redis.set(self.crawl_id + "_count", self.count)
             self.count = self.count + 100 # Normal speed
             #self.count = self.count + 50 # Slow speed
             #self.count = self.count + 150 # Fast speed
             #print self.count
 
         else:
-            self.local_redis.set(self.crawl_id + "_count", -2)
+            self.engine_redis.set(self.crawl_id + "_count", -2)
 
         reactor.callLater(5, self.run)
 
 class CrawlTracker(object):
   """ Class to handle analysis job initialization and tracking """
 
-  def __init__(self, central_redis, local_redis):
+  def __init__(self, central_redis, engine_redis):
     self.crawlQueue = []
     self.central_redis = central_redis
-    self.local_redis = local_redis
+    self.engine_redis = engine_redis
 
   def checkRedisQueue(self):
     """ Checks the Central Redis server for jobs and passes them to Grid Engine.
@@ -49,7 +49,7 @@ class CrawlTracker(object):
         crawl_info = self.central_redis.get(crawl_id)
 
         # Add crawl info to local
-        self.local_redis.set(crawl_id, crawl_info)
+        self.engine_redis.set(crawl_id, crawl_info)
 
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
@@ -81,9 +81,9 @@ class CrawlTracker(object):
 
     for crawl_id in self.crawlQueue:
 
-        # Retrieve page count from local and set in central redis
+        # Retrieve page count from engine and set in central redis
         #print "retrieving crawl status for " + crawl_id
-        page_count = self.local_redis.get(crawl_id + "_count")
+        page_count = self.engine_redis.get(crawl_id + "_count")
         self.central_redis.set(crawl_id + "_count", page_count)
 
         # If page count is complete (-2), remove from queue
@@ -111,41 +111,33 @@ if __name__ == "__main__":
             default="6379", dest="centralRedisPort", 
             help="Set Central Redis port information. [default: %default]")
 
-    # Local Redis host info - default is localhost
+    # Engine Redis host info - default is localhost
     parser.add_option(
-            "-l", "-L", "--localRedisHost", action="store", 
-            default="localhost", dest="localRedisHost", 
+            "-e", "-E", "--engineRedisHost", action="store", 
+            default="localhost", dest="engineRedisHost", 
             help="Set Local Redis host information. [default: %default]")
 
-    # Central Redis port info - default is 6379
+    # Engine Redis port info - default is 6380
     parser.add_option(
-            "-q", "-Q", "--localRedisPort", action="store", 
-            default="6379", dest="localRedisPort", 
+            "-q", "-Q", "--engineRedisPort", action="store", 
+            default="6380", dest="engineRedisPort", 
             help="Set Local Redis port information. [default: %default]")
 
     (options, args) = parser.parse_args()
-    central_redis_host = options.centralRedisHost
-    central_redis_port = int(options.centralRedisPort)
-    local_redis_host = options.centralRedisHost
-    local_redis_port = int(options.centralRedisPort)
-    if central_redis_port < 1:
+    if int(options.centralRedisPort) < 1:
         parser.error("Central Redis port number must be greater than 0")
-    if local_redis_port < 1:
-        parser.error("Central Redis port number must be greater than 0")
+    if int(options.engineRedisPort) < 1:
+        parser.error("Engine Redis port number must be greater than 0")
 
     # Central Redis info 
-    central_redis_info = {'host': central_redis_host,
-                          'port': central_redis_port}
-    central_redis = redis.StrictRedis(host=central_redis_info["host"],
-                          port=int(central_redis_info["port"]), db=0)
-    # Local Redis info - local to an analysis engine
-    local_redis_info = {'host': local_redis_host,
-                        'port': local_redis_port}
-    local_redis = redis.StrictRedis(host=local_redis_info["host"],
-                          port=int(local_redis_info["port"]), db=0)
+    central_redis = redis.StrictRedis(host=options.centralRedisHost,
+                          port=int(options.centralRedisPort), db=0)
+    # Engine Redis info - local to an analysis engine
+    engine_redis = redis.StrictRedis(host=options.engineRedisHost,
+                          port=int(options.engineRedisPort), db=0)
 
     # Run twisted client
-    tracker = CrawlTracker(central_redis, local_redis)
+    tracker = CrawlTracker(central_redis, engine_redis)
     reactor.callWhenRunning(tracker.checkRedisQueue)
     reactor.callWhenRunning(tracker.checkCrawlStatus)
     reactor.run()

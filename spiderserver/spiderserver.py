@@ -411,21 +411,35 @@ if __name__ == "__main__":
             default="6379", dest="centralRedisPort", 
             help="Set Central Redis port information. [default: %default]")
 
+    # User Redis host info - default is localhost
+    parser.add_option(
+            "-u", "-U", "--userRedisHost", action="store", 
+            default="localhost", dest="userRedisHost", 
+            help="Set User Redis host information. [default: %default]")
+
+    # User Redis port info - default is 6378
+    parser.add_option(
+            "-q", "-Q", "--userRedisPort", action="store", 
+            default="6378", dest="userRedisPort", 
+            help="Set User Redis port information. [default: %default]")
+
     (options, args) = parser.parse_args()
-    central_redis_host = options.centralRedisHost
-    central_redis_port = int(options.centralRedisPort)
-    if central_redis_port < 1:
+    if int(options.centralRedisPort) < 1:
         parser.error("Central Redis port number must be greater than 0")
+    if int(options.userRedisPort) < 1:
+        parser.error("User Redis port number must be greater than 0")
 
     # Credentials / Authentication info
     p = portal.Portal(TestRealm(users))
     p.registerChecker(PasswordDictChecker(passwords))
 
     # Initialize Central Redis connection to 
-    redis_info = {'host': central_redis_host, 
-                  'port': central_redis_port}
-    r = redis.StrictRedis(host=redis_info["host"],
-                              port=int(redis_info["port"]), db=0)
+    r = redis.StrictRedis(host=options.centralRedisHost,
+                              port=int(options.centralRedisPort), db=0)
+
+    # Initialize User Redis connection to 
+    r = redis.StrictRedis(host=options.userRedisHost,
+                              port=int(options.userRedisPort), db=0)
 
     # Set up site and resources
     root = resource.Resource()
