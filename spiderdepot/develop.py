@@ -12,20 +12,6 @@ def test(word=None):
     import server
     server.start('local')
 
-    #if word:
-    #    print "what up" + word
-
-    #print (os.environ['S3_LOCATION'])
-
-    #os.environ['TEST'] = 'testing'
-
-    #print(os.environ['TEST'])
-
-    # Start central Redis
-    #cmd_line = "redis-server"
-    #p = subprocess.Popen(cmd_line, shell=True)
-    #print (p.pid)
-
 
 @fab.task(default=True)
 def local():
@@ -33,11 +19,11 @@ def local():
     import server
     import engine
     
-    # Start central Redis
+    # Start Central Redis
     cmd_line = "redis-server"
     p = subprocess.Popen(cmd_line, shell=True)
 
-    # Start local Redis
+    # Start Engine Redis
     cmd_line = "echo 'port 6389' | redis-server -"
     p = subprocess.Popen(cmd_line, shell=True)
 
