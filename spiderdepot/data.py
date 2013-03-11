@@ -25,3 +25,27 @@ def start(type='kvs', conf='redis'):
         cmd_line = "redis-server " + path + "spiderdata/" + conf + ".conf"
         p = subprocess.Popen(cmd_line, shell=True)
 
+@fab.task
+def stop(type='kvs', conf='redis'):
+
+    # Stop Spider Engine on localhost
+    if type == 'kvs':
+
+        # Get a list of all processes
+        p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
+        out, err = p.communicate()
+
+        # Kill any process with spiderclient in the name
+        for line in out.splitlines():
+            if conf in line:
+                pid = int(line.split(None, 1)[0])
+                os.kill(pid, signal.SIGKILL)
+
+@fab.task
+def restart(type='kvs', conf='redis'):
+
+    # Restart Key Value Store
+    if type == 'kvs':
+        stop(type, conf)
+        start(type, conf)
+
