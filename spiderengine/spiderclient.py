@@ -68,7 +68,7 @@ class CrawlTracker(object):
             max_pages = crawl_details['maxPages']
         else:
             max_pages = 20
-        mock = MockCrawl(crawl_id, max_pages, local_redis)
+        mock = MockCrawl(crawl_id, max_pages, engine_redis)
         mock.run()
         # END TESTING
   
