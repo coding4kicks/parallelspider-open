@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, $cookieStore, sessionService) {
+spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, $cookieStore, $http, sessionService, configService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -46,12 +46,31 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, $cookieStore, 
   };
 
   $scope.signout = function() {
+    // TODO: need to remove local session cookie with user name
 
-    // TODO:
-    // need to logout out on server and remove session id from redis
-    // need to remove local session cookie with user name
-    // shouldn't remove name until succeessful reply from server
-    $scope.name = "";
+    // Configure resource fetch details
+    var url = configService.getProtocol() + '://' + 
+              configService.getHost() + '/signout',
+        data = {'shortSession': sessionService.getShortSession(),
+                'longSession': sessionService.getLongSession() };
+        //deferred = $q.defer();
+
+
+    $http.post(url, data)
+      .success(function(data, status, headers, config){
+        console.log('logged out');
+
+        // Delete cookies and remove name from scope
+        $cookieStore.remove('ps_longsession');
+        $cookieStore.remove('ps_shortsession');
+        $cookieStore.remove('ps_username');
+        $scope.name = "";
+
+      })
+      .error(function(data, status, headers, config){
+        console.log('error');
+      });
+
   };
 
   // MESSAGE BOX NOT CURRENTLY USED

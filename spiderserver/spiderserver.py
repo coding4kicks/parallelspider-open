@@ -10,22 +10,23 @@ import datetime
 import base64
 import boto
 import optparse
+import unicodedata
 
 
 # AUTHENTICATION
 ##################
-class PasswordDictChecker(object):
+class PasswordChecker(object):
     implements(checkers.ICredentialsChecker)
     credentialInterfaces = (credentials.IUsernamePassword,)
 
-    def __init__(self, passwords):
+    def __init__(self, user_redis):
         """ dict like object mapping usernames to passwords """
-        self.passwords = passwords
+        self.user_redis = user_redis
 
     def requestAvatarId(self, credentials):
         username = credentials.username
-        if self.passwords.has_key(username):
-            if credentials.password == self.passwords[username]:
+        if self.user_redis.exists(username):
+            if self.user_redis.get(username) == credentials.password:
                 return defer.succeed(username)
             else:
                 return defer.fail(
@@ -35,56 +36,42 @@ class PasswordDictChecker(object):
                 credError.UnauthorizedLogin("No such user"))
 
 class INamedUserAvatar(Interface):
-    """ should have attributes username and fullname """
+    """ should have attributes username and nickname """
 
 class NamedUserAvatar(object):
     implements(INamedUserAvatar)
-    def __init__(self, username, fullname):
-        self.username = username
-        self.fullname = fullname
 
-class TestRealm(object):
+    # username will be email (switch name to match)
+    def __init__(self, username, nickname):
+        self.username = username # login id (unique id used in system)
+        self.nickname = nickname # nickname to display on welcome / forumn
+
+class SpiderRealm(object):
     implements(portal.IRealm)
 
-    def __init__(self, users):
-        self.users = users
+    def __init__(self, user_redis):
+        self.user_redis = user_redis
 
     def requestAvatar(self, avatarId, mind, *interfaces):
         if INamedUserAvatar in interfaces:
-            fullname = self.users[avatarId]
+            user_data = self.user_redis.get(avatarId + '_info')
+            user_info = json.loads(user_data)
+            nickname = user_info['nickname']
+            # Must encode as string vice unicode, wtf!
+            nickname = unicodedata.normalize('NFKD', nickname).encode('ascii','ignore')
             logout = lambda: None
             return (INamedUserAvatar, 
-                    NamedUserAvatar(avatarId, fullname),
+                    NamedUserAvatar(avatarId, nickname),
                     logout)
         else:
             raise KeyError("None of the requested interfaces are supported")
 
 # RESOURCES
 ##################
-class HomePage(resource.Resource):
-    """TEST ONLY"""
-    def render(self, request):
-        request.setHeader('Content-Type', 'application/json')
-        value = request.args['callback'][0]
-        value += """({"found":12,"what":2});"""
-        return value
-       ## return """
-       ## <html>
-       ## <head><title>testHome</title></head>
-       ## <body>
-       ## <h1>HOME MO'FO</h1>
-       ## <form name="input" action="checkusercredentials" method="get">
-       ## Username: <input type="text" name="user"><br />
-       ## Username: <input type="text" name="password">
-       ## <input type="submit" value="Submit">
-       ## </form>         
-       ## </body>
-       ## </html>
-       ## """
 
 class CheckUserCredentials(resource.Resource):
     """ Validate user's credentials for login """
-    def __init__(self, portal, user_redis, session_redis):
+    def __init__(self, portal, session_redis):
         self.portal = portal
         self.session_redis = session_redis
         self.request = ""
@@ -135,8 +122,8 @@ class CheckUserCredentials(resource.Resource):
 
         # Long session token - for user info and data analysis
         u = uuid.uuid4().bytes.encode("base64")[:8]
-        # Place name so can reload from cookie, and date for logging
-        v = base64.b64encode(avatar.fullname + '///' + 
+        # Place nickname so can reload from cookie, and date for logging
+        v = base64.b64encode(avatar.nickname + '///' + 
                              str(datetime.datetime.now))
         long_session = v + u
         self.session_redis.set(long_session, 'ps_longsession') #any info in value?
@@ -147,7 +134,7 @@ class CheckUserCredentials(resource.Resource):
                             "name": "%s", 
                             "short_session": "%s", 
                             "long_session": "%s"}
-                            """ % (avatar.fullname, 
+                            """ % (avatar.nickname, 
                                    short_session,
                                    long_session)
 
@@ -163,6 +150,49 @@ class CheckUserCredentials(resource.Resource):
         self.request.write(""")]}',\n{"login": "fail"}""")
         #self.request.write(str(failure))
         self.request.finish()
+
+class SignOut(resource.Resource):
+    """ Log user out by destroying session tokents"""
+
+    def __init__(self, session_redis):
+        self.session_redis = session_redis
+
+        self.request = ""
+
+    def render(self, request):
+   
+        self.request = request
+
+        # Add headers prior to writing
+        self.request.setHeader('Content-Type', 'application/json')
+
+        # Set access control: CORS 
+        # TODO: refactor stuff out to function
+
+        # TODO: limit origins on live site?
+        self.request.setHeader('Access-Control-Allow-Origin', '*')
+        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
+        # Echo back all request headers
+        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+
+        # Return if preflight request
+        if request.method == "OPTIONS":
+            return ""
+
+        data = json.loads(request.content.getvalue())
+
+        short_session = data['shortSession'] 
+        long_session = data['longSession']
+
+        if self.session_redis.exists(long_session):
+            self.session_redis.delete(long_session)
+
+        if self.session_redis.exists(short_session):
+            self.session_redis.delete(short_session)
+
+        return """)]}',\n{"loggedOut": true}"""
+
 
 #TODO: later
 class AddNewUser(resource.Resource):
@@ -381,19 +411,8 @@ class GetS3Signature(resource.Resource):
         else:
             return """)]}',\n{"url": "error"}"""
 
-
-users = {
-    'a': 'super mo',
-    'spidertester': 'me mo',
-    'spideradmin': 'mo mo'
-    }
-
-passwords = {
-    'a': 'b',
-    'spidertester': 'abc',
-    'spideradmin': '123'
-    }
-
+# Command Line Crap & Initialization
+################################################################################
 
 if __name__ == "__main__":
 
@@ -446,15 +465,12 @@ if __name__ == "__main__":
     if int(options.sessionRedisPort) < 1:
         parser.error("User Redis port number must be greater than 0")
 
-    # Credentials / Authentication info
-    p = portal.Portal(TestRealm(users))
-    p.registerChecker(PasswordDictChecker(passwords))
-
     # Initialize Central Redis connection to 
     c = redis.StrictRedis(host=options.centralRedisHost,
                               port=int(options.centralRedisPort), db=0)
 
-    # Initialize User Redis connection to 
+    # Initialize User Redis connection to
+    # Can refactor into pdiddy, user, folder (or go RDB? for all)
     u = redis.StrictRedis(host=options.userRedisHost,
                               port=int(options.userRedisPort), db=0)
 
@@ -462,14 +478,18 @@ if __name__ == "__main__":
     s = redis.StrictRedis(host=options.sessionRedisHost,
                               port=int(options.sessionRedisPort), db=0)
 
+    # Credentials / Authentication info
+    p = portal.Portal(SpiderRealm(u))
+    p.registerChecker(PasswordChecker(u))
+
     # Set up site and resources
     root = resource.Resource()
-    root.putChild('', HomePage())
     root.putChild('initiatecrawl', InitiateCrawl(c, s))
     root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s))
     root.putChild('gets3signature', GetS3Signature(s))
     root.putChild('addnewuser', AddNewUser())
-    root.putChild('checkusercredentials', CheckUserCredentials(p, u, s))
+    root.putChild('checkusercredentials', CheckUserCredentials(p, s))
+    root.putChild('signout', SignOut(s))
     root.putChild('passwordreminder', PasswordReminder())
     site = server.Site(root)
 
