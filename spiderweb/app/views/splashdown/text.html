@@ -1,9 +1,11 @@
 <!-- SITES
 ================================================== -->
 <div ng-repeat="site in analysis.sites" class="analysis">
-  <h4 class="inline">Site {{$index + 1}}:</h4><h4 class="inline url"> {{site.url}}</h4>
-  <h5 class="inline search-filter">Search: </h5><input ng-model="searchText">
-  <div class="analysis-content">
+  <div class="analysis-header" class="row-fluid">
+    <h4 class="inline">Site {{$index + 1}}:</h4><h4 class="inline url"> {{site.url}}</h4>
+    <h5 class="inline search-filter">Search: </h5><input ng-model="searchText">
+  </div>
+  <div class="analysis-content" class="row-fluid">
 
 <!-- VISIBLE TEXT
 ================================================== -->
@@ -76,9 +78,11 @@
         </div>
       </div>
     </div>
-
+  </div>
+  
 <!-- ADDITIONAL INFO GHETTO MO'FO
-================================================== -->    
+================================================== --> 
+  <div class="additional-info" class="row-fluid">
     <div class="info-box" ng-init="additionalInfo=site.additionalInfo.text">
       <h4>Additional Info</h4>
 

@@ -1,4 +1,16 @@
 <div class="row-fluid">
+
+<!-- Side Navigation
+================================================== -->
+  <div class="span2 padded side-nav">
+    <h3>My Analysis</h3>
+    <span ng-repeat="analysis in analysisList">
+      <h4><a href="#/splasdown/{{analysis}}">{{analysis}}</a></h4>
+    </span> 
+  </div>
+
+<!-- Analysis Info
+================================================== -->
   <div class="span10 padded">
     <div class="row-fluid analysis-header">
       <h2 class="inline">{{currentAnalysis.name}}</h2>
@@ -38,15 +50,6 @@
         </pane>
       </tabs>
     </div>
-  </div>
-
-<!-- Side Navigation
-================================================== -->
-  <div class="span2 padded side-nav">
-    <h3>My Analysis</h3>
-    <span ng-repeat="analysis in analysisList">
-      <h4><a href="#/splasdown/{{analysis}}">{{analysis}}</a></h4>
-    </span> 
   </div>
 </div>
 

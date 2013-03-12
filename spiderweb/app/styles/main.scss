@@ -364,10 +364,14 @@
 }
 
 .analysis-content {
+
   padding-left: 20px;
     
-  @include clearfix;
+}
 
+.additional-info {
+ 
+  @include clearfix;
 }
 
 .summary-table {
@@ -457,7 +461,6 @@
   display: inline-block;
   margin: 0px 45px;
   text-align: center;
-  float: right;
 
   .add-info-btns {
     float: right;
