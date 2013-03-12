@@ -84,9 +84,9 @@ class HomePage(resource.Resource):
 
 class CheckUserCredentials(resource.Resource):
     """ Validate user's credentials for login """
-    def __init__(self, portal, user_redis):
+    def __init__(self, portal, user_redis, session_redis):
         self.portal = portal
-        self.user_redis = user_redis
+        self.session_redis = session_redis
         self.request = ""
 
         # Expiration Info
@@ -130,8 +130,8 @@ class CheckUserCredentials(resource.Resource):
 
         # Short session token - for crawl purchases and changing user info
         short_session = uuid.uuid4().bytes.encode("base64")[:21]
-        self.user_redis.set(short_session, 'ps_shortsession') #any info in value?
-        self.user_redis.expire(short_session, self.shortExpire)
+        self.session_redis.set(short_session, 'ps_shortsession') #any info in value?
+        self.session_redis.expire(short_session, self.shortExpire)
 
         # Long session token - for user info and data analysis
         u = uuid.uuid4().bytes.encode("base64")[:8]
@@ -139,8 +139,8 @@ class CheckUserCredentials(resource.Resource):
         v = base64.b64encode(avatar.fullname + '///' + 
                              str(datetime.datetime.now))
         long_session = v + u
-        self.user_redis.set(long_session, 'ps_longsession') #any info in value?
-        self.user_redis.expire(long_session, self.longExpire)
+        self.session_redis.set(long_session, 'ps_longsession') #any info in value?
+        self.session_redis.expire(long_session, self.longExpire)
 
     
         value = """)]}',\n{"login": "success", 
@@ -192,9 +192,9 @@ class PasswordReminder(resource.Resource):
 class InitiateCrawl(resource.Resource):
     """ Initiate a crawl and return the crawl id """
 
-    def __init__(self, central_redis, user_redis):
+    def __init__(self, central_redis, session_redis):
         self.central_redis = central_redis
-        self.user_redis = user_redis
+        self.session_redis = session_redis
 
         # Expiration Info TODO: factor out so don't repeat
         self.longExpire= (60 * 60 * 24) # 1 day
@@ -229,11 +229,11 @@ class InitiateCrawl(resource.Resource):
         short_session = data['shortSession'] 
         long_session = data['longSession']
 
-        if self.user_redis.exists(short_session):
+        if self.session_redis.exists(short_session):
 
             # set new expirations
-            self.user_redis.expire(short_session, self.shortExpire)
-            self.user_redis.expire(long_session, self.longExpire)
+            self.session_redis.expire(short_session, self.shortExpire)
+            self.session_redis.expire(long_session, self.longExpire)
     
             # Create crawl id (username, crawlname, date, random)
             crawl = data['crawl']
@@ -267,9 +267,9 @@ class InitiateCrawl(resource.Resource):
 class CheckCrawlStatus(resource.Resource):
     """ Check status of a crawl based upon an id """
 
-    def __init__(self, central_redis, user_redis):
+    def __init__(self, central_redis, session_redis):
         self.central_redis = central_redis
-        self.user_redis = user_redis
+        self.session_redis = session_redis
 
         # Expiration Info
         self.longExpire= (60 * 60 * 24) # 1 day
@@ -304,11 +304,11 @@ class CheckCrawlStatus(resource.Resource):
         short_session = data['shortSession'] 
         long_session = data['longSession']
 
-        if self.user_redis.exists(short_session):
+        if self.session_redis.exists(short_session):
 
             # set new expirations
-            self.user_redis.expire(short_session, self.shortExpire)
-            self.user_redis.expire(long_session, self.longExpire)
+            self.session_redis.expire(short_session, self.shortExpire)
+            self.session_redis.expire(long_session, self.longExpire)
 
             # retrieve crawl status
             count = self.central_redis.get(crawl_id + "_count")
@@ -323,8 +323,8 @@ class CheckCrawlStatus(resource.Resource):
 class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
 
-    def __init__(self, user_redis):
-        self.user_redis = user_redis
+    def __init__(self, session_redis):
+        self.session_redis = session_redis
 
         # Expiration Info
         self.longExpire= (60 * 60 * 24) # 1 day
@@ -360,12 +360,12 @@ class GetS3Signature(resource.Resource):
         short_session = data['shortSession'] 
         long_session = data['longSession']
 
-        if self.user_redis.exists(long_session):
+        if self.session_redis.exists(long_session):
 
             # set new expirations
-            if self.user_redis.exists(short_session):
-              self.user_redis.expire(short_session, self.shortExpire)
-            self.user_redis.expire(long_session, self.longExpire)
+            if self.session_redis.exists(short_session):
+              self.session_redis.expire(short_session, self.shortExpire)
+            self.session_redis.expire(long_session, self.longExpire)
 
             # sign url / assumes keys are in .bashrc
             s3conn = boto.connect_s3()
@@ -425,10 +425,25 @@ if __name__ == "__main__":
             default="6378", dest="userRedisPort", 
             help="Set User Redis port information. [default: %default]")
 
+    # Session Redis host info - default is localhost
+    parser.add_option(
+            "-s", "-S", "--sessionRedisHost", action="store", 
+            default="localhost", dest="sessionRedisHost", 
+            help="Set Session Redis host information. [default: %default]")
+
+    # Session Redis port info - default is 6377
+    parser.add_option(
+            "-r", "-R", "--sessionRedisPort", action="store", 
+            default="6377", dest="sessionRedisPort", 
+            help="Set Session Redis port information. [default: %default]")
+
+
     (options, args) = parser.parse_args()
     if int(options.centralRedisPort) < 1:
         parser.error("Central Redis port number must be greater than 0")
     if int(options.userRedisPort) < 1:
+        parser.error("User Redis port number must be greater than 0")
+    if int(options.sessionRedisPort) < 1:
         parser.error("User Redis port number must be greater than 0")
 
     # Credentials / Authentication info
@@ -443,14 +458,18 @@ if __name__ == "__main__":
     u = redis.StrictRedis(host=options.userRedisHost,
                               port=int(options.userRedisPort), db=0)
 
+    # Initialize Session Redis connection to 
+    s = redis.StrictRedis(host=options.sessionRedisHost,
+                              port=int(options.sessionRedisPort), db=0)
+
     # Set up site and resources
     root = resource.Resource()
     root.putChild('', HomePage())
-    root.putChild('initiatecrawl', InitiateCrawl(c, u))
-    root.putChild('checkcrawlstatus', CheckCrawlStatus(c, u))
-    root.putChild('gets3signature', GetS3Signature(u))
+    root.putChild('initiatecrawl', InitiateCrawl(c, s))
+    root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s))
+    root.putChild('gets3signature', GetS3Signature(s))
     root.putChild('addnewuser', AddNewUser())
-    root.putChild('checkusercredentials', CheckUserCredentials(p,u))
+    root.putChild('checkusercredentials', CheckUserCredentials(p, u, s))
     root.putChild('passwordreminder', PasswordReminder())
     site = server.Site(root)
 

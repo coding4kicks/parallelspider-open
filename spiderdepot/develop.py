@@ -26,6 +26,9 @@ def local():
     # Start User Redis
     data.start('kvs', 'user')
 
+    # Start Session Redis
+    data.start('kvs', 'session')
+
     # Start Data Engine Redis
     data.start('kvs', 'engine')
 
