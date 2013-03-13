@@ -10,7 +10,6 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
   ];
 
   
-  //  Need to show sample_folders if not logged in 
   // General Analysis / Folder Information
   $scope.folderList = [];
   $scope.currentFolder = {}
@@ -121,35 +120,68 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     $scope.analysisAvailable = true;
     $scope.getAnalysis(analysisId);
   }
-
-  // Check if analysis available to display
-  var currentAnalysis = resultsService.getCurrentAnalysis();
-
-  // 
-  if (isEmpty(currentAnalysis)) {
-    $scope.analysisAvailable = false;
+ 
+  $scope.getFoldlersOrAnalysis = function(currentAnalysis) {
     
-    // get the folder list
-    var url = configService.getProtocol() + '://' + 
+    if (isEmpty(currentAnalysis)) {
+      $scope.analysisAvailable = false;
+    
+      // get the folder list
+      var url = configService.getProtocol() + '://' + 
           configService.getHost() + '/getAnalysisFolders',
-    data = {'shortSession': sessionService.getShortSession(),
+      data = {'shortSession': sessionService.getShortSession(),
             'longSession': sessionService.getLongSession() };
 
+      // QA data - since "" returned from session service will trigger undefined
+      if (typeof data.shortSession === "undefined") {
+        data.shortSession = "";
+      }
+      if (typeof data.longSession === "undefined") {
+        data.longSession = "";
+      }
 
-    $http.post(url, data)
-      .success(function(data, status, headers, config){
+      $http.post(url, data)
+        .success(function(data, status, headers, config){
 
-        // set the current folder to the first folder in list  
-        $scope.folderList = data;
-        $scope.currentFolder = $scope.folderList[0];     
-      })
-      .error(function(data, status, headers, config){
-        console.log('error');
-      });
-  }
-  else {
-    $scope.analysisAvailabel = true;
-    $scope.getAnalysis(currentAnalysis.id);
+          // set the current folder to the first folder in list  
+          $scope.folderList = data;
+          $scope.currentFolder = $scope.folderList[0];     
+        })
+        .error(function(data, status, headers, config){
+          console.log('error');
+        });
+    }
+    else {
+      $scope.analysisAvailable = true;
+      $scope.getAnalysis(currentAnalysis.id);
+
+      // still need to get folders
+      // get the folder list
+      var url = configService.getProtocol() + '://' + 
+          configService.getHost() + '/getAnalysisFolders',
+      data = {'shortSession': sessionService.getShortSession(),
+            'longSession': sessionService.getLongSession() };
+
+      // QA data - since "" returned from session service will trigger undefined
+      if (typeof data.shortSession === "undefined") {
+        data.shortSession = "";
+      }
+      if (typeof data.longSession === "undefined") {
+        data.longSession = "";
+      }
+
+      $http.post(url, data)
+        .success(function(data, status, headers, config){
+
+          // set the current folder to the first folder in list  
+          $scope.folderList = data;
+          $scope.currentFolder = $scope.folderList[0];     
+        })
+        .error(function(data, status, headers, config){
+          console.log('error');
+        });
+
+    }
   }
 
   // Set min widths for analyses - TODO: implement this for side scrolling
@@ -476,5 +508,9 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     button.active = true;
     additionalInfo.currentButton = button;
   }
+
+  // Check if analysis available to display
+  var currentAnalysis = resultsService.getCurrentAnalysis();
+  $scope.getFoldlersOrAnalysis(currentAnalysis);
 });
 

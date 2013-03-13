@@ -31,7 +31,8 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
         templateUrl: 'views/splashdown.html',
         controller: 'SplashdownCtrl'
       })
-      // MAY NEED TO SEPARATE FOLDER DISPLAY AND ANALYSIS DISPLAY FOR SPEED
+      // MAY NEED TO SEPARATE FOLDER DISPLAY AND ANALYSIS DISPLAY FOR SPEED?
+      // maybe also for the back button
       .when('/splashdown/:analysisId', {
         templateUrl: 'views/splashdown.html',
         controller: 'SplashdownCtrl'
@@ -97,6 +98,9 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
     return {
       getAnalysis:function (analysisId) {
 
+        // set currentAnalysis
+        currentAnalysis = {'id':analysisId};
+
         // Configure resource fetch details
         var url = configService.getProtocol() + '://' + 
                   configService.getHost() + '/gets3signature',
@@ -104,6 +108,15 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
                     'shortSession': sessionService.getShortSession(),
                     'longSession': sessionService.getLongSession() },
             deferred = $q.defer();
+
+        // QA data - since "" returned from session service will trigger undefined
+        if (typeof data.shortSession === "undefined") {
+          data.shortSession = "";
+        }
+        if (typeof data.longSession === "undefined") {
+          data.longSession = "";
+        }
+
 
         $http.post(url, data)
           .success(function(data, status, headers, config){
@@ -134,8 +147,8 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
         return currentAnalysis;
       },
 
-      setCurrentAnalysis: function (analysis) {
-        currentAnalysis = analysis;
+      setCurrentAnalysis: function (analysisId) {
+        currentAnalysis = {'id': analysisId};
       },
 
       listAnalyses:function () {
@@ -158,7 +171,6 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
         // set in cookie too?
       },
       getShortSession:function () {
-        // try to retrieve from cookie if empty
         return shortSession;
       },
       setLongSession:function (session) {

@@ -419,7 +419,26 @@ class GetS3Signature(resource.Resource):
 
 
         else:
-            return """)]}',\n{"url": "error"}"""
+
+            # Create S3 key with anonymous id and analysis id
+            key = 'anonymous/' + analysis_id + '.json'
+            #print key
+            # Sign url (assumes AWS keys are in .bashrc / env)
+
+            
+            s3conn = boto.connect_s3()
+            url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
+ 
+            # Temporarily overwrite url so don't continuously pull 10mb from AWS
+            # TODO: make so disable/enable with mock backend
+            mockS3 = True
+            if mockS3:
+                url = analysis_id + ".json"
+                url = unicodedata.normalize('NFKD', url).encode('ascii','ignore')
+            #url = 'results3SiteLinks.json'
+            #print url
+
+            return """)]}',\n{"url": "%s"}""" % url
 
 class GetAnalysisFolders(resource.Resource):
     """ Retrieve analysis folders """
@@ -478,6 +497,9 @@ class GetAnalysisFolders(resource.Resource):
 
         # Anonymous User so show samples
         else:
+
+            # Retrieve user info from Redis
+            folder_info = self.user_redis.get("sample_folders")
 
             return ")]}',\n" + folder_info
 
