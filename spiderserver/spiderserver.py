@@ -387,7 +387,6 @@ class GetS3Signature(resource.Resource):
 
         userId = 'test' # get from longSession
 
-        #print(data)
         analysis_id = data['analysisId']
         short_session = data['shortSession'] 
         long_session = data['longSession']
@@ -404,13 +403,17 @@ class GetS3Signature(resource.Resource):
             key = user_id + '/' + analysis_id + '.json'
             #print key
             # Sign url (assumes AWS keys are in .bashrc / env)
+
+            
             s3conn = boto.connect_s3()
-            #url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
+            url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
  
             # Temporarily overwrite url so don't continuously pull 10mb from AWS
             # TODO: make so disable/enable with mock backend
-            url = analysis_id + ".json"
-            url = unicodedata.normalize('NFKD', url).encode('ascii','ignore')
+            mockS3 = True
+            if mockS3:
+                url = analysis_id + ".json"
+                url = unicodedata.normalize('NFKD', url).encode('ascii','ignore')
             #url = 'results3SiteLinks.json'
             #print url
 

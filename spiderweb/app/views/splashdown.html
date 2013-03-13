@@ -5,7 +5,7 @@
   <div class="span2 padded side-nav">
     <h3>Crawl Log</h3>
     <span ng-repeat="folder in folderList | orderBy:'name'">
-      <h4><a href="#/splasdown/{{analysis}}">{{folder.name}}</a></h4>
+      <h4 ng-click="selectFolder(folder.name)" class="pointer">{{folder.name}}</h4>
     </span> 
   </div>
 
@@ -28,8 +28,8 @@
 ================================================== -->
   <div class="span10 padded" ng-show="analysisAvailable">
     <div class="row-fluid analysis-header">
-      <h2 class="inline">{{currentAnalysis.name}}</h2>
-      <h4 class="inline">date: {{currentAnalysis.date}}</h4>
+      <h2 class="inline">{{analysis.name}}</h2>
+      <h4 class="inline">date: {{analysis.date}}</h4>
     </div>
 
 <!-- RESULT TABS

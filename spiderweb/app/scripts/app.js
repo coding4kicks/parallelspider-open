@@ -102,7 +102,7 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
                     'shortSession': sessionService.getShortSession(),
                     'longSession': sessionService.getLongSession() },
             deferred = $q.defer();
-        alert(data.analysisId);
+
         $http.post(url, data)
           .success(function(data, status, headers, config){
             console.log(data.url);

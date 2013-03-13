@@ -18,8 +18,8 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
   var analysis3 = {'name': 'one site analysis', 'date': '10/11/2015', 'id': 'results1SiteAll'};
   var analysis4 = {'name': 'my text analysis', 'date': '10/12/2015', 'id': 'results3SiteText'};
   var analysis5 = {'name': 'my link analysis', 'date': '10/10/2015', 'id': 'results3SiteLinks'};
-  var analysis6 = {'name': 'my context analysis', 'date': '8/10/2015', 'id': 'results3SiteContext'};
-  var analysis7 = {'name': 'my synonym analysis', 'date': '10/12/2030', 'id': 'results3SiteSynonym'};
+  var analysis6 = {'name': 'my context analysis', 'date': '8/10/2015', 'id': 'results3Site3Context'};
+  var analysis7 = {'name': 'my synonym analysis', 'date': '10/12/2030', 'id': 'results3Site3Synonym'};
   var analysis8 = {'name': 'motha kitchensink', 'date': '10/12/2075', 'id': 'results3SitesEverything'};
   folder1.analysisList.push(analysis1);
   folder1.analysisList.push(analysis2);
@@ -29,6 +29,8 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
   folder1.analysisList.push(analysis6);
   folder1.analysisList.push(analysis7);
   folder1.analysisList.push(analysis8);
+  folder2.analysisList.push(analysis7);
+  folder2.analysisList.push(analysis8);
 
   $scope.folderList.push(folder1);
   $scope.folderList.push(folder2);
@@ -125,12 +127,12 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
           // Eliminate certain resutls for testing
-          $scope.analysis.sites[i].internalResults.selectors = {};
-          $scope.analysis.sites[i].externalResults.selectors = {};
-          $scope.analysis.sites[i].internalResults.synonymRings = {};
-          $scope.analysis.sites[i].externalResults.synonymRings = {};
-          $scope.analysis.sites[i].internalResults.context = {};
-          $scope.analysis.sites[i].externalResults.context = {};
+        //  $scope.analysis.sites[i].internalResults.selectors = {};
+        //  $scope.analysis.sites[i].externalResults.selectors = {};
+        //  $scope.analysis.sites[i].internalResults.synonymRings = {};
+        //  $scope.analysis.sites[i].externalResults.synonymRings = {};
+        //  $scope.analysis.sites[i].internalResults.context = {};
+        //  $scope.analysis.sites[i].externalResults.context = {};
          // $scope.analysis.sites[i].internalResults.visibleText = {};
          // $scope.analysis.sites[i].externalResults.visibleText = {};
          // $scope.analysis.sites[i].internalResults.hiddenText = {};
@@ -152,7 +154,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
 
           $scope.summary.numberOfSites = $scope.summary.numberOfSites + 1;
 
-          $scope.analysis.sites[i].externalResults = {}
+         // $scope.analysis.sites[i].externalResults = {}
           //$scope.analysis.sites[i].internalResults = {};
 
           // include is used in Common Ground to enable/disable site inclusion in comparison
@@ -447,8 +449,17 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     additionalInfo.currentButton = button;
   }
 
+  $scope.selectFolder = function(folderName) {
+    resultsService.setCurrentAnalysis("");
+    $scope.analysisAvailable = false;
+    for (var i = 0; i < $scope.folderList.length; i++) {
+      if (folderName === $scope.folderList[i].name) {
+        $scope.currentFolder = $scope.folderList[i];
+      }
+    }
+  }
+
   $scope.selectAnalysis = function(analysisId) {
-    alert(analysisId);
     resultsService.setCurrentAnalysis(analysisId);
     $scope.analysisAvailable = true;
     $scope.getAnalysis(analysisId);
