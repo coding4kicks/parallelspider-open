@@ -1,6 +1,6 @@
 'use strict';
 
-spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService, sessionService) {
+spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService, configService, sessionService) {
 
   // A reminder to write some mother f'ing tests, dude!
   $scope.awesomeThings = [
@@ -8,35 +8,39 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     'AngularJS',
     'Testacular'
   ];
+
   
+  //  Need to show sample_folders if not logged in 
   // General Analysis / Folder Information
   $scope.folderList = [];
-  var folder1 = {'name': 'new analyses', 'analysisList': []};
-  var folder2 = {'name': 'old analyses', 'analysisList': []};
-  var analysis1 = {'name': 'my cool analysis', 'date': '10/12/2012', 'id': 'results1SiteSearchOnly'};
-  var analysis2 = {'name': 'my funky analysis', 'date': '10/12/2013', 'id': 'results1SiteVisibleOnly'};
-  var analysis3 = {'name': 'one site analysis', 'date': '10/11/2015', 'id': 'results1SiteAll'};
-  var analysis4 = {'name': 'my text analysis', 'date': '10/12/2015', 'id': 'results3SiteText'};
-  var analysis5 = {'name': 'my link analysis', 'date': '10/10/2015', 'id': 'results3SiteLinks'};
-  var analysis6 = {'name': 'my context analysis', 'date': '8/10/2015', 'id': 'results3Site3Context'};
-  var analysis7 = {'name': 'my synonym analysis', 'date': '10/12/2030', 'id': 'results3Site3Synonym'};
-  var analysis8 = {'name': 'motha kitchensink', 'date': '10/12/2075', 'id': 'results3SitesEverything'};
-  folder1.analysisList.push(analysis1);
-  folder1.analysisList.push(analysis2);
-  folder1.analysisList.push(analysis3);
-  folder1.analysisList.push(analysis4);
-  folder1.analysisList.push(analysis5);
-  folder1.analysisList.push(analysis6);
-  folder1.analysisList.push(analysis7);
-  folder1.analysisList.push(analysis8);
-  folder2.analysisList.push(analysis7);
-  folder2.analysisList.push(analysis8);
+  $scope.currentFolder = {}
 
-  $scope.folderList.push(folder1);
-  $scope.folderList.push(folder2);
+ // var folder1 = {'name': 'new analyses', 'analysisList': []};
+ // var folder2 = {'name': 'old analyses', 'analysisList': []};
+ // var analysis1 = {'name': 'my cool analysis', 'date': '10/12/2012', 'id': 'results1SiteSearchOnly'};
+ // var analysis2 = {'name': 'my funky analysis', 'date': '10/12/2013', 'id': 'results1SiteVisibleOnly'};
+ // var analysis3 = {'name': 'one site analysis', 'date': '10/11/2015', 'id': 'results1SiteAll'};
+ // var analysis4 = {'name': 'my text analysis', 'date': '10/12/2015', 'id': 'results3SiteText'};
+ // var analysis5 = {'name': 'my link analysis', 'date': '10/10/2015', 'id': 'results3SiteLinks'};
+ // var analysis6 = {'name': 'my context analysis', 'date': '8/10/2015', 'id': 'results3Site3Context'};
+ // var analysis7 = {'name': 'my synonym analysis', 'date': '10/12/2030', 'id': 'results3Site3Synonym'};
+ // var analysis8 = {'name': 'motha kitchensink', 'date': '10/12/2075', 'id': 'results3SitesEverything'};
+ // folder1.analysisList.push(analysis1);
+ // folder1.analysisList.push(analysis2);
+ // folder1.analysisList.push(analysis3);
+ // folder1.analysisList.push(analysis4);
+ // folder1.analysisList.push(analysis5);
+ // folder1.analysisList.push(analysis6);
+ // folder1.analysisList.push(analysis7);
+ // folder1.analysisList.push(analysis8);
+ // folder2.analysisList.push(analysis7);
+ // folder2.analysisList.push(analysis8);
+
+ // $scope.folderList.push(folder1);
+ // $scope.folderList.push(folder2);
 
 
-  $scope.currentFolder = $scope.folderList[0];
+ // $scope.currentFolder = $scope.folderList[0];
 
   // Variables to control whether internal or external results are shown
   $scope.results = 'internalResults';
@@ -102,6 +106,52 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
 
 
+  $scope.selectFolder = function(folderName) {
+    resultsService.setCurrentAnalysis("");
+    $scope.analysisAvailable = false;
+    for (var i = 0; i < $scope.folderList.length; i++) {
+      if (folderName === $scope.folderList[i].name) {
+        $scope.currentFolder = $scope.folderList[i];
+      }
+    }
+  }
+
+  $scope.selectAnalysis = function(analysisId) {
+    resultsService.setCurrentAnalysis(analysisId);
+    $scope.analysisAvailable = true;
+    $scope.getAnalysis(analysisId);
+  }
+
+  // Check if analysis available to display
+  var currentAnalysis = resultsService.getCurrentAnalysis();
+
+  // 
+  if (isEmpty(currentAnalysis)) {
+    $scope.analysisAvailable = false;
+    
+    // get the folder list
+    var url = configService.getProtocol() + '://' + 
+          configService.getHost() + '/getAnalysisFolders',
+    data = {'shortSession': sessionService.getShortSession(),
+            'longSession': sessionService.getLongSession() };
+
+
+    $http.post(url, data)
+      .success(function(data, status, headers, config){
+
+        // set the current folder to the first folder in list  
+        $scope.folderList = data;
+        $scope.currentFolder = $scope.folderList[0];     
+      })
+      .error(function(data, status, headers, config){
+        console.log('error');
+      });
+  }
+  else {
+    $scope.analysisAvailabel = true;
+    $scope.getAnalysis(currentAnalysis.id);
+  }
+
   // Set min widths for analyses - TODO: implement this for side scrolling
   // Must calculate number of elements for each tab page and determine min-width
   // ISSUES: on mac, side scroll moves back a page (need to disable anyway for post crawl)
@@ -126,26 +176,6 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
         // Add property "include" for comparison & additionalInfo
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
-          // Eliminate certain resutls for testing
-        //  $scope.analysis.sites[i].internalResults.selectors = {};
-        //  $scope.analysis.sites[i].externalResults.selectors = {};
-        //  $scope.analysis.sites[i].internalResults.synonymRings = {};
-        //  $scope.analysis.sites[i].externalResults.synonymRings = {};
-        //  $scope.analysis.sites[i].internalResults.context = {};
-        //  $scope.analysis.sites[i].externalResults.context = {};
-         // $scope.analysis.sites[i].internalResults.visibleText = {};
-         // $scope.analysis.sites[i].externalResults.visibleText = {};
-         // $scope.analysis.sites[i].internalResults.hiddenText = {};
-         // $scope.analysis.sites[i].externalResults.hiddenText = {};
-         // $scope.analysis.sites[i].internalResults.headlineText = {};
-         // $scope.analysis.sites[i].externalResults.headlineText = {};
-         // $scope.analysis.sites[i].internalResults.allLinks = {};
-         // $scope.analysis.sites[i].externalResults.allLinks = {};
-         // $scope.analysis.sites[i].internalResults.externalDomains = {};
-         // $scope.analysis.sites[i].externalResults.externalDomains = {};
-         // $scope.analysis.sites[i].internalResults.linkText = {};
-         // $scope.analysis.sites[i].externalResults.linkText = {};
-
           $scope.summary.totalPages = $scope.summary.totalPages + $scope.analysis.sites[i].internalResults.summary.pages.count;
           $scope.summary.totalPages = $scope.summary.totalPages + $scope.analysis.sites[i].externalResults.summary.pages.count;
 
@@ -154,8 +184,6 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
 
           $scope.summary.numberOfSites = $scope.summary.numberOfSites + 1;
 
-         // $scope.analysis.sites[i].externalResults = {}
-          //$scope.analysis.sites[i].internalResults = {};
 
           // include is used in Common Ground to enable/disable site inclusion in comparison
           $scope.analysis.sites[i].include = true;
@@ -448,31 +476,5 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     button.active = true;
     additionalInfo.currentButton = button;
   }
-
-  $scope.selectFolder = function(folderName) {
-    resultsService.setCurrentAnalysis("");
-    $scope.analysisAvailable = false;
-    for (var i = 0; i < $scope.folderList.length; i++) {
-      if (folderName === $scope.folderList[i].name) {
-        $scope.currentFolder = $scope.folderList[i];
-      }
-    }
-  }
-
-  $scope.selectAnalysis = function(analysisId) {
-    resultsService.setCurrentAnalysis(analysisId);
-    $scope.analysisAvailable = true;
-    $scope.getAnalysis(analysisId);
-  }
-
-  // Check if analysis available to display
-  var currentAnalysis = resultsService.getCurrentAnalysis();
-
-  if (isEmpty(currentAnalysis)) {
-    $scope.analysisAvailable = false;
-  }
-  else {
-    $scope.analysisAvailabel = true;
-    $scope.getAnalysis(currentAnalysis.id);
-  }
 });
+

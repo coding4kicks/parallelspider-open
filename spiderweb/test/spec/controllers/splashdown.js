@@ -11,7 +11,11 @@ describe('Controller: SplashdownCtrl', function() {
 
   beforeEach(inject(function($httpBackend) {
     $httpBackend.whenPOST('http://localhost:8000/gets3signature').respond({});
-  })); 
+  }));
+
+  beforeEach(inject(function($httpBackend) {
+    $httpBackend.whenPOST('http://localhost:8000/getAnalysisFolders').respond({});
+  }));  
 
   var SplashdownCtrl,
     scope;

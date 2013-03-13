@@ -60,10 +60,12 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, $cookieStore, 
       .success(function(data, status, headers, config){
         console.log('logged out');
 
-        // Delete cookies and remove name from scope
+        // Delete cookies and remove session variables and name from scope
         $cookieStore.remove('ps_longsession');
         $cookieStore.remove('ps_shortsession');
         $cookieStore.remove('ps_username');
+        sessionService.setShortSession("");
+        sessionService.setLongSession("");
         $scope.name = "";
 
       })

@@ -385,8 +385,6 @@ class GetS3Signature(resource.Resource):
 
         data = json.loads(request.content.getvalue())
 
-        userId = 'test' # get from longSession
-
         analysis_id = data['analysisId']
         short_session = data['shortSession'] 
         long_session = data['longSession']
@@ -422,6 +420,66 @@ class GetS3Signature(resource.Resource):
 
         else:
             return """)]}',\n{"url": "error"}"""
+
+class GetAnalysisFolders(resource.Resource):
+    """ Retrieve analysis folders """
+
+    def __init__(self, session_redis, user_redis):
+        self.session_redis = session_redis
+        self.user_redis = user_redis
+
+        # Expiration Info
+        self.longExpire= (60 * 60 * 24) # 1 day
+        self.shortExpire = (60 * 60) # 1 hour
+
+        self.request = ""
+
+    def render(self, request):
+   
+        self.request = request
+
+        # Add headers prior to writing
+        self.request.setHeader('Content-Type', 'application/json')
+
+        # Set access control: CORS 
+        # TODO: refactor stuff out to function
+
+        # TODO: limit origins on live site?
+        self.request.setHeader('Access-Control-Allow-Origin', '*')
+        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
+        # Echo back all request headers
+        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+
+        # Return if preflight request
+        if request.method == "OPTIONS":
+            return ""
+
+        data = json.loads(request.content.getvalue())
+
+        short_session = data['shortSession'] 
+        long_session = data['longSession']
+
+        # Logged in user
+        if self.session_redis.exists(long_session):
+
+            # set new expirations
+            if self.session_redis.exists(short_session):
+              self.session_redis.expire(short_session, self.shortExpire)
+            self.session_redis.expire(long_session, self.longExpire)
+
+            # Get user's id 
+            user_id = base64.b64decode(long_session).split("///")[1] 
+
+            # Retrieve user info from Redis
+            folder_info = self.user_redis.get(user_id + "_folders")
+
+            return ")]}',\n" + folder_info
+
+        # Anonymous User so show samples
+        else:
+
+            return ")]}',\n" + folder_info
 
 # Command Line Crap & Initialization
 ################################################################################
@@ -499,6 +557,7 @@ if __name__ == "__main__":
     root.putChild('initiatecrawl', InitiateCrawl(c, s))
     root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s))
     root.putChild('gets3signature', GetS3Signature(s))
+    root.putChild('getAnalysisFolders', GetAnalysisFolders(s, u))
     root.putChild('addnewuser', AddNewUser())
     root.putChild('checkusercredentials', CheckUserCredentials(p, s))
     root.putChild('signout', SignOut(s))

@@ -31,7 +31,8 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
         templateUrl: 'views/splashdown.html',
         controller: 'SplashdownCtrl'
       })
-      .when('/splashdown/result/:resultId', {
+      // MAY NEED TO SEPARATE FOLDER DISPLAY AND ANALYSIS DISPLAY FOR SPEED
+      .when('/splashdown/:analysisId', {
         templateUrl: 'views/splashdown.html',
         controller: 'SplashdownCtrl'
       })
@@ -63,6 +64,7 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
   ////////////////////////////
   // SERVICES
   ////////////////////////////
+
   .service('configService', function() {
     // change4deployment
     var host = 'localhost:8000',
