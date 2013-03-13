@@ -9,10 +9,32 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     'Testacular'
   ];
   
-  // General Analysis Information
-  $scope.analysisList = ['myFirstAnalysis'];
-  $scope.currentAnalysis = {'name': 'myFirstAnalysis', 'date': '10/12/2030'};
-  $scope.analysis = {};
+  // General Analysis / Folder Information
+  $scope.folderList = [];
+  var folder1 = {'name': 'new analyses', 'analysisList': []};
+  var folder2 = {'name': 'old analyses', 'analysisList': []};
+  var analysis1 = {'name': 'my cool analysis', 'date': '10/12/2012', 'id': 'results1SiteSearchOnly'};
+  var analysis2 = {'name': 'my funky analysis', 'date': '10/12/2013', 'id': 'results1SiteVisibleOnly'};
+  var analysis3 = {'name': 'one site analysis', 'date': '10/11/2015', 'id': 'results1SiteAll'};
+  var analysis4 = {'name': 'my text analysis', 'date': '10/12/2015', 'id': 'results3SiteText'};
+  var analysis5 = {'name': 'my link analysis', 'date': '10/10/2015', 'id': 'results3SiteLinks'};
+  var analysis6 = {'name': 'my context analysis', 'date': '8/10/2015', 'id': 'results3SiteContext'};
+  var analysis7 = {'name': 'my synonym analysis', 'date': '10/12/2030', 'id': 'results3SiteSynonym'};
+  var analysis8 = {'name': 'motha kitchensink', 'date': '10/12/2075', 'id': 'results3SitesEverything'};
+  folder1.analysisList.push(analysis1);
+  folder1.analysisList.push(analysis2);
+  folder1.analysisList.push(analysis3);
+  folder1.analysisList.push(analysis4);
+  folder1.analysisList.push(analysis5);
+  folder1.analysisList.push(analysis6);
+  folder1.analysisList.push(analysis7);
+  folder1.analysisList.push(analysis8);
+
+  $scope.folderList.push(folder1);
+  $scope.folderList.push(folder2);
+
+
+  $scope.currentFolder = $scope.folderList[0];
 
   // Variables to control whether internal or external results are shown
   $scope.results = 'internalResults';
@@ -78,9 +100,19 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
 
 
+  // Set min widths for analyses - TODO: implement this for side scrolling
+  // Must calculate number of elements for each tab page and determine min-width
+  // ISSUES: on mac, side scroll moves back a page (need to disable anyway for post crawl)
+  // so don't go back to 'crawling'.
+  // Other issue is non mac??? and side scrolling
+  //$scope.minWidth = {};
+  //$scope.minWidth.text = "{'min-width': '1400px'}";
+ 
   // Get the results of tha analysis
-  resultsService.getAnalysis('testAnalysis')
-  //$http.get('results5.json')
+  $scope.getAnalysis = function(analysisId) {
+    //alert(analysisId);
+    resultsService.getAnalysis(analysisId)
+    //$http.get('results5.json')
     .then(function(results){
         console.log(results);
         $scope.analysis = results;
@@ -93,12 +125,12 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
           // Eliminate certain resutls for testing
-         // $scope.analysis.sites[i].internalResults.selectors = {};
-         // $scope.analysis.sites[i].externalResults.selectors = {};
-         // $scope.analysis.sites[i].internalResults.synonymRings = {};
-         // $scope.analysis.sites[i].externalResults.synonymRings = {};
-         // $scope.analysis.sites[i].internalResults.context = {};
-         // $scope.analysis.sites[i].externalResults.context = {};
+          $scope.analysis.sites[i].internalResults.selectors = {};
+          $scope.analysis.sites[i].externalResults.selectors = {};
+          $scope.analysis.sites[i].internalResults.synonymRings = {};
+          $scope.analysis.sites[i].externalResults.synonymRings = {};
+          $scope.analysis.sites[i].internalResults.context = {};
+          $scope.analysis.sites[i].externalResults.context = {};
          // $scope.analysis.sites[i].internalResults.visibleText = {};
          // $scope.analysis.sites[i].externalResults.visibleText = {};
          // $scope.analysis.sites[i].internalResults.hiddenText = {};
@@ -182,6 +214,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
         // Perform initial comparison for all sites
         $scope.compareSites();
     });
+  };
 
   /*
    * compareSites - Compare which words are common between sites
@@ -412,5 +445,23 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     additionalInfo.currentButton.active = false;
     button.active = true;
     additionalInfo.currentButton = button;
+  }
+
+  $scope.selectAnalysis = function(analysisId) {
+    alert(analysisId);
+    resultsService.setCurrentAnalysis(analysisId);
+    $scope.analysisAvailable = true;
+    $scope.getAnalysis(analysisId);
+  }
+
+  // Check if analysis available to display
+  var currentAnalysis = resultsService.getCurrentAnalysis();
+
+  if (isEmpty(currentAnalysis)) {
+    $scope.analysisAvailable = false;
+  }
+  else {
+    $scope.analysisAvailabel = true;
+    $scope.getAnalysis(currentAnalysis.id);
   }
 });

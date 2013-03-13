@@ -280,6 +280,25 @@
 
 // Splashdown 
 //////////////////////////
+
+.analysis-list {
+
+  font-size: 16px;
+  text-align: left;
+  width: 100%;
+
+  .analysis-list-item {
+    border-top: 1px solid #EEEEEE;
+    border-bottom: 1px solid #EEEEEE;
+  }
+
+  .analysis-list-name {
+  }
+
+  .analysis-list-date {
+  }
+
+}
 .analysis-header {
 
   margin-bottom: 10px;
@@ -365,13 +384,14 @@
 
 .analysis-content {
 
+  @include clearfix;
+
   padding-left: 20px;
     
 }
 
 .additional-info {
  
-  @include clearfix;
 }
 
 .summary-table {
@@ -459,6 +479,7 @@
   width: 592px;
   padding-top: 10px;
   display: inline-block;
+  float: right;
   margin: 0px 45px;
   text-align: center;
 

@@ -90,23 +90,19 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
     // Where am I setting this???
     // Either get the results passed, the current if one is set, or none
     var currentAnalysis = {};
+    //var currentAnalysis = {'id': 'results1SiteSearchOnly'};
     
     return {
-      getAnalysis:function (analysis) {
+      getAnalysis:function (analysisId) {
 
         // Configure resource fetch details
         var url = configService.getProtocol() + '://' + 
                   configService.getHost() + '/gets3signature',
-            data = {'analysis': 'results.json', // TODO: Need to get this from somewher???
+            data = {'analysisId': analysisId,
                     'shortSession': sessionService.getShortSession(),
                     'longSession': sessionService.getLongSession() },
             deferred = $q.defer();
-
-       // $http.get('results5.json')
-       //   .then(function(results) {
-       //     console.log(results);
-       //     deferred.resolve(results);
-       //   });
+        alert(data.analysisId);
         $http.post(url, data)
           .success(function(data, status, headers, config){
             console.log(data.url);
@@ -131,6 +127,15 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
         // Must later account for user ???
         //return currentAnalysis;
       },
+
+      getCurrentAnalysis: function () {
+        return currentAnalysis;
+      },
+
+      setCurrentAnalysis: function (analysis) {
+        currentAnalysis = analysis;
+      },
+
       listAnalyses:function () {
         // This function will take the "user"??? and list their analyses
         // later funcionality should also allow them to place analysis into folders like gmail

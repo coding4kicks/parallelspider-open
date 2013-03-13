@@ -121,10 +121,10 @@ class CheckUserCredentials(resource.Resource):
         self.session_redis.expire(short_session, self.shortExpire)
 
         # Long session token - for user info and data analysis
-        u = uuid.uuid4().bytes.encode("base64")[:8]
+        u = uuid.uuid4().bytes.encode("base64")[:4]
         # Place nickname so can reload from cookie, and date for logging
-        v = base64.b64encode(avatar.nickname + '///' + 
-                             str(datetime.datetime.now))
+        v = base64.b64encode(avatar.nickname + '///' + avatar.username + '///'
+                + str(datetime.datetime.now))
         long_session = v + u
         self.session_redis.set(long_session, 'ps_longsession') #any info in value?
         self.session_redis.expire(long_session, self.longExpire)
@@ -386,10 +386,12 @@ class GetS3Signature(resource.Resource):
         data = json.loads(request.content.getvalue())
 
         userId = 'test' # get from longSession
-        analysis_object = data['analysis']
+
+        #print(data)
+        analysis_id = data['analysisId']
         short_session = data['shortSession'] 
         long_session = data['longSession']
-
+        #print('here')
         if self.session_redis.exists(long_session):
 
             # set new expirations
@@ -397,13 +399,20 @@ class GetS3Signature(resource.Resource):
               self.session_redis.expire(short_session, self.shortExpire)
             self.session_redis.expire(long_session, self.longExpire)
 
-            # sign url / assumes keys are in .bashrc
+            # Create S3 key with user's id and analysis id
+            user_id = base64.b64decode(long_session).split("///")[1] 
+            key = user_id + '/' + analysis_id + '.json'
+            #print key
+            # Sign url (assumes AWS keys are in .bashrc / env)
             s3conn = boto.connect_s3()
-            url = s3conn.generate_url(30, 'GET', bucket='ps_users', key='test/results5.json')
+            #url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
  
             # Temporarily overwrite url so don't continuously pull 10mb from AWS
             # TODO: make so disable/enable with mock backend
-            url = "results5.json"
+            url = analysis_id + ".json"
+            url = unicodedata.normalize('NFKD', url).encode('ascii','ignore')
+            #url = 'results3SiteLinks.json'
+            #print url
 
             return """)]}',\n{"url": "%s"}""" % url
 
