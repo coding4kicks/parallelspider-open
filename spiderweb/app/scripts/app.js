@@ -1,5 +1,28 @@
 'use strict';
 
+/*
+ * Spider Web Application
+ *
+ * Front End Angular application for Parallel Spider
+ *
+ * Controllers:
+ *  Main - Handles the home page functionality
+ *  Template - Login controls for every page
+ *  Splashdown - Dsplays folders and results of crawls
+ *  Spiderdiaries - Tutorial and example section
+ *  Launchpad - Launches crawls (more detailed than main)
+ *  Ourwords - Information about the site
+ *
+ * Services
+ *  Config - provides one place for host and protocol configuration
+ *  Results - retrieves the results of a crawl from S3
+ *  Session - handles user session management
+ *  Crawl - used to initiate a crawl
+ *
+ * Directives
+ *
+ */
+
 var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
   .config(['$routeProvider','$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider
@@ -36,10 +59,6 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
       .when('/splashdown/:analysisId', {
         templateUrl: 'views/splashdown.html',
         controller: 'SplashdownCtrl'
-      })
-      .when('/login', {
-        templateUrl: 'views/login.html',
-        controller: 'LoginCtrl'
       })
       .when('/myaccount/accountId', {
         templateUrl: 'views/myaccount.html',
