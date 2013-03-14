@@ -662,5 +662,5 @@ function Dialog(opts) {
       }
     };
   }];
-})
+});
 
