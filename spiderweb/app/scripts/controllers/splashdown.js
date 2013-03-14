@@ -1,8 +1,9 @@
 'use strict';
 
-spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService, configService, sessionService) {
+spiderwebApp.controller('SplashdownCtrl', 
+    function($scope, $http, resultsService, configService, sessionService) {
 
-  // A reminder to write some mother f'ing tests, dude!
+  // TODO: A reminder to write some mother f'ing tests, dude!
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -10,79 +11,31 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
   ];
 
   
-  // General Analysis / Folder Information
+  // Folder Information
   $scope.folderList = [];
   $scope.currentFolder = {}
 
- // var folder1 = {'name': 'new analyses', 'analysisList': []};
- // var folder2 = {'name': 'old analyses', 'analysisList': []};
- // var analysis1 = {'name': 'my cool analysis', 'date': '10/12/2012', 'id': 'results1SiteSearchOnly'};
- // var analysis2 = {'name': 'my funky analysis', 'date': '10/12/2013', 'id': 'results1SiteVisibleOnly'};
- // var analysis3 = {'name': 'one site analysis', 'date': '10/11/2015', 'id': 'results1SiteAll'};
- // var analysis4 = {'name': 'my text analysis', 'date': '10/12/2015', 'id': 'results3SiteText'};
- // var analysis5 = {'name': 'my link analysis', 'date': '10/10/2015', 'id': 'results3SiteLinks'};
- // var analysis6 = {'name': 'my context analysis', 'date': '8/10/2015', 'id': 'results3Site3Context'};
- // var analysis7 = {'name': 'my synonym analysis', 'date': '10/12/2030', 'id': 'results3Site3Synonym'};
- // var analysis8 = {'name': 'motha kitchensink', 'date': '10/12/2075', 'id': 'results3SitesEverything'};
- // folder1.analysisList.push(analysis1);
- // folder1.analysisList.push(analysis2);
- // folder1.analysisList.push(analysis3);
- // folder1.analysisList.push(analysis4);
- // folder1.analysisList.push(analysis5);
- // folder1.analysisList.push(analysis6);
- // folder1.analysisList.push(analysis7);
- // folder1.analysisList.push(analysis8);
- // folder2.analysisList.push(analysis7);
- // folder2.analysisList.push(analysis8);
-
- // $scope.folderList.push(folder1);
- // $scope.folderList.push(folder2);
-
-
- // $scope.currentFolder = $scope.folderList[0];
-
-  // Variables to control whether internal or external results are shown
+  // Control whether internal or external results are shown
   $scope.results = 'internalResults';
   $scope.internal = true;
   $scope.external = false;
 
-  // Summary page variables
-  $scope.summary = {}
-  $scope.summary.totalPages = 0;
-  $scope.summary.totalWords = 0;
-  $scope.summary.numberOfSites = 0;
-  $scope.summary.minutes = 0;
-  $scope.summary.seconds = 0;
+  // Summary information
+  $scope.summary = {'totalPages': 0, 'totalWords': 0, 
+                    'numberOfSites': 0, 'minutes': 0, 'seconds': 0}
 
-  // Common Ground variables to hold common words and colors
+  // Common Ground information
   $scope.commonGround = true;
   $scope.commonWords = {};
   $scope.commonColors = [];
 
-  // LimitTo variables for different result pages
-  // Hard coded for know, later user choose
-  $scope.limitTo = {}
-  $scope.limitTo.text = 50;
-  $scope.limitTo.links = 50;
-  $scope.limitTo.context = 50;
-  $scope.limitTo.synonyms = 50;
-  $scope.limitTo.selectors = 50;
-
-  // Variables to control the display of pages
-  $scope.show = {}
-  $scope.show.text = false;
-  $scope.show.links = false;
-  $scope.show.context = false;
-  $scope.show.synonymRings = false;
-  $scope.show.selectors = false;
-  // And the display of internal/external buttons
-  $scope.show.internal = true; // assume internal results exist
-  $scope.show.external = false;
+  // Limit the number of results shown in each analysis box. TODO: allow user choose to choose
+  $scope.limitTo = {'text': 50, 'links': 50, 'context': 50, 'synonyms': 50, 'selectors': 50}
 
   // Hides pointer if only one button
   $scope.soloResults = false;
 
-  // Additional Info button settings for each type of result
+  // Additional Info button settings for each type of result. TODO: refactor the smell
   $scope.buttonTypes = {};
   var wordButtons = 
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'},
@@ -184,68 +137,81 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     }
   }
 
-  // Set min widths for analyses - TODO: implement this for side scrolling
-  // Must calculate number of elements for each tab page and determine min-width
-  // ISSUES: on mac, side scroll moves back a page (need to disable anyway for post crawl)
-  // so don't go back to 'crawling'.
-  // Other issue is non mac??? and side scrolling
-  //$scope.minWidth = {};
-  //$scope.minWidth.text = "{'min-width': '1400px'}";
- 
-  // Get the results of tha analysis
-  $scope.getAnalysis = function(analysisId) {
-    //alert(analysisId);
+  // TODO: implement min-width calculation for side scrolling 
+  // (min-width = number of analysis box elements)
+  // ISSUES: 1) mac side scroll may go back a page; 2) difficulty of non-mac sidescroll?
+  // $scope.minWidth = "{'min-width': '1400px'}";
+
+  /*
+   * getAnalysis - retrieves crawl results from results service and performs initialization
+   *
+   * args:
+   *  analysisId - key value for analysis on S3
+   */
+  $scope.getAnalysis = function(analysisId) {  
     resultsService.getAnalysis(analysisId)
-    //$http.get('results5.json')
-    .then(function(results){
-        console.log(results);
+      .then(function(results){
+
         $scope.analysis = results;
 
-        // determin analysis time in minute and seconds
+        // Determine analysis time in minute and seconds
         $scope.summary.minutes = Math.floor($scope.analysis.time/60);
         $scope.summary.seconds = $scope.analysis.time%60;
 
-        // Add property "include" for comparison & additionalInfo
+        // Set per site information
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
-          $scope.summary.totalPages = $scope.summary.totalPages + $scope.analysis.sites[i].internalResults.summary.pages.count;
-          $scope.summary.totalPages = $scope.summary.totalPages + $scope.analysis.sites[i].externalResults.summary.pages.count;
-
-          $scope.summary.totalWords = $scope.summary.totalWords + $scope.analysis.sites[i].internalResults.summary.words.count;
-          $scope.summary.totalWords = $scope.summary.totalWords + $scope.analysis.sites[i].externalResults.summary.words.count;  
-
+          // Set summary information
+          $scope.summary.totalPages = $scope.summary.totalPages + 
+                                      $scope.analysis.sites[i].internalResults.summary.pages.count;
+          $scope.summary.totalPages = $scope.summary.totalPages + 
+                                      $scope.analysis.sites[i].externalResults.summary.pages.count;
+          $scope.summary.totalWords = $scope.summary.totalWords + 
+                                      $scope.analysis.sites[i].internalResults.summary.words.count;
+          $scope.summary.totalWords = $scope.summary.totalWords + 
+                                      $scope.analysis.sites[i].externalResults.summary.words.count;
           $scope.summary.numberOfSites = $scope.summary.numberOfSites + 1;
 
 
-          // include is used in Common Ground to enable/disable site inclusion in comparison
+          // Enable or Disable comparison in Common Ground
           $scope.analysis.sites[i].include = true;
 
-          // Create additionalInfo for each site and for each splashdown page type: text, links, context, etc?
+          // AdditionalInfo box information for each splashdown page type
           $scope.analysis.sites[i].additionalInfo = {};
-          $scope.analysis.sites[i].additionalInfo.text = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
-                                                           'currentItem': {}, 'currentType': "", 'currentLabel': ""};          
-          $scope.analysis.sites[i].additionalInfo.links = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
-                                                            'currentItem': {}, 'currentType': "", 'currentLabel': ""};
-          $scope.analysis.sites[i].additionalInfo.context = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
-                                                              'currentItem': {}, 'currentType': "", 'currentLabel': ""};
-          $scope.analysis.sites[i].additionalInfo.synonyms = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
-                                                               'currentItem': {}, 'currentType': "", 'currentLabel': ""};
-          $scope.analysis.sites[i].additionalInfo.selectors = { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
-                                                                'currentItem': {}, 'currentType': "", 'currentLabel': ""};          
+          $scope.analysis.sites[i].additionalInfo.text = 
+            { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+              'currentItem': {}, 'currentType': "", 'currentLabel': ""};          
+          $scope.analysis.sites[i].additionalInfo.links = 
+            { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+              'currentItem': {}, 'currentType': "", 'currentLabel': ""};
+          $scope.analysis.sites[i].additionalInfo.context = 
+            { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+              'currentItem': {}, 'currentType': "", 'currentLabel': ""};
+          $scope.analysis.sites[i].additionalInfo.synonyms = 
+            { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+              'currentItem': {}, 'currentType': "", 'currentLabel': ""};
+          $scope.analysis.sites[i].additionalInfo.selectors = 
+            { 'showing': false, 'buttonTypes': [], 'currentButton': {}, 
+              'currentItem': {}, 'currentType': "", 'currentLabel': ""};          
         }
 
-        // Show external results if internal is empty and hide button
+        // Control the display of result types and internal/external buttons
+        $scope.show = {'text': false, 'links': false, 'context': false, 'synonymRings': false, 
+                       'selectors': false, 'internal': true, 'external': false}
+
+        // Show external results if no internal results
         if (isEmpty($scope.analysis.sites[0].internalResults)) { 
           $scope.results = 'externalResults';
           $scope.external = true;
-          $scope.show.internal = false;
+          $scope.show.internal = false; // hideButton
         }
-        // Show external button if exist
+        // Show external button if external results
         if (!isEmpty($scope.analysis.sites[0].externalResults)) { 
           $scope.show.external = true;
         }
         // Don't show pointer if only one button exists
-        if (isEmpty($scope.analysis.sites[0].internalResults) || isEmpty($scope.analysis.sites[0].externalResults)) {
+        if (isEmpty($scope.analysis.sites[0].internalResults) || 
+            isEmpty($scope.analysis.sites[0].externalResults)) {
           $scope.soloResults = true;
         }
 
@@ -269,6 +235,7 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
         for (var i = 0; i < pages.length; i++) {
           if (!isEmpty($scope.analysis.sites[0].internalResults[pages[i]]) || 
               !isEmpty($scope.analysis.sites[0].externalResults[pages[i]]) ) {
+            alert('here');
             $scope.show[pages[i]] = true;
           }
         }
@@ -509,8 +476,10 @@ spiderwebApp.controller('SplashdownCtrl', function($scope, $http, resultsService
     additionalInfo.currentButton = button;
   }
 
-  // Check if analysis available to display
+  // Check if analysis available to display on page load
   var currentAnalysis = resultsService.getCurrentAnalysis();
+
+  // Then display analysis or folders
   $scope.getFoldlersOrAnalysis(currentAnalysis);
 });
 
