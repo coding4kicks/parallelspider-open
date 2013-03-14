@@ -26,6 +26,7 @@ spiderwebApp.service('configService', function() {
     };
   })
 
+
   /*
    * Results Service - retrieves the results of a crawl from S3
    *
@@ -114,6 +115,7 @@ spiderwebApp.service('configService', function() {
     };
   })
 
+
   /*
    * Crawl Service - Used to initiate a crawl
    *
@@ -166,6 +168,13 @@ spiderwebApp.service('configService', function() {
                     'longSession': sessionService.getLongSession() },
             deferred = $q.defer();
 
+        // QA data - since "" returned from session service will trigger undefined
+        if (typeof requestData.shortSession === "undefined") {
+          requestData.shortSession = "";
+        }
+        if (typeof requestData.longSession === "undefined") {
+          requestData.longSession = "";
+        }
 
         $http.post(url, data)
           .success(function(data, status, headers, config){
@@ -178,5 +187,86 @@ spiderwebApp.service('configService', function() {
         return deferred.promise;
       }
     };
+  })
+
+  /*
+   * Folder Service - Used to maintain user's analyses folders
+   *
+   * Functions:
+   *  getFolderList - Getter for folder list from local or server
+   *    FolderList = [folderInfo1, ...]
+   *      FolderInfo =
+   *        {'name': 'foldername', 'analysisList': [analysisInfo1, ...]}
+   *      AnslysisInfo = 
+   *        {'name': 'analysisname', 'data': 'data', 'id': 'id'} 
+   *  addAnalysis - add an analysis to a folder
+   *  addFolder - add a folder to the list
+   */
+  .service('folderService', function ($http, $q, sessionService, configService) {
+    var folderList = {};
+    
+    return {
+
+      setCrawlId:function (id) {
+        crawlId = id;
+      },
+
+      getMaxPages:function () {
+        return maxPages;
+      },
+
+      setMaxPages:function (pages) {
+        maxPages = pages;
+      },
+
+      /*
+       * Get Folder List - fetches folder list from server
+       *
+       * Returns: deferred object
+       *    FolderList = [folderInfo1, ...]
+       *      FolderInfo =
+       *        {'name': 'foldername', 'analysisList': [analysisInfo1, ...]}
+       *      AnslysisInfo = 
+       *        {'name': 'analysisname', 'data': 'data', 'id': 'id'}        
+       *   
+       */
+      getFolderList:function () {
+
+        // If empty fetch from server
+        if (isEmpty(folderList)) {
+
+          // Configure resource fetch details
+          var url = configService.getProtocol() + '://' + 
+                    configService.getHost() + '/getanalysisfolders',
+              data = {'shortSession': sessionService.getShortSession(),
+                      'longSession': sessionService.getLongSession() },
+              deferred = $q.defer();
+
+          // QA data - since "" returned from session service will trigger undefined
+          if (typeof data.shortSession === "undefined") {
+            data.shortSession = "";
+          }
+          if (typeof data.longSession === "undefined") {
+            data.longSession = "";
+          }
+
+          $http.post(url, data)
+            .success(function(data, status, headers, config){
+              deferred.resolve(data);
+            })
+            .error(function(data, status, headers, config){
+              console.log('error');
+            });
+
+          return deferred.promise;
+        }
+        // Otherwise return from local
+        else {
+          return folderList;
+        }
+      }
+    };
   });
+
+
 

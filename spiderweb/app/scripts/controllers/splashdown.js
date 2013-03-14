@@ -21,7 +21,7 @@
  * $scope.minWidth = "{'min-width': '1400px'}";
  */
 spiderwebApp.controller('SplashdownCtrl', 
-    function($scope, $http, resultsService, configService, sessionService) {
+    function($scope, $http, resultsService, configService, sessionService, folderService) {
 
   // TODO: A reminder to write some mother f'ing tests, dude!
   $scope.awesomeThings = [
@@ -117,35 +117,11 @@ spiderwebApp.controller('SplashdownCtrl',
 
       $scope.analysisAvailable = false;
 
-      //TODO: refactor below into a folder service
-    
-      // Get the folder list
-      var url = configService.getProtocol() + '://' + 
-          configService.getHost() + '/getAnalysisFolders',
-      data = {'shortSession': sessionService.getShortSession(),
-            'longSession': sessionService.getLongSession() };
-
-      // QA data - since "" returned from session service will trigger undefined
-      if (typeof data.shortSession === "undefined") {
-        data.shortSession = "";
-      }
-      if (typeof data.longSession === "undefined") {
-        data.longSession = "";
-      }
-
-      // Fetch folder info
-      $http.post(url, data)
-
-        .success(function(data, status, headers, config){
-
-          // set the current folder to the first folder in list  
-          $scope.folderList = data;
-          $scope.currentFolder = $scope.folderList[0];     
-        })
-
-        .error(function(data, status, headers, config){
-          console.log('error');
-        });
+      folderService.getFolderList()
+        .then(function(results) {
+            $scope.folderList = results;
+            $scope.currentFolder = $scope.folderList[0];
+        }); 
     }
 
     // Analysis is current, so retrieve it

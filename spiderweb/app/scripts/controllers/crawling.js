@@ -1,5 +1,15 @@
 'use strict';
 
+/*
+ * Crawling Controller
+ *
+ * Tracks crawl status and redirects to splashdown when complete.
+ * Crawl Progress is based on planned 20 pages per second
+ *  - deviations +/- 100 cause status bar to stop or jump
+ * Updates user's folder info by adding new crawl
+ *
+ */ 
+
 spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $location, crawlService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
@@ -73,6 +83,12 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
 
     // Once complete, redirect to splashdown
     if ($scope.pageCount.count === -2) {
+      
+      // Set crawl id as current
+
+      // Update user's folder info
+
+      // Redirect to splashdown page
       $location.path('/splashdown');
       $scope.apply;
     }

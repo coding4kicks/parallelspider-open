@@ -19,7 +19,9 @@
         Get S3 Signature - Returns a signed S3 URL to access a crawl's results
         Get Analysis Folder - Returns the folders and analyses for a user
 
-     TODO: Elaborate on failure codes 
+     TODO: Elaborate on failure codes
+     TODO: Refactor analysis folder info to postgre 
+        - so don't have to send entire datastructure accross wire on update
 
      Notes: All responses prefaced with:  )]}',\n
             Stripped by Angular and helps prevent CSRF
@@ -129,7 +131,13 @@ class CheckUserCredentials(resource.Resource):
         self.shortExpire = (60 * 60) # 1 hour
 
     def render(self, request):
-        """Returns user id and session info if successful login"""
+        """
+            Returns user id and session info if successful login
+            
+            Request:
+                {'user': 'user id = email',
+                 'password': 'users password'}
+        """
 
         # Add headers to request prior to writing
         self.request = request
@@ -211,7 +219,13 @@ class SignOut(resource.Resource):
         self.request = ""
 
     def render(self, request):
-        """Removes tokens from Redis and returns logout success"""
+        """
+            Removes tokens from Redis and returns logout success
+            
+            Request:
+                {'shortSession': 'short session token',
+                 'longSession': 'long session token'}
+        """
    
         # Add headers to request prior to writing
         self.request = request
@@ -277,7 +291,13 @@ class InitiateCrawl(resource.Resource):
         self.shortExpire = (60 * 60) # 1 hour
 
     def render(self, request):
-        """Place Crawl ID into Redis and return to user"""
+        """
+            Construct Crawl ID, place into Redis and return to user
+
+            Request:
+                {'shortSession': 'short session token',
+                 'longSession': 'long session token'}          
+        """
 
         # Add headers to request prior to writing
         self.request = request
@@ -307,14 +327,14 @@ class InitiateCrawl(resource.Resource):
             self.session_redis.expire(short_session, self.shortExpire)
             self.session_redis.expire(long_session, self.longExpire)
     
-            # Create crawl id (username, crawlname, date, random)
+            # Create crawl id (user id, crawlname, date, random)
             crawl = data['crawl']
-            user = base64.b64encode(data['userName'])
+            user_id = base64.b64decode(long_session).split("///")[1]
             name = base64.b64encode(crawl['name'])
             time = base64.b64encode(crawl['time'])
             rand = uuid.uuid4().bytes.encode("base64")[:4]
 
-            crawl_id = user + "-" + name + "-" + time + "-" + rand
+            crawl_id = user_id + "-" + name + "-" + time + "-" + rand
 
             # Set crawl info into Redis
             self.central_redis.set(crawl_id, crawl_json)
@@ -358,7 +378,14 @@ class CheckCrawlStatus(resource.Resource):
 
     def render(self, request):
         """
-            Check and return crawl status:
+            Check and return crawl status
+
+            Request:
+                {'shortSession': 'short session token',
+                 'longSession': 'long session token',
+                 'id': 'crawl id'}
+
+            Return:
                 positive int - page count
                 -1 - initializing
                 -2 - crawl complete
@@ -405,13 +432,15 @@ class CheckCrawlStatus(resource.Resource):
 class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
 
-    def __init__(self, session_redis):
+    def __init__(self, session_redis, mock):
         """ 
             Args: 
                 Session Redis - maintain session state
+                mock - if True to mock S3 backend
         """
 
         self.session_redis = session_redis
+        self.mock = mock
 
         # Expiration Info
         self.longExpire= (60 * 60 * 24) # 1 day
@@ -420,7 +449,17 @@ class GetS3Signature(resource.Resource):
         self.request = ""
 
     def render(self, request):
-        """Return signed URL to get requested analysis from S3"""
+        """
+            Generate signed URL to get requested analysis from S3
+            
+            Request:
+                {'shortSession': 'short session token',
+                 'longSession': 'long session token',
+                 'analysisId': 'id of analysis to retrieve'}
+
+            Return:
+                Signed URL to access object on S3
+            """
    
         # Add headers to request prior to writing
         self.request = request
@@ -444,7 +483,6 @@ class GetS3Signature(resource.Resource):
         short_session = data['shortSession'] 
         long_session = data['longSession']
 
-
         # If logged in, retrieve analysis from users bucket
         if self.session_redis.exists(long_session):
 
@@ -462,15 +500,12 @@ class GetS3Signature(resource.Resource):
             url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
  
             # Mock AWS S3 backend
-            # TODO: make so disable/enable with mock backend
-            mockS3 = True
-            if mockS3:
+            if self.mock:
                 url = analysis_id + ".json"
                 url = unicodedata.normalize('NFKD', url) \
                                  .encode('ascii','ignore')
-
+            
             return """)]}',\n{"url": "%s"}""" % url
-
 
         # Otherwise, not logged in, so retrieve from anonymous bucket
         else:
@@ -482,10 +517,8 @@ class GetS3Signature(resource.Resource):
             s3conn = boto.connect_s3()
             url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
  
-            # Overwrite url so can develop without S3 calls
-            # TODO: make so disable/enable with mock backend
-            mockS3 = True
-            if mockS3:
+            # Mock AWS S3 backend
+            if self.mock:
                 url = analysis_id + ".json"
                 url = unicodedata.normalize('NFKD', url) \
                                  .encode('ascii','ignore')
@@ -514,12 +547,18 @@ class GetAnalysisFolders(resource.Resource):
 
     def render(self, request):
         """
-            Returns JSON of users folders info
-            FolderList = [folderInfo1, ...]
-            FolderInfo =
-            {'name': 'foldername', 'analysisList': [analysisInfo1, ...]}
-            AnslysisInfo = 
-            {'name': 'analysisname', 'data': 'data', 'id': 'id'}            
+            Return user's folders info
+
+            Request:
+                {'shortSession': 'short session token',
+                 'longSession': 'long session token'}
+
+            Return:
+                FolderList = [folderInfo1, ...]
+                FolderInfo =
+                {'name': 'foldername', 'analysisList': [analysisInfo1, ...]}
+                AnslysisInfo = 
+                {'name': 'analysisname', 'data': 'data', 'id': 'id'}            
         """
    
         self.request = request
@@ -572,10 +611,100 @@ class GetAnalysisFolders(resource.Resource):
             return ")]}',\n" + folder_info
 
 
+class UpdateAnalysisFolders(resource.Resource):
+    """ Update user's analysis folders """
+
+    def __init__(self, session_redis, user_redis):
+        """ 
+            Args: 
+                Session Redis - maintain session state
+                User Redis - contains user information
+        """
+
+        self.session_redis = session_redis
+        self.user_redis = user_redis
+
+        # Expiration Info
+        self.longExpire= (60 * 60 * 24) # 1 day
+        self.shortExpire = (60 * 60) # 1 hour
+
+        self.request = ""
+
+    def render(self, request):
+        """
+            Return user's folders info
+
+            Request:
+                {'shortSession': 'short session token',
+                 'longSession': 'long session token',
+                 'folderInfo': 'JSON folder info'}
+
+            Return:
+                FolderList = [folderInfo1, ...]
+                FolderInfo =
+                {'name': 'foldername', 'analysisList': [analysisInfo1, ...]}
+                AnslysisInfo = 
+                {'name': 'analysisname', 'data': 'data', 'id': 'id'}            
+        """
+   
+        self.request = request
+
+        # Add headers prior to writing
+        self.request.setHeader('Content-Type', 'application/json')
+
+        # Set access control: CORS 
+        # TODO: refactor stuff out to function
+
+        # TODO: limit origins on live site?
+        self.request.setHeader('Access-Control-Allow-Origin', '*')
+        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
+        # Echo back all request headers
+        access_headers = self.request \
+                             .getHeader('Access-Control-Request-Headers')
+        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+
+        # Return if preflight request
+        if request.method == "OPTIONS":
+            return ""
+
+        data = json.loads(request.content.getvalue())
+
+        folder_data = data['folderInfo']
+        short_session = data['shortSession'] 
+        long_session = data['longSession']
+
+        # Logged in user
+        if self.session_redis.exists(long_session):
+
+            # set new expirations
+            if self.session_redis.exists(short_session):
+              self.session_redis.expire(short_session, self.shortExpire)
+            self.session_redis.expire(long_session, self.longExpire)
+
+            # Get user's id 
+            user_id = base64.b64decode(long_session).split("///")[1] 
+
+            # Turn folder info back into JSON
+            folder_info = json.dumps(folder_data)
+
+            # Set new user folder info into Redis
+            self.user_redis.set(user_id + "_folders", folder_info)
+
+            return ")]}',\n" + "{'success': true}"
+
+        # Anonymous User so show samples
+        else:
+
+            # How to add anonymous users stuff to temp folder? 
+
+            return ")]}',\n" + "{'success': false}"
+
+
 # Command Line Crap & Initialization
 ###############################################################################
 
-### TODO: Add mock S3, Add updateFolderInfo, add Config for expiration (s3)
+### TODO: Add updateFolderInfo, add Config for expiration (s3),
+#disable back button to crawl
 
 if __name__ == "__main__":
 
@@ -619,6 +748,13 @@ if __name__ == "__main__":
             default="6377", dest="sessionRedisPort", 
             help="Set Session Redis port information. [default: %default]")
 
+    # Mock AWS S3 Backend
+    # Mock folder structure must match test S3 structure and vice versa
+    # Files should be in the app directory on localhost
+    parser.add_option(
+            "-m", "-M", "--mock", action="store_true", 
+            default="", dest="mock", 
+            help="Mock S3 Backend. [default: False]")
 
     (options, args) = parser.parse_args()
     if int(options.centralRedisPort) < 1:
@@ -645,12 +781,15 @@ if __name__ == "__main__":
     p = portal.Portal(SpiderRealm(u))
     p.registerChecker(PasswordChecker(u))
 
+    m = options.mock
+    
     # Set up site and resources
     root = resource.Resource()
     root.putChild('initiatecrawl', InitiateCrawl(c, s))
     root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s))
-    root.putChild('gets3signature', GetS3Signature(s))
-    root.putChild('getAnalysisFolders', GetAnalysisFolders(s, u))
+    root.putChild('gets3signature', GetS3Signature(s, m))
+    root.putChild('getanalysisfolders', GetAnalysisFolders(s, u))
+    root.putChild('updateanalysisfolders', UpdateAnalysisFolders(s, u))
     root.putChild('addnewuser', AddNewUser())
     root.putChild('checkusercredentials', CheckUserCredentials(p, s))
     root.putChild('signout', SignOut(s))

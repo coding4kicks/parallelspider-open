@@ -33,7 +33,7 @@ def local():
     data.start('kvs', 'engine')
 
     # Start Spider Server - needs Central Redis
-    server.start('local')
+    server.start('local', mock=True)
 
     # Start Spider Engine (local mock client only)
     # - needs Central and Engine Redis

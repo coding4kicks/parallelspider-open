@@ -12,7 +12,7 @@ import subprocess
 path = os.path.realpath(__file__).partition('spiderdepot')[0]
 
 @fab.task
-def start(type='local', args=None):
+def start(type='local', mock=False, args=None):
 
     # Start Spider Server on localhost
     if type == 'local':
@@ -20,6 +20,11 @@ def start(type='local', args=None):
         # Assumes spiderserver is 1 level below parallelspider,
         # and spiderserver.py is in spiderserver
         cmd_line = "python spiderserver.py"
+
+        # Mock S3 backend if true
+        if mock:
+            cmd_line += " -m"
+
         cwd= path + "spiderserver"
         p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
@@ -40,10 +45,10 @@ def stop(type='local', args=None):
                 os.kill(pid, signal.SIGKILL)
 
 @fab.task
-def restart(type='local', args=None):
+def restart(type='local', mock=False, args=None):
 
     # Restart Spider Server on localhost
     if type == 'local':
         stop()
-        start()
+        start(mock=mock)
 

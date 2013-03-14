@@ -14,7 +14,7 @@ describe('Controller: SplashdownCtrl', function() {
   }));
 
   beforeEach(inject(function($httpBackend) {
-    $httpBackend.whenPOST('http://localhost:8000/getAnalysisFolders').respond({});
+    $httpBackend.whenPOST('http://localhost:8000/getanalysisfolders').respond({});
   }));  
 
   var SplashdownCtrl,

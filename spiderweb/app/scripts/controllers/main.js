@@ -230,13 +230,20 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
         requestData = {},
         now = new Date().toString();
 
-    // Set sessioin info in response
+    // Construct request with session info
     requestData.shortSession = sessionService.getShortSession();
     requestData.longSession = sessionService.getLongSession();
-    requestData.userName = sessionService.getUserName();
+
+    // QA data - since "" returned from session service will trigger undefined
+    if (typeof requestData.shortSession === "undefined") {
+      requestData.shortSession = "";
+    }
+    if (typeof requestData.longSession === "undefined") {
+      requestData.longSession = "";
+    }
 
     // Determine crawl name
-    // First is always empty since no field on main page
+    // First is always empty since no name field on main page
     $scope.crawl.name = $scope.crawlName || $scope.crawl.primarySite;
 
     // Set the time
@@ -265,8 +272,8 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
             else {
               $scope.openLogin();
             }
-
           })
+
           .error(function(data, status, headers, config){
             alert("Server Error. Unable to Crawl, Sorry.");
           });       
