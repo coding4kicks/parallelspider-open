@@ -1,26 +1,58 @@
+#!/usr/bin/env python
+
+"""
+    Spider Server - web server for Parallel Spider
+
+    Authentication:
+        Password Checker - Checks user provided password in Redis datastore
+                         - TODO: need to hash and compare versus saved hashed
+        Named User Avatar - Contains user name (possibly other user info)
+        Spider Realm - a Twisted Realm
+
+    Resources:
+        CheckUserCredentials - Allows users to login and start sessions
+        Sign Out - Removes session info from datastore
+        Add New User -
+        Password Reminder - 
+        Initiate Crawl - Passes a crawl to the analysis engine
+        Check Crawl Status - Monitors the progress of a crawl
+        Get S3 Signature - Returns a signed S3 URL to access a crawl's results
+        Get Analysis Folder - Returns the folders and analyses for a user
+
+     TODO: Elaborate on failure codes 
+
+     Notes: All responses prefaced with:  )]}',\n
+            Stripped by Angular and helps prevent CSRF
+"""
+
+import json
+import uuid
+import datetime
+import base64
+import optparse
+import unicodedata
+
 from twisted.cred import portal, checkers, credentials, error as credError
 from twisted.internet import protocol, reactor, defer
 from twisted.web import resource, static, server
 from zope.interface import Interface, implements
 
-import json
-import redis
-import uuid
-import datetime
-import base64
 import boto
-import optparse
-import unicodedata
+import redis
 
 
 # AUTHENTICATION
-##################
+###############################################################################
+
 class PasswordChecker(object):
+    """Dict like object mapping usernames to passwords"""
+
     implements(checkers.ICredentialsChecker)
     credentialInterfaces = (credentials.IUsernamePassword,)
 
     def __init__(self, user_redis):
-        """ dict like object mapping usernames to passwords """
+        """Only arg is Redis instance with user info."""
+
         self.user_redis = user_redis
 
     def requestAvatarId(self, credentials):
@@ -36,9 +68,11 @@ class PasswordChecker(object):
                 credError.UnauthorizedLogin("No such user"))
 
 class INamedUserAvatar(Interface):
-    """ should have attributes username and nickname """
+    """ Should have attributes username and nickname """
 
 class NamedUserAvatar(object):
+    """User info"""
+
     implements(INamedUserAvatar)
 
     # username will be email (switch name to match)
@@ -47,9 +81,19 @@ class NamedUserAvatar(object):
         self.nickname = nickname # nickname to display on welcome / forumn
 
 class SpiderRealm(object):
+    """
+        Twisted Realm object
+
+        Issue:
+            For some reason must encode returned data as ascii string.
+            Ramificatoins for Internationalization?
+    """
+
     implements(portal.IRealm)
 
     def __init__(self, user_redis):
+        """Only arg is Redis instance with user info."""
+
         self.user_redis = user_redis
 
     def requestAvatar(self, avatarId, mind, *interfaces):
@@ -58,7 +102,8 @@ class SpiderRealm(object):
             user_info = json.loads(user_data)
             nickname = user_info['nickname']
             # Must encode as string vice unicode, wtf!
-            nickname = unicodedata.normalize('NFKD', nickname).encode('ascii','ignore')
+            nickname = unicodedata.normalize('NFKD', nickname) \
+                                  .encode('ascii','ignore')
             logout = lambda: None
             return (INamedUserAvatar, 
                     NamedUserAvatar(avatarId, nickname),
@@ -66,12 +111,15 @@ class SpiderRealm(object):
         else:
             raise KeyError("None of the requested interfaces are supported")
 
+
 # RESOURCES
-##################
+###############################################################################
 
 class CheckUserCredentials(resource.Resource):
     """ Validate user's credentials for login """
+
     def __init__(self, portal, session_redis):
+        """Initialize Session Redis and Twisted Portal for Authentication"""
         self.portal = portal
         self.session_redis = session_redis
         self.request = ""
@@ -81,18 +129,18 @@ class CheckUserCredentials(resource.Resource):
         self.shortExpire = (60 * 60) # 1 hour
 
     def render(self, request):
-        self.request = request
+        """Returns user id and session info if successful login"""
 
-        # Add headers prior to writing
+        # Add headers to request prior to writing
+        self.request = request
         self.request.setHeader('Content-Type', 'application/json')
 
-        # Set access control: CORS 
-
-        # TODO: limit origins on live site?
+        # Set access control: CORs - TODO: limit origins on live site?
         self.request.setHeader('Access-Control-Allow-Origin', '*')
         self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        # Echo back all request headers for CORs
+        access_headers = self.request \
+                             .getHeader('Access-Control-Request-Headers')
         self.request.setHeader('Access-Control-Allow-Headers', access_headers)
 
         # Return if preflight request
@@ -112,21 +160,27 @@ class CheckUserCredentials(resource.Resource):
         return server.NOT_DONE_YET
     
     def _loginSucceeded(self, avatarInfo):
+        """
+            Callback for successful login
+
+            Generates, stores, and returns session tokens
+        """
 
         avatarInterface, avatar, logout = avatarInfo
 
         # Short session token - for crawl purchases and changing user info
         short_session = uuid.uuid4().bytes.encode("base64")[:21]
-        self.session_redis.set(short_session, 'ps_shortsession') #any info in value?
+        self.session_redis.set(short_session, 'ps_shortsession') 
         self.session_redis.expire(short_session, self.shortExpire)
 
-        # Long session token - for user info and data analysis
+        # Long session token - for user info and data analysis - longer expire
         u = uuid.uuid4().bytes.encode("base64")[:4]
-        # Place nickname so can reload from cookie, and date for logging
+
+        # Include nickname, id, and date for cookie reload and logging
         v = base64.b64encode(avatar.nickname + '///' + avatar.username + '///'
                 + str(datetime.datetime.now))
         long_session = v + u
-        self.session_redis.set(long_session, 'ps_longsession') #any info in value?
+        self.session_redis.set(long_session, 'ps_longsession')
         self.session_redis.expire(long_session, self.longExpire)
 
     
@@ -141,39 +195,34 @@ class CheckUserCredentials(resource.Resource):
         self.request.write(value)
         self.request.finish()
 
-        # TODO: set both Session and Purchase cookie in Browser and Redis
-        # TODO: retrieve user info from Database?
-        # TODO: retrieve Analyses folder information - db or s3?
-        # TODO: retrieve user info for account page, payment info?
 
     def _loginFailed(self, failure):
         self.request.write(""")]}',\n{"login": "fail"}""")
-        #self.request.write(str(failure))
         self.request.finish()
 
+
 class SignOut(resource.Resource):
-    """ Log user out by destroying session tokents"""
+    """ Log user out by destroying session tokens"""
 
     def __init__(self, session_redis):
-        self.session_redis = session_redis
+        """Only arg is session datastore"""
 
+        self.session_redis = session_redis
         self.request = ""
 
     def render(self, request):
+        """Removes tokens from Redis and returns logout success"""
    
+        # Add headers to request prior to writing
         self.request = request
-
-        # Add headers prior to writing
         self.request.setHeader('Content-Type', 'application/json')
 
-        # Set access control: CORS 
-        # TODO: refactor stuff out to function
-
-        # TODO: limit origins on live site?
+        # Set access control: CORs - TODO: limit origins on live site?
         self.request.setHeader('Access-Control-Allow-Origin', '*')
         self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        # Echo back all request headers for CORs
+        access_headers = self.request \
+                             .getHeader('Access-Control-Request-Headers')
         self.request.setHeader('Access-Control-Allow-Headers', access_headers)
 
         # Return if preflight request
@@ -185,9 +234,9 @@ class SignOut(resource.Resource):
         short_session = data['shortSession'] 
         long_session = data['longSession']
 
+        # Remove session info from Redis
         if self.session_redis.exists(long_session):
             self.session_redis.delete(long_session)
-
         if self.session_redis.exists(short_session):
             self.session_redis.delete(short_session)
 
@@ -198,31 +247,28 @@ class SignOut(resource.Resource):
 class AddNewUser(resource.Resource):
     """ Add a new user to the system """
     def render(self, request):
-        return """
-        <html>
-        <head><title>testHome</title></head>
-        <body><h1>New user added.</h1></body>
-        </html>
-        """
+
+        return """ """
+
 
 #TODO: later
 class PasswordReminder(resource.Resource):
     """ Send an email reminder of a password to a user """
     def render(self, request):
 
-        # TODO: check XSRF header
+        return """ """
 
-        return """
-        <html>
-        <head><title>testHome</title></head>
-        <body><h1>Email sent.</h1></body>
-        </html>
-        """
 
 class InitiateCrawl(resource.Resource):
-    """ Initiate a crawl and return the crawl id """
+    """Initiate a crawl and return the crawl id"""
 
     def __init__(self, central_redis, session_redis):
+        """ 
+            Args: 
+                Central Redis - to communicate with analysis engine
+                Session Redis - maintain session state
+        """
+
         self.central_redis = central_redis
         self.session_redis = session_redis
 
@@ -231,22 +277,18 @@ class InitiateCrawl(resource.Resource):
         self.shortExpire = (60 * 60) # 1 hour
 
     def render(self, request):
+        """Place Crawl ID into Redis and return to user"""
 
+        # Add headers to request prior to writing
         self.request = request
-
-        # TODO: check XSRF header
-
-        # Add headers prior to writing
         self.request.setHeader('Content-Type', 'application/json')
 
-        # Set access control: CORS 
-        # TODO: refactor stuff out to function
-
-        # TODO: limit origins on live site?
+        # Set access control: CORs - TODO: limit origins on live site?
         self.request.setHeader('Access-Control-Allow-Origin', '*')
         self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        # Echo back all request headers for CORs
+        access_headers = self.request \
+                             .getHeader('Access-Control-Request-Headers')
         self.request.setHeader('Access-Control-Allow-Headers', access_headers)
 
         # Return if preflight request
@@ -294,10 +336,17 @@ class InitiateCrawl(resource.Resource):
 
         return value
 
+
 class CheckCrawlStatus(resource.Resource):
     """ Check status of a crawl based upon an id """
 
     def __init__(self, central_redis, session_redis):
+        """ 
+            Args: 
+                Central Redis - to communicate with analysis engine
+                Session Redis - maintain session state
+        """
+
         self.central_redis = central_redis
         self.session_redis = session_redis
 
@@ -308,20 +357,23 @@ class CheckCrawlStatus(resource.Resource):
         self.request = ""
 
     def render(self, request):
+        """
+            Check and return crawl status:
+                positive int - page count
+                -1 - initializing
+                -2 - crawl complete
+        """
 
+        # Add headers to request prior to writing
         self.request = request
-
-        # Add headers prior to writing
         self.request.setHeader('Content-Type', 'application/json')
 
-        # Set access control: CORS 
-        # TODO: refactor stuff out to function
-
-        # TODO: limit origins on live site?
+        # Set access control: CORs - TODO: limit origins on live site?
         self.request.setHeader('Access-Control-Allow-Origin', '*')
         self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        # Echo back all request headers for CORs
+        access_headers = self.request \
+                             .getHeader('Access-Control-Request-Headers')
         self.request.setHeader('Access-Control-Allow-Headers', access_headers)
 
         # Return if preflight request
@@ -354,6 +406,11 @@ class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
 
     def __init__(self, session_redis):
+        """ 
+            Args: 
+                Session Redis - maintain session state
+        """
+
         self.session_redis = session_redis
 
         # Expiration Info
@@ -363,20 +420,18 @@ class GetS3Signature(resource.Resource):
         self.request = ""
 
     def render(self, request):
+        """Return signed URL to get requested analysis from S3"""
    
+        # Add headers to request prior to writing
         self.request = request
-
-        # Add headers prior to writing
         self.request.setHeader('Content-Type', 'application/json')
 
-        # Set access control: CORS 
-        # TODO: refactor stuff out to function
-
-        # TODO: limit origins on live site?
+        # Set access control: CORs - TODO: limit origins on live site?
         self.request.setHeader('Access-Control-Allow-Origin', '*')
         self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        # Echo back all request headers for CORs
+        access_headers = self.request \
+                             .getHeader('Access-Control-Request-Headers')
         self.request.setHeader('Access-Control-Allow-Headers', access_headers)
 
         # Return if preflight request
@@ -388,7 +443,9 @@ class GetS3Signature(resource.Resource):
         analysis_id = data['analysisId']
         short_session = data['shortSession'] 
         long_session = data['longSession']
-        #print('here')
+
+
+        # If logged in, retrieve analysis from users bucket
         if self.session_redis.exists(long_session):
 
             # set new expirations
@@ -399,51 +456,53 @@ class GetS3Signature(resource.Resource):
             # Create S3 key with user's id and analysis id
             user_id = base64.b64decode(long_session).split("///")[1] 
             key = user_id + '/' + analysis_id + '.json'
-            #print key
-            # Sign url (assumes AWS keys are in .bashrc / env)
-
             
+            # Sign URL (assumes AWS keys are in .bashrc / env)
             s3conn = boto.connect_s3()
             url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
  
-            # Temporarily overwrite url so don't continuously pull 10mb from AWS
+            # Mock AWS S3 backend
             # TODO: make so disable/enable with mock backend
             mockS3 = True
             if mockS3:
                 url = analysis_id + ".json"
-                url = unicodedata.normalize('NFKD', url).encode('ascii','ignore')
-            #url = 'results3SiteLinks.json'
-            #print url
+                url = unicodedata.normalize('NFKD', url) \
+                                 .encode('ascii','ignore')
 
             return """)]}',\n{"url": "%s"}""" % url
 
 
+        # Otherwise, not logged in, so retrieve from anonymous bucket
         else:
 
             # Create S3 key with anonymous id and analysis id
             key = 'anonymous/' + analysis_id + '.json'
-            #print key
-            # Sign url (assumes AWS keys are in .bashrc / env)
-
             
+            # Sign url (assumes AWS keys are in .bashrc / env)
             s3conn = boto.connect_s3()
             url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
  
-            # Temporarily overwrite url so don't continuously pull 10mb from AWS
+            # Overwrite url so can develop without S3 calls
             # TODO: make so disable/enable with mock backend
             mockS3 = True
             if mockS3:
                 url = analysis_id + ".json"
-                url = unicodedata.normalize('NFKD', url).encode('ascii','ignore')
-            #url = 'results3SiteLinks.json'
-            #print url
+                url = unicodedata.normalize('NFKD', url) \
+                                 .encode('ascii','ignore')
 
             return """)]}',\n{"url": "%s"}""" % url
 
+
 class GetAnalysisFolders(resource.Resource):
-    """ Retrieve analysis folders """
+    """ Retrieve users analysis folders """
 
     def __init__(self, session_redis, user_redis):
+        """ 
+            Args: 
+                Session Redis - maintain session state
+                User Redis - contains user information
+        """
+
         self.session_redis = session_redis
         self.user_redis = user_redis
 
@@ -454,6 +513,14 @@ class GetAnalysisFolders(resource.Resource):
         self.request = ""
 
     def render(self, request):
+        """
+            Returns JSON of users folders info
+            FolderList = [folderInfo1, ...]
+            FolderInfo =
+            {'name': 'foldername', 'analysisList': [analysisInfo1, ...]}
+            AnslysisInfo = 
+            {'name': 'analysisname', 'data': 'data', 'id': 'id'}            
+        """
    
         self.request = request
 
@@ -467,7 +534,8 @@ class GetAnalysisFolders(resource.Resource):
         self.request.setHeader('Access-Control-Allow-Origin', '*')
         self.request.setHeader('Access-Control-Allow-Methods', 'POST')
         # Echo back all request headers
-        access_headers = self.request.getHeader('Access-Control-Request-Headers')
+        access_headers = self.request \
+                             .getHeader('Access-Control-Request-Headers')
         self.request.setHeader('Access-Control-Allow-Headers', access_headers)
 
         # Return if preflight request
@@ -503,8 +571,11 @@ class GetAnalysisFolders(resource.Resource):
 
             return ")]}',\n" + folder_info
 
+
 # Command Line Crap & Initialization
-################################################################################
+###############################################################################
+
+### TODO: Add mock S3, Add updateFolderInfo, add Config for expiration (s3)
 
 if __name__ == "__main__":
 

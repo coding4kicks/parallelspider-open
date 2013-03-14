@@ -89,13 +89,10 @@ var spiderwebApp = angular.module('spiderwebApp', ['ngCookies'])
   // SERVICES - Only Session since needed by run
   ////////////////////////////
 
-
-
-
   // Manage Session State
   .service('sessionService', function() {
     var longSession = "",  // General info and analysis access
-        shortSession = "", // Purchase and change user info session
+        shortSession = "", // Purchase and change user info
         userName = "";
 
     return {
