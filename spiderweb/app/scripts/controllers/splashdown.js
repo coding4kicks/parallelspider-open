@@ -1,5 +1,25 @@
 'use strict';
 
+/*
+ * Splashdown Controller 
+ *
+ * Handles display of the Splashdown Page data: Folder Lists & Analysis Results
+ *
+ * Functions:
+ *  selectFolder - displays the analysis of the selected folder
+ *  selectAnalysis - make analysis current and display results
+ *  getFoldersOrAnalysis - display analysis if avilable or folders
+ *  getAnalysis - retrieves crawl results from results service and performs initialization
+ *  compareSites - Compare which words are common between sites
+ *  resultsChoice - selects between internal and external results
+ *  showInfo - shows the additional information of a selected item
+ *  switchInfoType - switches the additional information type displayed
+ *
+ * TODO: implement min-width calculation for side scrolling
+ * (min-width = number of analysis box elements)
+ * ISSUES: 1) mac side scroll may go back a page; 2) difficulty of non-mac sidescroll?
+ * $scope.minWidth = "{'min-width': '1400px'}";
+ */
 spiderwebApp.controller('SplashdownCtrl', 
     function($scope, $http, resultsService, configService, sessionService) {
 
@@ -9,7 +29,6 @@ spiderwebApp.controller('SplashdownCtrl',
     'AngularJS',
     'Testacular'
   ];
-
   
   // Folder Information
   $scope.folderList = [];
@@ -57,7 +76,12 @@ spiderwebApp.controller('SplashdownCtrl',
   $scope.buttonTypes.linkText = 
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
 
-
+  /*
+   * selectFolder - displays the analysis of the selected folder
+   *
+   * args:
+   *  folderName - name of the folder to make current and thus display
+   */
   $scope.selectFolder = function(folderName) {
     resultsService.setCurrentAnalysis("");
     $scope.analysisAvailable = false;
@@ -68,18 +92,34 @@ spiderwebApp.controller('SplashdownCtrl',
     }
   }
 
+  /*
+   * selectAnalysis - make analysis current and display results
+   *    
+   * args:
+   *  analysisId - key value for the analysis on S3
+   */  
   $scope.selectAnalysis = function(analysisId) {
     resultsService.setCurrentAnalysis(analysisId);
     $scope.analysisAvailable = true;
     $scope.getAnalysis(analysisId);
   }
- 
+
+  /*
+   * getFoldersOrAnalysis - display analysis if avilable or folders
+   *    
+   * args:
+   *  currentAnalysis - analysis to display if available, if empty display folders
+   */   
   $scope.getFoldlersOrAnalysis = function(currentAnalysis) {
-    
+ 
+    // If no current analysis display folders   
     if (isEmpty(currentAnalysis)) {
+
       $scope.analysisAvailable = false;
+
+      //TODO: refactor below into a folder service
     
-      // get the folder list
+      // Get the folder list
       var url = configService.getProtocol() + '://' + 
           configService.getHost() + '/getAnalysisFolders',
       data = {'shortSession': sessionService.getShortSession(),
@@ -93,23 +133,30 @@ spiderwebApp.controller('SplashdownCtrl',
         data.longSession = "";
       }
 
+      // Fetch folder info
       $http.post(url, data)
+
         .success(function(data, status, headers, config){
 
           // set the current folder to the first folder in list  
           $scope.folderList = data;
           $scope.currentFolder = $scope.folderList[0];     
         })
+
         .error(function(data, status, headers, config){
           console.log('error');
         });
     }
+
+    // Analysis is current, so retrieve it
     else {
+
       $scope.analysisAvailable = true;
       $scope.getAnalysis(currentAnalysis.id);
 
-      // still need to get folders
-      // get the folder list
+      //TODO: refactor below into a folder service
+
+      // still must get folders for display in side bar
       var url = configService.getProtocol() + '://' + 
           configService.getHost() + '/getAnalysisFolders',
       data = {'shortSession': sessionService.getShortSession(),
@@ -123,6 +170,7 @@ spiderwebApp.controller('SplashdownCtrl',
         data.longSession = "";
       }
 
+      // Fetch the folders
       $http.post(url, data)
         .success(function(data, status, headers, config){
 
@@ -133,14 +181,8 @@ spiderwebApp.controller('SplashdownCtrl',
         .error(function(data, status, headers, config){
           console.log('error');
         });
-
     }
   }
-
-  // TODO: implement min-width calculation for side scrolling 
-  // (min-width = number of analysis box elements)
-  // ISSUES: 1) mac side scroll may go back a page; 2) difficulty of non-mac sidescroll?
-  // $scope.minWidth = "{'min-width': '1400px'}";
 
   /*
    * getAnalysis - retrieves crawl results from results service and performs initialization
@@ -197,50 +239,52 @@ spiderwebApp.controller('SplashdownCtrl',
 
         // Control the display of result types and internal/external buttons
         $scope.show = {'text': false, 'links': false, 'context': false, 'synonymRings': false, 
-                       'selectors': false, 'internal': true, 'external': false}
+                       'selectors': false, 'internalButton': true, 'externalButton': false}
 
-        // Show external results if no internal results
+        // Show external results if no internal results and hide the internal button
         if (isEmpty($scope.analysis.sites[0].internalResults)) { 
           $scope.results = 'externalResults';
           $scope.external = true;
-          $scope.show.internal = false; // hideButton
+          $scope.show.internalButton = false;
         }
-        // Show external button if external results
+
+        // Show external button only if external results exist
         if (!isEmpty($scope.analysis.sites[0].externalResults)) { 
-          $scope.show.external = true;
+          $scope.show.externalButton = true;
         }
-        // Don't show pointer if only one button exists
+
+        // Don't show pointer if only one internal/external button exists
         if (isEmpty($scope.analysis.sites[0].internalResults) || 
             isEmpty($scope.analysis.sites[0].externalResults)) {
           $scope.soloResults = true;
         }
 
-        // Check which pages are empty
-        var textPage = ['visibleText', 'hiddenText', 'headlineText', 'searchWords'],
-            linkPage = ['allLinks', 'externalDomains', 'linkText'],
-            pages = ['context', 'synonymRings', 'selectors'];
-
+        // Only display text results pane if one type exists
+        var textPage = ['visibleText', 'hiddenText', 'headlineText', 'searchWords'];
         for (var i = 0; i < textPage.length; i++) {
           if (!isEmpty( $scope.analysis.sites[0][$scope.results][textPage[i]])) {
             $scope.show.text = true;
           }
         }
-        
+
+        // Only display link results pane if one type exists
+        var linkPage = ['allLinks', 'externalDomains', 'linkText'];      
         for (var i = 0; i < linkPage.length; i++) {
           if (!isEmpty( $scope.analysis.sites[0][$scope.results][linkPage[i]])) {
             $scope.show.links = true;
           }
         }
-
+  
+        // Only display other panes if results exist
+        var pages = ['context', 'synonymRings', 'selectors'];
         for (var i = 0; i < pages.length; i++) {
           if (!isEmpty($scope.analysis.sites[0].internalResults[pages[i]]) || 
               !isEmpty($scope.analysis.sites[0].externalResults[pages[i]]) ) {
-            alert('here');
             $scope.show[pages[i]] = true;
           }
         }
 
-        // Perform initial comparison for all sites
+        // Perform comparison for all sites
         $scope.compareSites();
     });
   };
@@ -263,8 +307,6 @@ spiderwebApp.controller('SplashdownCtrl',
     // Args: result type - i.e. visibleText, allLinks, etc. (flag: context)
     //       itemType - i.e. word, link, domain
     //
-    //  TODO: refactor for context or change JSON for context
-    //
     var compare = function(resultType, itemType) {
       var itemsList = [],
           startList = {},
@@ -275,29 +317,39 @@ spiderwebApp.controller('SplashdownCtrl',
      
       // Create a list of "word lists" for each site
       for (var i = 0; i < sites.length; i++) {
+
         // Handle text and links
         if (sites[i].include === true && 
             resultType !== 'context' && 
             resultType !== 'synonymRings' &&
             resultType !== 'selectors') {
-          itemsList.push({'site': i + 1, 'items': sites[i][$scope.results][resultType][itemTypes]});
+          itemsList.push({'site': i + 1, 
+                          'items': sites[i][$scope.results][resultType][itemTypes]});
         }
+
         // Handle context
         if (sites[i].include === true && resultType === 'context')  { 
-          itemsList.push({'site': i + 1, 'items': sites[i][$scope.results].context.contextWords[itemType].words});
+          itemsList.push({'site': i + 1, 
+                          'items': sites[i][$scope.results].context.contextWords[itemType].words});
         }
+
         // Handle synonym rings
         if (sites[i].include === true && resultType === 'synonymRings')  { 
-          itemsList.push({'site': i + 1, 'items': sites[i][$scope.results].synonymRings.rings[itemType].words});
+          itemsList.push({'site': i + 1, 
+                          'items': sites[i][$scope.results].synonymRings.rings[itemType].words});
         }
+
         // Handle selectors
         if (sites[i].include === true && resultType === 'selectors')  { 
-          itemsList.push({'site': i + 1, 'items': sites[i][$scope.results].selectors[itemType].words});
+          itemsList.push({'site': i + 1, 
+                          'items': sites[i][$scope.results].selectors[itemType].words});
         }
 
       }
 
-      if (resultType === 'context' || resultType === 'synonymRings' || resultType === 'selectors') {
+      if (resultType === 'context' || 
+          resultType === 'synonymRings' || 
+          resultType === 'selectors') {
         itemType = 'word';
         itemTypes = 'words';
       }
@@ -481,5 +533,5 @@ spiderwebApp.controller('SplashdownCtrl',
 
   // Then display analysis or folders
   $scope.getFoldlersOrAnalysis(currentAnalysis);
-});
 
+});
