@@ -207,16 +207,12 @@ spiderwebApp.service('configService', function() {
     
     return {
 
-      setCrawlId:function (id) {
-        crawlId = id;
+      addAnalysis:function (id) {
+        //crawlId = id;
       },
 
-      getMaxPages:function () {
-        return maxPages;
-      },
-
-      setMaxPages:function (pages) {
-        maxPages = pages;
+      getFolder:function () {
+        //return maxPages;
       },
 
       /*
