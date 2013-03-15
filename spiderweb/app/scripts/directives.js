@@ -6,9 +6,7 @@
   // Made 10 px too big so scroll bar is always there and things don't jump
 spiderwebApp.directive('psFullscreen', function() {
 
-    // TODO: possibly adjust for window resize;
-    // http://www.javascripter.net/faq/browserw.htm
-    // http://jsfiddle.net/ShadowBelmolve/c2B2z/13/
+    // Handles onload, window resize is in template controller
     return function(scope, element, attrs) {
       var height = window.innerHeight - 190;
       scope.minHeight = height + 'px';

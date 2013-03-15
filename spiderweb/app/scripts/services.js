@@ -11,15 +11,11 @@ spiderwebApp.service('configService', function() {
         protocol = 'http';
 
     return {
-      //setHost: function (configHost) {
-      //  host = configHost;
-      //},
+
       getHost: function () {
         return host;
       },
-      //setProtocol: function (configProtocol) {
-      //  protocol = configProtocol;
-      //},
+
       getProtocol: function () {
         return protocol;
       }
@@ -117,7 +113,7 @@ spiderwebApp.service('configService', function() {
 
 
   /*
-   * Crawl Service - Used to initiate a crawl
+   * Crawl Service - Used to initiate and monitor a crawl
    *
    * Functions:
    *  getCrawlId - Unique Crawl ID getter
@@ -169,6 +165,44 @@ spiderwebApp.service('configService', function() {
             deferred = $q.defer();
 
         // QA data - since "" returned from session service will trigger undefined
+        if (typeof data.shortSession === "undefined") {
+          data.shortSession = "";
+        }
+        if (typeof data.longSession === "undefined") {
+          data.longSession = "";
+        }
+
+        $http.post(url, data)
+          .success(function(data, status, headers, config){
+            deferred.resolve(data);
+          })
+          .error(function(data, status, headers, config){
+            console.log('error');
+          });
+
+        return deferred.promise;
+      },
+
+      /*
+       * Initiates a Crawl - sends crawl data to server
+       *
+       * Returns: deferred object
+       *  - crawl id
+       */
+      initiateCrawl:function (crawl) {
+        
+        // Configure resource fetch details
+        var url = configService.getProtocol() + '://' + 
+                  configService.getHost() + '/initiatecrawl',
+            requestData = {},
+            deferred = $q.defer();
+            now = new Date().toString();
+
+        // Construct request with session info
+        requestData.shortSession = sessionService.getShortSession();
+        requestData.longSession = sessionService.getLongSession();
+
+        // QA data - since "" returned from session service will trigger undefined
         if (typeof requestData.shortSession === "undefined") {
           requestData.shortSession = "";
         }
@@ -176,7 +210,13 @@ spiderwebApp.service('configService', function() {
           requestData.longSession = "";
         }
 
-        $http.post(url, data)
+        // Set the time
+        crawl.time = now;
+
+        // Set crawl data in response
+        requestData.crawl = crawl; 
+
+        $http.post(url, requestData)
           .success(function(data, status, headers, config){
             deferred.resolve(data);
           })

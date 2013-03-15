@@ -7,7 +7,14 @@ spiderwebApp.controller('TemplateCtrl', function($scope, $dialog, $cookieStore, 
     'Testacular'
   ];
 
-  // TODO: onload need to check for (and set) name in cookies
+  // 
+  angular.element(window).bind('resize', function(){
+    var height = window.innerHeight - 190;
+    $scope.minHeight = height + 'px';
+    $scope.$digest();    
+  });
+
+  // Onload name is pulled from cookies by app.run()
   $scope.name = sessionService.getUserName(); //empty if not logged in
 
   $scope.opts = {
