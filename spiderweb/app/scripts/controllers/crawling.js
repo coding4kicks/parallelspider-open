@@ -10,7 +10,7 @@
  *
  */ 
 
-spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $location, crawlService) {
+spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $location, configService, resultsService, crawlService, folderService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -18,8 +18,12 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
   ];
 
 
-  // Get the max number of pages to crawl
-  $scope.maxPages = crawlService.getMaxPages(); //TODO: get from crawlService
+  // Get crawl info
+  $scope.maxPages = crawlService.getMaxPages();
+  var crawl = {};
+  crawl.id = crawlService.getCrawlId();
+  crawl.name = crawlService.getCrawlName();
+  crawl.date = crawlService.getCrawlDate();
 
   // TODO: need to adjust for 20 page free, just start at 10 seconds?
   var remainingTime = $scope.maxPages/20; // (20 pages per second)
@@ -74,7 +78,6 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
       $scope.status.initializing = false;
       $scope.status.crawling = true;
       crawling(progressNumber);
-
     }
   };
 
@@ -83,12 +86,23 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
 
     // Once complete, redirect to splashdown
     if ($scope.pageCount.count === -2) {
-      
-      // Set crawl id as current
 
-      // Update user's folder info
+      // Mocking must pass predifined crawl id to results
+      if (configService.getMock() === true) {
+        resultsService.setCurrentAnalysis('results1SiteSearchOnly');
+        folderService.addAnalysis(configService.getDefaultFolder(), 
+                                  crawl.name, crawl.date, crawl.id);
+      }
 
-      // Redirect to splashdown page
+      // Not mocking so set crawl id as current and update user's folder info
+      else {
+        resultsService.setCurrentAnalysis(crawlId);
+        folderService.addAnalysis(configService.getDefaultFolder(), 
+                                  crawl.name, crawl.date, crawl.id);
+      }
+
+      // Stop crawling and redirect to splashdown page
+      $scope.status.crawling = false;
       $location.path('/splashdown');
       $scope.apply;
     }
@@ -131,14 +145,15 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
         .then(function(results){
           $scope.pageCount = results
         });
-      console.log($scope.pageCount);
     }
 
     // Count 1/20th of a second
     counter += 1;
-    $timeout( function() {
-      crawling(progressNumber);
-    }, 50);
+    if ($scope.status.crawling) {
+      $timeout( function() {
+        crawling(progressNumber);
+      }, 50);
+    }
   };
 
   initializing(progressNumber);

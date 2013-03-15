@@ -12,6 +12,9 @@ spiderwebApp.service('configService', function() {
         protocol = 'http',
         mock = true;
 
+    // TODO: later allow user to set
+    var defaultFolder = "new analyses";
+
     return {
 
       getHost: function () {
@@ -24,7 +27,12 @@ spiderwebApp.service('configService', function() {
 
       getMock: function () {
         return mock;
+      },
+
+      getDefaultFolder: function () {
+        return defaultFolder;
       }
+
     };
   })
 
@@ -132,16 +140,76 @@ spiderwebApp.service('configService', function() {
    *  addFolder - add a folder to the list
    */
   .service('folderService', function ($http, $q, sessionService, configService) {
+    
     var folderList = {};
+
+    var fetchFolderList = function() {
+
+      // Configure resource fetch details
+      var url = configService.getProtocol() + '://' + 
+                configService.getHost() + '/getanalysisfolders',
+          data = {'shortSession': sessionService.getShortSession(),
+                  'longSession': sessionService.getLongSession() },
+          deferred = $q.defer();
+
+      // QA data - since "" returned from session service will trigger undefined
+      if (typeof data.shortSession === "undefined") {
+        data.shortSession = "";
+      }
+      if (typeof data.longSession === "undefined") {
+        data.longSession = "";
+      }
+
+      $http.post(url, data)
+        .success(function(data, status, headers, config){
+          deferred.resolve(data);
+        })
+        .error(function(data, status, headers, config){
+          console.log('error');
+        });
+
+      return deferred.promise;
+
+    };
     
     return {
 
-      addAnalysis:function (name, date, date) {
-        analysis = {'name': name, 'date': date, 'id': id}
+      addAnalysis:function (folderName, analysisName, date, id) {
+        if (isEmpty(folderList)) {
+          fetchFolderList()
+            .then( function(results) {
+
+              folderList = results;
+              var folder = {};
+
+              for (var i = 0; i < folderList.length; i++) {
+                
+                // Add to default folder
+                if (folderList[i]['name'] === folderName) {
+                  folder = folderList[i];
+                }
+                // Add to first if default not availabe
+                else {
+                  folder = folderList[0];
+                }
+              }
+
+              analysis = {'name': analysisName, 'date': date, 'id': id};
+              folder['analysisList'].push(analysis);
+                      
+              console.log(folderList);
+
+            });
+        }
+        else {
+          analysis = {'name': analysisName, 'date': date, 'id': id};
+          folder = folderList[folderName];
+          folder['analysisList'].push(analysis);
+        }
       },
 
-      getFolder:function () {
-        //return maxPages;
+      addFolder:function () {
+        //TODO: later
       },
 
       /*
@@ -159,31 +227,7 @@ spiderwebApp.service('configService', function() {
 
         // If empty fetch from server
         if (isEmpty(folderList)) {
-
-          // Configure resource fetch details
-          var url = configService.getProtocol() + '://' + 
-                    configService.getHost() + '/getanalysisfolders',
-              data = {'shortSession': sessionService.getShortSession(),
-                      'longSession': sessionService.getLongSession() },
-              deferred = $q.defer();
-
-          // QA data - since "" returned from session service will trigger undefined
-          if (typeof data.shortSession === "undefined") {
-            data.shortSession = "";
-          }
-          if (typeof data.longSession === "undefined") {
-            data.longSession = "";
-          }
-
-          $http.post(url, data)
-            .success(function(data, status, headers, config){
-              deferred.resolve(data);
-            })
-            .error(function(data, status, headers, config){
-              console.log('error');
-            });
-
-          return deferred.promise;
+          return fetchFolderList();
         }
         // Otherwise return from local
         else {
@@ -219,6 +263,22 @@ spiderwebApp.service('configService', function() {
 
       setCrawlId:function (id) {
         crawlId = id;
+      },
+
+      getCrawlName:function () {
+        return crawlName;
+      },
+
+      setCrawlName:function (name) {
+        crawlName = name;
+      },
+
+      getCrawlDate:function () {
+        return crawlDate;
+      },
+
+      setCrawlDate:function (date) {
+        crawlDate = date;
       },
 
       getMaxPages:function () {
@@ -313,17 +373,9 @@ spiderwebApp.service('configService', function() {
             // Set crawl info and return success
             crawlId = data.crawlId;
             maxPages = crawl.maxPages;
-
-            // Mocking must pass predifined crawl id to results
-            if (configService.getMock() === true) {
-              resultsService.setCurrentAnalysis('results1SiteSearchOnly');
-            }
-
-            // Not mocking so procede normally
-            else {
-              resultsService.setCurrentAnalysis(crawlId);
-            }
-
+            crawlDate = crawl.time;
+            crawlName = crawl.name;
+            
             deferred.resolve(data);
           })
 

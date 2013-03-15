@@ -249,8 +249,6 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
 
               // Initiation was a success
               if (results.loggedIn) {
-                //crawlService.setCrawlId(results.crawlId);
-                //crawlService.setMaxPages($scope.crawl.maxPages);
                 $location.path('/crawling');
                 $scope.apply;
   
