@@ -708,6 +708,8 @@ class UpdateAnalysisFolders(resource.Resource):
 
 if __name__ == "__main__":
 
+    # TODO: Refactor so reads info from a config file
+
     # Parse command line options and arguments.
     usage = "usage: %prog [options]"
     parser = optparse.OptionParser(usage)
