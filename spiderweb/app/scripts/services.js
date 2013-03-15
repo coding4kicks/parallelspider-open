@@ -213,13 +213,25 @@ spiderwebApp.service('configService', function() {
         // Set the time
         crawl.time = now;
 
+        // QA max pages
+        if (typeof crawl.maxPages === "undefined") {
+          crawl.maxPages = 20;
+        }
+
         // Set crawl data in response
         requestData.crawl = crawl; 
 
         $http.post(url, requestData)
+
           .success(function(data, status, headers, config){
+
+            // Set crawl info and return success
+            crawlId = data.crawlId;
+            maxPages = crawl.maxPages;
+            alert('here');
             deferred.resolve(data);
           })
+
           .error(function(data, status, headers, config){
             console.log('error');
           });

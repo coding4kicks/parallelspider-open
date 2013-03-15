@@ -221,107 +221,77 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
   $scope.attemptedSubmission = false;
 
   // TODO: refactor crawl to list of items so can iterate through on server???
-  // TODO: Need a configuration service so host can be adjusted for local/deploy
   $scope.crawlSite = function() {
 
-   // // Configure resource fetch details
-   // var url = configService.getProtocol() + '://' + 
-   //           configService.getHost() + '/initiatecrawl',
-   //     requestData = {},
-   //     now = new Date().toString();
+    // TODO: Move this to crawl service also?
 
     // session info
     var shortSession = sessionService.getShortSession();
-   // requestData.longSession = sessionService.getLongSession();
-
     // QA data - since "" returned from session service will trigger undefined
     if (typeof shortSession === "undefined") {
       shortSession = "";
     }
-   // if (typeof requestData.longSession === "undefined") {
-   //   requestData.longSession = "";
-   // }
 
-    // Determine crawl name
-    // First is always empty since no name field on main page
+    // Determine crawl name (First empty since no name field on main page)
     $scope.crawl.name = $scope.crawlName || $scope.crawl.primarySite;
 
-   // // Set the time
-   // $scope.crawl.time = now;
-
-   // // Set crawl data in response
-   // requestData.crawl = $scope.crawl; 
-
+    // Crawls greater than 20 pages
     if (typeof $scope.crawl.maxPages !== "undefined" &&
         $scope.crawl.maxPages > 20) {
 
+      // User must be logged in
       if ($scope.name !== "" &&
           shortSession !== "") {
 
+          // Initiate the crawl
           crawlService.initiateCrawl($scope.crawl)
             .then(function(results){
+
+              // Initiation was a success
               if (results.loggedIn) {
-                crawlService.setCrawlId(results.crawlId);
-                crawlService.setMaxPages($scope.crawl.maxPages);
+                //crawlService.setCrawlId(results.crawlId);
+                //crawlService.setMaxPages($scope.crawl.maxPages);
                 $location.path('/crawling');
                 $scope.apply;
   
               }
+
+              // Initiation failed, no short session token on the server
               else {
                 $scope.openLogin();
               }  
-          });
-            
-        // TODO: refactor to crawl service
-       // $http.post(url, requestData)
-       //   .success(function(data, status, headers, config){
-       //     
-       //     if (data.loggedIn) {
-       //       crawlService.setCrawlId(data.crawlId);
-       //       crawlService.setMaxPages($scope.crawl.maxPages);
-       //       $location.path('/crawling');
-       //       $scope.apply;
-  
-       //     }
-       //     else {
-       //       $scope.openLogin();
-       //     }
-       //   })
-
-       //   .error(function(data, status, headers, config){
-       //     alert("Server Error. Unable to Crawl, Sorry.");
-       //   });       
+          });      
       }
+
       else {
         alert("Must sign in to initiate crawl greater than 20 pages.");
         $scope.openLogin();
       }
     }
+
+    // Crawls less than 20 pages
     else{
 
-      $http.post(url, requestData)
-        .success(function(data, status, headers, config){
-          if (data.loggedIn) {
-            if (typeof $scope.crawl.maxPages === "undefined") {
-              $scope.crawl.maxPages = 20;
-            }
-            crawlService.setCrawlId(data.crawlId);
-            crawlService.setMaxPages($scope.crawl.maxPages);
+      // Initiate crawl
+      crawlService.initiateCrawl($scope.crawl)
+        .then(function(results){
+
+          // Success, user is logged in on the server
+          if (results.loggedIn) {
             $location.path('/crawling');
             $scope.apply;
-           
           }
+
+          // Fail, user not logged in with token on the server
           else {
-            alert("Free Crawl of 20 pages is currently disabled to avoid potential use in DDOS attacks.  Once caching is implemented, this feature will be enabled. Please log-in to try the system.");  
+            alert("Free Crawl of 20 pages is currently disabled to avoid potential use " +
+                  "in DDOS attacks.  Once caching is implemented, this feature will be " +
+                  "enabled. Please log-in to try the system.");
             $scope.openLogin();
-          }                      
-        })
-        .error(function(data, status, headers, config){
-          alert("Server Error. Unable to Crawl, Sorry.");
-        }); 
+          }  
+      });
     }
-    console.log($scope.crawl);
   }
-  
+
 });
 
