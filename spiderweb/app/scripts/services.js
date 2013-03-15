@@ -171,10 +171,45 @@ spiderwebApp.service('configService', function() {
       return deferred.promise;
 
     };
-    
+
+    var updateFolderList = function(folders) {
+      // Don't need folder argument, could just manipulate folderList
+
+      // Configure resource fetch details
+      var url = configService.getProtocol() + '://' + 
+                configService.getHost() + '/updateanalysisfolders',
+          data = {'folderInfo': folders,
+                  'shortSession': sessionService.getShortSession(),
+                  'longSession': sessionService.getLongSession() },
+          deferred = $q.defer();
+
+      // QA data - since "" returned from session service will trigger undefined
+      if (typeof data.shortSession === "undefined") {
+        data.shortSession = "";
+      }
+      if (typeof data.longSession === "undefined") {
+        data.longSession = "";
+      }
+
+      $http.post(url, data)
+        .success(function(data, status, headers, config){
+          deferred.resolve(data);
+        })
+        .error(function(data, status, headers, config){
+          console.log('error');
+        });
+
+      return deferred.promise;
+
+    };  
+
+    // Public functions  
     return {
 
       addAnalysis:function (folderName, analysisName, date, id) {
+
+        var deferred = $q.defer();
+
         if (isEmpty(folderList)) {
           fetchFolderList()
             .then( function(results) {
@@ -196,16 +231,36 @@ spiderwebApp.service('configService', function() {
 
               analysis = {'name': analysisName, 'date': date, 'id': id};
               folder['analysisList'].push(analysis);
-                      
-              console.log(folderList);
 
+              // Update folders on server
+              updateFolderList(folderList);
+
+              deferred.resolve('done');
             });
         }
+
         else {
+
+          var folder = {};
+
+          for (var i = 0; i < folderList.length; i++) {            
+            // Add to default folder
+            if (folderList[i]['name'] === folderName) {
+              folder = folderList[i];
+            }
+            // Add to first if default not availabe
+            else {
+              folder = folderList[0];
+            }
+          }
+
           analysis = {'name': analysisName, 'date': date, 'id': id};
-          folder = folderList[folderName];
           folder['analysisList'].push(analysis);
+
+          deferred.resolve('done');
         }
+
+        return deferred.promise
       },
 
       addFolder:function () {
@@ -225,14 +280,21 @@ spiderwebApp.service('configService', function() {
        */
       getFolderList:function () {
 
+        var deferred = $q.defer(); 
+
         // If empty fetch from server
         if (isEmpty(folderList)) {
+
           return fetchFolderList();
         }
+
         // Otherwise return from local
         else {
-          return folderList;
+
+          deferred.resolve(folderList);
         }
+
+        return deferred.promise
       }
     };
   })
@@ -246,6 +308,7 @@ spiderwebApp.service('configService', function() {
    *  getMaxPages - Max Pages to crawl getter
    *  setMaxPages - Max Pages to crawl setter
    *  getCrawlStatus - fetches crawl status from server
+   *  initiateCrawl - send crawl data to the server
    */
   .service('crawlService', 
       function ($http, $q, sessionService, configService, resultsService, folderService) {

@@ -686,29 +686,30 @@ class UpdateAnalysisFolders(resource.Resource):
 
             # Turn folder info back into JSON
             folder_info = json.dumps(folder_data)
-
+            
             # Set new user folder info into Redis
             self.user_redis.set(user_id + "_folders", folder_info)
 
-            return ")]}',\n" + "{'success': true}"
+            return """)]}',\n{"success": true}"""
 
         # Anonymous User so show samples
         else:
 
             # How to add anonymous users stuff to temp folder? 
 
-            return ")]}',\n" + "{'success': false}"
+            return """)]}',\n{"success": false}"""
 
 
 # Command Line Crap & Initialization
 ###############################################################################
 
-### TODO: Add updateFolderInfo, add Config for expiration (s3),
+### TODO: Add updateFolderInfo
 #disable back button to crawl
 
 if __name__ == "__main__":
 
     # TODO: Refactor so reads info from a config file
+    # TODO: Add Config option for Expiration
 
     # Parse command line options and arguments.
     usage = "usage: %prog [options]"

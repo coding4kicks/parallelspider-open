@@ -10,7 +10,7 @@
  *
  */ 
 
-spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $location, configService, resultsService, crawlService, folderService) {
+spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $q, $location, configService, resultsService, crawlService, folderService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
@@ -89,22 +89,37 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $locat
 
       // Mocking must pass predifined crawl id to results
       if (configService.getMock() === true) {
+
         resultsService.setCurrentAnalysis('results1SiteSearchOnly');
+        
         folderService.addAnalysis(configService.getDefaultFolder(), 
-                                  crawl.name, crawl.date, crawl.id);
+                                  crawl.name, crawl.date, crawl.id)
+          .then(function(results) {
+
+            // Stop crawling and redirect to splashdown page
+            $scope.status.crawling = false;
+            $location.path('/splashdown');
+          });
       }
 
       // Not mocking so set crawl id as current and update user's folder info
       else {
+
         resultsService.setCurrentAnalysis(crawlId);
+
         folderService.addAnalysis(configService.getDefaultFolder(), 
-                                  crawl.name, crawl.date, crawl.id);
+                                  crawl.name, crawl.date, crawl.id)
+          .then(function(results) {
+
+            // Stop crawling and redirect to splashdown page
+            $scope.status.crawling = false;
+            $location.path('/splashdown');
+          });
       }
 
-      // Stop crawling and redirect to splashdown page
-      $scope.status.crawling = false;
-      $location.path('/splashdown');
-      $scope.apply;
+      // Wait for folder update prior to redirect
+      
+
     }
 
     // If too far behind server count, jump pages crawled

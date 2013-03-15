@@ -50,4 +50,15 @@ def local():
     with fab.lcd("~/projects/parallelspider/spiderweb/"):
         fab.local("testacular start")
 
+@fab.task
+def refresh(datastore='local_redis'):
+
+    if datastore=='local_redis':
+        import redis
+        test_user = 'a'
+        test_user_folders = test_user + "_folders"
+        user_redis = redis.Redis('localhost', 6378)
+        template_folders = user_redis.get('test_folders')
+        user_redis.set(test_user_folders, template_folders)
+
 
