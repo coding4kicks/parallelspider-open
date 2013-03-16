@@ -158,6 +158,14 @@ spiderwebApp.controller('SplashdownCtrl',
         $scope.summary.minutes = Math.floor($scope.analysis.time/60);
         $scope.summary.seconds = $scope.analysis.time%60;
 
+        // Hide common ground if only 1 site
+        if ($scope.analysis.sites.length < 2) {
+          $scope.commonGround = false;
+        }
+        else {
+          $scope.commonGround = true;
+        }
+
         // Set per site information
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
