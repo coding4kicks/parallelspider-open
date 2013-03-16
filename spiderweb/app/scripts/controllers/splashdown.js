@@ -92,6 +92,7 @@ spiderwebApp.controller('SplashdownCtrl',
     }
   }
 
+
   /*
    * selectAnalysis - make analysis current and display results
    *    
@@ -103,6 +104,7 @@ spiderwebApp.controller('SplashdownCtrl',
     $scope.analysisAvailable = true;
     $scope.getAnalysis(analysisId);
   }
+
 
   /*
    * getFoldersOrAnalysis - display analysis if avilable or folders
@@ -138,6 +140,7 @@ spiderwebApp.controller('SplashdownCtrl',
         }); 
     }
   }
+
 
   /*
    * getAnalysis - retrieves crawl results from results service and performs initialization
@@ -243,6 +246,7 @@ spiderwebApp.controller('SplashdownCtrl',
         $scope.compareSites();
     });
   };
+
 
   /*
    * compareSites - Compare which words are common between sites
@@ -378,7 +382,6 @@ spiderwebApp.controller('SplashdownCtrl',
       $scope.commonWords['linkText'] = compare('linkText', 'word');
     }
 
-
     // Special handling for context synonymRings, selectors,
     // itemType is the incrementor for contextWord[i], rings[i], selectors[i]
     var contextWords = $scope.analysis.sites[0][$scope.results].context.contextWords || [];
@@ -406,6 +409,7 @@ spiderwebApp.controller('SplashdownCtrl',
       }
     }
   }
+
 
   /*
    * resultsChoice - selects between internal and external results
@@ -437,6 +441,7 @@ spiderwebApp.controller('SplashdownCtrl',
     // Re-compare sites for common ground with current result type
     $scope.compareSites();
   }
+
 
   /*
    * showInfo - shows the additional information of a selected item
@@ -470,6 +475,7 @@ spiderwebApp.controller('SplashdownCtrl',
     }
   }
 
+
   /*
    * switchInfoType - switches the additional information type displayed
    *
@@ -482,6 +488,7 @@ spiderwebApp.controller('SplashdownCtrl',
     button.active = true;
     additionalInfo.currentButton = button;
   }
+
 
   // Check if analysis available to display on page load
   var currentAnalysis = resultsService.getCurrentAnalysis();

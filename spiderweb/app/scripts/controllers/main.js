@@ -1,11 +1,26 @@
 'use strict';
 
-spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location, sessionService, crawlService, configService) {
+/*
+ * Main Controller 
+ *
+ * Handles the main splash or home page - plot points and crawl launcher
+ *
+ * Sections:
+ *  Hanging Spider - Controls spider movement up and down
+ *  For Block - Controls "for blocks" diaganol movements
+ *  Advanced Options - Handles the hiding and display of the advanced options section
+ *  Crawl Info - Handles forms and variables for crawl submission information
+ *  Crawl Submission - Launces a crawl and QAs max pages and session info
+ *  
+ */
+spiderwebApp.controller('MainCtrl', 
+    function($scope, $http, $timeout, $location, sessionService, crawlService, configService) {
   $scope.awesomeThings = [
     'HTML5 Boilerplate',
     'AngularJS',
     'Testacular'
   ];
+
 
   ////////////////////////////
   // HANGING SPIDER ANIMATION
@@ -68,6 +83,7 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
       animateDown(170, 20);
     };
   };
+
 
   ////////////////////////////
   // FOR BLOCK ANIMATION
@@ -140,9 +156,11 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
     };
   }
 
+
   ////////////////////////////
   // ADVANCED OPTIONS DISPLAY
   ////////////////////////////
+  
   $scope.showAdvOpts = false;
   $scope.spanSize = 'span8';
   $scope.advOptMargin = '-30px';
@@ -158,9 +176,11 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
     $scope.showAdvOpts=!$scope.showAdvOpts;
   }
 
+
   ////////////////////////////
   // CRAWL INFO + ADV OPTS FORMS
   ////////////////////////////
+
   $scope.crawl = {};
 
   // need field to enter crawl name
@@ -215,9 +235,11 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
     $scope.crawl[type].remove(index);        
   }
 
+
   ////////////////////////////
   // CRAWL SUBMISSION
   ////////////////////////////
+
   $scope.attemptedSubmission = false;
 
   // TODO: refactor crawl to list of items so can iterate through on server???
@@ -251,7 +273,6 @@ spiderwebApp.controller('MainCtrl', function($scope, $http, $timeout, $location,
               if (results.loggedIn) {
                 $location.path('/crawling');
                 $scope.apply;
-  
               }
 
               // Initiation failed, no short session token on the server

@@ -8,6 +8,10 @@
  *  - deviations +/- 100 cause status bar to stop or jump
  * Updates user's folder info by adding new crawl
  *
+ * Functions:
+ *  Initializing - Shows initializing display until the crawl starts
+ *  Crawling - Updates progress and crawl info during the crawl
+ *
  */ 
 
 spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $q, $location, configService, resultsService, crawlService, folderService) {
@@ -16,7 +20,6 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $q, $l
     'AngularJS',
     'Testacular'
   ];
-
 
   // Get crawl info
   $scope.maxPages = crawlService.getMaxPages();
@@ -55,20 +58,24 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $q, $l
   $scope.time.minutes = Math.floor(remainingTime/60);
   $scope.time.seconds = remainingTime%60;
 
+  // Fetch quotes from S3 
+  // TODO: ? do I need to refactor to config for deployment?
   $http.get('quote-file.json')
     .then(function(results){
       $scope.quoteList = results.data; 
       $scope.quote = $scope.quoteList[Math.floor((Math.random()*$scope.quoteList.length))];
     });
 
-  // Check service for crawl start
+  // Initializing - waiting for the crawl start
   var initializing = function(progressNumber) {
 
+    // Check status from the server
     crawlService.getCrawlStatus()
       .then(function(results){
         $scope.pageCount = results
     });
 
+    // Initialize until server says otherwise
     if ($scope.pageCount.count === -1) {
       $timeout( function() {
         initializing();
@@ -83,43 +90,32 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $q, $l
 
   var crawling = function(progressNumber) {
 
-
-    // Once complete, redirect to splashdown
+    // If recieve complete response from server
     if ($scope.pageCount.count === -2) {
 
-      // Mocking must pass predifined crawl id to results
+      // Mocking. Must pass predifined crawl id to results and folders
       if (configService.getMock() === true) {
-
-        resultsService.setCurrentAnalysis('results1SiteSearchOnly');
-        
+        resultsService.setCurrentAnalysis('results1SiteSearchOnly');        
         folderService.addAnalysis(configService.getDefaultFolder(), 
                                   crawl.name, crawl.date, crawl.id)
           .then(function(results) {
-
             // Stop crawling and redirect to splashdown page
             $scope.status.crawling = false;
-            $location.path('/splashdown');
+            $location.path('/splashdown').replace();
           });
       }
 
       // Not mocking so set crawl id as current and update user's folder info
       else {
-
         resultsService.setCurrentAnalysis(crawlId);
-
         folderService.addAnalysis(configService.getDefaultFolder(), 
                                   crawl.name, crawl.date, crawl.id)
           .then(function(results) {
-
             // Stop crawling and redirect to splashdown page
             $scope.status.crawling = false;
-            $location.path('/splashdown');
+            $location.path('/splashdown').replace();
           });
-      }
-
-      // Wait for folder update prior to redirect
-      
-
+      }      
     }
 
     // If too far behind server count, jump pages crawled
@@ -151,7 +147,6 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $q, $l
       if (counter % 300 === 0) {
         $scope.quote = $scope.quoteList[Math.floor((Math.random()*$scope.quoteList.length))];
       }
-
     }
 
     // Update page count every 5 seconds
@@ -171,6 +166,7 @@ spiderwebApp.controller('CrawlingCtrl', function($scope, $timeout, $http, $q, $l
     }
   };
 
+  // Start whole thing off with initializing
   initializing(progressNumber);
 
 });
