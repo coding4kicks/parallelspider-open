@@ -703,8 +703,6 @@ class UpdateAnalysisFolders(resource.Resource):
 # Command Line Crap & Initialization
 ###############################################################################
 
-### TODO: Add updateFolderInfo
-#disable back button to crawl
 
 if __name__ == "__main__":
 
