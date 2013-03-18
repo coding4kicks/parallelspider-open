@@ -1,0 +1,176 @@
+<!-- SITES
+================================================== -->
+<div ng-repeat="site in analysis.sites" class="analysis">
+  <h4 class="inline">Site {{$index + 1}}:</h4><h4 class="inline url"> {{site.url}}</h4>
+  <h5 class="inline search-filter">Search: </h5><input ng-model="searchText">
+  <div class="analysis-content">
+
+<!-- ALL LINKS
+================================================== -->    
+    <div class="analysis-box link" ng-show="site[results].allLinks.links">
+      <h4>All Links</h4>
+      <div class="word-pane">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="count">Count</div>
+          <div class="word">Link</div>
+        </div>
+        <div ng-repeat="link in site[results].allLinks.links | limitTo:limitTo.links | filter:searchText" ng-click="showInfo(site, 'links', link, 'Link', 'All Links', 'allLinks')" class="word-box clickable">
+          <div class="rank">{{link.rank}}</div>
+          <div class="count">{{link.count}}</div>
+          <div class="link-box">{{link.link}}</div>
+        </div>
+      </div>
+    </div>
+
+<!-- EXTERNAL DOMAINS
+================================================== -->
+    <div class="analysis-box link" ng-show="site[results].externalDomains.domains">
+      <h4>External Domains</h4>
+      <div class="word-pane">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="count">Count</div>
+          <div class="word">Domain</div>
+        </div>
+        <div ng-repeat="domain in site[results].externalDomains.domains | limitTo:limitTo.links | filter:searchText" ng-click="showInfo(site, 'links', domain, 'Domain', 'External Domains', 'externalDomains')" class="word-box clickable">
+          <div class="rank">{{domain.rank}}</div>
+          <div class="count">{{domain.count}}</div>
+          <div class="link-box">{{domain.domain}}</div>
+        </div>
+      </div>
+    </div>
+
+<!-- LINK TEXT
+================================================== -->    
+    <div class="analysis-box" ng-show="site[results].linkText.words">
+      <h4>Link Text</h4>
+      <div class="word-pane">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="count">Count</div>
+          <div class="word">Word</div>
+        </div>
+        <div ng-repeat="word in site[results].linkText.words | limitTo:limitTo.links | filter:searchText" ng-click="showInfo(site, 'links', word, 'Word', 'Link Text', 'linkText')" class="word-box clickable">
+          <div class="rank">{{word.rank}}</div>
+          <div class="count">{{word.count}}</div>
+          <div class="word">{{word.word}}</div>
+        </div>
+      </div>
+    </div>
+
+<!-- ADDITIONAL INFO FOOL!
+================================================== -->    
+    <div class="info-box" ng-init="additionalInfo=site.additionalInfo.links">
+      <h4>Additional Info</h4>
+
+      <div class="btn-group add-info-btns" ng-show="additionalInfo.showing">
+        <button ng-repeat="button in additionalInfo.buttonTypes" class="btn active-{{button.active}}" ng-click="switchInfoType(additionalInfo, button)">{{button.label}}</button>
+      </div>
+
+      <div class="info-pane">
+        <h4 class="nothing-selected" ng-hide="additionalInfo.showing">Nothing Selected</h4>
+        <h4 class="item-header" ng-show="additionalInfo.showing">{{additionalInfo.currentType}}: 
+          <span class="url">{{additionalInfo.currentItem[(additionalInfo.currentType | lowercase)]}}</span>
+        </h4>
+        <h4 class="type-header" ng-show="additionalInfo.showing">Type:  
+          <span class="url"> {{additionalInfo.currentLabel}}</span>
+        </h4> 
+
+        <div class="page-pane" ng-show="additionalInfo.showing">
+          <div class="word-box title">
+            <div class="rank">Rank</div>
+            <div class="count">Count</div>
+            <div class="word">{{additionalInfo.currentButton.label}}</div>
+          </div>
+
+          <div ng-repeat="item in additionalInfo.currentItem[additionalInfo.currentButton.type] | limitTo:9" class="word-box">
+            <div class="rank">{{$index + 1}}</div>
+            <div class="count">{{item.count}}</div>
+            <div class="page-box">{{item[additionalInfo.currentButton.itemType]}}</div>
+          </div>
+
+        </div>
+      </div>
+    </div> 
+  </div>
+  <hr />
+</div><!-- END SITES -->
+
+
+<!-- COMMON GROUND
+================================================== -->
+<div ng-show="commonGround" class="analysis">
+  <h4 class="">Common Ground</h4>
+  <button ng-click="compareSites()" class="compare-sites">
+    Compare
+  </button>
+  <div class="sites">
+    <div ng-repeat="site in analysis.sites">
+      <label class="checkbox inline">
+        <input type="checkbox" ng-model="site.include">
+        <h5 class="inline color-{{($index + 1) % 5}} include-{{site.include}}">Site {{$index + 1}}:</h5>
+        <h5 class="inline url color-{{($index + 1) % 5}} include-{{site.include}}"> {{site.url}}</h5>
+    </label>
+    </div>
+  </div>
+
+<!-- ALL LINKS COMPARISON
+================================================== --> 
+  <div class="analysis-content">
+    <!-- only show comparison if results exists and more than 1 site -->
+    <div class="analysis-box link" ng-show="analysis.sites[1][results].allLinks.links">
+      <h4>All Links</h4>
+      <div class="word-pane  common">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="word">Link</div>
+        </div>
+        <div ng-repeat="link in commonWords['allLinks'] | limitTo:limitTo.links" class="word-box">
+          <div ng-repeat="rank in link.rank" class="rank color-{{commonColors[$index]}}">
+            <span>{{rank}}</span>
+          </div>
+          <div class="link-box">{{link.word}}</div>
+        </div>
+      </div>
+    </div>
+
+<!-- EXTERNAL DOMAINS COMPARISON
+================================================== -->     
+    <div class="analysis-box link" ng-show="analysis.sites[1][results].externalDomains.domains">
+      <h4>External Domains</h4>
+      <div class="word-pane  common">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="word">Domain</div>
+        </div>
+        <div ng-repeat="domain in commonWords['externalDomains'] | limitTo:limitTo.links" class="word-box">
+          <div ng-repeat="rank in domain.rank" class="rank color-{{commonColors[$index]}}">
+            <span>{{rank}}</span>
+          </div>
+          <div class="link-box">{{domain.word}}</div>
+        </div>
+      </div>
+    </div>
+
+<!-- LINK TEXT COMPARISON
+================================================== -->     
+    <div class="analysis-box" ng-show="analysis.sites[1][results].linkText.words">
+      <h4>Link Text</h4>
+      <div class="word-pane common">
+        <div class="word-box title">
+          <div class="rank">Rank</div>
+          <div class="word">Word</div>
+        </div>
+        <div ng-repeat="word in commonWords['linkText'] | limitTo:limitTo.links" class="word-box">
+          <div ng-repeat="rank in word.rank" class="rank color-{{commonColors[$index]}}">
+            <span>{{rank}}</span>
+          </div>
+          <div class="word">{{word.word}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr />
+</div><!-- END COMMON GROUND -->
+

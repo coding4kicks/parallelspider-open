@@ -1,0 +1,71 @@
+<div class="row-fluid">
+
+<!-- Side Navigation
+================================================== -->
+  <div class="span2 padded side-nav">
+    <h3>Crawl Log</h3>
+    <span ng-repeat="folder in folderList | orderBy:'name'">
+      <h4 ng-click="selectFolder(folder.name)" class="pointer">{{folder.name}}</h4>
+    </span> 
+  </div>
+
+<!-- Folder Info
+================================================== -->
+  <div class="span10 padded" ng-hide="analysisAvailable">
+    <h2>{{currentFolder.name}} folder</h2>
+    <table class="analysis-list">
+      <tr>
+        <th>Analysis Name</th><th>Analysis Date</th>
+      </tr>
+      <tr ng-repeat="analysis in currentFolder.analysisList | orderBy:'date'" ng-click="selectAnalysis(analysis.id)" class="analysis-list-item pointer">
+        <td><span class="analysis-list-name">{{analysis.name}}</span></td>
+        <td><span class="analysis-list-date">{{analysis.date}}</span></td>
+      </tr>
+    </table>
+  </div>
+
+<!-- Analysis Info
+================================================== -->
+  <div class="span10 padded" ng-show="analysisAvailable">
+    <div class="row-fluid analysis-header">
+      <h2 class="inline">{{analysis.name}}</h2>
+      <h4 class="inline">date: {{analysis.date}}</h4>
+    </div>
+
+<!-- RESULT TABS
+================================================== -->
+    <div class="row-fluid">
+      <div class="btn-group result-btns">
+        <button class="btn active-{{internal}} no-btn-{{soloResults}}" ng-click="resultsChoice('internal')" ng-show="show.internalButton">Internal</button>
+        <button class="btn active-{{external}} no-btn-{{soloResults}}" ng-click="resultsChoice('external')" ng-show="show.externalButton">External</button>
+      </div>
+      <tabs>
+        <pane heading="Summary">
+          <div ng-include src="'views/splashdown/summary.html'"></div>     
+        </pane>
+        <pane heading="Text">
+          <div ng-include src="'views/splashdown/text.html'" ng-show="show.text"></div>
+          <div class="not-included" ng-hide="show.text"><h3>No text analysis included in the crawl.</h3></div>       
+        </pane>
+        <pane heading="Links">
+          <div ng-include src="'views/splashdown/links.html'" ng-show="show.links"></div>
+          <div class="not-included" ng-hide="show.links"><h3>No link analysis included in the crawl.</h3></div>
+        </pane>
+        <pane heading="Context">
+          <div ng-include src="'views/splashdown/context.html'" ng-show="show.context"></div>
+          <div class="not-included" ng-hide="show.context"><h3>No word context analysis included in the crawl.</h3></div>
+        </pane>
+        <pane heading="Synonyms">
+          <div ng-include src="'views/splashdown/synonyms.html'" ng-show="show.synonymRings"></div>
+          <div class="not-included" ng-hide="show.synonymRings"><h3>No synonym ring analysis included in the crawl.</h3></div>
+        </pane>
+        <pane heading="Selectors">
+          <div ng-include src="'views/splashdown/selectors.html'" ng-show="show.selectors"></div>
+          <div class="not-included" ng-hide="show.selectors"><h3>No selector analysis included in the crawl.</h3></div>
+        </pane>
+      </tabs>
+    </div>
+  </div>
+</div>
+
+

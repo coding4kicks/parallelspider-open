@@ -1,0 +1,13 @@
+<div class="row-fluid">
+
+  <div class="span2 padded side-nav">
+    <h3>Our Words</h3>
+    <span ng-repeat="page in aboutPages">
+      <h4><a href="#/ourwords/{{page}}">{{page}}</a></h4>
+    </span> 
+  </div>
+
+  <div ng-include src="template" autoscroll class="span10 padded">
+  </div>
+
+</div>

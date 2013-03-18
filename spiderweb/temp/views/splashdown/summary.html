@@ -1,0 +1,84 @@
+<div>
+  <table class="summary-table" ng-init="totalLinks=site[results].summary.links.internal + site[results].summary.links.external">
+    <tr>
+      <td><h4>Total Pages:</h4></td> 
+      <td><h4>{{summary.totalPages}}</h4></td>
+      <td>&nbsp;</td> 
+      <td><h4>Analsyis Time:</h4></td> 
+      <td><h4>{{summary.minutes}}m {{summary.seconds}}s</h4></td>
+    </tr>
+    <tr>
+      <td><h4>Total Words:</h4></td> 
+      <td><h4>{{summary.totalWords}}</h4></td>
+      <td>&nbsp;</td> 
+      <td><h4>Number of Sites:</h4></td> 
+      <td><h4>{{summary.numberOfSites}}</h4></td>
+    </tr>
+  </table>
+
+  <hr />
+</div>
+<!-- SITES
+================================================== -->
+<div ng-repeat="site in analysis.sites" class="analysis">
+  <h4 class="inline">Site {{$index + 1}}:</h4><h4 class="inline url"> {{site.url}}</h4>
+  <div class="analysis-content">
+    <table class="summary-table" ng-init="totalLinks=site[results].summary.links.internal + site[results].summary.links.external">
+      <tr>
+        <td><h4>Total Pages:</h4></td> 
+        <td><h4>{{site[results].summary.pages.count}}</h4></td>
+        <td>&nbsp;</td> 
+        <td><h4>Total Links:</h4></td> 
+        <td><h4>{{totalLinks}}</h4></td>
+      </tr>
+      <tr>
+        <td><h4>Total Words:</h4></td> 
+        <td><h4>{{site[results].summary.words.count}}</h4></td>
+        <td>&nbsp;</td> 
+        <td><h4>Internal Links:</h4></td> 
+        <td><h4>{{site[results].summary.links.internal/totalLinks*100}}%</h4></td>
+      </tr>
+      <tr>
+        <td><h4>Words/Page:</h4></td> 
+        <td><h4>{{site[results].summary.words.count/site[results].summary.pages.count}}</h4></td>
+        <td>&nbsp;</td> 
+        <td><h4>External Links:</h4></td> 
+        <td><h4>{{site[results].summary.links.external/totalLinks*100}}%</h4></td>
+      </tr>
+      <tr>
+        <td><h4>Links/Page:</h4></td>
+        <td><h4>{{totalLinks/site[results].summary.pages.count}}</h4></td>
+      </tr>
+    </table>
+
+
+<!-- PAGES
+================================================== -->
+    <div class="pages-tag-container">
+      <div class="analysis-box link">
+        <h4>Pages</h4>
+        <div class="word-pane">
+          <div ng-repeat="page in site[results].summary.pages.list | limitTo:limitTo.text" class="word-box">
+            <div class="link-box">{{page}}</div>
+          </div>
+        </div>
+      </div>
+
+<!-- TAGS
+================================================== -->
+      <div class="analysis-box tag-box">
+        <h4>Tag Types</h4>
+        <div class="tag-pane">
+          <div ng-repeat="tag in site[results].summary.tags.list" class="word-box">
+            <div class="tag">{{tag.type}}</div>
+            <div class="percent">{{tag.count/site[results].summary.tags.total * 100 | number:1}}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr />
+</div><!-- END SITES -->
+
+
+

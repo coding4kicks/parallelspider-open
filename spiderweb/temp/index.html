@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <title></title>
+        <meta name="description" content=""/>
+        <meta name="viewport" content="width=device-width"/>
+        <link rel="stylesheet" href="styles/61bc0061.main.css"/>
+    </head>
+
+    <body ng-app="spiderwebApp" ng-controller="TemplateCtrl">
+
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!--[if lte IE 8]>
+            <script>
+            // The ieshiv takes care of our ui.directives, bootstrap module directives and
+            // AngularJS's ng-view, ng-include, ng-pluralize and ng-switch directives.
+            // However, IF you have custom directives (yours or someone else's) then
+            // enumerate the list of tags in window.myCustomTags
+             
+            window.myCustomTags = [ 'pane', 'tabs', 'analysisbox' ]; // optional
+            </script>
+            <script src="build/angular-ui-ieshiv.js"></script>
+        <![endif]-->
+
+        <!--[if lt IE 9]>
+            <script src="scripts/vendor/61e2728c.es5-shim.min.js"></script>
+            <script src="scripts/vendor/241d7c33.json3.min.js"></script>
+        <![endif]-->
+                  
+        <!-- Add your site or application content here -->
+
+
+        <!-- Navbar
+        ================================================== -->
+        <div class="navbar navbar-inverse navbar-fixed-top">
+          <div class="navbar-inner">
+            <div class="">
+              <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="brand" href="/">PS</a>
+              <div class="nav-collapse collapse">
+                <ul class="nav">
+                  <li class="">
+                    <a ng-href="#/launchpad"><i class="icon-plane icon-white"></i> Launch Pad</a>
+                  </li>
+                  <li class="">
+                    <a ng-href="#/splashdown"><i class="icon-bell icon-white"></i> Splash Down</a>
+                  </li>
+                  <li class="">
+                    <a ng-href="#/spiderdiaries"><i class="icon-globe icon-white"></i> Spider Diaries</a>
+                  </li>
+                  <li class="">
+                    <a ng-href="#/ourwords"><i class="icon-star icon-white"></i> Our Words</a>
+                  </li>
+                </ul>
+
+                <ul class="nav pull-right" ng-show="name">
+                  <li class="">
+                  <a>Welcome {{name}}</a>
+                  </li>
+                  <li class="">
+                    <p> || </p>
+                  </li>
+                  <li class="">
+                    <a ng-click="signout()">Sign Out</a>
+                  </li>
+                </ul>
+                <ul class="nav pull-right" ng-hide="name">
+                  <li class="">
+                    <a ng-click="openLogin()">Sign In</a>
+                  </li>
+                  <li class="">
+                    <p> || </p>
+                  </li>
+                  <li class="">
+                    <a ng-href="#/signup">Sign Up</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Header
+        ================================================== -->       
+        <header class="header row-fluid page">
+        <div class="span12 padded">
+            <a ng-href="/">
+              <img src="images/c8803a1c.PS_loneSpider.png" class="pull-left" />
+              <h1 class="pull-left">Parallel Spider</h1>
+            </a>
+            <img src="images/1d000c6f.PS_beta.png" id="beta" />
+            <h5 id="analyze">Analyze the World</h5>
+          </div>
+        </header>
+
+        <!-- View Insertion
+        ================================================== -->
+        <div class="view" ng-view ps-fullscreen  ng-style="{ 'min-height': minHeight }"></div>
+
+        <!-- Footer
+        ================================================== -->
+        <footer class="footer">
+          <div class="row-fluid">
+            <div class="span2">
+              <img src="images/c8803a1c.PS_loneSpider.png" class="pull-right" />
+            </div>
+            <div class="span2">
+              <a href="#/ourwords/about">What is <br> a Parallel Spider?</a>
+            </div>
+            <div class="span2" id="dev">
+              <a href="#/ourwords/devteam">Dev Team</a>
+            </div>
+            <div class="span2">
+              <a href="#/ourwords/terms">Terms, Privacy, <br> and Other Words...</a>
+            </div>
+            <div class="span2">
+              <a href="#/ourwords/contact">Contact Us <br> or Share...</a>
+            </div>
+            <div class="span2 social-icons">
+              <img src="images/fdf98d06.PS_facebook.png" class="pull-left clearfix" />
+              <img src="images/51266e33.PS_googlePlus.png" class="pull-left" />
+              <img src="images/8d4715e9.PS_twitter.png" class="pull-left" />
+            </div>
+          </div>
+        </footer>
+
+        <!-- Scripts
+        ================================================== -->
+     
+        <script src="scripts/vendor/d10639ae.angular.js"></script>
+        <script src="scripts/vendor/4be4692b.angular-cookies-1.0.0rc10.js"></script>
+
+        <script src="scripts/5a6aaedd.scripts.js"></script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g,s)}(document,'script'));
+        </script>
+    </body>
+</html>

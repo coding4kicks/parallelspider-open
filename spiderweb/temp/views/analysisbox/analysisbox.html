@@ -1,0 +1,15 @@
+<div class="analysis-box" ng-model="localSite" ng-model="localResults" ng-show="localSite[localResults][type].words">
+  <h4>{{name}}</h4>
+  <div class="word-pane">
+    <div class="word-box title">
+      <div class="rank">Rank</div>
+      <div class="count">Count</div>
+      <div class="word">Word</div>
+    </div>
+    <div ng-model="localSearchText" ng-repeat="word in localSite[localResults].visibleText.words | limitTo:100 | filter:localSearchText" class="word-box">
+      <div class="rank">{{word.rank}}</div>
+      <div class="count">{{word.count}}</div>
+      <div class="word" ng-click="addInfo(word, site)">{{word.word}}</div>
+    </div>
+  </div>
+</div>
