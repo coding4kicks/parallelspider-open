@@ -88,6 +88,7 @@
 
 .spider-text {
   width: 200px;
+  height: 140px;
   position: relative;
   z-index: 0;
   margin-left: auto;
@@ -105,15 +106,24 @@
   &:hover {
     cursor: pointer;
   }
-}
 
-.for-block img {
+  img {
   margin-left: -30px;
   padding-top: 10px;
+  }
+
+  h4 {
+  margin-top: 20px;
+  }
 }
 
-.for-block h4 {
-  margin-top: 20px;
+.for-text {
+
+  height: 60px;
+
+  a {
+    float: right;
+  }
 }
 
 #test-crawl {
@@ -277,6 +287,45 @@
 #word-list {
   padding-left: 10px;
 }
+
+// Ourwords 
+//////////////////////////
+.our-words-container {
+  margin: 20px;
+  max-width: 800px;
+  font-size: 16px;
+
+  h1 {
+    color: blue;
+  }
+
+  h2 {
+    margin-top: 30px;
+  }
+
+  h3 {
+    margin-left: 50px;
+  }
+
+  h4 {
+    color: orange;
+  }
+
+  .autoscroll {
+    margin-top: -30px;
+    margin-bottom: 20px;
+  }
+}
+
+.about {
+  @include clearfix;
+}
+
+.top-image {
+  float: left;
+  margin-right: 20px;
+}
+
 
 // Splashdown 
 //////////////////////////
@@ -649,6 +698,8 @@
 // SUBVIEW SIDE NAVIGATION
 //////////////////////////
 .side-nav {
+
+  margin-left: 15px;
 
   a {
     color: #333333;
