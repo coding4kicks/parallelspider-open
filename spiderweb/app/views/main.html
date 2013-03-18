@@ -41,27 +41,27 @@
 
 <!-- For Block
 ================================================== -->
-  <div class="span4 offset1 padded">
+  <div class="span4 offset1 padded for">
     <div class="for-block" ng-click="animate('for1Margin')" ng-style="{ 'margin-left': for1MarginLeft, 'margin-top': for1MarginTop }">
-      <img src="images/PS_angledFor.png" class="pull-left" />
+      <img src="images/PS_angledFor.png" class="" />
       <h4>Academic Research</h4>
     </div>
     <div ng-style="{ 'margin-top': text1MarginTop, 'visibility': text1Visibility }" class="for-text">
-      <p>Whatever your field of study, tap into the data of the Internet.  Let Parallel Spider help you generate, analyze, and visualize that data so that you can focus on the important part: understanding it. <a href="#/ourwords/about#research">Learn More</a></p>
+      <p>Tap into the data of the Internet.  Let Parallel Spider help you generate, analyze, and visualize online data for your research. <a href="#/ourwords/about#research">Learn More</a></p>
     </div>
     <div class="for-block" ng-click="animate('for2Margin')" ng-style="{ 'margin-left': for2MarginLeft, 'margin-top': for2MarginTop }">
-      <img src="images/PS_angledFor.png" class="pull-left" />
+      <img src="images/PS_angledFor.png" class="" />
       <h4>Business Intelligence</h4>
     </div>
     <div ng-style="{ 'margin-top': text2MarginTop, 'visibility': text2Visibility }" class="for-text">
       <p>Perform competitive analysis. Gather customer intelligence. Ascertain market insights.   What can Parallel Spider do for you? <a href="#/ourwords/about#business">Learn More</a></p>
     </div>
     <div class="for-block" ng-click="animate('for3Margin')" ng-style="{ 'margin-left': for3MarginLeft, 'margin-top': for3MarginTop }">
-      <img src="images/PS_angledFor.png" class="pull-left" />
+      <img src="images/PS_angledFor.png" class="" />
       <h4>The Curious</h4>
     </div>
     <div ng-style="{ 'margin-top': text3MarginTop, 'visibility': text3Visibility }" class="for-text">
-      <p>What is that government website really focused on?  What is hidden in the details of that company’s website.  You ask the questions, Parallel Spider helps you find the answers  <a href="#/ourwords/about#curious">Learn More</a></p>
+      <p>What is that government website really focused on?  What is hidden in the details of that company’s website.  You ask the questions, Parallel Spider helps you find the answers.  <a href="#/ourwords/about#curious">Learn More</a></p>
     </div>
   </div>
 </div>
@@ -84,8 +84,10 @@
 <!-- Spider Diaries
 ================================================== -->
   <div id="spider-diaries" class="span2 padded">
-    <img src="images/PS_spiderDiaries.png" />
-    <h4>Tutorials  &  Examples</h4>
+    <a ng-href="#/spiderdiaries"> 
+      <img src="images/PS_spiderDiaries.png" />
+      <h4>Tutorials  &  Examples</h4>
+    </a>
   </div>
 </div>
 
@@ -136,21 +138,21 @@
               </li>
             </ul>
 
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Compare:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Don’t just examine one site, but compare multiple sites.  Find out what they have in common." class="inline pointer">Compare:</h5>
             <input type="url" name="additionalSites" class="input-xlarge search-query" placeholder="another website" ng-model="additionalSites">
             <input class="btn-primary inline" type="submit" value="add">
           </div>
 
           <div class="crawlNumInput">
             <input type="number" name="maxPages" class="input-small" placeholder="20" ng-model="crawl.maxPages" min="1" integer>
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="pointer">Max Pages</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="A free ride is 20 pages.  With an account, crawl as many pages as you want." class="pointer">Max Pages</h5>
             <span class="error" ng-show="crawlOpts.maxPages.$error.integer">Must be an integer</span>
             <span class="error" ng-show="crawlOpts.maxPages.$error.min">Must be greater than 0</span>
           </div>
 
           <div class="crawlNumInput">
             <input type="number" name="totalResults" class="input-small" placeholder="1000" ng-model="crawl.totalResults" min="100" integer>
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="pointer">Total Results</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="No need to save the whole Internet on our hard drive.  Let us know how much you need." class="pointer">Total Results</h5>
             <span class="error" ng-show="crawlOpts.totalResults.$error.integer">Must be an integer</span>
             <span class="error" ng-show="crawlOpts.totalResults.$error.min">Must be greater than 99</span>
           </div>
@@ -158,7 +160,7 @@
           <div>
             <label class="checkbox inline">
             <input type="checkbox" ng-model="crawl.externalSites">
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">External Sites</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some sites act as hubs.  It’s more informative to examine the spokes: the pages being linked to by the hub." class="inline pointer">External Sites</h5>
             </label>
           </div>
 
@@ -180,17 +182,17 @@
 
           <label class="checkbox inline">
             <input type="checkbox" ng-model="crawl.text.visible">
-            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Visible Text</h5>
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="What is a site talking about most?  Visible text is the place to look." class="inline pointer">Visible Text</h5>
           </label>
 
           <label class="checkbox inline">
             <input type="checkbox" ng-model="crawl.text.headlines">
-            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Headlines</h5>
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="What is a site emphasizing?  Headlines are your answer." class="inline pointer">Headlines</h5>
           </label>
 
           <label class="checkbox inline">
             <input type="checkbox" ng-model="crawl.text.hidden">
-            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Hidden Descriptions</h5>
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="How is a site describing itself to search engines by its hidden text?" class="inline pointer">Hidden Descriptions</h5>
           </label>
 
         </div>
@@ -209,17 +211,17 @@
 
           <label class="checkbox inline">
             <input type="checkbox" ng-model="crawl.links.text">
-            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Link Text</h5>
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="How is a site describing their links to their own internal sections and to other external websites." class="inline pointer">Link Text</h5>
           </label>
 
           <label class="checkbox inline">
             <input type="checkbox" ng-model="crawl.links.all">
-            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">All Links</h5>
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Where are the links pointing?  What sections are receiving the most pointers?" class="inline pointer">All Links</h5>
           </label>
 
           <label class="checkbox inline">
             <input type="checkbox" ng-model="crawl.links.external">
-            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">External Links</h5>
+            <h5 tooltip-placement="right" tooltip-animation="true" tooltip="What other websites are being pointed at?" class="inline pointer">External Links</h5>
           </label>
 
         </div>
@@ -245,7 +247,7 @@
           </ul>
             
           <label>
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Search Word:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="The other types of analysis give you only the top results.  Use search words to find out how often a specified word appears." class="inline pointer">Search Word:</h5>
             <input type="text" ng-model="wordSearches">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
@@ -275,7 +277,7 @@
           </ul>
 
           <label>
-            <h5 id="context" tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Context Word:</h5>
+            <h5 id="context" tooltip-placement="bottom" tooltip-animation="true" tooltip="Words don’t live in isolation.  How are words being used together? Specify a context  word to find out what other words are most associated with it." class="inline pointer">Context Word:</h5>
             <input type="text" ng-model="wordContexts">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
@@ -295,7 +297,7 @@
           <div class="liner">
 
           <label>
-            <h5 id="stop-list" tooltip-placement="left" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Stop Words:</h5>
+            <h5 id="stop-list" tooltip-placement="left" tooltip-animation="true" tooltip="Not all words convey much meaning.  The fact a site uses ‘the’ a lot doesn’t mean much of anything.  Add words to the stop list so they don’t clutter your results." class="inline pointer">Stop Words:</h5>
             <textarea ng-model="crawl.stopWords" placeholder="a, list, of, stop, words, pulled, from, the, model"></textarea>
           </label>
 
@@ -316,7 +318,7 @@
           <div class="liner">
 
           <label>
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Predefined:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="A lists of words associated with a topic.  Find out how much a site uses these words and thereby how prevalent the topic is.  Compare this usage to other sites or the Internet as a whole." class="inline pointer">Predefined:</h5>
               <select multiple="multiple" ng-model="crawl.predefinedSynRings" ng-options="ring.title for ring in predefinedSynRings">
               <option value=""></option>
             </select>
@@ -331,7 +333,7 @@
           </ul>
 
           <label>
-            <h5 id="wordnet" tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">WordNet:</h5>
+            <h5 id="wordnet" tooltip-placement="bottom" tooltip-animation="true" tooltip="Chose your own word or topic.   WordNet finds the synonyms to look for." class="inline pointer">WordNet:</h5>
             <input type="text" ng-model="wordnets">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
@@ -361,13 +363,13 @@
           </ul>
 
           <label>
-            <h5 tooltip-placement="left" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Ring Name:</h5>
+            <h5 tooltip-placement="left" tooltip-animation="true" tooltip="Define your own topic’s name." class="inline pointer">Ring Name:</h5>
             <input type="text" ng-model="customSynRings.name">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
 
           <label>
-            <h5 id="word-list" tooltip-placement="left" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Word List:</h5>
+            <h5 id="word-list" tooltip-placement="left" tooltip-animation="true" tooltip="Add your own list of synonyms." class="inline pointer">Word List:</h5>
             <textarea ng-model="customSynRings.text" placeholder="a, comma, separated, list, of, words"></textarea>
           </label>
 
@@ -396,7 +398,7 @@
           </ul>
 
           <label>
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Selector:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Use the power of XPath to pull specific parts out of a page.  Don’t know XPath?  See our tutorials, we keep it simple." class="inline pointer">Selector:</h5>
             <input type="text" ng-model="xpathSelectors">
             <input class="btn-primary inline" type="submit" value="add">
           </label>
@@ -425,10 +427,10 @@
           </ul>
 
           <label>
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Selector:</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="You know the web and CSS?  Then use that knowledge to pull parts out of a page." class="inline pointer">Selector:</h5>
             <input type="text" ng-model="cssSelectors.selector">
             <input type="checkbox" ng-model="cssSelectors.text">
-            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="Some crazy ass shit! Really this should just be some nice help text, helping the user to do things better and live their life.  But not too much text.  Quick and dirty." class="inline pointer">Text</h5>
+            <h5 tooltip-placement="bottom" tooltip-animation="true" tooltip="CSS doesn’t grab the text.  The default is to give it to you.  Deselect this box if you just want the selector." class="inline pointer">Text</h5>
             <input class="btn-primary inline" type="submit" value="add">
           </label>
 

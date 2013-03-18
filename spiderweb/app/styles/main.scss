@@ -93,6 +93,7 @@
   z-index: 0;
   margin-left: auto;
   margin-right: auto;
+
 }
 
 #beta {
@@ -100,20 +101,27 @@
   margin-top: -10px;
 }
 
+.for {
+  margin-top: 20px;
+}
+
 .for-block {
   padding: 10px;
+  margin-bottom: 10px;
 
   &:hover {
     cursor: pointer;
   }
 
   img {
-  margin-left: -30px;
-  padding-top: 10px;
+    margin-left: -30px;
+    margin-top: -20px;
+    display: inline;
   }
 
   h4 {
-  margin-top: 20px;
+    display: inline;
+    margin-top: 20px;
   }
 }
 
