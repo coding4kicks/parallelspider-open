@@ -16,6 +16,7 @@ path = os.path.realpath(__file__).partition('spiderdepot')[0]
 
 @fab.task
 def start(type='kvs', conf='redis'):
+    """Start a key value store (Redis)."""
 
     # Start Key Value Store (KVS) with specified config file
     if type == 'kvs':
@@ -27,6 +28,7 @@ def start(type='kvs', conf='redis'):
 
 @fab.task
 def stop(type='kvs', conf='redis'):
+    """Stop a key value store (Redis)."""
 
     # Stop Spider Engine on localhost
     if type == 'kvs':
@@ -43,6 +45,7 @@ def stop(type='kvs', conf='redis'):
 
 @fab.task
 def restart(type='kvs', conf='redis'):
+    """Restart a key value store (Redis)."""
 
     # Restart Key Value Store
     if type == 'kvs':

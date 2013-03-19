@@ -13,6 +13,7 @@ path = os.path.realpath(__file__).partition('spiderdepot')[0]
 
 @fab.task
 def start(type='local', mock=False, args=None):
+    """Start a Twisted server instance."""
 
     # Start Spider Server on localhost
     if type == 'local':
@@ -30,6 +31,7 @@ def start(type='local', mock=False, args=None):
 
 @fab.task
 def stop(type='local', args=None):
+    """Stop a Twisted server instance."""
 
     # Stop Spider Server on localhost
     if type == 'local':
@@ -46,6 +48,7 @@ def stop(type='local', args=None):
 
 @fab.task
 def restart(type='local', mock=False, args=None):
+    """Restart a Twisted server instance."""
 
     # Restart Spider Server on localhost
     if type == 'local':

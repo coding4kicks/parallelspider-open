@@ -7,8 +7,10 @@ import subprocess
 
 
 @fab.task
-def test(word=None):
+def web(word=None):
+    """Build and deploy web client."""
     
-    import server
-    server.start('local')
+    import web
+    web.build()
+    web.deploy()
 

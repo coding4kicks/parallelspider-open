@@ -12,11 +12,14 @@ import fabric.api as fab
 path = os.path.realpath(__file__).partition('spiderdepot')[0]
 
 """ TODO: Need to fix Redis so can start from directories other that ~
-          Uses . when changing files: ./var/lib/spider/ """ 
+          Uses . when changing files: ./var/lib/spider/ 
+          Not sure this is possible
+""" 
 
 
 @fab.task(default=True)
 def local():
+    """Develop Parallel Spider on local with s3 and engine mocked."""
 
     import data
     import server
@@ -57,6 +60,7 @@ def local():
 
 @fab.task
 def refresh(datastore='local_redis'):
+    """Restore Redis User DB to initial state."""
 
     if datastore=='local_redis':
         import redis

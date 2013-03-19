@@ -13,6 +13,7 @@ path = os.path.realpath(__file__).partition('spiderdepot')[0]
 
 @fab.task
 def start(type='local', args=None):
+    """Start an analysis engine."""
 
     # Start Spider Engine on localhost (only a mock client)
     # Must have Redis running (Central and Engine) to start
@@ -26,6 +27,7 @@ def start(type='local', args=None):
 
 @fab.task
 def stop(type='local', args=None):
+    """Stop an analysis engine."""
 
     # Stop Spider Engine on localhost
     if type == 'local':
@@ -42,6 +44,7 @@ def stop(type='local', args=None):
 
 @fab.task
 def restart(type='local', args=None):
+    """Restart an analysis engine."""
 
     # Restart Spider Engine on localhost
     if type == 'local':
