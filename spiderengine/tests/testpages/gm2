@@ -1,0 +1,667 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta name="viewport" content = "width = device-width, initial-scale = 1, minimum-scale = .5, maximum-scale = 3" />
+	<meta name="format-detection" content="telephone=no">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta http-equiv="keywords" content="General Motors information, GM information, about GM, about General Motors, our company, GM brands, General Motors brands, new General Motors, General Motors team, General Motors technology, General Motors commitment, General Motors future">
+	<meta http-equiv="description" content="About GM: We are committed to creating value for our investors, quality vehicles, and life-long customers. Learn more about GM today!">
+	<!--	<link type='text/css' rel='stylesheet' href='/content/gmcom/home.css' media='screen' /> -->
+
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/gCombinedGlobal.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/primaryNavigation.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/fCombinedFragments.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/cCombinedComponents.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/giPad.css' media='only screen and (device-width: 768px)'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/giPad.css' media='only screen and ( min-device-width : 320px ) and ( max-device-width: 480px )'/>
+	
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/livechat.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/pagination.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/siteMap.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/gallery.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/contactForm.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/cq.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/jquery.jscrollpane.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/genericBranding.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/privacy.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/easySlider.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/gPrint.css' media='print'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/fSlideMenu.css' media='screen'/>  
+	
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/global-site-selector.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/fForms.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/fCallToAction.css' media='screen'/>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/gInvestors.css' media='screen'/>
+
+	<!--[if IE]>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/ExceptionsIE.css' />
+	<![endif]-->
+	<!--[if IE 8]>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/ExceptionsIE8.css' media='screen' />
+	<![endif]-->
+	<!--[if IE 7]>
+	<link type='text/css' rel='stylesheet' href='/etc/designs/gmcom/css/ExceptionsIE7.css' media='screen' />
+	<![endif]-->
+	<style type="text/css">
+		.faqquestion {
+			float: left;
+			position: relative;
+			padding-bottom:15px;/*top: -17px;*/
+		}
+		.clearfix {clear: both;}
+		.x-panel {z-index: 10 !important;}
+		.x-window-plain {color: black;}
+		.promoTile ul {padding: 20px 40px;}
+		.galleryContent ul {padding: 20px 0 0 40px;}
+		#CQ .x-combo-list-item { color: #000000; }
+		#bottomTabContainer h1 {
+		    color: #FFFFFF;
+		    font-size: 55px;
+		    line-height: 60px;
+		    text-decoration: none;
+		}
+		.generic-wrapper.contact-us-wrapper {
+			width: auto;
+			height: auto;
+			background-color: transparent;
+
+		}
+		.generic-wrapper.contact-us-wrapper .shadedContainer {
+			width: auto;
+		}
+		.generic-wrapper.contact-us-wrapper {
+			background-color:	transparent;
+			background-image:	none;
+			background-repeat:	repeat;
+			background-position:	0;
+			background-attachment:	scroll;
+			opacity:1;
+		}
+		
+		</style>
+	
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/cufon-yui.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gotham-book_325.font.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gotham-bold_400.font.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gotham-light_300.font.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gotham-medium_350.font.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.fill.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.primaryNavigationSlideDown.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/primaryNavigation.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.footer.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gFooter.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.backgroundFill.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gBackgroundFill.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/cufon.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fMenubar.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/cThumbSwitch.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.address-1.3.1.min.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.faq.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/cFaqs.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/cookie.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.easing.1.3.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.mousewheel.min.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.image360.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/addThis.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fDisclaimer.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.slider.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/cVision.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.gallery.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gallery.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.modal.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery-ui.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fFormComponents.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fFormCheckboxes.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fTooltip.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.contentFit.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fPromoTileGallery.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fDisclaimer.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/contactUsFormHelpers.js"></script>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=gmcom"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/swfobject-2.2.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/swfaddress.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.jscrollpane.min.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fDFC.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/pPrivacy.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fFlexibleContent.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fArchive.js"></script>
+	
+	<script type="text/javascript" src="/etc/designs/gmcom/js/stars.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.flexVideoGallery.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fFlexVideoGallery.js"></script>
+	<!--<script type="text/javascript" src="/etc/designs/gmcom/js/contactUsFormMain.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/contactUsFormHeader.js"></script>-->
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fForm.js"></script>
+	
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fFlexibleContent.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fSlideMenu.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fModal.js"></script>
+<!--	<script type="text/javascript" src="/etc/designs/gmcom/js/global-site-selector.js"></script> -->
+
+	<!-- INVESTORS -->
+	
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gInvestors.js"></script>
+
+
+	<!-- tracking required javascript -->
+	<script type="text/javascript" src="/etc/designs/gmcom/js/cookiemethods.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/s_code.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/click_metrics-jQuery.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/gClickTracking.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/jquery.globalSiteSelector.js"></script>
+	<script type="text/javascript" src="/etc/designs/gmcom/js/fGlobalSiteSelector.js"></script>
+
+	<script type="text/javascript">
+	$(document).ready( function(){
+		$('input:text').each( function(){
+			$(this).focus( function(){
+				if ($(this).val()=='Lorem Ipsum') {
+						$(this).val('');
+				}
+						
+				if ($(this).val()=='000') {
+						$(this).val('');
+				}
+				if ($(this).val()=='0000') {
+						$(this).val('');
+				}
+			}); 
+			
+		});
+	});
+	</script>
+	
+	<title>General Motors | About Our Company</title>
+</head>
+<body class="contentpagetwocolumn" id="our_company">
+		<div id="content">
+	<div id="slideMenuWrap">
+	<div id="slideMenu">
+		<div class="shadedContainer">
+			<div class="upperRow">
+				<div class="upperLeft opacity70"></div>
+				<div class="upperRight opacity70"></div>
+				<div class="upperMid opacity70"></div>
+			</div>
+			<div class="midRow">
+				<div class="midLeft opacity70">
+					<div class="midRight opacity70">
+						<div id="slideMenuTag" class="midMid opacity70">
+							<div id="slideMenuContent">
+								<ul>
+									<li><a href="/company/aboutGM.html">About GM
+											Home</a>
+									</li>
+									<li><a href="/company/aboutGM/our_company.html">Our Company</a>
+									</li>
+									<li><a href="/company/aboutGM/gm_sustainability.html">GM Sustainability Report</a>
+									</li>
+									<li><a href="/company/aboutGM/GM_Corporate_Officers.html">GM Corporate Officers</a>
+									</li>
+									<li><a href="/company/aboutGM/board_of_directors0.html">Board of Directors</a>
+									</li>
+									<li><a href="/company/aboutGM/diversity.html">Diversity</a>
+									</li>
+									<li><a href="/company/aboutGM/gm_foundation.html">General Motors Foundation</a>
+									</li>
+									<li><a href="/company/aboutGM/teamgm_cares.html">teamGM Cares</a>
+									</li>
+									</ul>
+							</div>
+							<div id="openCloseWrap">
+								<div class="slidermenu-arrow-top"></div>
+								<a href="#" class="topMenuAction" id="topMenuImage"> <img src="/content/dam/gmcom/COMPANY/About_GM/Company-about-gm-docked-slider-title.png"/>
+								</a>
+								<div class="slidermenu-arrow-btm"></div>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="lowerRow">
+				<div class="lowerLeft opacity70"></div>
+				<div class="lowerRight opacity70"></div>
+				<div class="lowerMid opacity70"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="shadedContainer contentFit">
+		<div class="upperRow">
+			<div class="upperLeft"></div>
+			<div class="upperRight"></div>
+			<div class="upperMid">
+				
+				
+			</div>
+			
+		</div>
+		<div class="midRow">
+			<div class="midLeft">
+				<div class="midRight">
+					<div class="midMid">
+					<div class="container">
+							<div class="flexLeftContent">
+								<div class="par parsys"><a name="par_title" style="visibility:hidden"></a><div class="title parbase section"><h2 class="gotham-bold-dynamic">
+					About GM: <span class="colorText">
+								Our Company</span>
+						</h2>
+				
+				</div>
+<a name="par_aa_print" style="visibility:hidden"></a><div class="aa_print parbase section"><span class="printCTA"><a href="/company/aboutGM/our_company.print.html?print=textImages">Print</a></span>
+<span class='resetText'><a href="#">A</a></span>
+								<span class='enlargeText'><a href="#">A</a></span>
+</div>
+<a name="par_add_this" style="visibility:hidden"></a><div class="parbase add_this section"><div id="addThis_container">
+	<a href="#" id="addThis_custom_link" class="gotham-medium">Add This</a>
+		<div class="addthis_toolbox">
+			<a class="addthis_button_facebook"><span></span></a>
+
+			<a class="addthis_button_twitter"><span></span></a>
+			<a class="addthis_button_blogger"><span></span></a><br />
+			<a class="addthis_button_google"><span></span></a>
+			<a class="addthis_button_myspace"><span></span></a>
+			<a class="addthis_button_tumblr"><span></span></a>
+		</div>
+</div> 
+<div class="clearfix_both"></div>
+</div>
+<a name="par_title_0" style="visibility:hidden"></a><div class="title parbase section"><h3 class="gotham-bold-dynamic">
+					Our Company<span class="colorText">
+								</span>
+						</h3>
+				
+				</div>
+<a name="par_text" style="visibility:hidden"></a><div class="text parbase section"><div class="text"><p>At the new General Motors, we are passionate about designing, building and selling the world’s best vehicles.&nbsp; This vision unites us as a team each and every day and is the hallmark of our customer-driven culture. &nbsp;<br>
+                          <br>
+                          In fact, there are a lot of exciting things to share about our company.&nbsp; Our story starts on November 18, 2010, when we completed the world’s largest initial public offering, emerging with a solid financial foundation that enables us to produce great vehicles for our customers and build a bright future for employees, partners and shareholders.<br>
+                          <br>
+                          Leading the way is our seasoned leadership team who set high standards for our company so that we can give you the best cars and trucks.&nbsp; This means that we are committed to delivering vehicles with compelling designs, flawless quality and reliability, and leading safety, fuel economy and infotainment features.&nbsp; All are intended to create that special bond that can only happen between a driver and their vehicle.<br>
+                          <br>
+                          Making the world’s best vehicles can only happen with the world’s greatest employees.&nbsp; We take great pride in our work, and take great care to deliver exceptional cars and a positive ownership experience to our customers around the world.<br>
+                          <br>
+                          We are a leader in our industry and we know the definition of success.&nbsp; Our Chairman and Chief Executive Officer Dan Akerson says it best, “We win when the customer says we win.”<br>
+                          <br>
+                          At the new GM, we make a strong commitment to our customers, employees, partners and other important stakeholders.&nbsp; We state proudly our five principles that guide us in everything we do:</p>
+<ul>
+<li><b>Safety and Quality First:</b> Safety will always be a priority at GM.&nbsp; We continue to emphasize our safety-first culture in our facilities, and as we grow our business in new markets. Our safety philosophy is at the heart of the development of each vehicle. In addition to safety, delivering the highest quality vehicles is a major cornerstone of our promise to our customers.&nbsp; That is why our vehicles go through extreme testing procedures in the lab, on the road and in our production facilities prior to being offered to customers. <a href="/vision/quality_safety.html">Learn More<br>
+                          </a><br>
+                          </li>
+<li><b>Create Lifelong Customers:</b>&nbsp; We take nothing for granted in our efforts to earn the confidence and loyalty of our customers.&nbsp; We listen to customers to make sure we are meeting their needs, and are connecting with them on their terms. Through our relationship with customers, we strive to create passionate brand advocates who love their vehicle and freely tell others about their experience.<br>
+                          <br>
+                          </li>
+<li><b>Innovate:</b>&nbsp; We challenge ourselves to be creative and lead in everything we do.&nbsp; From implementing the smallest improvements to executing big ideas, we are constantly increasing our competitive advantage to delight and excite our customers. <a target="_blank" href="http://fastlane.gmblogs.com/#.html">Learn More<br>
+                          </a><br>
+                          </li>
+<li><b>Deliver Long-Term Investment Value:</b> Our shareholders want to feel confident about their decision to invest in our company.&nbsp; By developing the world’s best vehicles, building upon our strong financial foundation, growing our business and operating with the highest level of integrity, we will continue to deliver positive results. <a href="http://investor.gm.com/#.html?evar10=gmcom_investors.html">Learn More<br>
+                          </a><br>
+                          </li>
+<li><b>Make a Positive Difference:</b>&nbsp; We strive to make a difference in our world and in our workplace.&nbsp; Whether finding new ways to improve our business operations, achieving as part of a team or volunteering in the community, we know that our momentum is tied to positive change.&nbsp;&nbsp;</li>
+</ul>
+<p><b>OUR TEAM</b></p>
+<p>The GM team shares a passion for customers and a competitive spirit that drives us to excellence.&nbsp; Our culture -- one which represents diversity, inclusion, mutual respect, responsibility and understanding -- welcomes fresh perspectives and varied experiences.<br>
+    <br>
+                          Our 202,000 employees work in 158 facilities touching six continents, they speak more than 50 languages and touch 23 time zones.&nbsp; From designing and engineering state-of-the-art plants and developing new vehicles and technologies to creating new marketing programs, our team members are valued for their unique contributions.<br>
+    <br>
+                          Serving as the face of the new GM in communities around the world, our 21,000 dealers are also important members of our team, and are integral to our success. <a target="_blank" href="http://www.facesofgm.com">Learn More<br>
+                          </a><br>
+    <b>OUR BRANDS</b></p>
+<p>From electric and mini-cars to heavy-duty full-size trucks, monocabs and convertibles, General Motors’ dynamic brands offer a comprehensive range of vehicles in more than 120 countries around the world. &nbsp;<br>
+    <br>
+                          Along with our strategic partners, we produce cars and trucks, and sell and service our vehicles, through the following brands: <a target="_blank" href="http://www.chevrolet.com?evar10=gmcom_chevrolet">Chevrolet</a>, <a target="_blank" href="http://www.buick.com?evar25=gmcom_buick">Buick</a>, <a target="_blank" href="http://www.gmc.com?evar25=gmcom_gmc">GMC</a>, <a target="_blank" href="http://www.cadillac.com?evar25=gmcom_cadillac">Cadillac</a>, <a target="_blank" href="http://www.autobaojun.com/#360">Baojun</a>, <a target="_blank" href="http://www.holden.com.au">Holden</a>, <a target="_blank" href="http://www.isuzu.com">Isuzu</a>, <a target="_blank" href="http://www.fawjiefang.com.cn/">Jiefang</a>, <a target="_blank" href="http://www.opel.com">Opel</a>, <a target="_blank" href="http://www.vauxhall.co.uk">Vauxhall</a> and <a target="_blank" href="http://www.wulingmotors.com">Wuling</a>. We also have significant equity stakes in major joint ventures in China including SAIC-GM, SAIC-GM-Wuling, FAW-GM and GM Korea.<br>
+    <br>
+                          Whether in Detroit, Frankfurt, Sao Paulo or Shanghai, our brands make an emotional connection to our customers from the very first time they get behind the wheel in any corner of the world. &nbsp;<br>
+    <br>
+    <b>OUR TECHNOLOGY</b></p>
+<p>General Motors continues to develop innovative technologies to shape the future of the automotive industry. &nbsp;<br>
+    <br>
+                          We are expanding our leadership in vehicle electrification with advancements in batteries, electric motors and power controls.&nbsp; The GM team is also working on a range of high-volume, fuel-saving technologies including direct injection, variable valve timing, turbo-charging, six-speed transmissions, diesel engines, and improved aerodynamic designs. <a href="/vision/design_technology.html">Learn More<br>
+                          </a><br>
+                          We continue to create and leverage strategic global partnerships to bring new vehicles and technologies to customers faster.&nbsp; We also established GM Ventures to help the company identify and develop innovative technologies by exploring equity investments in new auto-related technologies.<br>
+    <br>
+    <b>OUR COMMITMENT</b></p>
+<p>We believe in acting responsibly across the globe and focus our efforts in important areas, including the environment and education. The General Motors Foundation helps us achieve this goal by strengthening communities across the United States through investments in education, health and human services, environment and energy, community development and worldwide disaster relief efforts. Over the past ten years, the foundation, fully funded by a GM endowment in 2000, has donated more than $350 million to send students to college, keep teen drivers safe, educate parents on child passenger safety, promote diversity and support vital non-profit organizations. <a href="/company/aboutGM/gm_foundation.html">Learn More</a><br>
+    <br>
+                          Committed to reducing waste and pollutants, General Motors conserves resources and recycles materials at every stage of the vehicle lifecycle. We are proud to say that our best practices reduce the impact our vehicles and manufacturing operations have on the environment.&nbsp; <a href="/vision/environment1.html">Learn More<br>
+                          </a><br>
+                          Our commitment to the earth will transcend the here and now through our work with students.&nbsp; We share our knowledge of sustainability with these future engineers, leaders and problem solvers to help ensure a better future for all. <a href="/vision/community_education.html">Learn More<br>
+                          </a><br>
+    <b>OUR FUTURE</b></p>
+<p>We’re transforming our business and building a better GM for the future.&nbsp; We’re driven to design, build and sell the world’s best vehicles and give consumers more as they move their way through life.</p>
+</div></div>
+<a name="par_text_0" style="visibility:hidden"></a><div class="text parbase section"><div class="text"><p><br>
+ </p>
+<p><br>
+   <br>
+   <br>
+   <b>DISCLAIMERS<br>
+ </b>  <br>
+   (1) Government 5-Star Safety Ratings are part of the National Highway Traffic Safety Administration's (NHTSA's) New Car Assessment Program (<a target="_blank" href="http://www.SaferCar.gov">www.SaferCar.gov</a>).</p>
+<p>(2) The front center air bag will be standard equipment on the 2013 Chevrolet Traverse. Air bag inflation can cause severe injury or death to anyone too close to the bag when it deploys.&nbsp;Be sure every occupant is properly restrained.</p>
+<p>(3) EPA estimated&nbsp;mpg 40 hwy, 29 city with available 1.4L turbocharged engine and 6-speed manual transmission.</p>
+<p>(4) Deliver a GM-estimated 26 mpg in city driving and 38 mpg on the highway.</p>
+<p>(5) Preproduction model shown. Vehicle not yet available for sale.</p>
+</div></div>
+</div>
+</div>
+							<div class="flexRightContent">
+								<div class="parsys rightpar"><div class="parbase textimage flex_promo_tile section"><div id="promoTileMedium">
+<a href="/vehicles/owner_advantages.html"><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/flex_promo_tile/image.img.png" alt="Consumer Pledge" title=""></a>
+<br>
+<h3></h3>
+<div class="parsys promoPar"></div>
+</div>
+    <div class="clear"></div></div>
+<div class="parbase gallery section"><ul class="slideshow" rel="#gallery" >
+<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery/images/gallery_image/image1.img.png" alt="#gallerygallery_image" title="#gallerygallery_image"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery/images/gallery_image_0/image1.img.png" alt="#gallerygallery_image_0" title="#gallerygallery_image_0"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery/images/gallery_image_1/image1.img.png" alt="#gallerygallery_image_1" title="#gallerygallery_image_1"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery/images/gallery_image_2/image1.img.png" alt="#gallerygallery_image_2" title="#gallerygallery_image_2"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery/images/gallery_image_3/image1.img.png" alt="#gallerygallery_image_3" title="#gallerygallery_image_3"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery/images/gallery_image_4/image1.img.png" alt="#gallerygallery_image_4" title="#gallerygallery_image_4"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery/images/gallery_image_5/image1.img.png" alt="#gallerygallery_image_5" title="#gallerygallery_image_5"></li>
+				</ul>
+<h2 id="gallery" class="header gotham-bold-dynamic-gallery">
+	</h2>
+<div id="gallerygallery_image" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The 2012 Chevrolet Camaro Coupe was the first vehicle to receive the highest possible five-star score in every individual safety rating segment of the NHTSA New Car Assessment Program(1).</span>
+</div>
+<div id="gallerygallery_image_0" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The 2011 Chevrolet Volt received a five-star overall vehicle score in safety. It was the first electric vehicle to receive the highest-possible overall score in new, stricter safety testing(1).</span>
+</div>
+<div id="gallerygallery_image_1" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">GM introduced the industry’s first front center air bag to protect drivers and front passengers in far-side impact crashes where the affected occupant is on the opposite, non-struck side of the vehicle(2). </span>
+</div>
+<div id="gallerygallery_image_2" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Electronic stability control systems like the 2012 Cadillac SRX's StabiliTrak help to prevent crashes. The SRX wrings a new benefit from the system –removing water from brake components during wet highway driving conditions.</span>
+</div>
+<div id="gallerygallery_image_3" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Led by the 2012 Chevrolet Caprice Police Patrol Vehicle, the brand's 2012 police lineup beat the competition at the recent Michigan State Police testing in Chelsea and Grattan, MI.</span>
+</div>
+<div id="gallerygallery_image_4" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">GM engineers put the seats of the Chevrolet Traverse through an intense series of tests to ensure high quality, maximum comfort and long-term durability.</span>
+</div>
+<div id="gallerygallery_image_5" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The all-new Ecotec 2.5L four-cylinder engine is more efficient, refined and powerful than its predecessor. It will be the standard engine in the 2013 Malibu.</span>
+</div>
+</div>
+<div class="text parbase section"><div class="text"><p>&nbsp;&nbsp; </p>
+</div></div>
+<div class="parbase gallery section"><ul class="slideshow" rel="#gallery_0" >
+<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_0/images/gallery_image/image1.img.png" alt="#gallery_0gallery_image" title="#gallery_0gallery_image"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_0/images/gallery_image_0/image1.img.png" alt="#gallery_0gallery_image_0" title="#gallery_0gallery_image_0"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_0/images/gallery_image_1/image1.img.png" alt="#gallery_0gallery_image_1" title="#gallery_0gallery_image_1"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_0/images/gallery_image_3/image1.img.png" alt="#gallery_0gallery_image_3" title="#gallery_0gallery_image_3"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_0/images/gallery_image_4/image1.img.png" alt="#gallery_0gallery_image_4" title="#gallery_0gallery_image_4"></li>
+				</ul>
+<h2 id="gallery_0" class="header gotham-bold-dynamic-gallery">
+	</h2>
+<div id="gallery_0gallery_image" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Herb Younger's sons Jared and Derek reunited him with his 1965 Impala –years after he had sold it in the 1980's to pay for their education. </span>
+</div>
+<div id="gallery_0gallery_image_0" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Ashley Johnson, an office clerk, full-time college student and new mother, is one of the first U.S. customers to own an all-new 2012 Chevrolet Sonic. Johnson found the Sonic reliable, safe and fuel-efficient(3).</span>
+</div>
+<div id="gallery_0gallery_image_1" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Cadillac meets new customers where they live and play.</span>
+</div>
+<div id="gallery_0gallery_image_3" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The 2013 Malibu will give customers more style, fuel efficiency(4), content and features, craftsmanship and dynamic capabilities that rival high-end sedans.  </span>
+</div>
+<div id="gallery_0gallery_image_4" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Alicia Boler-Davis is the Vice President Global Quality and U.S. Customer Experience, charged with leading efforts to win and keep customers for Chevrolet, Buick, GMC, and Cadillac.</span>
+</div>
+</div>
+<div class="text parbase section"><div class="text"><p>&nbsp;&nbsp; </p>
+</div></div>
+<div class="parbase gallery section"><ul class="slideshow" rel="#gallery_1" >
+<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image/image1.img.png" alt="#gallery_1gallery_image" title="#gallery_1gallery_image"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image_0/image1.img.png" alt="#gallery_1gallery_image_0" title="#gallery_1gallery_image_0"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image_1/image1.img.png" alt="#gallery_1gallery_image_1" title="#gallery_1gallery_image_1"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image_2/image1.img.png" alt="#gallery_1gallery_image_2" title="#gallery_1gallery_image_2"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image_4/image1.img.png" alt="#gallery_1gallery_image_4" title="#gallery_1gallery_image_4"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image_5/image1.img.png" alt="#gallery_1gallery_image_5" title="#gallery_1gallery_image_5"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image_6/image1.img.png" alt="#gallery_1gallery_image_6" title="#gallery_1gallery_image_6"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image_7/image1.img.png" alt="#gallery_1gallery_image_7" title="#gallery_1gallery_image_7"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_1/images/gallery_image_8/image1.img.png" alt="#gallery_1gallery_image_8" title="#gallery_1gallery_image_8"></li>
+				</ul>
+<h2 id="gallery_1" class="header gotham-bold-dynamic-gallery">
+	</h2>
+<div id="gallery_1gallery_image" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Engineers and scientists from General Motors and the NASA Johnson Space Center in Houston developed Robonaut 2, a dexterous humanoid astronaut now working at the International Space Station.</span>
+</div>
+<div id="gallery_1gallery_image_0" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The Chevrolet EN-V concept, which stands for electric networked vehicle, can avoid crashes, doesn’t use gasoline and can drive and park itself(5). </span>
+</div>
+<div id="gallery_1gallery_image_1" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The Patent Board ranked General Motors the No. 1 innovator in its quarterly automotive and transportation industry scorecard (May 2011).</span>
+</div>
+<div id="gallery_1gallery_image_2" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">GM Ventures is the venture capital arm of General Motors. It invests in growth-stage companies to enhance GM's ability to innovate and ensure our customers have access to the best technology.</span>
+</div>
+<div id="gallery_1gallery_image_4" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The Cadillac ELR will use electricity without gasoline or producing tailpipe emissions. When the battery is low, the ELR will switch to extended-range mode to enable driving for hundreds of additional miles.</span>
+</div>
+<div id="gallery_1gallery_image_5" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">GM introduced the industry's first front center air bag to protect drivers and front passengers in far-side impact crashes where the affected occupant is on the opposite, non-struck side of the vehicle(2).</span>
+</div>
+<div id="gallery_1gallery_image_6" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The 2011 Chevrolet Cruze Eco has segment-leading fuel economy with an EPA-estimated 42 mpg on the highway (manual transmission models), with equally impressive city fuel economy of 28 mpg.</span>
+</div>
+<div id="gallery_1gallery_image_7" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Cadillac CUE merges intuitive design with auto industry-first controls/commands for information and entertainment data. It will debut in 2012 in the Cadillac XTS and ATS luxury sedans and SRX luxury crossover.</span>
+</div>
+<div id="gallery_1gallery_image_8" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">GM is developing vehicle-to-vehicle and vehicle-to-infrastructure communications systems that communicate with devices used by drivers, pedestrians, bicyclists and roadway infrastructure and warn of hazards ahead.</span>
+</div>
+</div>
+<div class="text parbase section"><div class="text"><p>&nbsp;&nbsp; </p>
+</div></div>
+<div class="parbase gallery section"><ul class="slideshow" rel="#gallery_2" >
+<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_2/images/gallery_image/image1.img.png" alt="#gallery_2gallery_image" title="#gallery_2gallery_image"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_2/images/gallery_image_0/image1.img.png" alt="#gallery_2gallery_image_0" title="#gallery_2gallery_image_0"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_2/images/gallery_image_1/image1.img.png" alt="#gallery_2gallery_image_1" title="#gallery_2gallery_image_1"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_2/images/gallery_image_2/image1.img.png" alt="#gallery_2gallery_image_2" title="#gallery_2gallery_image_2"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_2/images/gallery_image_3/image1.img.png" alt="#gallery_2gallery_image_3" title="#gallery_2gallery_image_3"></li>
+				</ul>
+<h2 id="gallery_2" class="header gotham-bold-dynamic-gallery">
+	</h2>
+<div id="gallery_2gallery_image" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">GM has announced that it will invest $7.1 billion in its U.S. assembly and component plants, creating or preserving more than 19,300 jobs in the U.S.</span>
+</div>
+<div id="gallery_2gallery_image_0" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Under GM Chairman and CEO Dan Akerson, GM launched a $23 billion IPO—the largest in history.</span>
+</div>
+<div id="gallery_2gallery_image_1" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">General Motors and LG Group will jointly design and engineer future electric vehicles, expanding a relationship built on LG's work as the battery cell supplier for the Chevrolet Volt and Opel Ampera extended-range EVs.</span>
+</div>
+<div id="gallery_2gallery_image_2" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">In November 2011, GM announced the election of Thomas M. Schoewe, former executive vice president and chief financial officer of Wal-Mart Stores Inc., to its board of directors.  Schoewe brings GM's board of directors to 12 members, 10 of whom are non-employee directors.</span>
+</div>
+<div id="gallery_2gallery_image_3" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">General Motors Chairman and CEO Dan Akerson and GM executives participate in the opening of the GM China Advanced Technical Center. GM has a network of technical centers to conduct R&D for the company around the globe.</span>
+</div>
+</div>
+<div class="text parbase section"><div class="text"><p>&nbsp;&nbsp; </p>
+</div></div>
+<div class="parbase gallery section"><ul class="slideshow" rel="#gallery_3" >
+<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image/image1.img.png" alt="#gallery_3gallery_image" title="#gallery_3gallery_image"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_0/image1.img.png" alt="#gallery_3gallery_image_0" title="#gallery_3gallery_image_0"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_1/image1.img.png" alt="#gallery_3gallery_image_1" title="#gallery_3gallery_image_1"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_2/image1.img.png" alt="#gallery_3gallery_image_2" title="#gallery_3gallery_image_2"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_3/image1.img.png" alt="#gallery_3gallery_image_3" title="#gallery_3gallery_image_3"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_4/image1.img.png" alt="#gallery_3gallery_image_4" title="#gallery_3gallery_image_4"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_5/image1.img.png" alt="#gallery_3gallery_image_5" title="#gallery_3gallery_image_5"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_6/image1.img.png" alt="#gallery_3gallery_image_6" title="#gallery_3gallery_image_6"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_7/image1.img.png" alt="#gallery_3gallery_image_7" title="#gallery_3gallery_image_7"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_8/image1.img.png" alt="#gallery_3gallery_image_8" title="#gallery_3gallery_image_8"></li>
+				<li><img src="/content/gmcom/home/company/aboutGM/our_company/_jcr_content/rightpar/gallery_3/images/gallery_image_9/image1.img.png" alt="#gallery_3gallery_image_9" title="#gallery_3gallery_image_9"></li>
+				</ul>
+<h2 id="gallery_3" class="header gotham-bold-dynamic-gallery">
+	</h2>
+<div id="gallery_3gallery_image" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Over the past decade, the GM Foundation has donated more than $350 million to send students to college, raise high school graduation rates, ensure child passenger safety and support vital non-profit organizations. </span>
+</div>
+<div id="gallery_3gallery_image_0" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">GM North America President Mark Reuss announces the GM Foundation's $27.1 million donation to the United Way of Southeastern Michigan aimed at increasing graduation rates at seven metro Detroit schools. </span>
+</div>
+<div id="gallery_3gallery_image_1" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The GM Foundation funds the Safe Kids Buckle Up Program that is dedicated to child passenger safety.</span>
+</div>
+<div id="gallery_3gallery_image_2" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The inaugural Buick Achievers Scholarship Program recognized and rewarded 1,100 students from across the U.S. who excel both in the classroom and in the community. The 2012 program kicks off soon.</span>
+</div>
+<div id="gallery_3gallery_image_3" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The GM Foundation has donated more than $10 million for the development of the national memorial honoring slain civil rights leader Dr. Martin Luther King Jr.</span>
+</div>
+<div id="gallery_3gallery_image_4" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The GM Foundation and Chevrolet donated $250,000 to bring the 9/11 Heroes Run to several U.S. cities. The events honor the military and first responders with proceeds going to the families of fallen heroes.</span>
+</div>
+<div id="gallery_3gallery_image_5" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The GM Foundation has donated $1 million in Plant City Grants to benefit nonprofits in the areas where GM manufacturing facilities operate.</span>
+</div>
+<div id="gallery_3gallery_image_6" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The GM Foundation donated $2.5-million to the College for Creative Studies, the world's leading educator of automotive designers, for the redevelopment of the  A. Alfred Taubman Center for Design Education.</span>
+</div>
+<div id="gallery_3gallery_image_7" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">Rick Hendrick, owner of Hendrick Motorsports, bought the first Chevrolet Volt for $225,000. The proceeds will benefit science, math, engineering and technology education initiatives in Detroit Public Schools.</span>
+</div>
+<div id="gallery_3gallery_image_8" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">The GM Foundation donated $500,000 to the American Red Cross to help earthquake and tsunami-stricken Japan.</span>
+</div>
+<div id="gallery_3gallery_image_9" class="caption">
+	<span class="gotham-bold-dynamic-gallery"></span>
+	<span class="gotham-book-dynamic-gallery">From biomass to wind turbines, Chevrolet is supporting 16 projects across America as part of its commitment to invest up to $40 million on carbon reduction initiatives.  </span>
+</div>
+</div>
+</div>
+</div>
+						</div>
+					<div class="clearfix"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="lowerRow">
+		
+			<div class="lowerLeft"></div>
+			<div class="lowerRight"></div>
+			<div class="lowerMid">
+				
+			</div>
+			
+		</div>
+		
+		</div>	
+</div>
+
+				    
+					
+
+
+	<div id="primaryNavigation">
+	<ul>
+		<li id="GMLogo">
+			<span>General Motors</span>
+		</li>
+
+<li id="vehicles" class="topNav-left"> 
+			<h2><a href="javascript:void(0)">Vehicles<span class="arrow"> </span></a></h2>
+			<ul class="gotham-medium">
+<li><a href="/vehicles/browseByBrand.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vehicles-menu-browse-brand-154x57-01.jpg" alt="" width="154" height="57"/><span>Browse By Brand</span></a></li><li><a href="/vehicles/browseByType.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vehicles-menu-browse-type-154x57-02.jpg" alt="" width="154" height="57"/><span>Browse By Type</span></a></li><li><a href="/vehicles/future_vehicles.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vehicles-menu-future-vehicles-154x57-03.jpg" alt="" width="154" height="57"/><span>Future Vehicles</span></a></li><li><a href="/vehicles/current_offers.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vehicles-menu-current-offers-154x57-04.jpg" alt="" width="154" height="57"/><span>Current Offers</span></a></li><li><a href="/vehicles/dealerLocator.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vehicles-menu-dealer-locator-154x57-05.jpg" alt="" width="154" height="57"/><span>Dealer Locator</span></a></li><li><a href="/vehicles/owner_advantages.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vehicles-menu-owner-benefits-154x57-06.jpg" alt="" width="154" height="57"/><span>Owner Advantages</span></a></li></ul>
+		</li>
+<li id="vision" class="topNav-left"> 
+			<h2><a href="javascript:void(0)">Innovation<span class="arrow"> </span></a></h2>
+			<ul class="gotham-medium">
+<li><a href="/vision/design_technology.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vision-menu-design-technology-154x57-01.jpg" alt="" width="154" height="57"/><span>Design & Technology</span></a></li><li><a href="/vision/environment1.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vision-menu-environment-154x57-02.jpg" alt="" width="154" height="57"/><span>Environment</span></a></li><li><a href="/vision/community_education.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vision-menu-community-education-154x57-03.jpg" alt="" width="154" height="57"/><span>Community & Education</span></a></li><li><a href="/vision/quality_safety.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-vision-menu-quality-safety-154x57-04.jpg" alt="" width="154" height="57"/><span>Quality & Safety</span></a></li></ul>
+		</li>
+<li id="company" class="topNav-left active"> 
+			<h2><a href="javascript:void(0)">Company<span class="arrow"> </span></a></h2>
+			<ul class="gotham-medium">
+<li class="active"><a href="/company/aboutGM.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-company-menu-about-GM-154x57-01.jpg" alt="" width="154" height="57"/><span>About GM</span></a></li><li class="active"><a href="/company/investors.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-company-menu-investors-154x57-02.jpg" alt="" width="154" height="57"/><span>Investors</span></a></li><li class="active"><a href="/company/latestGMNews.html" class="externalLink" target="_blank"><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-company-menu-latest-news-154x57-03.jpg" alt="" width="154" height="57"/><span>Latest GM News</span></a></li><li class="active"><a href="/company/gm_experience.html" class="" target=""><img src="/content/dam/gmcom/COMPANY/GM_Experience/Images/Company-GM-experience-navigation-154x57.jpg" alt="" width="154" height="57"/><span>The GM Experience</span></a></li><li class="active"><a href="/company/social_hub.html" class="" target=""><img src="/content/dam/gmcom/COMPANY/Social_Hub/Images/Company-social-hub-nav-image-154x57.png" alt="" width="154" height="57"/><span>GM Social Hub</span></a></li><li class="active"><a href="/company/historyAndHeritage.html" class="" target=""><img src="/content/dam/gmcom/HOME/Images/GM-Homepage-company-menu-history-heritage-154x57-06.jpg" alt="" width="154" height="57"/><span>History & Heritage</span></a></li></ul>
+		</li>
+<li id="search">
+			<form action="/content/gmcom/home/toolbar/search.html" name="google" target="_top">
+				<div class="clearfix">
+					<a id="searchAction" onclick="document.google.submit();return false;" href="#" target="_top"><span>Search</span></a>
+					<input type="text" name="q" value="SEARCH"/>
+				</div>
+			</form>
+		</li>
+
+<li id="allGMSites" class="topNav-right"> 
+			<h2>
+				<a href="/toolbar/allGMSites.html" class="" target="">All GM Sites<img src="/etc/designs/gmcom/images/allGMSites_globe.png"/></a></h2>
+		</li>
+<li id="blackFill">&nbsp;</li>
+	</ul>
+</div><div id="auxiliaryNavigation">
+	<ul>
+		<li class="last"><a id="companyName" href="/">&#169; 2012 GENERAL MOTORS</a></li>
+	</ul>
+	<ul class="right">
+<li class="last"><a href="/toolbar/contactUs.html" class="" target="">Contact Us</a></li><li><a href="/toolbar/sitemap.html" class="" target="">Sitemap</a></li><li><a href="/toolbar/pressRoom.html" class="externalLink" target="_blank">Press Room</a></li><li><a href="/toolbar/dealers_suppliers.html" class="" target="">Dealers & Suppliers</a></li><li><a href="/toolbar/investors.html" class="" target="">Investors</a></li><li><a href="/toolbar/careers.html" class="externalLink" target="_blank">Careers</a></li><li><a href="/toolbar/faqs.html" class="" target="">FAQs</a></li><li><a href="/toolbar/supply_chain_responsibility.html" class="externalLink" target="_blank">Supply Chain Responsibility</a></li><li><a href="/toolbar/copyrightTrademark.html" class="" target="">Copyright/Trademark</a></li><li><a href="/toolbar/privacyStatement.html" class="" target="">Privacy </a></li><li><a href="/toolbar/user_guidelines.html" class="" target="">User Guidelines</a></li></ul>
+</div><div id="background">
+		<img src="/content/dam/gmcom/COMPANY/About_GM/Company-about-gm-flexible-content-background-blur-1920x1080-01.jpg"/>
+	</div>
+    <div id="vignette"><img src="/etc/designs/gmcom/images/vignette.png"/></div>
+	<script type="text/javascript">
+		if( typeof( Cufon ) == 'function' && Cufon.now ){
+			Cufon.now(); 
+		}
+	</script>
+	<script type="text/javascript">
+
+	var uri = "/content/gmcom/home/company/aboutGM/our_company";
+	
+	// output this array from built from tracking XML
+	var pageTrackJSON = [{"id":"page","name":null,"type":"page","url":"/content/gmcom/home/company/aboutGM/our_company","vars":{"eVar31":"usa","prop33":"about-gm | our-company","pageName":"gm:company:about-gm:our-company","prop35":"about gm | our-company | index","prop18":"general motors","prop34":"our-company | index","prop12":"our-company","prop10":"company","eVar18":"general motors","prop11":"about-gm"}},{"id":"gallery_prev_arrow","name":null,"type":"click","url":"/content/gmcom/home/company/aboutGM/our_company","vars":{"Link Category":"lnk_o","pageName":"gm:company:about-gm:our-company","prop32":"about-gm:our-company:image:arrow-left","prop27":"images","linkName":"our-company"}},{"id":"gallery_next_arrow","name":null,"type":"click","url":"/content/gmcom/home/company/aboutGM/our_company","vars":{"Link Category":"lnk_o","pageName":"gm:company:about-gm:our-company","prop32":"about-gm:our-company:image:arrow-right","prop27":"images","linkName":"our-company"}},{"id":"gallery_number","name":null,"type":"click","url":"/content/gmcom/home/company/aboutGM/our_company","vars":{"Link Category":"lnk_o","pageName":"gm:company:about-gm:our-company","prop32":"about-gm:our-company:image:<<number_clicked>>","prop27":"images","linkName":"our-company"}},{"id":"gallery_image","name":null,"type":"click","url":"/content/gmcom/home/company/aboutGM/our_company","vars":{"Link Category":"lnk_o","prop59":"about-gm:our-company:<<image_name>>","pageName":"gm:company:about-gm:our-company","prop27":"images","linkName":"our-company"}},{"id":"print","name":null,"type":"click","url":"/content/gmcom/home/company/aboutGM/our_company","vars":{"Link Category":"lnk_o","pageName":"gm:company:about-gm:our-company","prop32":"about-gm:our-company:print","prop27":"text link","linkName":"our-company"}},{"id":"internal","name":null,"type":"click","url":"/content/gmcom/home/company/aboutGM/our_company","vars":{"Link Category":"lnk_o","pageName":"gm:company:about-gm:our-company","prop32":"about-gm:our-company:<<destination_name>>","prop27":"text link","linkName":"our-company"}},{"id":"exit","name":null,"type":"click","url":"/content/gmcom/home/company/aboutGM/our_company","vars":{"Link Category":"lnk_e","pageName":"gm:company:about-gm:our-company","prop32":"about-gm:our-company:exit:<<destination_name>>","prop27":"text link","linkName":"our-company"}},{"id":"globalnav","name":null,"type":"click","url":"globalnav","vars":{"Link Category":"lnk_o","prop32":"globalnav:<<linkname>>","prop27":"globalnav","linkName":"globalnav"}},{"id":"globalfooter","name":null,"type":"click","url":"globalfooter","vars":{"Link Category":"lnk_o","prop32":"globalfooter:<<linkname>>","prop27":"globalfooter","linkName":"globalfooter"}},{"id":"leftnav","name":null,"type":"click","url":"leftnav","vars":{"Link Category":"lnk_o","prop32":"leftnav:<<pagename>>:<<linkname>>","prop27":"leftnav","linkName":"leftnav"}}];
+	
+	// output this array from built from tracking XML
+	var dartTrackJSON = [{"flood":[],"spot":[]}];
+
+	//page tracking
+	//the above java script variables are unique to each page and must be set before the code in the following javascript file is exicuted.
+</script>
+<script type="text/javascript" src="/etc/designs/gmcom/js/gPageTracking.js"></script>
+</body>
+
+</html>

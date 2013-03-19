@@ -1,0 +1,306 @@
+<!DOCTYPE HTML>
+<html lang="en" dir="ltr" xmlns="http://www.w3.org/1999/xhtml" prefix="fb: http://www.facebook.com/2008/fbml content: http://purl.org/rss/1.0/modules/content/ dc: http://purl.org/dc/terms/ foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rdfs: http://www.w3.org/2000/01/rdf-schema# sioc: http://rdfs.org/sioc/ns# sioct: http://rdfs.org/sioc/types# skos: http://www.w3.org/2004/02/skos/core# xsd: http://www.w3.org/2001/XMLSchema# owl: http://www.w3.org/2002/07/owl# rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns# rss: http://purl.org/rss/1.0/ site: http://www.dhs.gov/ns#">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="http://www.dhs.gov/profiles/dhs_gov/themes/dhs_gov_theme/favicon.ico" type="image/vnd.microsoft.icon" />
+<!--[if lt IE 9]><script src="/profiles/dhs_gov/themes/dhs_gov_theme/js/html5.js"></script><![endif]--><script src="/foresee/foresee-trigger.js"></script><meta name="description" content="Protecting our borders from the illegal movement of weapons, drugs, contraband, and people, while promoting lawful entry and exit, is essential to homeland security, economic prosperity, and national sovereignty." />
+<meta content="Border Security Overview" about="/border-security-overview" property="dc:title" />
+<link rel="canonical" href="/border-security-overview" />
+<link rel="shortlink" href="/node/8297" />
+<meta name="generator" content="Drupal 7 (http://drupal.org)" />
+<meta about="/border-security-overview" property="sioc:num_replies" content="0" datatype="xsd:integer" />
+  <title>Border Security Overview | Homeland Security</title>  
+  <link type="text/css" rel="stylesheet" href="http://www.dhs.gov/sites/default/files/css/css_Z_KQyXTcIGmFPRfGZOOTJ1xsEckXlqMhF53CkTgnOVA.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.dhs.gov/sites/default/files/css/css_4gefljwhivl7KQmhP-wihmt0rXVI6SI7kL7TyWqdB8o.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.dhs.gov/sites/default/files/css/css_cR8Jx5BskComV3jTq9e-gOgyMcXZ8knjpHkmopVhw20.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.dhs.gov/sites/default/files/css/css_bskEmuwyxRH62_GrKI4T3k1ix7ZqhqnrWVwUyFfAKD8.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.dhs.gov/sites/default/files/css/css_wAKH_-5fp85TzGsnygyJx4b7d5F6DiBTRWUwkivdo3o.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.dhs.gov/sites/default/files/css/css_S3HIZOTwBp52KkknSG8YHZJL5gkF2mpC3ORRdo3oHFo.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.dhs.gov/sites/default/files/css/css_gXnnLGpCeVNpVh6RKXqlssSBcNJrDv3r5RZCp02WBo8.css" media="print" />
+
+<!--[if IE 7]>
+<link type="text/css" rel="stylesheet" href="http://www.dhs.gov/profiles/dhs_gov/themes/dhs_gov_theme/css/ie7.css?mdhoh6" media="all" />
+<![endif]-->
+  <script type="text/javascript" src="http://www.dhs.gov/sites/default/files/js/js_3jHghlMLrjr9xXAC0JufqSSch3oAbkZstSqYdc4uuck.js"></script>
+<script type="text/javascript" src="http://www.dhs.gov/sites/default/files/js/js_3y3XwTGoqZQ-aM6ANneBx-xuGuYQpyLY_7g2mnzt_tI.js"></script>
+<script type="text/javascript" src="http://www.dhs.gov/sites/default/files/js/js_AQg53T20gxhQov96S0yT8ApOub4OjA7m4nqO3ZEPuwI.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+window.CKEDITOR_BASEPATH = '/sites/all/libraries/ckeditor/'
+//--><!]]>
+</script>
+<script type="text/javascript" src="http://www.dhs.gov/sites/default/files/js/js_IDBX5SzkJ9gGNq7x-qOE_2DZsexqguTJQGMKvi4w-Uw.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var _gaq = _gaq || [];_gaq.push(["_setAccount", "UA-32318423-1"]);_gaq.push(["_gat._anonymizeIp"]);_gaq.push(['_setVisitorCookieTimeout',15768000000]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
+//--><!]]>
+</script>
+<script type="text/javascript" src="//search.usa.gov/javascripts/stats.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var aid = 'dhs';
+//--><!]]>
+</script>
+<script type="text/javascript" src="http://www.dhs.gov/sites/default/files/js/js_EimeK4Mq8srMaFH5piSP7UTZV0GWUcafeyiMhmFfsVI.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, {"basePath":"\/","pathPrefix":"","ajaxPageState":{"theme":"dhs_gov_theme","theme_token":"FzD22qMPZd1VmY-45fB-1G_kn-4XiDyAVtd4Z83gqyc","js":{"0":1,"misc\/jquery.js":1,"misc\/jquery.once.js":1,"misc\/drupal.js":1,"profiles\/openpublic\/modules\/contrib\/comment_notify\/comment_notify.js":1,"sites\/all\/modules\/redirect_page\/js\/external_links.js":1,"sites\/all\/modules\/addthis\/addthis.js":1,"sites\/all\/libraries\/chosen\/chosen\/chosen.jquery.min.js":1,"sites\/all\/modules\/chosen\/chosen.js":1,"profiles\/openpublic\/modules\/contrib\/colorbox\/js\/colorbox.js":1,"profiles\/openpublic\/modules\/contrib\/colorbox\/styles\/default\/colorbox_default_style.js":1,"profiles\/openpublic\/modules\/contrib\/colorbox\/js\/colorbox_load.js":1,"profiles\/dhs_gov\/modules\/features\/dhs_rotator\/js\/jquery.cycle.all.js":1,"profiles\/dhs_gov\/modules\/features\/dhs_rotator\/js\/jquery.jcarousel.min.js":1,"profiles\/dhs_gov\/modules\/features\/dhs_rotator\/js\/dhs_rotator.js":1,"profiles\/dhs_gov\/modules\/features\/dhs_text_formats_wysiwyg\/dhs_text_formats_wysiwyg.js":1,"sites\/all\/modules\/nice_menus\/superfish\/js\/superfish.js":1,"sites\/all\/modules\/nice_menus\/superfish\/js\/jquery.bgiframe.min.js":1,"sites\/all\/modules\/nice_menus\/superfish\/js\/jquery.hoverIntent.minified.js":1,"sites\/all\/modules\/nice_menus\/nice_menus.js":1,"profiles\/openpublic\/modules\/contrib\/panels\/js\/panels.js":1,"profiles\/dhs_gov\/modules\/custom\/dhs_core\/js\/accessability.js":1,"sites\/all\/modules\/field_boxes\/jquery.tablednd_0_5.js":1,"sites\/all\/modules\/field_boxes\/field_boxes.js":1,"1":1,"profiles\/openpublic\/modules\/contrib\/google_analytics\/googleanalytics.js":1,"2":1,"\/\/search.usa.gov\/javascripts\/stats.js":1,"3":1,"profiles\/openpublic\/themes\/omega\/omega\/js\/omega-equalheights.js":1},"css":{"modules\/system\/system.base.css":1,"modules\/system\/system.menus.css":1,"modules\/system\/system.messages.css":1,"modules\/system\/system.theme.css":1,"profiles\/openpublic\/modules\/contrib\/comment_notify\/comment_notify.css":1,"modules\/comment\/comment.css":1,"profiles\/openpublic\/modules\/contrib\/date\/date_api\/date.css":1,"profiles\/openpublic\/modules\/contrib\/date\/date_popup\/themes\/datepicker.1.7.css":1,"profiles\/openpublic\/modules\/contrib\/date\/date_repeat_field\/date_repeat_field.css":1,"modules\/field\/theme\/field.css":1,"modules\/node\/node.css":1,"modules\/search\/search.css":1,"modules\/user\/user.css":1,"sites\/all\/modules\/views\/css\/views.css":1,"sites\/all\/libraries\/chosen\/chosen\/chosen.css":1,"profiles\/openpublic\/modules\/contrib\/colorbox\/styles\/default\/colorbox_default_style.css":1,"profiles\/openpublic\/modules\/contrib\/ctools\/css\/ctools.css":1,"profiles\/dhs_gov\/modules\/custom\/dhs_sidebar\/dhs_sidebar.css":1,"profiles\/openpublic\/modules\/contrib\/follow\/follow.css":1,"sites\/all\/modules\/nice_menus\/nice_menus.css":1,"sites\/all\/modules\/nice_menus\/nice_menus_default.css":1,"profiles\/openpublic\/modules\/contrib\/panels\/css\/panels.css":1,"sites\/all\/modules\/special_menu_items\/special_menu_items.css":1,"profiles\/openpublic\/modules\/features\/openpublic_defaults\/theme\/openpublic_defaults.css":1,"profiles\/openpublic\/themes\/omega\/alpha\/css\/alpha-reset.css":1,"profiles\/openpublic\/themes\/omega\/alpha\/css\/alpha-mobile.css":1,"profiles\/openpublic\/themes\/omega\/alpha\/css\/alpha-alpha.css":1,"profiles\/openpublic\/themes\/omega\/omega\/css\/omega-text.css":1,"profiles\/openpublic\/themes\/omega\/omega\/css\/omega-branding.css":1,"profiles\/openpublic\/themes\/omega\/omega\/css\/omega-menu.css":1,"profiles\/openpublic\/themes\/omega\/omega\/css\/omega-visuals.css":1,"profiles\/openpublic\/themes\/openomega\/css\/global.css":1,"normal::profiles\/openpublic\/themes\/openomega\/css\/openomega-alpha-default.css":1,"normal::profiles\/openpublic\/themes\/openomega\/css\/openomega-alpha-default-normal.css":1,"profiles\/openpublic\/themes\/omega\/alpha\/css\/grid\/alpha_default\/normal\/alpha-default-normal-12.css":1,"profiles\/dhs_gov\/themes\/dhs_gov_theme\/css\/dhs-global.css":1,"profiles\/dhs_gov\/themes\/dhs_gov_theme\/css\/dhs-print.css":1,"profiles\/dhs_gov\/themes\/dhs_gov_theme\/css\/ie7.css":1}},"chosen":{"selector":".node-form select[multiple=\u0022multiple\u0022]","minimum":"5","minimum_width":"200","search_contains":false},"colorbox":{"opacity":"0.85","current":"{current} of {total}","previous":"\u00ab Prev","next":"Next \u00bb","close":"Close","maxWidth":"100%","maxHeight":"100%","fixed":true,"__drupal_alter_by_ref":["default"]},"nice_menus_options":{"delay":"800","speed":"fast"},"addthis":{"widget_url":"http:\/\/s7.addthis.com\/js\/250\/addthis_widget.js#pubid=dhs?async=1"},"googleanalytics":{"trackOutbound":1,"trackMailto":1,"trackDownload":1,"trackDownloadExtensions":"7z|aac|arc|arj|asf|asx|avi|bin|csv|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls|xml|z|zip","trackCrossDomains":"dhs.gov"},"redirect_new_window":true,"redirect_page_safe_href_regexp":"(\\.fayze2\\.com|\\.gov|\\.mil|feedburner\\.com|www\\.facebook\\.com\/\\#\\!\/homelandsecurity|twitter\\.com\/dhsgov\/|www\\.youtube\\.com\/ushomelandsec)"});
+//--><!]]>
+</script>
+</head>
+<body class="html not-front not-logged-in page-node page-node- page-node-8297 node-type-topic i18n-en context-border-security-overview">
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible element-focusable">Skip to main content</a>
+  </div>
+  <div class="region region-page-top" id="region-page-top">
+  <div class="region-inner region-page-top-inner">
+      </div>
+</div>  <div class="page clearfix" id="page">
+      <header id="section-header" class="section section-header">
+  <div id="zone-user-wrapper" class="zone-wrapper zone-user-wrapper clearfix">  
+  <div id="zone-user" class="zone zone-user clearfix container-12">
+    <div class="grid-12 region region-user-first" id="region-user-first">
+  <div class="region-inner region-user-first-inner">
+    <div class="block block-boxes block-boxes-simple block-dhs-header-tagline block-boxes-dhs-header-tagline odd block-without-title" id="block-boxes-dhs-header-tagline">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <div id='boxes-box-dhs_header_tagline' class='boxes-box'><div class="boxes-box-content"><p><img alt="US flag" src="/sites/default/files/images/icn-us-flag-21px.png" style="width: 21px; height: 13px; " />   Official website of the Department of Homeland Security</p>
+</div></div>    </div>
+  </div>
+</div>  </div>
+</div>  </div>
+</div><div id="zone-branding-wrapper" class="zone-wrapper zone-branding-wrapper clearfix">  
+  <div id="zone-branding" class="zone zone-branding clearfix container-12">
+    <div class="grid-12 region region-branding" id="region-branding">
+  <div class="region-inner region-branding-inner">
+        <div class="branding-data clearfix">
+      <div class="block block-openpublic-defaults block-openpublic-utility-menu block-openpublic-defaults-openpublic-utility-menu odd block-without-title" id="block-openpublic-defaults-openpublic-utility-menu">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <h2 class="element-invisible">User menu</h2><ul id="user-menu" class="links clearfix"><li class="menu-9692 first"><a href="/subscribe" title="">Subscribe</a></li><li class="menu-623"><a href="/main-contact-us" title="">Contact Us</a></li><li class="menu-2272 last"><a href="/sitemap" title="Site Map">Site Map</a></li></ul>    </div>
+  </div>
+</div><div class="block block-search block-form block-search-form even block-without-title" id="block-search-form">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <form action="//search.dhs.gov/search" method="get" id="search-block-form" accept-charset="UTF-8"><div><div class="container-inline">
+      <h2 class="element-invisible">Search form</h2>
+    <div class="form-item form-type-textfield form-item-query">
+  <label class="element-invisible" for="edit-search-block-form--2">Search using USASearch </label>
+ <input title="Enter the terms you wish to search for." type="text" id="edit-search-block-form--2" name="query" value="" size="15" maxlength="128" class="form-text" />
+</div>
+<div class="form-actions form-wrapper" id="edit-actions"><input type="submit" id="edit-submit" name="op" value="Search" class="form-submit" /></div><input type="hidden" name="affiliate" value="dhs" />
+</div>
+</div></form>    </div>
+  </div>
+</div>            <div class="logo-img">
+        <a href="/" rel="home" title="Homeland Security"><img src="http://www.dhs.gov/profiles/dhs_gov/themes/dhs_gov_theme/logo.png" alt="U.S. Department of Homeland Security seal" id="logo" /></a>      </div>
+                        <hgroup class="site-name-slogan">        
+                        <h1 class="site-name"><a href="/" title="Home">Homeland Security</a></h1>
+                      </hgroup>
+            <nav class="navigation">
+        <ul class="menu clearfix"><li class="first collapsed level-1"><a href="/" title="">Home</a></li>
+<li class="leaf level-1"><a href="/topics" title="">Topics</a></li>
+<li class="leaf level-1"><a href="/how-do-i/by-type" title="">How Do I?</a></li>
+<li class="leaf level-1"><a href="/get-involved" title="">Get Involved</a></li>
+<li class="leaf level-1"><a href="/news" title="">News</a></li>
+<li class="last leaf level-1"><a href="/about-dhs" title="">About DHS</a></li>
+</ul>      </nav>
+    </div>
+      </div>
+</div>  </div>
+</div><div id="zone-emergency-wrapper" class="zone-wrapper zone-emergency-wrapper clearfix">  
+  <div id="zone-emergency" class="zone zone-emergency clearfix container-12">
+    <div class="grid-12 region region-emergency" id="region-emergency">
+  <div class="region-inner region-emergency-inner">
+    <div class="block block-boxes block-boxes-alert_box block-dhs-alert-box block-boxes-dhs-alert-box odd block-without-title" id="block-boxes-dhs-alert-box">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <div id='boxes-box-dhs_alert_box' class='boxes-box'><div class="boxes-box-content"><div class="entity entity-entity-boxes entity-boxes-alert-box clearfix" about="/entity_boxes/9">
+  <div class="content">
+    <div class="field field-name-field-alert field-type-node-reference field-label-hidden"><div class="field-items"><div class="field-item even"><div class="emergency-notification-strip info"><a href="/alerts-and-notifications/disaster-assistance-available-those-affected-hurricane-sandy-learn-more">Disaster Assistance Available for Those Affected by Hurricane Sandy                    &gt;&gt;   Learn More</a></div></div></div></div>  </div>
+</div>
+</div></div>    </div>
+  </div>
+</div>  </div>
+</div>  </div>
+</div></header>    
+      <section id="section-content" class="section section-content">
+  <div id="zone-header-wrapper" class="zone-wrapper zone-header-wrapper clearfix">  
+  <div id="zone-header" class="zone zone-header clearfix container-12">
+    <div class="grid-12 region region-header-second" id="region-header-second">
+  <div class="region-inner region-header-second-inner">
+    <div class="block block-delta-blocks block-breadcrumb block-delta-blocks-breadcrumb odd block-without-title" id="block-delta-blocks-breadcrumb">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <div id="breadcrumb" class="clearfix"><ul class="breadcrumb"><li class="depth-1 odd first"><a href="/">Home</a></li><li class="depth-2 even"><a href="/topics" title="Topics">Topics</a></li><li class="depth-3 odd"><a href="/border-security" title="Border Security">Border Security</a></li><li class="depth-4 even last"><a href="/border-security-overview" class="active">Border Security Overview</a></li></ul></div>    </div>
+  </div>
+</div>  </div>
+</div>  </div>
+</div><div id="zone-content-wrapper" class="zone-wrapper zone-content-wrapper clearfix">  
+  <div id="zone-content" class="zone zone-content clearfix container-12">    
+        
+        <aside class="grid-2 region region-sidebar-first" id="region-sidebar-first">
+  <div class="region-inner region-sidebar-first-inner">
+    <div class="block block-menu block-menu-left-menu block-menu-menu-left-menu odd block-without-title" id="block-menu-menu-left-menu">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <ul class="menu clearfix"><li class="first expanded active-trail level-1"><a href="/topics" title="Topics" class="active-trail">Topics</a><ul class="menu clearfix"><li class="first expanded active-trail level-2"><a href="/border-security" title="Border Security" class="active-trail">Border Security</a><ul class="menu clearfix"><li class="first leaf active-trail level-3"><a href="/border-security-overview" title="Border Security Overview" class="active-trail active">Overview</a></li>
+<li class="leaf level-3"><a href="/topic/trade">Trade</a></li>
+<li class="leaf level-3"><a href="/trusted-traveler-programs" title="Trusted Traveler Programs">Trusted Traveler Programs</a></li>
+<li class="last leaf level-3"><a href="/border-security-results" title="Border Security Results">Results</a></li>
+</ul></li>
+<li class="collapsed level-2"><a href="/citizenship-and-immigration-services" title="Citizenship and Immigration Services">Citizenship and Immigration Services</a></li>
+<li class="leaf level-2"><a href="/topic/civil-rights-and-civil-liberties" title="Civil Rights and Civil Liberties">Civil Rights and Civil Liberties</a></li>
+<li class="collapsed level-2"><a href="/cybersecurity" title="Cybersecurity">Cybersecurity</a></li>
+<li class="collapsed level-2"><a href="/disasters" title="Disasters">Disasters</a></li>
+<li class="collapsed level-2"><a href="/economic-security" title="Economic Security">Economic Security</a></li>
+<li class="collapsed level-2"><a href="/homeland-security-enterprise" title="Homeland Security Enterprise">Homeland Security Enterprise</a></li>
+<li class="leaf level-2"><a href="/homeland-security-jobs" title="Homeland Security Jobs">Homeland Security Jobs</a></li>
+<li class="leaf level-2"><a href="/topic/human-trafficking" title="Human Trafficking">Human Trafficking</a></li>
+<li class="collapsed level-2"><a href="/topic/immigration-enforcement" title="Immigration Enforcement">Immigration Enforcement</a></li>
+<li class="collapsed level-2"><a href="/international-engagement" title="International Engagement">International Engagement</a></li>
+<li class="leaf level-2"><a href="/topic/law-enforcement-partnerships" title="Law Enforcement Partnerships">Law Enforcement Partnerships</a></li>
+<li class="collapsed level-2"><a href="/preventing-terrorism" title="Preventing Terrorism">Preventing Terrorism</a></li>
+<li class="last collapsed level-2"><a href="/topic/transportation-security" title="Transportation Security">Transportation Security</a></li>
+</ul></li>
+<li class="collapsed level-1"><a href="/get-involved" title="Get Involved">Get Involved</a></li>
+<li class="collapsed level-1"><a href="/how-do-i/by-type" title="">How Do I?</a></li>
+<li class="collapsed level-1"><a href="/news" title="News">News</a></li>
+<li class="collapsed level-1"><a href="/about-dhs">About DHS</a></li>
+<li class="last collapsed level-1"><a href="/site-links">Site Links</a></li>
+</ul>    </div>
+  </div>
+</div>  </div>
+</aside><div class="grid-10 region region-content" id="region-content">
+  <div class="region-inner region-content-inner">
+    <div id="main-content"></div>
+                <h1 class="title" id="page-title">Border Security Overview</h1>
+                        <div class="block block-system block-main block-system-main odd block-without-title" id="block-system-main">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <article about="/border-security-overview" typeof="sioc:Item foaf:Document" class="node node-topic node-published node-not-promoted node-not-sticky author-cathleentracy even clearfix node-view-mode-full" id="node-topic-8297">
+
+  <header>
+        <h1 property="dc:title" class="page-title title-with-background node-title" style="background-image: url(http://www.dhs.gov/sites/default/files/styles/dhs_topic_banner/public/images/border-securirty-overview-banner.JPG)">Border Security Overview</h1>
+      </header>
+
+  
+  <div class="content clearfix">
+    <div class="field field-name-body field-type-text-with-summary field-label-hidden"><div class="field-items"><div class="field-item even" property="content:encoded"><h2>Protecting Our Borders</h2>
+<p>America shares 7,000 miles of land border with Canada and Mexico, as well as rivers, lakes and coastal waters around the country. These borders are vital economic gateways that account for trillions of dollars in trade and travel each year. They are also home to some of our nation’s largest – and safest – cities and communities. Protecting our borders from the illegal movement of weapons, drugs, contraband, and people, while promoting lawful entry and exit, is essential to homeland security, economic prosperity, and national sovereignty.</p>
+<h2>Creating a Safer Border Environment</h2>
+<p>DHS works to secure our borders through the deployment of personnel, technology, and infrastructure; as well as working closely with our neighbors in Canada and Mexico, and our many federal, state, local, tribal, and territorial partners.</p>
+<p>CBP Border Patrol agents, agriculture specialists, Air and Marine agents, and officers guard America’s front lines. These men and women prevent terrorists and their weapons from entering the United States while continuing their mission of seizing contraband and apprehending criminals and others who illegally attempt to enter the United States.</p>
+<p>Through increases in Border Patrol staffing; construction of new infrastructure and fencing; use of advanced technology—including sensors, radar, and aerial assets –investments to modernize the ports of entry; and stronger partnerships and information sharing, we are creating a safer, more secure, and more efficient border environment.</p>
+<h2>Making Travel Faster and the Border Safer</h2>
+<p>By expanding trusted traveler programs, we are enhancing our ability to expedite and facilitate known, low risk "trusted travelers" arriving into the United States. This makes it faster and easier for millions of visitors and business people to cross the border while allowing CBP officers additional time to focus on higher risk, unknown travelers.</p>
+<p>DHS is continuing to make our border states safer. CBP Border Patrol apprehensions have dropped by 53 percent since 2008, indicating that fewer people are attempting to illegally cross the border; while the Border Patrol is better staffed than at any time in its history with more than 21,000 border agents— most of these agents at the Southwest border.  </p>
+<p>Patrols in the Southwest have substantially increased the amount of drugs, guns, and cash seized over the last three years:</p>
+<ul><li>74 percent more money</li>
+<li>41 percent more drugs, and</li>
+<li>159 percent more weapons have been apprehended.</li>
+</ul><p>Additionally, since 2008, crime rates have fallen in Arizona, California, New Mexico, and Texas.</p>
+<p>See <a href="/border-security-results">Border Security Results</a></p>
+</div></div></div>  </div>
+  
+  <div class="clearfix">
+          <nav class="links node-links clearfix"></nav>
+    
+      </div>
+</article>    </div>
+  </div>
+</div>      </div>
+</div>  </div>
+</div></section>    
+  
+      <footer id="section-footer" class="section section-footer">
+  <div id="zone-footer-wrapper" class="zone-wrapper zone-footer-wrapper clearfix">  
+  <div id="zone-footer" class="zone zone-footer clearfix container-12">
+    <div class="grid-12 region region-footer-second" id="region-footer-second">
+  <div class="region-inner region-footer-second-inner">
+    <nav id="footer-nav" class="footer-nav clearfix"><ul class="menu clearfix"><li class="first expanded menu-item-1 level-1"><a href="/topics" title="Topics">Topics</a><ul class="menu clearfix"><li class="first leaf level-2"><a href="/border-security" title="">Border Security</a></li>
+<li class="leaf level-2"><a href="/citizenship-and-immigration-services" title="Citizenship and Immigration Services">Citizenship and Immigration Services</a></li>
+<li class="leaf level-2"><a href="/topic/civil-rights-and-civil-liberties" title="">Civil Rights and Civil Liberties</a></li>
+<li class="leaf level-2"><a href="/cybersecurity" title="">Cybersecurity</a></li>
+<li class="leaf level-2"><a href="/disasters" title="">Disasters</a></li>
+<li class="leaf level-2"><a href="/economic-security" title="Economic Security">Economic Security</a></li>
+<li class="leaf level-2"><a href="/homeland-security-enterprise" title="">Homeland Security Enterprise</a></li>
+<li class="leaf level-2"><a href="/homeland-security-jobs" title="">Homeland Security Jobs</a></li>
+<li class="leaf level-2"><a href="/topic/human-trafficking" title="">Human Trafficking</a></li>
+<li class="leaf level-2"><a href="/topic/immigration-enforcement" title="">Immigration and Enforcement</a></li>
+<li class="leaf level-2"><a href="/international-engagement" title="">International Engagement</a></li>
+<li class="leaf level-2"><a href="/topic/law-enforcement-partnerships" title="">Law Enforcement Partnerships</a></li>
+<li class="leaf level-2"><a href="/preventing-terrorism" title="">Preventing Terrorism</a></li>
+<li class="last leaf level-2"><a href="/topic/transportation-security" title="Transportation Security">Transportation Security</a></li>
+</ul></li>
+<li class="expanded menu-item-2 level-1"><a href="/get-involved" title="">Get Involved</a><ul class="menu clearfix"><li class="first leaf level-2"><a href="/blue-campaign" title="">Blue Campaign</a></li>
+<li class="leaf level-2"><a href="/citizen-corps" title="">Citizen Corps</a></li>
+<li class="leaf level-2"><a href="/if-you-see-something-say-something" title="">If You See Something Say Something</a></li>
+<li class="leaf level-2"><a href="/ready" title="">Ready.gov</a></li>
+<li class="leaf level-2"><a href="/stopthinkconnect-1" title="">Stop.Think.Connect.</a></li>
+<li class="last leaf level-2"><a href="/us-coast-guard-auxiliary" title="">U.S. Coast Guard Auxiliary</a></li>
+</ul></li>
+<li class="expanded menu-item-3 level-1"><a href="/how-do-i/by-type" title="">How Do I?</a><ul class="menu clearfix"><li class="first leaf level-2"><a href="/how-do-i/by-type#For-the-Public" title="">For the Public</a></li>
+<li class="leaf level-2"><a href="/how-do-i/by-type#For-Businesses" title="">For Businesses</a></li>
+<li class="leaf level-2"><a href="/how-do-i/by-type#For-Travelers" title="">For Travelers</a></li>
+<li class="leaf level-2"><a href="/how-do-i/by-type#At-DHS" title="">At DHS</a></li>
+<li class="last leaf level-2"><a href="/how-do-i/alphabetical" title="">A-Z Index</a></li>
+</ul></li>
+<li class="expanded menu-item-4 level-1"><a href="/news" title="">News</a><ul class="menu clearfix"><li class="first leaf level-2"><a href="/news-releases/blog?field_news_type_tid=588" title="">Blog</a></li>
+<li class="leaf level-2"><a href="/node/4567" title="Comunicado de Prensa">Comunicado de Prensa</a></li>
+<li class="leaf level-2"><a href="/data" title="Data">Data</a></li>
+<li class="leaf level-2"><a href="/events" title="">Events</a></li>
+<li class="leaf level-2"><a href="/news-releases/fact-sheets?field_news_type_tid=587" title="Fact Sheets">Fact Sheets</a></li>
+<li class="leaf level-2"><a href="/media-contacts" title="">Media Contacts</a></li>
+<li class="leaf level-2"><a href="/multimedia" title="">Multimedia</a></li>
+<li class="leaf level-2"><a href="/news-releases/press-releases?field_news_type_tid=436" title="Press Releases">Press Releases</a></li>
+<li class="leaf level-2"><a href="/publications" title="Publications">Publications</a></li>
+<li class="leaf level-2"><a href="/dhs-social-media-directory" title="">Social Media</a></li>
+<li class="leaf level-2"><a href="/news-releases/speeches?field_news_type_tid=439" title="Speeches">Speeches</a></li>
+<li class="last leaf level-2"><a href="/news-releases/testimony?field_news_type_tid=440" title="Testimony">Testimony</a></li>
+</ul></li>
+<li class="expanded menu-item-5 level-1"><a href="/about-dhs" title="About DHS">About DHS</a><ul class="menu clearfix"><li class="first leaf level-2"><a href="/janet-napolitano" title="">The Secretary</a></li>
+<li class="leaf level-2"><a href="/budget-performance" title="Budget &amp; Performance">Budget &amp; Performance</a></li>
+<li class="leaf level-2"><a href="/careers" title="Careers">Careers</a></li>
+<li class="leaf level-2"><a href="/main-contact-us" title="Contact Us">Contact Us</a></li>
+<li class="leaf level-2"><a href="/do-business-dhs" title="Doing Business with DHS">Doing Business with DHS</a></li>
+<li class="leaf level-2"><a href="/history" title="History">History</a></li>
+<li class="leaf level-2"><a href="/laws-regulations" title="Laws &amp; Regulations">Laws &amp; Regulations</a></li>
+<li class="leaf level-2"><a href="/mission" title="Mission">Mission</a></li>
+<li class="last leaf level-2"><a href="/organization" title="Organization">Organization</a></li>
+</ul></li>
+<li class="last expanded menu-item-6 level-1"><a href="/site-links" title="Site Links">Site Links</a><ul class="menu clearfix"><li class="first leaf level-2"><a href="/main-contact-us" title="Contact Us">Contact Us</a></li>
+<li class="leaf level-2"><a href="/dhs-component-websites" title="DHS Component Websites">DHS Component Websites</a></li>
+<li class="leaf level-2"><a href="/en-espa%C3%B1ol" title="">En Espanol</a></li>
+<li class="leaf level-2"><a href="/privacy-policy" title="Privacy Policy">Privacy Policy</a></li>
+<li class="leaf level-2"><a href="/notices" title="Notices">Notices</a></li>
+<li class="leaf level-2"><a href="/plug-information" title="Plug-in">Plug-in</a></li>
+<li class="leaf level-2"><a href="/landing-page/freedom-information-act-foia-and-privacy-act" title="FOIA">FOIA</a></li>
+<li class="leaf level-2"><a href="http://www.oig.dhs.gov/" title="Office of the Inspector General">Inspector General</a></li>
+<li class="leaf level-2"><a href="/sitemap" title="">Site Map</a></li>
+<li class="leaf level-2"><a href="http://gobiernousa.gov" title="">GobiernoUSA.gov</a></li>
+<li class="leaf level-2"><a href="http://www.usa.gov" title="">USA.gov</a></li>
+<li class="last leaf level-2"><a href="http://www.whitehouse.gov" title="">The White House</a></li>
+</ul></li>
+</ul></nav>
+    <section class="clearfix"></section>
+  </div>
+</div>  </div>
+</div></footer>  </div>  <div class="region region-page-bottom" id="region-page-bottom">
+  <div class="region-inner region-page-bottom-inner">
+    <a href="#skip-link" class="element-invisible element-focusable">Back to Top</a>  </div>
+</div><script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var addthis_config = {"services_compact":"email,facebook,linkedin,twitter,more","data_track_clickback":false,"ui_508_compliant":true,"ui_click":false,"ui_cobrand":"","ui_delay":0,"ui_header_background":"","ui_header_color":"","ui_open_windows":false,"ui_use_css":true,"ui_use_addressbook":false,"ui_language":"en"}
+var addthis_share = {"templates":{"twitter":"{{title}} {{url}} via @AddThis"}}
+//--><!]]>
+</script>
+</body>
+</html>
