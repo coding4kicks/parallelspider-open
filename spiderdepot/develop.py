@@ -1,16 +1,18 @@
 """ Parallel Spider development tasks. """
 
-import fabric.api as fab
-
 import os
 import subprocess
 
+import fabric.api as fab
 
-@fab.task
-def test(word=None):
-    
-    import server
-    server.start('local')
+
+# Determine path to parallelspider directory.
+# Assumes this file is in spiderdepot or subdirectory,
+# and spiderdepot is 1 level below parallelspider.
+path = os.path.realpath(__file__).partition('spiderdepot')[0]
+
+""" TODO: Need to fix Redis so can start from directories other that ~
+          Uses . when changing files: ./var/lib/spider/ """ 
 
 
 @fab.task(default=True)
@@ -39,16 +41,19 @@ def local():
     # - needs Central and Engine Redis
     engine.start('local')
 
-    # Start Yeoman
-    cmd_line = "yeoman server"
-    cwd="/Users/scottyoung/projects/parallelspider/spiderweb"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    # Set current wroking directory: assumes spiderweb is 1 level 
+    # below parallelspider with gruntfile and testacular.conf
+    cwd = path + "spiderweb/"
 
+    # Start Yeoman  
+    cmd_line = "yeoman server"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
     # Start testacular
     # Use fab for last/one item so ctrl-c will kill all processes
-    with fab.lcd("~/projects/parallelspider/spiderweb/"):
+    with fab.lcd(cwd):
         fab.local("testacular start")
+
 
 @fab.task
 def refresh(datastore='local_redis'):
