@@ -107,7 +107,7 @@ spiderwebApp.controller('CrawlingCtrl', ['$scope', '$timeout', '$http', '$q', '$
 
       // Not mocking so set crawl id as current and update user's folder info
       else {
-        resultsService.setCurrentAnalysis(crawlId);
+        resultsService.setCurrentAnalysis(crawl.id);
         folderService.addAnalysis(configService.getDefaultFolder(), 
                                   crawl.name, crawl.date, crawl.id)
           .then(function(results) {
