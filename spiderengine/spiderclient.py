@@ -85,10 +85,9 @@ class CrawlTracker(object):
         #print "retrieving crawl status for " + crawl_id
         page_count = self.engine_redis.get(crawl_id + "_count")
         self.central_redis.set(crawl_id + "_count", page_count)
-
         # If page count is complete (-2), remove from queue
-        if page_count == -2:
-                self.crawlQueue.remove(crawl_id)
+        if page_count == "-2":
+            self.crawlQueue.remove(crawl_id)
 
     reactor.callLater(5, self.checkCrawlStatus)
 
