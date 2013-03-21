@@ -1,6 +1,8 @@
 """
 spiderparser - parses web pages for parallelspider and spiderrunner
 
+TODO: Am I even using this??? Clean up your shit dude!
+
 Currently uses beautifulsoup and lxml.  
 """
 

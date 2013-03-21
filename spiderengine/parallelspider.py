@@ -45,6 +45,7 @@ class Mapper():
             sys.exit(1)
 
         # Set default port
+        # TODO: switch this to Redis Engine port 6380
         if not self.redis_info['port']:
             redis_info['port'] = 6379
     
@@ -283,6 +284,7 @@ class Reducer():
             sys.exit(1)
 
         # Set default port
+        # TODO: set Engine Redis port 6380
         if not self.redis_info['port']:
             redis_info['port'] = 6379
     
@@ -291,6 +293,7 @@ class Reducer():
                               port=int(self.redis_info["port"]), db=0)
 
         # Set up configuration file (HARDCODE for now)
+        # TODO: pull from Redis
         config_file = self.redis.get('config')
         self.config = cPickle.loads(config_file)
 
@@ -323,6 +326,7 @@ class Reducer():
 
 if __name__ == "__main__":
     import dumbo
+    # TODO: is this running the reducer as a combiner?
     dumbo.run(Mapper, Reducer)
     
     

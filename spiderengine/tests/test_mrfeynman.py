@@ -11,7 +11,7 @@ import unittest
 import lxml.html
 import lxml
 
-from parallelspider.mrfeynman import Brain
+from spiderengine.mrfeynman import Brain
 
 class TestMrFeynman(unittest.TestCase):
     """

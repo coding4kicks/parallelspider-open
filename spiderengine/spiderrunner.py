@@ -131,7 +131,8 @@ class SpiderRunner(object):
             finish = 250
             i = 0
 
-            # Process as batch vice adding 1 at a time (max 255)
+            # Add links to Engine Redis as a batch 
+            # vice adding 1 at a time (max 255)
             while i < breaks:
                 links_part = links[start:finish]
 
@@ -153,7 +154,8 @@ class SpiderRunner(object):
                 finish = finish + 250
                 i = i + 1
               
-            # Create valid file name for output  
+            # Create valid file name for output 
+            # TODO: file name should be based on crawl id
             base_path = base.replace("/","_").replace(":","-")
             file_name = '%s.txt' % (base_path)
             path_out = "/home/parallelspider/jobs/"
