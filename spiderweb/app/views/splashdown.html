@@ -24,9 +24,29 @@
     </table>
   </div>
 
+  <!-- Analysis Info
+================================================== -->
+  <div class="span10 padded loading" ng-show="analysisAvailable && loading">
+    <h1>Loading</h1>      
+    <div id="floatingBarsG">
+      <div class="blockG" id="rotateG_01"></div>
+      <div class="blockG" id="rotateG_02"></div>
+      <div class="blockG" id="rotateG_03"></div>
+      <div class="blockG" id="rotateG_04"></div>
+      <div class="blockG" id="rotateG_05"></div>
+      <div class="blockG" id="rotateG_06"></div>
+      <div class="blockG" id="rotateG_07"></div>
+      <div class="blockG" id="rotateG_08"></div>
+    </div>
+    <div id="quote">
+      <h3>{{quote.words}}</h3>
+      <h4>{{quote.author}}</h4>
+    </div>
+  </div>
+
 <!-- Analysis Info
 ================================================== -->
-  <div class="span10 padded" ng-show="analysisAvailable">
+  <div class="span10 padded" ng-show="analysisAvailable && !loading">
     <div class="row-fluid analysis-header">
       <h2 class="inline">{{analysis.name}}</h2>
       <h4 class="inline">date: {{analysis.date}}</h4>

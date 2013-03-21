@@ -28,6 +28,9 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
     'AngularJS',
     'Testacular'
   ];
+
+  // Show loading when downloading results
+  $scope.loading = false;
   
   // Folder Information
   $scope.folderList = [];
@@ -75,6 +78,16 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
   $scope.buttonTypes.linkText = 
     [{'type': 'pages', 'active': true, 'label': 'Pages', 'itemType': 'page'}];
 
+  // Fetch quotes from S3 - TODO: refactor to service here & crawling
+  // also, add quote cycling for long loads (or speed up the load!)
+  $scope.quoteList = [{"words":"a", "author":"b"}];
+  $scope.quote = {};
+  $http.get('quote-file.json')
+    .then(function(results){
+      $scope.quoteList = results.data; 
+      $scope.quote = $scope.quoteList[Math.floor((Math.random()*$scope.quoteList.length))];
+    });
+
   /*
    * selectFolder - displays the analysis of the selected folder
    *
@@ -90,7 +103,6 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
       }
     }
   }
-
 
   /*
    * selectAnalysis - make analysis current and display results
@@ -147,7 +159,12 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
    * args:
    *  analysisId - key value for analysis on S3
    */
-  $scope.getAnalysis = function(analysisId) {  
+  $scope.getAnalysis = function(analysisId) { 
+
+    // Initiate loading and grab a new quote
+    $scope.loading = true;
+    $scope.quote = $scope.quoteList[Math.floor((Math.random()*$scope.quoteList.length))];
+
     resultsService.getAnalysis(analysisId)
       .then(function(results){
 
@@ -251,6 +268,8 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
 
         // Perform comparison for all sites
         $scope.compareSites();
+
+        $scope.loading = false;
     });
   };
 

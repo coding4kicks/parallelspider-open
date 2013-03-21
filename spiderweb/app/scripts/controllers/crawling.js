@@ -59,7 +59,7 @@ spiderwebApp.controller('CrawlingCtrl', ['$scope', '$timeout', '$http', '$q', '$
   $scope.time.seconds = remainingTime%60;
 
   // Fetch quotes from S3 
-  // TODO: ? do I need to refactor to config for deployment?
+  // TODO: refactor to service from here & splashdown so only fetch once
   $http.get('quote-file.json')
     .then(function(results){
       $scope.quoteList = results.data; 

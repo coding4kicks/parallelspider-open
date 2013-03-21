@@ -7,7 +7,10 @@ describe('Controller: SplashdownCtrl', function() {
 
  // beforeEach(inject(function($httpBackend) {
  //   $httpBackend.whenGET('results5.json').respond({});
- // })); 
+ // }));
+  beforeEach(inject(function($httpBackend) {
+    $httpBackend.whenGET('quote-file.json').respond({});
+  }));
 
   beforeEach(inject(function($httpBackend) {
     $httpBackend.whenPOST('http://localhost:8000/gets3signature').respond({});
