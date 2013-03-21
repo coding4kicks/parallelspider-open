@@ -29,10 +29,11 @@ class MockCrawl(object):
 class CrawlTracker(object):
   """ Class to handle analysis job initialization and tracking """
 
-  def __init__(self, central_redis, engine_redis):
+  def __init__(self, central_redis, engine_redis, mock):
     self.crawlQueue = []
     self.central_redis = central_redis
     self.engine_redis = engine_redis
+    self.mock = mock
 
   def checkRedisQueue(self):
     """ Checks the Central Redis server for jobs and passes them to Grid Engine.
@@ -54,23 +55,28 @@ class CrawlTracker(object):
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
 
-        ###
-        ### Add it to Sun Grid Engine
-        ### (should enable and disable depending upon if mocking remote)
-        ###
-        print('starting crawl job')
+        # If mocking then fake the funk.
+        if self.mock:
 
-        # FOR TESTING
-        # (should enable and disable depending upon if mocking remote)
-        crawl_data = json.loads(crawl_info)
-        crawl_details = crawl_data['crawl']
-        if 'maxPages' in crawl_details:
-            max_pages = crawl_details['maxPages']
+          print('starting crawl job')
+
+          crawl_data = json.loads(crawl_info)
+          crawl_details = crawl_data['crawl']
+          if 'maxPages' in crawl_details:
+              max_pages = crawl_details['maxPages']
+          else:
+              max_pages = 20
+          mocker = MockCrawl(crawl_id, max_pages, engine_redis)
+          mocker.run()
+          # END TESTING
+
+        # Otherwise it's the real deal
         else:
-            max_pages = 20
-        mock = MockCrawl(crawl_id, max_pages, engine_redis)
-        mock.run()
-        # END TESTING
+
+          # Add crawl to Sun Grid Engine
+          # Should I move crawl info from central to engine redis?
+          print "not mocking, serious"
+          pass
   
     reactor.callLater(1, self.checkRedisQueue)
   
@@ -122,6 +128,12 @@ if __name__ == "__main__":
             default="6380", dest="engineRedisPort", 
             help="Set Local Redis port information. [default: %default]")
 
+    # Mock remote Analysis Engine by faking page count
+    parser.add_option(
+            "-m", "-M", "--mock", action="store_true", 
+            default="", dest="mock", 
+            help="Mock Analysis Engine. [default: False]")
+
     (options, args) = parser.parse_args()
     if int(options.centralRedisPort) < 1:
         parser.error("Central Redis port number must be greater than 0")
@@ -136,7 +148,7 @@ if __name__ == "__main__":
                           port=int(options.engineRedisPort), db=0)
 
     # Run twisted client
-    tracker = CrawlTracker(central_redis, engine_redis)
+    tracker = CrawlTracker(central_redis, engine_redis, options.mock)
     reactor.callWhenRunning(tracker.checkRedisQueue)
     reactor.callWhenRunning(tracker.checkCrawlStatus)
     reactor.run()

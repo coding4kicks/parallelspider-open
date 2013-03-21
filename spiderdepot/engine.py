@@ -21,7 +21,7 @@ def start(type='local', args=None):
 
         # Assumes spiderengine is 1 level below parallelspider,
         # and spiderclient.py is in spiderengine
-        cmd_line = "python spiderclient.py"
+        cmd_line = "python spiderclient.py -m"
         cwd= path + "spiderengine"
         p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
