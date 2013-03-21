@@ -10,7 +10,7 @@ spiderwebApp.service('configService', function() {
     // change4deployment
     var host = 'localhost:8000',
         protocol = 'http',
-        mock = false;
+        mock = true;
 
     // TODO: later allow user to set
     var defaultFolder = "new analyses";

@@ -2,6 +2,7 @@
 
 import fabric.api as fab
 
+import fileinput
 import os
 import signal
 import subprocess
@@ -10,6 +11,8 @@ import subprocess
 # Assumes this file is in spiderdepot or subdirectory,
 # and spiderdepot is 1 level below parallelspider.
 path = os.path.realpath(__file__).partition('spiderdepot')[0]
+
+fab.env.key_filename = '~/.ssh/mykey.rsa'
 
 @fab.task
 def start(type='local', mock=False, args=None):
@@ -54,4 +57,60 @@ def restart(type='local', mock=False, args=None):
     if type == 'local':
         stop()
         start(mock=mock)
+
+@fab.task
+def deploy():
+    """Push server.py to the server and restart"""
+
+    # Copy spiderserver.py to parallelspider directory
+    cwd = path + "spiderserver/"
+    cmd_line = "cp spiderserver.py ../"
+    p = subprocess.call(cmd_line, shell=True, cwd=cwd)
+
+    set_deploy_config()
+
+    # secure copy server.py (in parallelspider directory) to server 
+    cwd = path
+    cmd_line = "scp -i ~/.ssh/mykey.rsa spiderserver.py " + \
+               "ubuntu@ec2-50-16-63-62.compute-1.amazonaws.com:" + \
+               "~/parallelspider/spiderserver/spiderserver.py"
+    p = subprocess.call(cmd_line, shell=True, cwd=cwd)
+    # copy server starter
+    cwd = path + "spiderserver/"
+    cmd_line = "scp -i ~/.ssh/mykey.rsa server_starter.py " + \
+               "ubuntu@ec2-50-16-63-62.compute-1.amazonaws.com:" + \
+               "~/parallelspider/spiderserver/server_starter.py"
+    p = subprocess.call(cmd_line, shell=True, cwd=cwd)
+
+
+@fab.task
+@fab.hosts('ubuntu@ec2-50-16-63-62.compute-1.amazonaws.com')
+def restart_remote():
+    """Restart the deployed server."""
+
+    # KIll *ALL* Python processes
+    processes = fab.run('ps -A')
+    for line in processes.splitlines():
+        if 'python' in line:
+            pid = int(line.split(None, 1)[0])
+            cmd = "kill " + str(pid)
+            fab.run(cmd)
+
+    cmd_line = "ssh -i ~/.ssh/mykey.rsa ubuntu@ec2-50-16-63-62.compute-1.amazonaws.com 'python ~/parallelspider/spiderserver/server_starter.py'"
+    p = subprocess.call(cmd_line, shell=True)
+
+def set_deploy_config():
+    """Sets port in server deployment"""
+
+    port = "50070"
+
+    # Directory for deployment server.py 
+    directory_path = path
+
+    # Replace port info in server.py
+    file_path = directory_path + "spiderserver.py"
+    for line in fileinput.input(file_path, inplace=1):
+        new_port_line = line.replace("8000", port)
+        print "%s" % (new_port_line),
+
 

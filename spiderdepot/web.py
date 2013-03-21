@@ -31,22 +31,51 @@ def build():
 def deploy():
     """Deploy the web client to S3."""
 
-    set_deploy_config()
+    # BROKEN - YEOMAN BUILD???
+    #set_deploy_config()
 
     # Copy dist directory to S3
+    #sb = staticbuilder.StaticBuilder()
+    #directory = path + "spiderweb/dist"
+    #sb.upload(paths_in=directory, path_out="www.parallelspider.com",
+    #                     recursive=True)
+
+    # Upload entire APP folder (should be dist, WTF yeoman)
     sb = staticbuilder.StaticBuilder()
-    directory = path + "spiderweb/dist"
+    directory = path + "spiderweb/app"
     sb.upload(paths_in=directory, path_out="www.parallelspider.com",
                          recursive=True)
+
+    # Upload compiled CSS
+    directory = path + "spiderweb/temp"
+    sb.upload(paths_in=directory, path_out="www.parallelspider.com",
+                         recursive=True)
+
+    # Copy services.js to parallelspider directroy
+    cwd = path + "spiderweb/app/scripts/"
+    cmd_line = "cp services.js ../../../"
+    p = subprocess.call(cmd_line, shell=True, cwd=cwd)
+
+    # Set host
+    set_deploy_config()
+
+    # Upload compiled CSS
+    directory = path + "services.js"
+    sb.upload(paths_in=directory, path_out="www.parallelspider.com/scripts",
+              recursive=False)
+
 
 def set_deploy_config():
     """Sets host and mock for deployment"""
 
-    host = "111.111.111.111"
 
+    host = "ec2-50-16-63-62.compute-1.amazonaws.com:50070"
+
+    # BROKEN until fix yoeman build - wtf
     # Set directory for distribution scripts: 
     # Assumes parallelspider/spiderweb/dist/scripts/ 
-    directory_path = path + "spiderweb/dist/scripts/"
+    #directory_path = path + "spiderweb/dist/scripts/"
+    directory_path = path
 
     # Find renamed services file
     contents = os.listdir(directory_path)
@@ -60,7 +89,9 @@ def set_deploy_config():
     file_path = directory_path + service_file
     for line in fileinput.input(file_path, inplace=1):
         new_host_line = line.replace("localhost:8000", host)
-        new_mock_line = new_host_line.replace("mock = true", "mock = false")
-        print "%s" % (new_mock_line),
+        # not setting mock yet
+        #new_mock_line = new_host_line.replace("mock = true", "mock = false")
+        #print "%s" % (new_mock_line),
+        print "%s" % (new_host_line),
 
 
