@@ -799,7 +799,7 @@ if __name__ == "__main__":
     site = server.Site(root)
 
     # Run the twisted server
-    reactor.listenTCP(50070, site)
+    reactor.listenTCP(8000, site)
     reactor.run()
 
 

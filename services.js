@@ -8,7 +8,7 @@
 spiderwebApp.service('configService', function() {
 
     // change4deployment
-    var host = 'ec2-50-16-63-62.compute-1.amazonaws.com:50070',
+    var host = 'ec2-174-129-125-34.compute-1.amazonaws.com:8000',
         protocol = 'http',
         mock = true;
 

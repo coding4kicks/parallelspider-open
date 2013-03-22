@@ -72,19 +72,19 @@ def deploy():
     # secure copy server.py (in parallelspider directory) to server 
     cwd = path
     cmd_line = "scp -i ~/.ssh/mykey.rsa spiderserver.py " + \
-               "ubuntu@ec2-50-16-63-62.compute-1.amazonaws.com:" + \
+               "ubuntu@ec2-174-129-125-34.compute-1.amazonaws.com:" + \
                "~/parallelspider/spiderserver/spiderserver.py"
     p = subprocess.call(cmd_line, shell=True, cwd=cwd)
     # copy server starter
     cwd = path + "spiderserver/"
     cmd_line = "scp -i ~/.ssh/mykey.rsa server_starter.py " + \
-               "ubuntu@ec2-50-16-63-62.compute-1.amazonaws.com:" + \
+               "ubuntu@ec2-174-129-125-34.compute-1.amazonaws.com:" + \
                "~/parallelspider/spiderserver/server_starter.py"
     p = subprocess.call(cmd_line, shell=True, cwd=cwd)
 
 
 @fab.task
-@fab.hosts('ubuntu@ec2-50-16-63-62.compute-1.amazonaws.com')
+@fab.hosts('ubuntu@ec2-174-129-125-34.compute-1.amazonaws.com')
 def restart_remote():
     """Restart the deployed server."""
 
@@ -96,13 +96,13 @@ def restart_remote():
             cmd = "kill " + str(pid)
             fab.run(cmd)
 
-    cmd_line = "ssh -i ~/.ssh/mykey.rsa ubuntu@ec2-50-16-63-62.compute-1.amazonaws.com 'python ~/parallelspider/spiderserver/server_starter.py'"
+    cmd_line = "ssh -i ~/.ssh/mykey.rsa ubuntu@ec2-174-129-125-34.compute-1.amazonaws.com 'python ~/parallelspider/spiderserver/server_starter.py'"
     p = subprocess.call(cmd_line, shell=True)
 
 def set_deploy_config():
     """Sets port in server deployment"""
 
-    port = "50070"
+    port = "8000"
 
     # Directory for deployment server.py 
     directory_path = path

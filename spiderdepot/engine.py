@@ -51,3 +51,26 @@ def restart(type='local', args=None):
         stop()
         start()
 
+@fab.task
+def deploy():
+    """Push server.py to the server and restart"""
+
+    # Use Starcluster to push up client, runner, spider, and feynanman
+    cwd = path + "spiderengine/"
+    cmd_line = "starcluster put fvmcluster " + \
+               "~/projects/parallelspider/spiderengine/spiderclient.py " + \
+               "/home/parallelspider/parallelspider/spiderengine/"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    cmd_line = "starcluster put fvmcluster " + \
+               "~/projects/parallelspider/spiderengine/spiderrunner.py " + \
+               "/home/parallelspider/parallelspider/spiderengine/"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    cmd_line = "starcluster put fvmcluster " + \
+               "~/projects/parallelspider/spiderengine/parallelspider.py " + \
+               "/home/parallelspider/parallelspider/spiderengine/"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    cmd_line = "starcluster put fvmcluster " + \
+               "~/projects/parallelspider/spiderengine/mrfeynman.py " + \
+               "/home/parallelspider/parallelspider/spiderengine/"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+

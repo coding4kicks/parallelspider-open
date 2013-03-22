@@ -69,7 +69,7 @@ def set_deploy_config():
     """Sets host and mock for deployment"""
 
 
-    host = "ec2-50-16-63-62.compute-1.amazonaws.com:50070"
+    host = "ec2-174-129-125-34.compute-1.amazonaws.com:8000"
 
     # BROKEN until fix yoeman build - wtf
     # Set directory for distribution scripts: 
