@@ -73,6 +73,10 @@ class CrawlTracker(object):
         # Otherwise it's the real deal
         else:
 
+          # QA qual parameters, convert to config
+
+          # Save in engine redis
+
           # Add crawl to Sun Grid Engine
           # Should I move crawl info from central to engine redis?
           print "not mocking, serious"
