@@ -55,7 +55,7 @@ def restart(type='local', args=None):
 def deploy():
     """Push server.py to the server and restart"""
 
-    # Use Starcluster to push up client, runner, spider, and feynanman
+    # Use Starcluster to push up client, runner, spider, and feynman
     cwd = path + "spiderengine/"
     cmd_line = "starcluster put fvmcluster " + \
                "~/projects/parallelspider/spiderengine/spiderclient.py " + \

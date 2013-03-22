@@ -27,9 +27,10 @@ class Mapper():
         param - dictionary passed by dumbo
            redisInfo : host, port, base key, max mappers
         """
+
+        import json
         import sys
         import redis
-        import cPickle
                       
         # Convert Redis info to Python Dictionary
         self.redis_info = {}
@@ -55,7 +56,7 @@ class Mapper():
 
         # Set up configuration file
         config_file = self.redis.get('config')
-        self.config = cPickle.loads(config_file) 
+        self.config = json.loads(config_file)
 
         # hardcode for now
         self.config['analyze_external_pages'] = True
@@ -266,9 +267,9 @@ class Reducer():
         Option to remove or keep later, to remove, config must 
         be initialized in the analyzer and not __init__.
         """
+        import json
         import sys
         import redis
-        import cPickle
                       
         # Convert Redis info to Python Dictionary
         self.redis_info = {}
@@ -292,10 +293,10 @@ class Reducer():
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
 
-        # Set up configuration file (HARDCODE for now)
-        # TODO: pull from Redis
+        # Set up configuration file 
         config_file = self.redis.get('config')
-        self.config = cPickle.loads(config_file)
+        self.config = json.loads(config_file)
+
 
     def __call__(self, key, values):
         """ 

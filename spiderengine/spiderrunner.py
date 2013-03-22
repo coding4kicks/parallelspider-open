@@ -17,8 +17,8 @@
 
 import sys
 import redis
-import cPickle
 import datetime
+import json
 import optparse
 import lxml.html
 import contextlib
@@ -98,7 +98,7 @@ class SpiderRunner(object):
 
         # Set up configuration file
         config_file = r.get('config')
-        config = cPickle.loads(config_file) 
+        config = json.loads(config_file)
 
         # Download initial page for each site
         # TODO: make asynchronous to speed things up for multiple sites
@@ -204,8 +204,8 @@ class SpiderRunner(object):
                          ",maxPages:" + str(self.max_pages))
 
             # Uncomment 1, comment 2 for testing in psuedo distributed
-            #cmds.pop(1)
-            cmds.pop(2)
+            cmds.pop(1)
+            #cmds.pop(2)
 
             # Run the commands
             for cmd in cmds:
