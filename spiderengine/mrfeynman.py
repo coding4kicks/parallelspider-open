@@ -47,21 +47,67 @@ class Brain(object):
         # URL without path, Site Domain: ex. foxnews.com, Scheme: http/https
         self.site_url, self.site_domain, self.scheme = decode(self.passed_url)
 
-        # Config variables
-        self.text_request = config_dict['text_request']
-        self.header_request  = config_dict['header_request']
-        self.meta_request  = config_dict['meta_request']
-        self.a_tags_request = config_dict['a_tags_request']
-        self.all_links_request = config_dict['all_links_request']
-        self.external_links_request = config_dict['external_links_request']
-        self.context_search_tag = config_dict['context_search_tag']
-        self.wordnet_lists = config_dict['wordnet_lists']       
-        self.xpath_selectors = config_dict['xpath_selectors']
-        self.paths_to_follow = config_dict['paths_to_follow']
-        self.stop_list = config_dict['stop_list']
+        # Check config variables
+        if 'text_request' in config_dict:
+            self.text_request = config_dict['text_request']
+        else:
+            self.text_request = False
+
+        if 'header_request' in config_dict:
+            self.header_request  = config_dict['header_request']
+        else:
+            self.header_request = False
+
+        if 'meta_request' in config_dict:
+            self.meta_request  = config_dict['meta_request']
+        else:
+            self.meta_request = False
+
+        if 'a_tags_request' in config_dict:
+            self.a_tags_request = config_dict['a_tags_request']
+        else:
+            self.a_tags_request = False;
+
+        if 'all_links_request' in config_dict:
+            self.all_links_request = config_dict['all_links_request']
+        else:
+            self.all_links_request = False
+
+        if 'external_links_request' in config_dict:
+            self.external_links_request = config_dict['external_links_request']
+        else:
+            self.external_links_request = False
+
+        if 'context_search_tag' in config_dict:
+            self.context_search_tag = config_dict['context_search_tag']
+        else:
+            self.context_search_tag = []
+
+        if 'wordnet_lists' in config_dict:
+            self.wordnet_lists = config_dict['wordnet_lists'] 
+        else:
+            self.wordnet_lists = None
+
+        if 'xpath_selectors' in config_dict:
+            self.xpath_selectors = config_dict['xpath_selectors']
+        else:
+            self.xpath_selectors = []
+
+        if 'paths_to_follow' in config_dict:
+            self.paths_to_follow = config_dict['paths_to_follow']
+        else:
+            self.paths_to_follow = []
+
+        if 'stop_list' in config_dict:
+            self.stop_list = config_dict['stop_list']
+        else:
+            self.stop_list = []
 
         # Need to deep copy for lxml or css to xpath conversion fails?
-        self.css_selectors = copy.deepcopy(config_dict['css_selectors'])
+        if 'css_selectors' in config_dict:
+            self.css_selectors = copy.deepcopy(config_dict['css_selectors'])
+        else:
+            self.css_selectors = None
 
         # Compile and append css selectors to xpath_selctors
         if self.css_selectors:
