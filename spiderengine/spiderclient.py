@@ -3,6 +3,7 @@ from twisted.internet import reactor
 import redis
 import json # for mock test
 import optparse
+import subprocess
 
 
 class MockCrawl(object):
@@ -48,6 +49,9 @@ class CrawlTracker(object):
 
         # Get the crawl info from central redis
         crawl_info = self.central_redis.get(crawl_id)
+        
+        # TEMP - set into config
+        self.engine_redis.set('config', crawl_info)
 
         # Add crawl info to local
         self.engine_redis.set(crawl_id, crawl_info)
@@ -77,10 +81,12 @@ class CrawlTracker(object):
 
           # Save in engine redis
 
-          # Add crawl to Sun Grid Engine
-          # Should I move crawl info from central to engine redis?
-          print "not mocking, serious"
-          pass
+          # Execute the crawl
+          # TODO: Sun Grid Engine
+          cmd_line = "python spiderrunner.py http://www.nbcnews.com/ " + \
+                     "-r host:ec2-23-20-71-90.compute-1.amazonaws.com,port:6380 -m 3 -t 5"          
+          p = subprocess.Popen(cmd_line, shell=True)          
+          
   
     reactor.callLater(1, self.checkRedisQueue)
   
