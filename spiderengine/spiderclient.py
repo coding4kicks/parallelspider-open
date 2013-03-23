@@ -49,7 +49,7 @@ class CrawlTracker(object):
 
         # Get the crawl info from central redis
         web_crawl_json = self.central_redis.get(crawl_id)
-
+        
         web_crawl_info = json.loads(web_crawl_json)
 
         web_crawl = web_crawl_info['crawl']
