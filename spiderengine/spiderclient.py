@@ -48,18 +48,34 @@ class CrawlTracker(object):
     if crawl_id is not None:
 
         # Get the crawl info from central redis
-        web_crawl_json = self.central_redis.get(crawl_id)
-        
+        web_crawl_json = self.central_redis.get(crawl_id)       
         web_crawl_info = json.loads(web_crawl_json)
-
         web_crawl = web_crawl_info['crawl']
 
+        # Convert crawl info to format expected by Spider Engine
         crawl = {}
-
         if 'links' in web_crawl:
             if 'text' in web_crawl['links']:
                 if web_crawl['links']['text'] == True:
                     crawl['a_tags_request'] = True
+            if 'all' in web_crawl['links']:
+                if web_crawl['links']['all'] == True:
+                    crawl['all_links_request'] = True
+            if 'external' in web_crawl['links']:
+                if web_crawl['links']['external'] == True:
+                    crawl['external_links_request'] = True
+
+        if 'text' in web_crawl:
+            if 'visible' in web_crawl['text']:
+                if web_crawl['text']['visible'] == True:
+                    crawl['text_request'] = True
+            if 'headlines' in web_crawl['text']:
+                if web_crawl['text']['headlines'] == True:
+                    crawl['header_request'] = True
+            if 'hidden' in web_crawl['text']:
+                if web_crawl['text']['hidden'] == True:
+                    crawl['meta_request'] = True
+
 
         crawl_info = json.dumps(crawl)
 

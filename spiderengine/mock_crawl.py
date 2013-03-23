@@ -26,8 +26,8 @@ def mocker():
     crawl["maxPages"] = 100
     crawl["totalResults"] = 100
     crawl["externalSites"] = True
-    crawl["text"] = {"visible":True,"headlines":True,"hidden":True}
-    crawl["links"] = {"text":True,"all":True,"external":True}
+    crawl["text"] = {"visible":True,"headlines":False,"hidden":False}
+    crawl["links"] = {"text":False,"all":False,"external":False}
     crawl["stopWords"] = "a, stop, word"
     crawl["predefinedSynRings"] = [{"name":"curseWords","title":"Curse Words"}]
     crawl["primarySite"] = "http://www.nbcnews.com/"

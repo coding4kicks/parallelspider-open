@@ -59,7 +59,7 @@ class Mapper():
         self.config = json.loads(config_file)
 
         # hardcode for now
-        self.config['analyze_external_pages'] = True
+        self.config['analyze_external_pages'] = False
 
 
     def __call__(self, key, value):

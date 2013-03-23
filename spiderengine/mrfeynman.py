@@ -218,8 +218,9 @@ class Brain(object):
                                 key_word = '%s%s_%s' % (
                                         self.label['text'],
                                         external_bit, word)
-                                value = (key_word, ( 
-                                    1, (page_link, 1), (tag, 1)))
+                                #value = (key_word, ( 
+                                #    1, (page_link, 1), (tag, 1)))
+                                value = (key_word, (1))
                                 mapper_output.append(value)
 
             # Process Headers
@@ -486,16 +487,19 @@ class Brain(object):
             label == self.label['wordnet'] or
             label == self.label['total_count']):
 
+            # Disabled Addition Info
             for value in values:
-                count, page, tag = value
+                count = value
+                #count, page, tag = value
                 total_count.append(count)
-                page_count.append(page)
-                tag_count.append(tag)
+                #page_count.append(page)
+                #tag_count.append(tag)
+                #Also changed in mapper!
 
             return (key, (
-                sum(total_count), 
-                sum_list(page_count), 
-                sum_list(tag_count)))
+                sum(total_count) ))#, 
+                #sum_list(page_count), 
+                #sum_list(tag_count)))
 
         elif label == self.label['all_links']:
 
