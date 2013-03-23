@@ -48,8 +48,23 @@ class CrawlTracker(object):
     if crawl_id is not None:
 
         # Get the crawl info from central redis
-        crawl_info = self.central_redis.get(crawl_id)
-        
+        web_crawl_json = self.central_redis.get(crawl_id)
+
+        web_crawl_info = json.loads(web_crawl_json)
+
+        web_crawl = web_crawl_info['crawl']
+
+        crawl = {}
+
+        if 'links' in web_crawl:
+            if 'text' in web_crawl['links']:
+                if web_crawl['links']['text'] == True:
+                    crawl['a_tags_request'] = True
+
+        crawl_info = json.dumps(crawl)
+
+        #crawl_info = '{"a_tags_request": true}'
+
         # TEMP - set into config
         self.engine_redis.set('config', crawl_info)
 
