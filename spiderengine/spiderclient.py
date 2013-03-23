@@ -54,6 +54,7 @@ class CrawlTracker(object):
 
         # Convert crawl info to format expected by Spider Engine
         crawl = {}
+
         if 'links' in web_crawl:
             if 'text' in web_crawl['links']:
                 if web_crawl['links']['text'] == True:
@@ -76,10 +77,12 @@ class CrawlTracker(object):
                 if web_crawl['text']['hidden'] == True:
                     crawl['meta_request'] = True
 
+        if 'wordContexts' in web_crawl:
+            crawl['context_search_tag'] = web_crawl['wordContexts']
+
+        print crawl['context_search_tag']
 
         crawl_info = json.dumps(crawl)
-
-        #crawl_info = '{"a_tags_request": true}'
 
         # TEMP - set into config
         self.engine_redis.set('config', crawl_info)

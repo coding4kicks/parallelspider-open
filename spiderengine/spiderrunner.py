@@ -177,7 +177,7 @@ class SpiderRunner(object):
                         " -hadoop starcluster")
 
             # Distributed mode
-            cmds.append("dumbo start /home/parallelspider/parallelspider.py" \
+            cmds.append("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
                          " -input /HDFS/parallelspider/jobs/" + file_name + \
                          " -output /HDFS/parallelspider/out/" + base_path + \
                          " -file mrfeynman.py" + \
@@ -191,7 +191,7 @@ class SpiderRunner(object):
                          " -hadoop starcluster")
 
             # Psuedo-distributed for testing
-            cmds.append("dumbo start /home/parallelspider/parallelspider.py" \
+            cmds.append("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
                          " -input /home/parallelspider/jobs/" + file_name + \
                          " -output /home/parallelspider/out/" + base_path + \
                          " -file mrfeynman.py" + \
@@ -204,8 +204,8 @@ class SpiderRunner(object):
                          ",maxPages:" + str(self.max_pages))
 
             # Uncomment 1, comment 2 for testing in psuedo distributed
-            #cmds.pop(1)
-            cmds.pop(2)
+            cmds.pop(1)
+            #cmds.pop(2)
 
             # Run the commands
             for cmd in cmds:

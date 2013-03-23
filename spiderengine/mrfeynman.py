@@ -218,9 +218,10 @@ class Brain(object):
                                 key_word = '%s%s_%s' % (
                                         self.label['text'],
                                         external_bit, word)
+                                # Additional Info
                                 #value = (key_word, ( 
                                 #    1, (page_link, 1), (tag, 1)))
-                                value = (key_word, (1))
+                                value = (key_word, 1)
                                 mapper_output.append(value)
 
             # Process Headers
@@ -233,8 +234,10 @@ class Brain(object):
                                 key_word = '%s%s_%s' % (
                                         self.label['header'],
                                         external_bit, word)
-                                value = (key_word, ( 
-                                    1, (page_link, 1), (tag, 1)))
+                                # Additional Info
+                                #value = (key_word, ( 
+                                #    1, (page_link, 1), (tag, 1)))
+                                value = (key_word, 1)
                                 mapper_output.append(value)
 
             # Process anchor tags
@@ -246,8 +249,10 @@ class Brain(object):
                                 key_word = '%s%s_%s' % (
                                         self.label['anchor_tag'],
                                         external_bit, word)
-                                value = (key_word, ( 
-                                    1, (page_link, 1), (tag, 1)))
+                                # Additional Info
+                                #value = (key_word, ( 
+                                #    1, (page_link, 1), (tag, 1)))
+                                value = (key_word, 1)
                                 mapper_output.append(value)
 
             # Process meta data
@@ -260,8 +265,10 @@ class Brain(object):
                                 key_word = '%s%s_%s' % (
                                     self.label['meta_data'],
                                     external_bit, word)
-                                value = (key_word, ( 
-                                    1, (page_link, 1), (tag, 1)))
+                                # Additional Info
+                                #value = (key_word, ( 
+                                #    1, (page_link, 1), (tag, 1)))
+                                value = (key_word, 1)
                                 mapper_output.append(value)
                 # Retrieve text from the meta description
                 if tag == 'meta':
@@ -277,8 +284,10 @@ class Brain(object):
                                             key_word = '%s%s_%s' % (
                                                 self.label['meta_data'],
                                                 external_bit, word)
-                                            value = (key_word, ( 
-                                                1, (page_link, 1), (tag, 1)))
+                                            # Additional Info
+                                            #value = (key_word, ( 
+                                            #    1, (page_link, 1), (tag, 1)))
+                                            value = (key_word, 1)
                                             mapper_output.append(value)
                             except:
                                 continue
@@ -303,20 +312,24 @@ class Brain(object):
                                         key_word = '%s%s_%s' % (
                                             self.label['context_word'],
                                             external_bit, word)
-                                        value = (key_word, (
-                                            1, (page_link, 1),
-                                            (tag, 1), search_word))
+                                        # Additional Info (Disabled)
+                                        #value = (key_word, (
+                                        #    1, (page_link, 1),
+                                        #    (tag, 1), search_word))
+                                        value = (key_word, (1, search_word))
                                         mapper_output.append(value)
+                                # Disable for now,
+                                # ??? I think this is like search ???
                                 # Emit whole context
-                                key_context = '%s%s_%s' % (
-                                    self.label['context'],
-                                    external_bit, search_word)  
-                                # use text not words-since list type
-                                value = (key_context, (
-                                    1, (page_link, 1), 
-                                    (tag, 1), (page_link, text),
-                                    (text, page_link)))
-                                mapper_output.append(value)
+                               # key_context = '%s%s_%s' % (
+                               #     self.label['context'],
+                               #     external_bit, search_word)  
+                               # # use text not words-since list type
+                               # value = (key_context, (
+                               #     1, (page_link, 1), 
+                               #     (tag, 1), (page_link, text),
+                               #     (text, page_link)))
+                               # mapper_output.append(value)
 
             # Process Synonym Rings (WordNet Synsets or User Chosen)
             if self.wordnet_lists:
@@ -371,9 +384,11 @@ class Brain(object):
                         words = []
                     key_word = '%s%s_%s' % (self.label['all_links'],
                             external_bit, link)
-                    value = (key_word, ( 
-                        1, (page_link, 1), (page_link, words), 
-                        (words, page_link), (words, 1)))
+                    # Additional Info (Disabled)
+                    #value = (key_word, ( 
+                    #    1, (page_link, 1), (page_link, words), 
+                    #    (words, page_link), (words, 1)))
+                    value = (key_word, 1)
                     mapper_output.append(value)
                 except:
                     continue
@@ -390,9 +405,11 @@ class Brain(object):
                     domain = decode(link)[1]
                     key_domain = '%s%s_%s' % (self.label['external_links'],
                             external_bit, domain)
-                    value = (key_domain, ( 
-                        1, (page_link, 1), (page_link, words), 
-                        (words, page_link), (words, 1), (link, 1))) 
+                    # Additional Info (Disabled)
+                    #value = (key_domain, ( 
+                    #    1, (page_link, 1), (page_link, words), 
+                    #    (words, page_link), (words, 1), (link, 1)))
+                    value = (key_domain, 1)
                     mapper_output.append(value)
                 except:
                     continue
@@ -488,68 +505,79 @@ class Brain(object):
             label == self.label['total_count']):
 
             # Disabled Addition Info
-            for value in values:
-                count = value
+            #for value in values:
+                #count = value
                 #count, page, tag = value
-                total_count.append(count)
+                #total_count.append(count)
                 #page_count.append(page)
                 #tag_count.append(tag)
                 #Also changed in mapper!
 
-            return (key, (
-                sum(total_count) ))#, 
+            #return (key, (
+                #sum(total_count) ))#, 
                 #sum_list(page_count), 
                 #sum_list(tag_count)))
+            return  (key, sum(values))
 
         elif label == self.label['all_links']:
 
-            for value in values:
-                count, page, pinfo, winfo, words = value
-                total_count.append(count)
-                page_count.append(page)
-                page_info.append(pinfo)
-                words_info.append(winfo)
-                words_count.append(words)
+            # Disabled Addition Info
+           # for value in values:
+           #     count, page, pinfo, winfo, words = value
+           #     total_count.append(count)
+           #     page_count.append(page)
+           #     page_info.append(pinfo)
+           #     words_info.append(winfo)
+           #     words_count.append(words)
 
-            return (key, ( 
-                sum(total_count), 
-                sum_list(page_count),
-                compress_list(page_info),
-                compress_list(words_info),
-                sum_list(words_count)))
+           # return (key, ( 
+           #     sum(total_count), 
+           #     sum_list(page_count),
+           #     compress_list(page_info),
+           #     compress_list(words_info),
+           #     sum_list(words_count)))
+            return  (key, sum(values))
 
         elif label == self.label['external_links']:
 
-            for value in values:
-                count, page, pinfo, winfo, words, link = value
-                total_count.append(count)
-                page_count.append(page)
-                page_info.append(pinfo)
-                words_info.append(winfo)
-                words_count.append(words)
-                link_count.append(link)
+           # # Disabled Addition Info
+           # for value in values:
+           #     count, page, pinfo, winfo, words, link = value
+           #     total_count.append(count)
+           #     page_count.append(page)
+           #     page_info.append(pinfo)
+           #     words_info.append(winfo)
+           #     words_count.append(words)
+           #     link_count.append(link)
 
-            return (key, ( 
-                sum(total_count), 
-                sum_list(page_count),
-                compress_list(page_info),
-                compress_list(words_info),
-                sum_list(words_count),
-                sum_list(link_count)))
+           # return (key, ( 
+           #     sum(total_count), 
+           #     sum_list(page_count),
+           #     compress_list(page_info),
+           #     compress_list(words_info),
+           #     sum_list(words_count),
+           #     sum_list(link_count)))
+            return  (key, sum(values))
 
         elif label == self.label['context_word']:
 
-            for value in values:
-                count, page, tag, context = value
-                total_count.append(count)
-                page_count.append(page)
-                tag_count.append(tag)
+           # # Disable Additional Info
+           # for value in values:
+           #     count, page, tag, context = value
+           #     total_count.append(count)
+           #     page_count.append(page)
+           #     tag_count.append(tag)
 
-            return (key, ( 
-                sum(total_count), 
-                sum_list(page_count),
-                sum_list(tag_count),
-                context))
+           # return (key, ( 
+           #     sum(total_count), 
+           #     sum_list(page_count),
+           #     sum_list(tag_count),
+           #     context))
+
+            for value in values:
+                count, context = value
+                total_count.append(count)
+            return (key, (sum(total_count), context))
 
         elif label == self.label['context']:
 

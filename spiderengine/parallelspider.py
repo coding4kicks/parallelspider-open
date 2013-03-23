@@ -46,9 +46,8 @@ class Mapper():
             sys.exit(1)
 
         # Set default port
-        # TODO: switch this to Redis Engine port 6380
         if not self.redis_info['port']:
-            redis_info['port'] = 6379
+            redis_info['port'] = 6380
     
         # Connect to redis
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
@@ -112,7 +111,7 @@ class Mapper():
 
         # Here we go... yee hah
         while stuff_to_scrape:
-
+            
             # Update total count and check still links to download
             temp_count = r.get(count)
             if temp_count:
@@ -320,6 +319,8 @@ class Reducer():
             key, new_values = output
 
             yield key, new_values
+
+            #yield key, sum(values)
 
         except:
             message = "Unable to reduce: " + key
