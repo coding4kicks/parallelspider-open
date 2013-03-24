@@ -28,6 +28,16 @@ def mocker():
     crawl["name"] = "My Fake Crawls Name"
     crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)" 
 
+    # TODO: Figure out multiple sites? 
+    #  Asynchrounsly so download equal portions of each?
+    # Yes - Asynch Popen instead of call
+    # Plus - switch name of output file to site
+    # Have Spider Client monitor for completion (max pages or -2)
+    # and call cleanup code.  How do mappers indicate complete -2
+    # if they don't hit max pages first? 
+    # (no change after time or new links empty?)
+    # TODO: Switch out harcoded config to crawl_id
+    # TODO: Have mappers update crawl_id + "_count"
     crawl["additionalSites"] = ["http://www.foxnews.com", "http://www.cnn.com"]
     
     # TODO: Implement
