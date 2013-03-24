@@ -35,6 +35,8 @@ class CrawlTracker(object):
     self.central_redis = central_redis
     self.engine_redis = engine_redis
     self.mock = mock
+    self.max_pages = 20 # Default Free Ride
+    self.mappers = 3
 
   def checkRedisQueue(self):
     """ Checks the Central Redis server for jobs and passes them to Grid Engine.
@@ -58,10 +60,19 @@ class CrawlTracker(object):
         if 'primarySite' in web_crawl:
             # Only 1 site for now, TODO: append 'additionalSites'
             site_list = web_crawl['primarySite']
-            print site_list
+            
         else:
             'error, error loan ranger'
 
+        if 'maxPages' in web_crawl:
+            self.max_pages = web_crawl['maxPages']
+
+            # Asjust mappers based upon pages (TODO: benchmark)
+            if self.max_pages > 100:
+                self.mappers = 20
+            elif self.max_pages > 20:
+                self.mappers = 5
+        print self.mappers
         if 'links' in web_crawl:
             if 'text' in web_crawl['links']:
                 if web_crawl['links']['text'] == True:
@@ -128,13 +139,14 @@ class CrawlTracker(object):
 
         # Otherwise it's the real deal
         else:
-
-          # Execute the crawl
-          # TODO: Sun Grid Engine
-          print site_list
-          cmd_line = "python spiderrunner.py " + site_list + \
-                     " -r host:ec2-23-20-71-90.compute-1.amazonaws.com,port:6380 -m 3 -t 5"          
-          p = subprocess.Popen(cmd_line, shell=True)          
+            print self.max_pages
+            # Execute the crawl
+            # TODO: Sun Grid Engine
+            print site_list
+            cmd_line = "python spiderrunner.py " + site_list + \
+                     " -r host:ec2-23-20-71-90.compute-1.amazonaws.com," + \
+                     "port:6380 -m 3 -t " + str(self.max_pages)          
+            p = subprocess.Popen(cmd_line, shell=True)          
           
   
     reactor.callLater(1, self.checkRedisQueue)

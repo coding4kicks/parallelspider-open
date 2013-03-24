@@ -172,11 +172,20 @@ class Brain(object):
         # Iterate once through the document
         for element in doc.iter():
             
-            # Grab tag and text (+tail) for html elements
-            tag = element.tag
-            text = element.text
-            tail = element.tail
-            words = None # text words split to list
+            # Try to get elements and break if error
+            breaker = False
+            try:
+                # Grab tag and text (+tail) for html elements
+                tag = element.tag
+                text = element.text
+                tail = element.tail
+                words = None # text words split to list
+            except:
+                breaker = True
+
+            # If an error with this element break from loop
+            if breaker:
+                continue
 
             # Combine text and tail, then lowercase and split to list
             if tail:
