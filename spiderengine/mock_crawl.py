@@ -24,8 +24,8 @@ def mocker():
     crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
     crawl["maxPages"] = 21
     crawl["externalSites"] = False
+    crawl["stopWords"] = "crazy, cool, world"
 
-    crawl["stopWords"] = "a, stop, word"
     crawl["name"] = "My Fake Crawls Name"
     crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)"   
     crawl["additionalSites"] = ["http://www.foxnews.com", "http://www.cnn.com"]
@@ -48,7 +48,7 @@ def mocker():
     fake_user = base64.b64encode('fake_user')
     fake_name = base64.b64encode('fake_name')
     fake_time = base64.b64encode('fake_time')
-    fake_rand = base64.b64encode('fake_rane')
+    fake_rand = base64.b64encode('fake_rand')
     fake_crawl_id = fake_user + "-" + fake_name + "-" + \
                     fake_time + "-" + fake_rand
     print crawl_json
