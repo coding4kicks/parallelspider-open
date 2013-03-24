@@ -15,23 +15,27 @@ def mocker():
 
     # Create fake crawl info
     crawl = {}
-    crawl["name"] = "My Fake Crawls Name"
-    crawl["additionalSites"] = ["http://www.foxnews.com", "http://www.cnn.com"]
-    crawl["wordSearches"] = ["content", "crazy"]
+
+    # Implemented (At least partially)
+    crawl["primarySite"] = "http://www.nbcnews.com/"
+    crawl["text"] = {"visible":True,"headlines":False,"hidden":False}
+    crawl["links"] = {"text":False,"all":False,"external":False}
     crawl["wordContexts"] = [] #["but", "and"]
+    crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
+
+    crawl["maxPages"] = 100
+    crawl["externalSites"] = True
+    crawl["stopWords"] = "a, stop, word"
+    crawl["name"] = "My Fake Crawls Name"
+    crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)"   
+    crawl["additionalSites"] = ["http://www.foxnews.com", "http://www.cnn.com"]
+    
+    # TODO: Implement
+    crawl["totalResults"] = 100
+    crawl["wordSearches"] = ["content", "crazy"]
     crawl["wordnets"] = ["violence", "love"]
-    crawl["customSynRings"] = [{"name":"custring","text":"a, word, ring"}]
     crawl["xpathSelectors"] = ["xpathing"]
     crawl["cssSelectors"] = [{"selector":"selcting","text":True}]
-    crawl["maxPages"] = 100
-    crawl["totalResults"] = 100
-    crawl["externalSites"] = True
-    crawl["text"] = {"visible":False,"headlines":False,"hidden":False}
-    crawl["links"] = {"text":False,"all":False,"external":False}
-    crawl["stopWords"] = "a, stop, word"
-    crawl["predefinedSynRings"] = [{"name":"stopWords","title":"Curse Words"}]
-    crawl["primarySite"] = "http://www.foxnews.com/"
-    crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)"
 
     crawl_info = {}
     crawl_info["shortSession"] = "Q1610Y/rT4K829Pj5b5Cz"

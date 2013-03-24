@@ -55,6 +55,13 @@ class CrawlTracker(object):
         # Convert crawl info to format expected by Spider Engine
         crawl = {}
 
+        if 'primarySite' in web_crawl:
+            # Only 1 site for now, TODO: append 'additionalSites'
+            site_list = web_crawl['primarySite']
+            print site_list
+        else:
+            'error, error loan ranger'
+
         if 'links' in web_crawl:
             if 'text' in web_crawl['links']:
                 if web_crawl['links']['text'] == True:
@@ -82,7 +89,6 @@ class CrawlTracker(object):
 
         # Predefined lists (put into redis)
         predefinedRings = {'stopWords': ['and','but','a','on','off','again']}
-        
 
         if 'predefinedSynRings' in web_crawl:
             for ring in web_crawl['predefinedSynRings']:
@@ -93,7 +99,7 @@ class CrawlTracker(object):
                     crawl['wordnet_lists'][name] = list
                 else:
                     print 'error error should not be here'
-        print crawl['wordnet_lists']
+
         crawl_info = json.dumps(crawl)
 
         # TEMP - set into config
@@ -123,14 +129,11 @@ class CrawlTracker(object):
         # Otherwise it's the real deal
         else:
 
-          # QA qual parameters, convert to config
-
-          # Save in engine redis
-
           # Execute the crawl
           # TODO: Sun Grid Engine
-          cmd_line = "python spiderrunner.py http://www.nbcnews.com/ " + \
-                     "-r host:ec2-23-20-71-90.compute-1.amazonaws.com,port:6380 -m 3 -t 5"          
+          print site_list
+          cmd_line = "python spiderrunner.py " + site_list + \
+                     " -r host:ec2-23-20-71-90.compute-1.amazonaws.com,port:6380 -m 3 -t 5"          
           p = subprocess.Popen(cmd_line, shell=True)          
           
   

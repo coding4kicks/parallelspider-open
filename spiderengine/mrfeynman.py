@@ -351,6 +351,7 @@ class Brain(object):
                                     #    (tag, 1)))
                                     value = (key_wordnet, 1)
                                     mapper_output.append(value)
+
                                 # TODO: pull this out so always get total
                                 # and not just for wordnet
                                 if word not in self.stop_list:
