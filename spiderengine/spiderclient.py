@@ -58,12 +58,14 @@ class CrawlTracker(object):
         # Convert crawl info to format expected by Spider Engine
         crawl = {}
 
+        crawl['crawl_id'] = crawl_id
+
         if 'primarySite' in web_crawl:
             # Only 1 site for now, TODO: append 'additionalSites'
             site_list = web_crawl['primarySite']
             
         else:
-            'error, error loan ranger'
+            print 'error, error loan ranger'
             sys.exit(1)
 
         if 'additionalSites' in web_crawl:

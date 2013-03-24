@@ -96,7 +96,7 @@ class Mapper():
         temp1 = base + "::temp1"                # temp keys for set ops
         temp2 = base + "::temp2"
 
-        site, d, date = base.partition("::")    # determine site name
+        site, d, crawl_id = base.partition("::")    # determine site name
 
         # Get robots.txt
         robots_txt = robotparser.RobotFileParser()
@@ -312,7 +312,7 @@ class Reducer():
         try:
 
             base = self.redis_info["base"]
-            site, d, date = base.partition("::")    # determine site name
+            site, d, crawl_id = base.partition("::")    # determine site name
 
             # Reduce key-value pairs
             brain = Brain(site, self.config)
