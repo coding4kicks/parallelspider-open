@@ -72,7 +72,10 @@ class CrawlTracker(object):
                 self.mappers = 20
             elif self.max_pages > 20:
                 self.mappers = 5
-        print self.mappers
+        
+        if 'externalSites' in web_crawl:
+            crawl['analyze_external_pages'] = web_crawl['externalSites']
+
         if 'links' in web_crawl:
             if 'text' in web_crawl['links']:
                 if web_crawl['links']['text'] == True:
@@ -98,7 +101,7 @@ class CrawlTracker(object):
         if 'wordContexts' in web_crawl:
             crawl['context_search_tag'] = web_crawl['wordContexts']
 
-        # Predefined lists (put into redis)
+        # Predefined lists (TODO: make more, put into redis, load in init)
         predefinedRings = {'stopWords': ['and','but','a','on','off','again']}
 
         if 'predefinedSynRings' in web_crawl:

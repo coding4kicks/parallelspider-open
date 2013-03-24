@@ -57,8 +57,9 @@ class Mapper():
         config_file = self.redis.get('config')
         self.config = json.loads(config_file)
 
-        # hardcode for now
-        self.config['analyze_external_pages'] = False
+        # make sure external analysis flag is set
+        if 'analyze_external_pages' not in self.config:
+            self.config['analyze_external_pages'] = False
 
 
     def __call__(self, key, value):
