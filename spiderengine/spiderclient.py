@@ -116,10 +116,13 @@ class CrawlTracker(object):
         
         # Add additional words to default stop list
         if 'stopWords' in web_crawl:
-            for word in web_crawl['stopWords']:
+            # stopWords is a string with possible white space
+            new_list = [x.strip() for x in web_crawl['stopWords'].split(',')]
+            for word in new_list:
                 stop_list.append(word)
 
         crawl['stop_list'] = stop_list
+        print crawl['stop_list']
 
         if 'links' in web_crawl:
             if 'text' in web_crawl['links']:
