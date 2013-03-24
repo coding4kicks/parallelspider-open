@@ -80,8 +80,20 @@ class CrawlTracker(object):
         if 'wordContexts' in web_crawl:
             crawl['context_search_tag'] = web_crawl['wordContexts']
 
-        print crawl['context_search_tag']
+        # Predefined lists (put into redis)
+        predefinedRings = {'stopWords': ['and','but','a','on','off','again']}
+        
 
+        if 'predefinedSynRings' in web_crawl:
+            for ring in web_crawl['predefinedSynRings']:
+                name = ring['name']
+                crawl['wordnet_lists'] = {}
+                if name in predefinedRings:
+                    list = predefinedRings[name]
+                    crawl['wordnet_lists'][name] = list
+                else:
+                    print 'error error should not be here'
+        print crawl['wordnet_lists']
         crawl_info = json.dumps(crawl)
 
         # TEMP - set into config

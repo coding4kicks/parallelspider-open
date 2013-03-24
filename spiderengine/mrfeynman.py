@@ -345,19 +345,25 @@ class Brain(object):
                                     key_wordnet = '%s%s_%s' % (
                                         self.label['wordnet'],
                                         external_bit, list_key) 
-                                    value = (key_wordnet, (
-                                        1, (page_link, 1),
-                                        (tag, 1)))
+                                    # Additional Info (Disabled)
+                                    #value = (key_wordnet, (
+                                    #    1, (page_link, 1),
+                                    #    (tag, 1)))
+                                    value = (key_wordnet, 1)
                                     mapper_output.append(value)
+                                # TODO: pull this out so always get total
+                                # and not just for wordnet
                                 if word not in self.stop_list:
                                     total = total + 1
                                 if total > 0:
                                     key_total = '%s%s_%s' % (
                                         self.label['total_count'],
                                         external_bit, "total") 
-                                    value = (key_total, (
-                                        total, (page_link, total),
-                                        (tag, total)))
+                                    # Additional Info (Disabled)
+                                    #value = (key_total, (
+                                    #    total, (page_link, total),
+                                    #    (tag, total)))
+                                    value = (key_total, total)
                                     mapper_output.append(value)
 
         # Process the links on the page for parallel spider to follow
@@ -414,7 +420,8 @@ class Brain(object):
                 except:
                     continue
         
-        # Process x_path selectors 
+        # Process x_path selectors
+        # Currently not using
         if self.xpath_selectors:
             for selector in self.xpath_selectors:
                 results = doc.xpath(selector['selector'])
@@ -579,6 +586,7 @@ class Brain(object):
                 total_count.append(count)
             return (key, (sum(total_count), context))
 
+        # Currently not using
         elif label == self.label['context']:
 
             for value in values:
@@ -596,6 +604,7 @@ class Brain(object):
                 compress_list(page_info),
                 compress_list(words_info)))
 
+        # Currently not using
         elif label == self.label['selector']:
 
             for value in values:
@@ -611,6 +620,7 @@ class Brain(object):
                 compress_list(page_info),
                 compress_list(words_info)))
 
+        # Currently not using
         elif label == self.label['selector_word']:
 
             for value in values:
