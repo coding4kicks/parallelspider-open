@@ -1,5 +1,6 @@
 from twisted.internet import reactor
 
+import sys
 import redis
 import json # for mock test
 import optparse
@@ -63,6 +64,11 @@ class CrawlTracker(object):
             
         else:
             'error, error loan ranger'
+            sys.exit(1)
+
+        if 'additionalSites' in web_crawl:
+            for site in web_crawl['additionalSites']:
+                site_list += "," + site
 
         if 'name' in web_crawl:
             crawl['name'] = web_crawl['name']
