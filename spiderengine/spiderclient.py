@@ -64,6 +64,17 @@ class CrawlTracker(object):
         else:
             'error, error loan ranger'
 
+        if 'name' in web_crawl:
+            crawl['name'] = web_crawl['name']
+        else:
+            crawl['name'] = web_crawl['primarySite']
+
+        if 'time' in web_crawl:
+            crawl['time'] = web_crawl['time']
+        else:
+            # could just add, but should already be set
+            crawl['time'] = 'error'
+
         if 'maxPages' in web_crawl:
             self.max_pages = web_crawl['maxPages']
 
@@ -109,8 +120,6 @@ class CrawlTracker(object):
                 stop_list.append(word)
 
         crawl['stop_list'] = stop_list
-
-        print crawl['stop_list']
 
         if 'links' in web_crawl:
             if 'text' in web_crawl['links']:
@@ -178,10 +187,8 @@ class CrawlTracker(object):
 
         # Otherwise it's the real deal
         else:
-            print self.max_pages
             # Execute the crawl
             # TODO: Sun Grid Engine
-            print site_list
             cmd_line = "python spiderrunner.py " + site_list + \
                      " -r host:ec2-23-20-71-90.compute-1.amazonaws.com," + \
                      "port:6380 -m 3 -t " + str(self.max_pages)          

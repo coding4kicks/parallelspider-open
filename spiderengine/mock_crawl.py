@@ -22,12 +22,12 @@ def mocker():
     crawl["links"] = {"text":False,"all":False,"external":False}
     crawl["wordContexts"] = [] #["but", "and"]
     crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
-    crawl["maxPages"] = 21
+    crawl["maxPages"] = 5
     crawl["externalSites"] = False
     crawl["stopWords"] = "crazy, cool, world"
-
     crawl["name"] = "My Fake Crawls Name"
-    crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)"   
+    crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)" 
+
     crawl["additionalSites"] = ["http://www.foxnews.com", "http://www.cnn.com"]
     
     # TODO: Implement
