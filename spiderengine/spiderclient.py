@@ -122,7 +122,6 @@ class CrawlTracker(object):
                 stop_list.append(word)
 
         crawl['stop_list'] = stop_list
-        print crawl['stop_list']
 
         if 'links' in web_crawl:
             if 'text' in web_crawl['links']:

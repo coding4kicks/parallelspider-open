@@ -171,13 +171,14 @@ class SpiderRunner(object):
             # Put input file on HDFS and call parallelspider
             # TODO: must switch to asynchronous for multiple sites
             # and deal with notifying calling process when complete?
-            cmds = []
-            cmds.append("dumbo put " + file_path + \
+            #cmds = []
+            add_file = ("dumbo put " + file_path + \
                         " /HDFS/parallelspider/jobs/" + file_name + \
                         " -hadoop starcluster")
+            subprocess.call(add_file, shell=True)
 
             # Distributed mode
-            cmds.append("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
+            parallel_spider = ("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
                          " -input /HDFS/parallelspider/jobs/" + file_name + \
                          " -output /HDFS/parallelspider/out/" + base_path + \
                          " -file mrfeynman.py" + \
@@ -191,7 +192,7 @@ class SpiderRunner(object):
                          " -hadoop starcluster")
 
             # Psuedo-distributed for testing
-            cmds.append("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
+            psuedo_dist = ("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
                          " -input /home/parallelspider/jobs/" + file_name + \
                          " -output /home/parallelspider/out/" + base_path + \
                          " -file mrfeynman.py" + \
@@ -203,14 +204,8 @@ class SpiderRunner(object):
                          ",base:" + base + \
                          ",maxPages:" + str(self.max_pages))
 
-            # Uncomment 1, comment 2 for testing in psuedo distributed
-            #cmds.pop(1)
-            cmds.pop(2)
-
-            # Run the commands
-            for cmd in cmds:
-                #print "Running %s" % cmd
-                subprocess.call(cmd, shell=True)
+            subprocess.Popen(parallel_spider, shell=True)
+            #subprocess.Popen(psuedo_dist, shell=True)
 
 
 def main():
