@@ -55,8 +55,6 @@ class Mapper():
 
         self.base = self.redis_info["base"]
 
-        self.site, d, crawl_id = self.base.partition("::")
-
         # Set up configuration file
         config_file = self.redis.get('config')
         self.config = json.loads(config_file)
@@ -99,15 +97,15 @@ class Mapper():
         temp1 = self.base + "::temp1"                # temp keys for set ops
         temp2 = self.base + "::temp2"
 
-        #site, d, crawl_id = self.base.partition("::")    # determine site name
+        site, d, crawl_id = self.base.partition("::")    # determine site name
 
         # Get robots.txt
         robots_txt = robotparser.RobotFileParser()
-        robots_txt.set_url(self.site)
+        robots_txt.set_url(site)
         robots_txt.read() 
 
         # Set up analysis engine
-        brain = Brain(self.site, self.config)
+        brain = Brain(site, self.config)
 
         stuff_to_scrape = True
         link_count = 0 # Total links downloaded by all mappers
@@ -268,7 +266,7 @@ class Reducer():
         Config file is only used to initialize the Brain, 
         but process doesn't make use of parameters.
         Option to remove or keep later, to remove, config must 
-        be initialized in the analyzer and not __init__???
+        be initialized in the analyzer and not __init__.
         """
         import json
         import sys
@@ -297,7 +295,6 @@ class Reducer():
                               port=int(self.redis_info["port"]), db=0)
 
         self.base = self.redis_info["base"]
-        self.site, d, craw_id = self.base.partiton("::")
 
         # Set up configuration file 
         config_file = self.redis.get('config')
@@ -317,10 +314,10 @@ class Reducer():
 
         try:
 
-            #site, d, crawl_id = self.base.partition("::")    # determine site name
+            site, d, crawl_id = self.base.partition("::")    # determine site name
 
             # Reduce key-value pairs
-            brain = Brain(self.site, self.config)
+            brain = Brain(site, self.config)
             output = brain.process(key, values)
             key, new_values = output
 
