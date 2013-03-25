@@ -33,6 +33,7 @@ class CrawlTracker(object):
 
   def __init__(self, central_redis, engine_redis, mock):
     self.crawlQueue = []
+    self.site_list = {}
     self.central_redis = central_redis
     self.engine_redis = engine_redis
     self.mock = mock
@@ -184,6 +185,10 @@ class CrawlTracker(object):
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
 
+        # Add crawls site to the site list
+        sites = site_list.split(',')
+        self.site_list[crawl_id] = sites
+
         # If mocking then fake the funk.
         if self.mock:
 
@@ -228,7 +233,22 @@ class CrawlTracker(object):
                 self.crawlQueue.remove(crawl_id)
 
     else:
-        pass
+        for crawl_id in self.crawlQueue:
+            total_count = 0
+            engine_crawl_id, d, rand = crawl_id.rpartition("-")
+            # must check counter for each site
+            for site in self.site_list[crawl_id]:
+                base = '%s::%s' % (site, engine_crawl_id)
+                site_count = self.engine_redis.get(base + "::count")
+                print site_count
+                if site_count:
+                    total_count += int(site_count)
+
+            # Only update to crawling vice initializing if total > 0
+            if total_count > 0:
+                self.central_redis.set(crawl_id + "_count", total_count)
+            
+            
         #page_count = self.engine_redis.get(engine_crawl_id + "::count")
         #print page_count
         #TODO: need to reformat to check ::count for all sites in engine redis
