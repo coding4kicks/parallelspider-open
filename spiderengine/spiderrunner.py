@@ -39,7 +39,7 @@ class SpiderRunner(object):
     """
 
     def __init__(self, site_list, redis_info, 
-                 max_mappers, max_pages):
+                 max_mappers, max_pages, crawl_info):
         """ 
         Initializes inputs and creates a timestamp
 
@@ -66,6 +66,7 @@ class SpiderRunner(object):
         self.redis_info = redis_info      
         self.max_mappers = max_mappers
         self.max_pages = max_pages
+        self.crawl_info = crawl_info
 
         # Create a time stamp (no querries should be issued in the same second
         # for the same website - default to cache??? refactor?)
@@ -97,7 +98,8 @@ class SpiderRunner(object):
                               port=int(self.redis_info["port"]), db=0)
 
         # Set up configuration file
-        config_file = r.get('config')
+        #config_file = r.get('config')
+        config_file = r.get(self.crawl_info)
         config = json.loads(config_file)
 
         # Download initial page for each site
@@ -215,6 +217,13 @@ def main():
     usage = "usage: %prog [options] <site1url,site2url,...>"
     parser = optparse.OptionParser(usage)
 
+    # Crawl Info (where to find crawl info in Redis)
+    parser.add_option(
+            "-c", "-C", "--crawlInfo", action="store", 
+            default='config', dest="crawlInfo", 
+            help="Where crawl info is stored in Redis [default: %default]")
+
+
     # Maximum number of mappers (controls download rate)
     parser.add_option(
             "-m", "-M", "--maxMappers", action="store", 
@@ -267,7 +276,7 @@ def main():
     
     #  Initialize and execute spider runner
     spider_runner = SpiderRunner(site_list, redis_info, 
-                                 max_mappers, max_pages) 
+                                 max_mappers, max_pages, options.crawlInfo) 
     spider_runner.execute()
 
 

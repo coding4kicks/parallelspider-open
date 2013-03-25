@@ -6,6 +6,7 @@
 
 import base64
 import json
+import random
 import sys
 import time
 
@@ -29,13 +30,10 @@ def mocker():
     crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)" 
     crawl["additionalSites"] = [] # ["http://www.nbcnews.com", "http://www.cnn.com"]
 
-    # TODO: Figure out multiple sites? 
-    # Have Spider Client monitor for completion (max pages or -2)
-    # and call cleanup code.  How do mappers indicate complete -2
-    # if they don't hit max pages first? 
-    # (no change after time or new links empty?)
+    # TODO: Have Spider Client monitor for completion
+    # and call cleanup code.  Track max pages from all sites
+    # and track new_link queues to check if empty
     # TODO: Switch out harcoded config to crawl_id
-    # TODO: Have mappers update crawl_id + "_count"
     
     # TODO: Implement
     crawl["totalResults"] = 100
@@ -55,7 +53,7 @@ def mocker():
     fake_user = base64.b64encode('fake_user')
     fake_name = base64.b64encode('fake_name')
     fake_time = base64.b64encode('fake_time')
-    fake_rand = base64.b64encode('fake_rand')
+    fake_rand = base64.b64encode(str(random.random()))
     fake_crawl_id = fake_user + "-" + fake_name + "-" + \
                     fake_time + "-" + fake_rand
     print crawl_json

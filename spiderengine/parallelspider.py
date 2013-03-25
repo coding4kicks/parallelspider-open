@@ -53,6 +53,8 @@ class Mapper():
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
 
+        self.base = self.redis_info["base"]
+
         # Set up configuration file
         config_file = self.redis.get('config')
         self.config = json.loads(config_file)
@@ -88,15 +90,14 @@ class Mapper():
         r = self.redis
 
         # Create keys for Redis
-        base = self.redis_info["base"]
-        new_links = base + "::new_links"        # new links
-        processing = base + "::processing"      # links being processed
-        finished = base + "::finished"          # links done being processed
-        count = base + "::count"                # total pages scraped
-        temp1 = base + "::temp1"                # temp keys for set ops
-        temp2 = base + "::temp2"
+        new_links = self.base + "::new_links"        # new links
+        processing = self.base + "::processing"      # links being processed
+        finished = self.base + "::finished"          # links done being processed
+        count = self.base + "::count"                # total pages scraped
+        temp1 = self.base + "::temp1"                # temp keys for set ops
+        temp2 = self.base + "::temp2"
 
-        site, d, crawl_id = base.partition("::")    # determine site name
+        site, d, crawl_id = self.base.partition("::")    # determine site name
 
         # Get robots.txt
         robots_txt = robotparser.RobotFileParser()
@@ -293,6 +294,8 @@ class Reducer():
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
 
+        self.base = self.redis_info["base"]
+
         # Set up configuration file 
         config_file = self.redis.get('config')
         self.config = json.loads(config_file)
@@ -311,8 +314,7 @@ class Reducer():
 
         try:
 
-            base = self.redis_info["base"]
-            site, d, crawl_id = base.partition("::")    # determine site name
+            site, d, crawl_id = self.base.partition("::")    # determine site name
 
             # Reduce key-value pairs
             brain = Brain(site, self.config)
