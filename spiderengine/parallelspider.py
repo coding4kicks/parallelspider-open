@@ -55,6 +55,8 @@ class Mapper():
 
         self.base = self.redis_info["base"]
 
+        self.site, d, crawl_id = self.base.partition("::")
+
         # Set up configuration file
         config_file = self.redis.get('config')
         self.config = json.loads(config_file)
@@ -97,15 +99,13 @@ class Mapper():
         temp1 = self.base + "::temp1"                # temp keys for set ops
         temp2 = self.base + "::temp2"
 
-        site, d, crawl_id = self.base.partition("::")    # determine site name
-
         # Get robots.txt
         robots_txt = robotparser.RobotFileParser()
-        robots_txt.set_url(site)
+        robots_txt.set_url(self.site)
         robots_txt.read() 
 
         # Set up analysis engine
-        brain = Brain(site, self.config)
+        brain = Brain(self.site, self.config)
 
         stuff_to_scrape = True
         link_count = 0 # Total links downloaded by all mappers
@@ -296,6 +296,8 @@ class Reducer():
 
         self.base = self.redis_info["base"]
 
+        self.site, d, crawl_id = self.base.partition("::")
+
         # Set up configuration file 
         config_file = self.redis.get('config')
         self.config = json.loads(config_file)
@@ -314,16 +316,12 @@ class Reducer():
 
         try:
 
-            site, d, crawl_id = self.base.partition("::")    # determine site name
-
             # Reduce key-value pairs
-            brain = Brain(site, self.config)
+            brain = Brain(self.site, self.config)
             output = brain.process(key, values)
             key, new_values = output
 
             yield key, new_values
-
-            #yield key, sum(values)
 
         except:
             message = "Unable to reduce: " + key
