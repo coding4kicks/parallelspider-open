@@ -58,7 +58,7 @@ class Mapper():
         self.site, d, crawl_id = self.base.partition("::")
 
         # Set up configuration file
-        config_file = self.redis.get('config')
+        config_file = self.redis.get(crawl_id)
         self.config = json.loads(config_file)
 
         # make sure external analysis flag is set
@@ -299,7 +299,7 @@ class Reducer():
         self.site, d, crawl_id = self.base.partition("::")
 
         # Set up configuration file 
-        config_file = self.redis.get('config')
+        config_file = self.redis.get(crawl_id)
         self.config = json.loads(config_file)
 
 

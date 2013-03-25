@@ -19,7 +19,7 @@ def mocker():
     crawl = {}
 
     # Implemented (At least partially)
-    crawl["primarySite"] = "http://www.foxnews.com/"
+    crawl["primarySite"] = "http://www.nbcnews.com/"
     crawl["text"] = {"visible":True,"headlines":False,"hidden":False}
     crawl["links"] = {"text":False,"all":False,"external":False}
     crawl["wordContexts"] = [] #["but", "and"]

@@ -176,10 +176,10 @@ class CrawlTracker(object):
         crawl_info = json.dumps(crawl)
 
         # TEMP - set into config
-        self.engine_redis.set('config', crawl_info)
+        #self.engine_redis.set('config', crawl_info)
 
-        # Add crawl info to local
-        self.engine_redis.set(crawl_id, crawl_info)
+        # Add crawl info to local engine redis
+        self.engine_redis.set(engine_crawl_id, crawl_info)
 
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
@@ -205,10 +205,10 @@ class CrawlTracker(object):
             # TODO: Sun Grid Engine
             cmd_line = "python spiderrunner.py " + site_list + \
                      " -r host:ec2-23-20-71-90.compute-1.amazonaws.com," + \
-                     "port:6380 -m 3 -t " + str(self.max_pages)          
+                     "port:6380 -m 3 -t " + str(self.max_pages) + \
+                     " -c " + engine_crawl_id
             p = subprocess.Popen(cmd_line, shell=True)          
           
-  
     reactor.callLater(1, self.checkRedisQueue)
   
   def checkCrawlStatus(self):
@@ -216,15 +216,22 @@ class CrawlTracker(object):
         Updates Central Redis wit page count, or -2 when complete
     """
 
-    for crawl_id in self.crawlQueue:
+    if self.mock:
+        for crawl_id in self.crawlQueue:
 
-        # Retrieve page count from engine and set in central redis
-        #print "retrieving crawl status for " + crawl_id
-        page_count = self.engine_redis.get(crawl_id + "_count")
-        self.central_redis.set(crawl_id + "_count", page_count)
-        # If page count is complete (-2), remove from queue
-        if page_count == "-2":
-            self.crawlQueue.remove(crawl_id)
+            # Retrieve page count from engine and set in central redis
+            #print "retrieving crawl status for " + crawl_id
+            page_count = self.engine_redis.get(crawl_id + "_count")
+            self.central_redis.set(crawl_id + "_count", page_count)
+            # If page count is complete (-2), remove from queue
+            if page_count == "-2":
+                self.crawlQueue.remove(crawl_id)
+
+    else:
+        pass
+        #page_count = self.engine_redis.get(engine_crawl_id + "::count")
+        #print page_count
+        #TODO: need to reformat to check ::count for all sites in engine redis
 
     reactor.callLater(5, self.checkCrawlStatus)
 
