@@ -19,7 +19,7 @@ def mocker():
     crawl = {}
 
     # Implemented (At least partially)
-    crawl["primarySite"] = "http://www.nbcnews.com/"
+    crawl["primarySite"] = "http://www.foxnews.com/"
     crawl["text"] = {"visible":True,"headlines":False,"hidden":False}
     crawl["links"] = {"text":False,"all":False,"external":False}
     crawl["wordContexts"] = [] #["but", "and"]
@@ -29,12 +29,13 @@ def mocker():
     crawl["stopWords"] = "crazy, cool, world"
     crawl["name"] = "My Fake Crawls Name"
     crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)" 
-    crawl["additionalSites"] = [] # ["http://www.nbcnews.com", "http://www.cnn.com"]
+    crawl["additionalSites"] = ["http://www.nbcnews.com", "http://www.cnn.com"]
 
     # TODO: Have Spider Client monitor for completion
     # and call cleanup code.  Track max pages from all sites
     # and track new_link queues to check if empty
     # TODO: Switch out harcoded config to crawl_id
+    # TODO: divide total max pages by number of sites
     
     # TODO: Implement
     crawl["totalResults"] = 100

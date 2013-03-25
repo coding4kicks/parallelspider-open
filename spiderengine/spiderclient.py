@@ -179,7 +179,7 @@ class CrawlTracker(object):
         # Add crawl info to local engine redis
         self.engine_redis.set(engine_crawl_id, crawl_info)
         hour = 60 * 60
-        self.engine_redis.expires(engine_crawl_id, hour)
+        self.engine_redis.expire(engine_crawl_id, hour)
 
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
@@ -211,7 +211,8 @@ class CrawlTracker(object):
                      " -r host:ec2-23-20-71-90.compute-1.amazonaws.com," + \
                      "port:6380 -m 3 -t " + str(self.max_pages) + \
                      " -c " + engine_crawl_id
-            p = subprocess.Popen(cmd_line, shell=True)          
+            p = subprocess.Popen(cmd_line, shell=True) 
+
           
     reactor.callLater(1, self.checkRedisQueue)
   
@@ -231,11 +232,14 @@ class CrawlTracker(object):
             if page_count == "-2":
                 self.crawlQueue.remove(crawl_id)
 
-    else:
+    else: # Real Sexy Crawl
         for crawl_id in self.crawlQueue:
             total_count = 0
             engine_crawl_id, d, rand = crawl_id.rpartition("-")
-            # must check counter for each site
+            # must check counter and new link queue for each site
+            not_done = False
+            really_not_done = False
+            done = False
             for site in self.site_list[crawl_id]:
                 base = '%s::%s' % (site, engine_crawl_id)
                 site_count = self.engine_redis.get(base + "::count")
@@ -243,15 +247,70 @@ class CrawlTracker(object):
                 if site_count:
                     total_count += int(site_count)
 
-                # check if all new links are empty - if so then done
+                    # check if all new links are empty - if so then done
+                    # only check if count has started
+                    new_links = self.engine_redis.scard(base + "::new_links")
+                    if new_links > 0:
+                        print "still new links"
+                        not_done = True
+                    
 
             # Only update to crawling vice initializing if total > 0
             if total_count > 0:
                 self.central_redis.set(crawl_id + "_count", total_count)
 
-            # If done or total > max pages, initiate cleanup
+            if total_count > self.max_pages or not not_done:
+                done = True
+
+            # If done or total > max pages, check for success file
+            if done:
+
+                print "done"
+                print "new links empty: " + str(not_done)
+
+                # make sure all sites have success file
+                for site in self.site_list[crawl_id]:
+
+                    base = '%s::%s' % (site, engine_crawl_id)
+                    base_path = base.replace("/","_").replace(":","-")
+
+                    # list output files and look for success
+                    # should add deferred (will break on psuedo dist)
+                    cmd = "dumbo ls /HDFS/parallelspider/out/" + \
+                           base_path + " -hadoop starcluster"
+                    files = subprocess.check_output(cmd, shell=True)
+                    
+                    if "_SUCCESS" not in files:
+                        print "really not done"
+                        really_not_done = True
+
+            print 'checking booleans'
+            print really_not_done
+            print not really_not_done
+            print True and not really_not_done
+
+            # If all sites are done, crawl is really done! Cleanup.
+            # If done (> max pages or new links are empty) 
+            # & really done (success files exists)
+            if done and not really_not_done:
+                #Spider Cleanup
+                print "cleaning up"
+                cmd = "dumbo cat /HDFS/parallelspider/out/" + \
+                           base_path + "/part-00000 -hadoop starcluster"
+                out = subprocess.check_output(cmd, shell=True)
+                print out
+                # why is this going early???
+                # Kick crawl out of the queue
+                self.crawlQueue.remove(crawl_id)
+
+
             # Cleanup will update central redis to -2 for complete
             # could add a -3 for cleaning up if necessary
+            # clean up will also need to try multiple times since
+            # even though past total_count, still may need a few moments to 
+            # wrap everything up. (this is probably easiest way, otherwise
+            # mappers would have to cordinate and indicate done.
+            # Or check hadoop success file
             
             
     reactor.callLater(5, self.checkCrawlStatus)
