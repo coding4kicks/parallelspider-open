@@ -53,10 +53,11 @@ def mocker():
     fake_user = base64.b64encode('fake_user')
     fake_name = base64.b64encode('fake_name')
     fake_time = base64.b64encode('fake_time')
-    fake_rand = base64.b64encode(str(random.random()))
+    fake_rand = base64.b64encode(str(random.random())[:4])
     fake_crawl_id = fake_user + "-" + fake_name + "-" + \
                     fake_time + "-" + fake_rand
-    print crawl_json
+    print "WTF"
+    print crawl_id
     # Push into Central Redis (hardcoded)
     c = redis.Redis('localhost', 6379)
     c.set(fake_crawl_id, crawl_json)
