@@ -243,7 +243,6 @@ class CrawlTracker(object):
             for site in self.site_list[crawl_id]:
                 base = '%s::%s' % (site, engine_crawl_id)
                 site_count = self.engine_redis.get(base + "::count")
-                print site_count
                 if site_count:
                     total_count += int(site_count)
 
@@ -251,7 +250,7 @@ class CrawlTracker(object):
                     # only check if count has started
                     new_links = self.engine_redis.scard(base + "::new_links")
                     if new_links > 0:
-                        print "still new links"
+
                         not_done = True
                     
 
@@ -264,9 +263,6 @@ class CrawlTracker(object):
 
             # If done or total > max pages, check for success file
             if done:
-
-                print "done"
-                print "new links empty: " + str(not_done)
 
                 # make sure all sites have success file
                 for site in self.site_list[crawl_id]:
@@ -281,13 +277,8 @@ class CrawlTracker(object):
                     files = subprocess.check_output(cmd, shell=True)
                     
                     if "_SUCCESS" not in files:
-                        print "really not done"
                         really_not_done = True
 
-            print 'checking booleans'
-            print really_not_done
-            print not really_not_done
-            print True and not really_not_done
 
             # If all sites are done, crawl is really done! Cleanup.
             # If done (> max pages or new links are empty) 
