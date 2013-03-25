@@ -60,7 +60,7 @@ class CrawlTracker(object):
         crawl = {}
 
         # Not sure why, but the random component of crawl id 
-        # destroys psuedo distributed mode, so pulling it off
+        # destroys psuedo distributed mode, so pulling removing it
         engine_crawl_id, d, rand = crawl_id.rpartition("-")
 
         crawl['crawl_id'] = engine_crawl_id
@@ -176,11 +176,10 @@ class CrawlTracker(object):
 
         crawl_info = json.dumps(crawl)
 
-        # TEMP - set into config
-        #self.engine_redis.set('config', crawl_info)
-
         # Add crawl info to local engine redis
         self.engine_redis.set(engine_crawl_id, crawl_info)
+        hour = 60 * 60
+        self.engine_redis.expires(engine_crawl_id, hour)
 
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
@@ -244,15 +243,17 @@ class CrawlTracker(object):
                 if site_count:
                     total_count += int(site_count)
 
+                # check if all new links are empty - if so then done
+
             # Only update to crawling vice initializing if total > 0
             if total_count > 0:
                 self.central_redis.set(crawl_id + "_count", total_count)
-            
-            
-        #page_count = self.engine_redis.get(engine_crawl_id + "::count")
-        #print page_count
-        #TODO: need to reformat to check ::count for all sites in engine redis
 
+            # If done or total > max pages, initiate cleanup
+            # Cleanup will update central redis to -2 for complete
+            # could add a -3 for cleaning up if necessary
+            
+            
     reactor.callLater(5, self.checkCrawlStatus)
 
 
