@@ -58,7 +58,11 @@ class CrawlTracker(object):
         # Convert crawl info to format expected by Spider Engine
         crawl = {}
 
-        crawl['crawl_id'] = crawl_id
+        # Not sure why, but the random component of crawl id 
+        # destroys psuedo distributed mode, so pulling it off
+        engine_crawl_id, d, rand = crawl_id.rpartition("-")
+
+        crawl['crawl_id'] = engine_crawl_id
 
         if 'primarySite' in web_crawl:
             # Only 1 site for now, TODO: append 'additionalSites'
