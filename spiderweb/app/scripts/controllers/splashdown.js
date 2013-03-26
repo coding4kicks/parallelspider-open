@@ -185,7 +185,8 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
         // Set per site information
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
-          // Set summary information
+          // Set summary information (TODO: I'm mixing and matching
+          // is summary for external and internal separate or both???
           $scope.summary.totalPages = $scope.summary.totalPages + 
                                       $scope.analysis.sites[i].internalResults.summary.pages.count;
           $scope.summary.totalPages = $scope.summary.totalPages + 

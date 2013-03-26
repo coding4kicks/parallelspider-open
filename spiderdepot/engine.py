@@ -73,4 +73,18 @@ def deploy():
                "~/projects/parallelspider/spiderengine/mrfeynman.py " + \
                "/home/parallelspider/parallelspider/spiderengine/"
     p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    cmd_line = "starcluster put fvmcluster " + \
+               "~/projects/parallelspider/spiderengine/mock_crawl.py " + \
+               "/home/parallelspider/parallelspider/spiderengine/"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    cmd_line = "starcluster put fvmcluster " + \
+               "~/projects/parallelspider/spiderengine/parallelcleaner.py " + \
+               "/home/parallelspider/parallelspider/spiderengine/"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    cmd_line = "starcluster put fvmcluster " + \
+               "~/projects/parallelspider/spiderengine/cleanerrunner.py " + \
+               "/home/parallelspider/parallelspider/spiderengine/"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+
+
 

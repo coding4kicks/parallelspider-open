@@ -1,0 +1,10 @@
+atagi_-	10
+atagi_.	2
+atagi_/	1
+atagi_1	6
+atagi_2	4
+atagi_3	1
+atagi_5	1
+atagi_7	2
+atagi_b	8
+headi_b	1
