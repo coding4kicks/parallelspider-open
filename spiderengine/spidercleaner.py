@@ -7,9 +7,13 @@
 """
 
 import sys
-import redis
 import json
+import redis
 import optparse
+import subprocess
+
+import pprint
+pp = pprint.PrettyPrinter(indent=2)
 
 class SpiderCleaner(object):
     """
@@ -23,6 +27,8 @@ class SpiderCleaner(object):
         self.redis_info = redis_info      
         self.crawl_info = crawl_info
            
+
+
     def execute(self):
         """
         """
@@ -33,11 +39,225 @@ class SpiderCleaner(object):
 
         # Set up configuration file
         #config_file = r.get('config')
-        print self.crawl_info
         config_file = r.get(self.crawl_info)
-        #config = json.loads(config_file)
+        config = json.loads(config_file)
 
-        print "hello"
+        # All possible analysis types
+        all_analyses = ['visible', 'headline', 'hidden', 'text', 'all',
+                        'external', 'wordContexts', 'predefinedSynRings']
+
+        # Types of anlayis acutally performed
+        analysis_types = []
+        #analysis_types = ['visible', 'headline', 'text'] #TODO: pull from conf
+
+        # TEXT
+        if ('text_request' in config and 
+            config['text_request'] == True):
+            analysis_types.append('visible')
+
+        if ('header_request' in config and 
+            config['header_request'] == True):
+            analysis_types.append('headline')
+
+        if ('meta_request' in config and 
+            config['meta_request'] == True):
+            analysis_types.append('hidden')
+
+        # LINKS
+        if ('a_tags_request' in config and 
+            config['a_tags_request'] == True):
+            analysis_types.append('text')
+
+        if ('all_links_request' in config and 
+            config['all_links_request'] == True):
+            analysis_types.append('all')
+
+        if ('external_links_request' in config and 
+            config['external_links_request'] == True):
+            analysis_types.append('external')
+
+        # CONTEXT
+        if ('context_search_tag' in config and
+            len(config['context_search_tag']) > 0):
+            analysis_types.append('wordContexts')
+
+        # SYNONYMS
+        if 'wordnet_lists' in config:
+            analysis_types.append('predefinedSynRings')
+
+        # Content (internal/external) types performed
+        content_types = ['internal'] # TODO: allow no internal
+        if config['analyze_external_pages'] == True:
+            content_types.append('external')
+
+        print analysis_types
+
+        # Variables for analysis types
+        analysis = {}
+        analysis['internal'] = {"key": "i_", "web_name": ""}
+        analysis['external'] = {"key": "e_", "web_name": ""}
+        analysis["visible"] = {"key": "text", "web_name": "visibleText"} 
+        analysis["headline"] = {"key": "head", "web_name": "headlineText"} 
+        analysis["hidden"] = {"key": "meta", "web_name": "hiddenText"}
+        analysis["text"] = {"key": "atag", "web_name": "linkText"}
+        analysis["all"] = {"key": "link", "web_name": "allLinks"}
+        analysis["external"] = {"key": "extl", "web_name": "externalDomains"}
+        analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
+        analysis["predefinedSynRings"] = {"key": "cntw", "web_name": "synonymRings"}
+
+        # Sites analyzed
+        analysis["site_ids"] = ["foxmulti.txt"] #TODO: pull from config
+
+        # Analysis to be output (converted to json and uploaded to S3)
+        finished_analysis = {}
+        finished_analysis['name'] = config['name']
+        finished_analysis['date'] = config['time'] #TODO:fix
+        finished_analysis['time'] = ""
+        #TODO: pull from config/calculate end here prior to upload
+
+        if 'internal' in content_types:
+            finished_analysis['internal'] = True
+        else:
+            finished_analysis['internal'] = True
+            
+        if 'external' in content_types:
+            finished_analysis['external'] = True
+        else:
+            finished_analysis['external'] = False
+
+        finished_analysis['sites'] = []
+
+        # Format results for each site
+        for site in analysis['site_ids']:
+            
+            site_results = {}
+            
+            #TODO: Download master file from HDFS
+
+            # Format both internal and external results
+            for c_type in ['internal','external']:
+                
+                # If analysis not performed, create empty placeholders and exit
+                if c_type not in content_types:
+                    
+                    placeholders = {'visibleText': {}, 'hiddenText': {}, 'headlineText': {},
+                    'allLinks': {}, 'externalDomains': {}, 'linkText': {},
+                    'searchWords': {}, 'context': {},
+                    'synonymRings': {}, 'summary': {'pages':{'count':0}, 'words':{'count':0}},
+                    'selectors': {} }
+                    
+                    if c_type == 'internal':
+                        site_results['internalResults'] = placeholders
+                    else:
+                        site_results['externalResults'] = placeholders
+                        
+                    # exit loop
+                    continue
+                
+                results = {} # Holder for specific results
+                
+                for a_type in all_analyses:
+
+                    # Create the correct key for Spider Web name
+                    results[analysis[a_type]['web_name']] = {}
+                    
+                    # Break from loop if no analysis performed
+                    if a_type not in analysis_types:
+                        continue
+                        
+                    # Create the key to grep/filter the master file by
+                    key = analysis[a_type]['key'] + analysis[c_type]['key']
+
+                    # Cat the master file into the sort filter
+                    cmd_line = "cat " + site + " | " + unix_pipe(key)
+
+                    # Call the process and save output
+                    out = "" #subprocess.check_output(cmd_line, shell=True, cwd=cwd)
+
+                    # Handle Word Analysis Types
+                    if a_type in ['visible','headline', 'text']:
+                         
+                        # Process words
+                        words = []
+
+                        # Last line of split is junk
+                        for i, line in enumerate(out.split('\n')[:-1]):
+                            word = {}
+                            word['rank'] = i + 1
+                            word['word'], word['count'] = line.split('\t')
+                            word['pages'] = []
+                            word['tags'] = []
+                            words.append(word)
+                            
+                        results[analysis[a_type]['web_name']]['words'] = words 
+
+                    #TODO: Handle Links
+                    
+                    #TODO: Handle Domains 
+                    
+                    #TODO: Handle Context 
+                    
+                    #TODO: Handle Synonyms
+
+                #TODO: Handle Search Words
+                    
+                # Summary Information
+                results['summary'] = {}
+
+                #TODO: ??? Must do link analysis to retrieve this info?
+                results['summary']['links'] = {}
+                results['summary']['links']['external'] = 1000 #TODO: pull?
+                results['summary']['links']['internal'] = 4000 #TODO: pull?
+ 
+                # Pull page download info from engine redis
+                results['summary']['pages'] = {}
+                results['summary']['pages']['count'] = 200000 
+                results['summary']['pages']['list'] = ['http://www.exsite.com/path1',
+                                                           'http://www.exsite.com/path2',
+                                                           'http://www.exsite.com/path3']
+
+                #TODO: I'm not counting tags?
+                results['summary']['tags'] = {}
+                results['summary']['tags']['list'] = [{ 'count': 25000,
+                                                            'type': 'text'},
+                                                          { 'count': 5000,
+                                                            'type': 'links'},
+                                                          { 'count': 8000,
+                                                            'type': 'headlines'},
+                                                          { 'count': 4000,
+                                                            'type': 'image'},
+                                                          { 'count': 3000,
+                                                            'type': 'other'}]
+                results['summary']['tags']['total'] = 45000
+
+                #TODO: ??? Must do total count on every analysis?
+                results['summary']['words'] = {}
+                results['summary']['words']['count'] = 5000000
+
+                if c_type == 'internal':
+                    site_results['internalResults'] = results
+                else:
+                    site_results['externalResults'] = results
+
+                site_results['url'] = site
+                
+                finished_analysis['sites'].append(site_results)
+                
+        json_data = json.dumps(finished_analysis)
+
+        #TODO: use boto to upload data
+        #TODO: crawl_id is mising random end
+        # so either pass in, or remove from Spider Server
+
+        #with open('../spiderweb/app/results1SiteAll.json', 'w') as f:
+        #    f.write(json_data)
+
+        #pp.pprint(json_data)
+
+
+def unix_pipe(key):
+    # extra \ to escape \ for \t
+    return """grep '^%s' | sort -t $'\\t' -k 2 -n -r | head -n 5 | cut -c 7-""" % (key)
 
 def main():
     """Handle command line options"""
