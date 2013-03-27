@@ -6,6 +6,7 @@
 
 """
 
+import os
 import sys
 import json
 import time
@@ -105,21 +106,6 @@ class SpiderCleaner(object):
         analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
         analysis["predefinedSynRings"] = {"key": "cntw", "web_name": "synonymRings"}
 
-        # Sites analyzed
-        site_list = []
-        if 'primarySite' in web_crawl:
-            site_list.append(web_crawl['primarySite'])
-            
-        else:
-            print 'error, error loan ranger'
-            sys.exit(1)
-
-        if 'additionalSites' in web_crawl:
-            for site in web_crawl['additionalSites']:
-                site_list.append(site)
-        print site_list
-        #analysis["site_ids"] = ["foxmulti.txt"] #TODO: pull from config
-
         # Analysis to be output (converted to json and uploaded to S3)
         finished_analysis = {}
         finished_analysis['name'] = config['name']
@@ -140,15 +126,25 @@ class SpiderCleaner(object):
 
         finished_analysis['sites'] = []
 
+        if isinstance(config['sites'], (str, unicode)):
+            print 'here'
+            site_list = [config['sites']]
+        else:
+            site_list = config['sites']
+
+        print "site list in cleaner: " + str(site_list)
+        print "type: " + str(type(site_list))
+        
         # Format results for each site
         for site in site_list:
             
+            print ""
+            print "mf'ing site: " + site
             site_results = {}
 
             print "MADE IT COWBOY"
             print "MADE IT COWBOY"
             print "MADE IT COWBOY"
-            break
 
             #TODO: Download master file from HDFS
 
@@ -186,19 +182,29 @@ class SpiderCleaner(object):
                     # Create the key to grep/filter the master file by
                     key = analysis[a_type]['key'] + analysis[c_type]['key']
 
-
                     # Construct file name details
+                    print ""
+                    print "site: " + site
                     base = '%s::%s' % (site, config['crawl_id'])
+                    print""
+                    print "base: " + base
                     base_path = base.replace("/","_").replace(":","-")
-                    print base_path
+                    print ""
+                    print "base path: " + base_path
                     # Cat the master file into the sort filter
                     if self.psuedo_dist:# Psuedo Distributed
-                        cmd_line = "cat /home/parallelspider/out/" + base_path + " | " + unix_pipe(key)
+                        path = "/home/parallelspider/out/" + base_path
+                        #wait for file to exist
+                        print ""
+                        print "path: " + path
+                        while not os.path.exists(path): pass
+                        print "out of loop"
+                        cmd_line = "cat " + path + " | " + unix_pipe(key)
                     else:
                         pass
                     print cmd_line
                     # Call the process and save output
-                    out = subprocess.check_output(cmd_line, shell=True, cwd=cwd)
+                    out = subprocess.check_output(cmd_line, shell=True)
 
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'text']:
@@ -274,7 +280,7 @@ class SpiderCleaner(object):
         print finish_time
         #finished_analysis['time'] = finish_time - start_time
 
-        #json_data = json.dumps(finished_analysis)
+        json_data = json.dumps(finished_analysis)
 
         #TODO: use boto to upload data
         #TODO: crawl_id is mising random end
@@ -283,7 +289,7 @@ class SpiderCleaner(object):
         #with open('../spiderweb/app/results1SiteAll.json', 'w') as f:
         #    f.write(json_data)
 
-        #pp.pprint(json_data)
+        pp.pprint(json_data)
 
 
 def unix_pipe(key):

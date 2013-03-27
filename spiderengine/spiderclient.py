@@ -186,20 +186,29 @@ class CrawlTracker(object):
                 else:
                     print 'error error should not be here'
 
-        crawl_info = json.dumps(crawl)
+
+        # Add crawls site to the site list
+        sites = site_list.split(',')
+        self.site_list[crawl_id] = sites
+
+        # Add sites to crawl info for spidercleaner
+        print ""
+        print "site_list: " + site_list
+        print "type: " + str(type(site_list))
+        print "sites: " + str(sites)
+        print "type: " + str(type(sites))
+        print ""
+        crawl['sites'] = site_list
 
         # Add crawl info to local engine redis
+        crawl_info = json.dumps(crawl)
         self.engine_redis.set(engine_crawl_id, crawl_info)
         hour = 60 * 60
         self.engine_redis.expire(engine_crawl_id, hour)
 
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
-
-        # Add crawls site to the site list
-        sites = site_list.split(',')
-        self.site_list[crawl_id] = sites
-
+        print 'here'
         # If mocking then fake the funk.
         if self.mock:
 
@@ -232,7 +241,7 @@ class CrawlTracker(object):
     """ Checks the status of all crawls in the crawl queue 
         Updates Central Redis wit page count, or -2 when complete
     """
-
+    print 'howdy ho'
     if self.mock:
         for crawl_id in self.crawlQueue:
 
