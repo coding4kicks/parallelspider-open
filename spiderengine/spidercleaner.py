@@ -184,8 +184,11 @@ class SpiderCleaner(object):
                     if self.psuedo_dist:# Psuedo Distributed
 
                         cwd = "/home/parallelspider/out/"
-                        cmd_line = ("cat {!s} | grep '{!s}' | sort -k 2 -n -r").format(base_path,
-                                key)
+                        cmd_line = ("cat {!s} | "
+                                    "grep '{!s}' | "
+                                    "sort -k 2 -n -r | "
+                                    "head -n 10"
+                                    ).format(base_path, key)
 
                         print ""
                         print "cmd_line: " + str(cmd_line)
@@ -292,11 +295,6 @@ class SpiderCleaner(object):
         #    f.write(json_data)
 
         #pp.pprint(json_data)
-
-# NOT CURRENTLY USING
-def unix_pipe(key):
-    # extra \ to escape \ for \t
-    return """grep "^'%s" | sort -t '\t' -k 2 -n -r | head -n 5 | cut -c 8-""" % (key)
 
 def main():
     """Handle command line options"""

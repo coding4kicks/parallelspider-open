@@ -203,7 +203,6 @@ class CrawlTracker(object):
 
         # Add crawl to the crawl queue to monitor
         self.crawlQueue.append(crawl_id)
-        print 'here'
         # If mocking then fake the funk.
         if self.mock:
 
@@ -236,12 +235,10 @@ class CrawlTracker(object):
     """ Checks the status of all crawls in the crawl queue 
         Updates Central Redis wit page count, or -2 when complete
     """
-    print 'howdy ho'
     if self.mock:
         for crawl_id in self.crawlQueue:
 
             # Retrieve page count from engine and set in central redis
-            #print "retrieving crawl status for " + crawl_id
             page_count = self.engine_redis.get(crawl_id + "_count")
             self.central_redis.set(crawl_id + "_count", page_count)
             # If page count is complete (-2), remove from queue
@@ -292,7 +289,6 @@ class CrawlTracker(object):
                         path = "/home/parallelspider/out/"
                         if not os.path.exists(path + base_path):
                             really_not_done = True
-                            print "Still not done"
                     else:
                         # list output files and look for success
                         # should add deferred (will break on psuedo dist)
@@ -309,9 +305,6 @@ class CrawlTracker(object):
             # & really done (success files exists)
             if done and not really_not_done:
 
-                #Spider Cleanup
-                print "cleaning up"
-                
                 # Kick crawl out of the queue
                 self.crawlQueue.remove(crawl_id)
 
