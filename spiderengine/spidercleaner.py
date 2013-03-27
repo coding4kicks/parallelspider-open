@@ -184,7 +184,7 @@ class SpiderCleaner(object):
                     if self.psuedo_dist:# Psuedo Distributed
 
                         cwd = "/home/parallelspider/out/"
-                        cmd_line = ("cat {!s} | grep '{!s}'").format(base_path,
+                        cmd_line = ("cat {!s} | grep '{!s}' | sort -k 2 -n -r").format(base_path,
                                 key)
 
                         print ""
