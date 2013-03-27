@@ -179,37 +179,30 @@ class SpiderCleaner(object):
                     # Construct file name details
                     base = '%s::%s' % (site, config['crawl_id'])
                     base_path = base.replace("/","_").replace(":","-")
+
                     # Cat the master file into the sort filter
                     if self.psuedo_dist:# Psuedo Distributed
-                        path = "/home/parallelspider/out/" + base_path
-                        #wait for file to exist
-                        while not os.path.exists(path): pass
-                        print "out of loop"
-                        cmd_line = "cat " + base_path + " | " + unix_pipe(key)
-                        #print "cmd line: " + cmd_line
+
+                        cwd = "/home/parallelspider/out/"
+                        cmd_line = ("cat {!s}").format(base_path)
+
+                        print ""
+                        print "cmd_line: " + str(cmd_line)
+                        print "cwd: " + str(cwd)
+                        out = subprocess.check_output(cmd_line, shell=True,
+                                cwd=cwd)
+                        print ""
+                        print "OUTPUT"
+                        print out
+                        
                     else:
                         #TODO: call for distributed
                         pass
-                    # Call the process and save output
-                    #cwd = "/home/parallelspider/parallelspider/spiderengine/"
-                    cwd = "/home/parallelspider/out"
-                    print type(base_path)
-                    import unicodedata
-                    bp = unicodedata.normalize('NFKD', base_path).encode('ascii','ignore')
-                    print type(bp)
-                    #cmd_line = "cat " + bp #+ " | sort -t '\t' -k 2 -n -r "
-                    #cmd_line = """cat %s | sort -t '\t' -k 2 -n -r""" % (bp)
-                    cmd_line = """cat %s | grep '%s' | sort -t '\t' -k 2 -n -r | head -n 20 """ % (bp, key)
-                               
-                    #cmd_line = """cat %s | grep '%s' | sort '\t' -k 2 -n -r """ % (bp, key)
 
-                    print cmd_line
-                    print cwd
 
-                    out = subprocess.check_output(cmd_line, shell=True, cwd=cwd)
-                    
-                    print "Out: " + str(out)
+                    # Don't worry about following for now
                     break
+
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'text']:
                          
@@ -285,7 +278,7 @@ class SpiderCleaner(object):
                 
         # All done, clock time
         finish_time = time.clock()
-        print finish_time
+        #print finish_time
         #finished_analysis['time'] = finish_time - start_time
 
         json_data = json.dumps(finished_analysis)
@@ -297,12 +290,11 @@ class SpiderCleaner(object):
         #with open('../spiderweb/app/results1SiteAll.json', 'w') as f:
         #    f.write(json_data)
 
-        pp.pprint(json_data)
+        #pp.pprint(json_data)
 
-
+# NOT CURRENTLY USING
 def unix_pipe(key):
     # extra \ to escape \ for \t
-    # be sure added ' to grep doesn't blow up on distributed mode
     return """grep "^'%s" | sort -t '\t' -k 2 -n -r | head -n 5 | cut -c 8-""" % (key)
 
 def main():

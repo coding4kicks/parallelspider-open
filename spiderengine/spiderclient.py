@@ -1,5 +1,6 @@
 from twisted.internet import reactor
 
+import os
 import sys
 import redis
 import json # for mock test
@@ -282,20 +283,25 @@ class CrawlTracker(object):
                 # make sure all sites have success file
                 for site in self.site_list[crawl_id]:
 
-                    if self.psuedo_dist:
-                        break
-
                     base = '%s::%s' % (site, engine_crawl_id)
                     base_path = base.replace("/","_").replace(":","-")
 
-                    # list output files and look for success
-                    # should add deferred (will break on psuedo dist)
-                    cmd = "dumbo ls /HDFS/parallelspider/out/" + \
-                           base_path + " -hadoop starcluster"
-                    files = subprocess.check_output(cmd, shell=True)
+                    # If testing in psuedo distributed
+                    if self.psuedo_dist:
+
+                        path = "/home/parallelspider/out/"
+                        if not os.path.exists(path + base_path):
+                            really_not_done = True
+                            print "Still not done"
+                    else:
+                        # list output files and look for success
+                        # should add deferred (will break on psuedo dist)
+                        cmd = "dumbo ls /HDFS/parallelspider/out/" + \
+                               base_path + " -hadoop starcluster"
+                        files = subprocess.check_output(cmd, shell=True)
                     
-                    if "_SUCCESS" not in files:
-                        really_not_done = True
+                        if "_SUCCESS" not in files:
+                            really_not_done = True
 
 
             # If all sites are done, crawl is really done! Cleanup.
