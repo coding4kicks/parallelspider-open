@@ -190,13 +190,16 @@ class SpiderCleaner(object):
                                     "head -n 10"
                                     ).format(base_path, key)
 
-                        print ""
-                        print "cmd_line: " + str(cmd_line)
-                        print "cwd: " + str(cwd)
-                        out = subprocess.check_output(cmd_line, shell=True,
-                                cwd=cwd)
+                        # Loop while no output
+                        # I believe a race has been causing problems
+                        # where the file is created but nothing is in it
+                        out = ""
+                        while not out:
+                            out = subprocess.check_output(cmd_line, shell=True,
+                                    cwd=cwd)
                         print ""
                         print "OUTPUT"
+                        print type(out)
                         print out
                         
                     else:
