@@ -4,6 +4,7 @@ import sys
 import redis
 import json # for mock test
 import math
+import time
 import optparse
 import subprocess
 
@@ -40,6 +41,7 @@ class CrawlTracker(object):
     self.mock = mock
     self.max_pages = 20 # Default Free Ride
     self.mappers = 3
+    self.psuedo_dist = True # so don't try to grab success files
 
   def checkRedisQueue(self):
     """ Checks the Central Redis server for jobs and passes them to Grid Engine.
@@ -65,9 +67,9 @@ class CrawlTracker(object):
         engine_crawl_id, d, rand = crawl_id.rpartition("-")
 
         crawl['crawl_id'] = engine_crawl_id
+        crawl['random'] = rand
 
         if 'primarySite' in web_crawl:
-            # Only 1 site for now, TODO: append 'additionalSites'
             site_list = web_crawl['primarySite']
             
         else:
@@ -84,10 +86,12 @@ class CrawlTracker(object):
             crawl['name'] = web_crawl['primarySite']
 
         if 'time' in web_crawl:
-            crawl['time'] = web_crawl['time']
+            crawl['date'] = web_crawl['time']
         else:
             # could just add, but should already be set
-            crawl['time'] = 'error'
+            crawl['date'] = 'error'
+
+        crawl['time'] = time.clock()
 
         if 'maxPages' in web_crawl:
             self.max_pages = web_crawl['maxPages']
@@ -275,6 +279,9 @@ class CrawlTracker(object):
                 # make sure all sites have success file
                 for site in self.site_list[crawl_id]:
 
+                    if self.psuedo_dist:
+                        break
+
                     base = '%s::%s' % (site, engine_crawl_id)
                     base_path = base.replace("/","_").replace(":","-")
 
@@ -292,17 +299,29 @@ class CrawlTracker(object):
             # If done (> max pages or new links are empty) 
             # & really done (success files exists)
             if done and not really_not_done:
+
                 #Spider Cleanup
                 print "cleaning up"
-                cmd = "dumbo cat /HDFS/parallelspider/out/" + \
-                           base_path + "/part-00000 -hadoop starcluster"
-                out = subprocess.check_output(cmd, shell=True)
-                print out
-                # why is this going early???
+                
                 # Kick crawl out of the queue
                 self.crawlQueue.remove(crawl_id)
 
+                # Get start time details and set elapsed
+                config_file = self.engine_redis.get(engine_crawl_id)
+                config = json.loads(config_file)
+                start_time = config['time']
+                stop_time = time.clock()
+                config['time'] = stop_time - start_time
+                config_json = json.dumps(config)
+                self.engine_redis.set(engine_crawl_id, config_json)
 
+                # Call cleanup
+                cmd_line = "python spidercleaner.py " +  \
+                    "-r host:ec2-23-20-71-90.compute-1.amazonaws.com," + \
+                    "port:6380 " + \
+                    "-c " + engine_crawl_id
+                p = subprocess.Popen(cmd_line, shell=True) 
+                
             # Cleanup will update central redis to -2 for complete
             # could add a -3 for cleaning up if necessary
             # clean up will also need to try multiple times since

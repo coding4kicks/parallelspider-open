@@ -8,6 +8,7 @@
 
 import sys
 import json
+import time
 import redis
 import optparse
 import subprocess
@@ -22,12 +23,11 @@ class SpiderCleaner(object):
     def __init__(self, redis_info, crawl_info):
         """ 
 
-        """
-       
+        """   
         self.redis_info = redis_info      
         self.crawl_info = crawl_info
+        self.psuedo_dist = True # Psuedo distributed for testing
            
-
 
     def execute(self):
         """
@@ -106,13 +106,26 @@ class SpiderCleaner(object):
         analysis["predefinedSynRings"] = {"key": "cntw", "web_name": "synonymRings"}
 
         # Sites analyzed
-        analysis["site_ids"] = ["foxmulti.txt"] #TODO: pull from config
+        site_list = []
+        if 'primarySite' in web_crawl:
+            site_list.append(web_crawl['primarySite'])
+            
+        else:
+            print 'error, error loan ranger'
+            sys.exit(1)
+
+        if 'additionalSites' in web_crawl:
+            for site in web_crawl['additionalSites']:
+                site_list.append(site)
+        print site_list
+        #analysis["site_ids"] = ["foxmulti.txt"] #TODO: pull from config
 
         # Analysis to be output (converted to json and uploaded to S3)
         finished_analysis = {}
         finished_analysis['name'] = config['name']
-        finished_analysis['date'] = config['time'] #TODO:fix
-        finished_analysis['time'] = ""
+        #finished_analysis['date'] = config['date']
+        #start_time = config['time']
+        
         #TODO: pull from config/calculate end here prior to upload
 
         if 'internal' in content_types:
@@ -128,10 +141,15 @@ class SpiderCleaner(object):
         finished_analysis['sites'] = []
 
         # Format results for each site
-        for site in analysis['site_ids']:
+        for site in site_list:
             
             site_results = {}
-            
+
+            print "MADE IT COWBOY"
+            print "MADE IT COWBOY"
+            print "MADE IT COWBOY"
+            break
+
             #TODO: Download master file from HDFS
 
             # Format both internal and external results
@@ -168,11 +186,19 @@ class SpiderCleaner(object):
                     # Create the key to grep/filter the master file by
                     key = analysis[a_type]['key'] + analysis[c_type]['key']
 
-                    # Cat the master file into the sort filter
-                    cmd_line = "cat " + site + " | " + unix_pipe(key)
 
+                    # Construct file name details
+                    base = '%s::%s' % (site, config['crawl_id'])
+                    base_path = base.replace("/","_").replace(":","-")
+                    print base_path
+                    # Cat the master file into the sort filter
+                    if self.psuedo_dist:# Psuedo Distributed
+                        cmd_line = "cat /home/parallelspider/out/" + base_path + " | " + unix_pipe(key)
+                    else:
+                        pass
+                    print cmd_line
                     # Call the process and save output
-                    out = "" #subprocess.check_output(cmd_line, shell=True, cwd=cwd)
+                    out = subprocess.check_output(cmd_line, shell=True, cwd=cwd)
 
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'text']:
@@ -243,7 +269,12 @@ class SpiderCleaner(object):
                 
                 finished_analysis['sites'].append(site_results)
                 
-        json_data = json.dumps(finished_analysis)
+        # All done, clock time
+        finish_time = time.clock()
+        print finish_time
+        #finished_analysis['time'] = finish_time - start_time
+
+        #json_data = json.dumps(finished_analysis)
 
         #TODO: use boto to upload data
         #TODO: crawl_id is mising random end

@@ -207,8 +207,8 @@ class SpiderRunner(object):
                          ",base:" + base + \
                          ",maxPages:" + str(self.max_pages))
 
-            subprocess.Popen(parallel_spider, shell=True)
-            #subprocess.Popen(psuedo_dist, shell=True)
+            #subprocess.Popen(parallel_spider, shell=True)
+            subprocess.Popen(psuedo_dist, shell=True)
 
 
 def main():
