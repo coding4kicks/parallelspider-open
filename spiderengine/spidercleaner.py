@@ -127,21 +127,15 @@ class SpiderCleaner(object):
         finished_analysis['sites'] = []
 
         if isinstance(config['sites'], (str, unicode)):
-            print 'here'
             site_list = [config['sites']]
         else:
             site_list = config['sites']
-
-        print "site list in cleaner: " + str(site_list)
-        print "type: " + str(type(site_list))
         
         # Format results for each site
         for site in site_list:
-            
-            print ""
-            print "mf'ing site: " + site
-            site_results = {}
 
+            site_results = {}
+            
             print "MADE IT COWBOY"
             print "MADE IT COWBOY"
             print "MADE IT COWBOY"
@@ -183,29 +177,39 @@ class SpiderCleaner(object):
                     key = analysis[a_type]['key'] + analysis[c_type]['key']
 
                     # Construct file name details
-                    print ""
-                    print "site: " + site
                     base = '%s::%s' % (site, config['crawl_id'])
-                    print""
-                    print "base: " + base
                     base_path = base.replace("/","_").replace(":","-")
-                    print ""
-                    print "base path: " + base_path
                     # Cat the master file into the sort filter
                     if self.psuedo_dist:# Psuedo Distributed
                         path = "/home/parallelspider/out/" + base_path
                         #wait for file to exist
-                        print ""
-                        print "path: " + path
                         while not os.path.exists(path): pass
                         print "out of loop"
-                        cmd_line = "cat " + path + " | " + unix_pipe(key)
+                        cmd_line = "cat " + base_path + " | " + unix_pipe(key)
+                        #print "cmd line: " + cmd_line
                     else:
+                        #TODO: call for distributed
                         pass
-                    print cmd_line
                     # Call the process and save output
-                    out = subprocess.check_output(cmd_line, shell=True)
+                    #cwd = "/home/parallelspider/parallelspider/spiderengine/"
+                    cwd = "/home/parallelspider/out"
+                    print type(base_path)
+                    import unicodedata
+                    bp = unicodedata.normalize('NFKD', base_path).encode('ascii','ignore')
+                    print type(bp)
+                    #cmd_line = "cat " + bp #+ " | sort -t '\t' -k 2 -n -r "
+                    #cmd_line = """cat %s | sort -t '\t' -k 2 -n -r""" % (bp)
+                    cmd_line = """cat %s | grep '%s' | sort -t '\t' -k 2 -n -r | head -n 20 """ % (bp, key)
+                               
+                    #cmd_line = """cat %s | grep '%s' | sort '\t' -k 2 -n -r """ % (bp, key)
 
+                    print cmd_line
+                    print cwd
+
+                    out = subprocess.check_output(cmd_line, shell=True, cwd=cwd)
+                    
+                    print "Out: " + str(out)
+                    break
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'text']:
                          
@@ -214,13 +218,17 @@ class SpiderCleaner(object):
 
                         # Last line of split is junk
                         for i, line in enumerate(out.split('\n')[:-1]):
+                            print ""
+                            print "line"
+                            print line
                             word = {}
                             word['rank'] = i + 1
                             word['word'], word['count'] = line.split('\t')
                             word['pages'] = []
                             word['tags'] = []
                             words.append(word)
-                            
+
+                        print "words: " + str(words)    
                         results[analysis[a_type]['web_name']]['words'] = words 
 
                     #TODO: Handle Links
@@ -294,7 +302,8 @@ class SpiderCleaner(object):
 
 def unix_pipe(key):
     # extra \ to escape \ for \t
-    return """grep '^%s' | sort -t $'\\t' -k 2 -n -r | head -n 5 | cut -c 7-""" % (key)
+    # be sure added ' to grep doesn't blow up on distributed mode
+    return """grep "^'%s" | sort -t '\t' -k 2 -n -r | head -n 5 | cut -c 8-""" % (key)
 
 def main():
     """Handle command line options"""
@@ -334,4 +343,3 @@ def main():
 if __name__ == "__main__":
     """Enable command line execution """
     sys.exit(main())
-

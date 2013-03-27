@@ -192,12 +192,6 @@ class CrawlTracker(object):
         self.site_list[crawl_id] = sites
 
         # Add sites to crawl info for spidercleaner
-        print ""
-        print "site_list: " + site_list
-        print "type: " + str(type(site_list))
-        print "sites: " + str(sites)
-        print "type: " + str(type(sites))
-        print ""
         crawl['sites'] = site_list
 
         # Add crawl info to local engine redis
