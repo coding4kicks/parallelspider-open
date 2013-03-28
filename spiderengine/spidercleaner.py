@@ -28,7 +28,7 @@ class SpiderCleaner(object):
         self.redis_info = redis_info      
         self.crawl_info = crawl_info
         # Is this necessary???
-        self.psuedo_dist = False # Psuedo distributed for testing
+        self.psuedo_dist = True # Psuedo distributed for testing
            
 
     def execute(self):
@@ -196,7 +196,7 @@ class SpiderCleaner(object):
                         cmd_line = ("cat {!s} | "
                                     "grep '{!s}' | "
                                     "sort -k 2 -n -r | "
-                                    "head -n 10"
+                                    "head -n 100"
                                     ).format(base_path, key)
 
                         # Loop while no output
@@ -207,7 +207,7 @@ class SpiderCleaner(object):
                             out = subprocess.check_output(cmd_line, shell=True,
                                     cwd=cwd)
                         print ""
-                        print "OUTPUT"
+                        print "PSUEDO OUTPUT"
                         print type(out)
                         print out
                         
@@ -227,7 +227,6 @@ class SpiderCleaner(object):
                         print type(out)
                         print out
 
-
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'text']:
                          
@@ -236,9 +235,7 @@ class SpiderCleaner(object):
 
                         # Last line of split is junk
                         for i, line in enumerate(out.split('\n')[:-1]):
-                            print ""
-                            print "line"
-                            print line
+
                             word = {}
                             word['rank'] = i + 1
                             w, c = line.split('\t')
@@ -322,7 +319,7 @@ class SpiderCleaner(object):
         #with open('../spiderweb/app/results1SiteAll.json', 'w') as f:
         #    f.write(json_data)
 
-        pp.pprint(json_data)
+        #pp.pprint(json_data)
 
 def main():
     """Handle command line options"""

@@ -24,7 +24,7 @@ def mocker():
     crawl["links"] = {"text":True,"all":False,"external":False}
     crawl["wordContexts"] = [] #["but", "and"]
     crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
-    crawl["maxPages"] = 25
+    crawl["maxPages"] = 5
     crawl["externalSites"] = False
     crawl["stopWords"] = "crazy, cool, world"
     crawl["name"] = "My Fake Crawls Name"

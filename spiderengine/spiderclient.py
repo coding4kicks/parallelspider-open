@@ -52,7 +52,7 @@ class CrawlTracker(object):
     self.mock = mock
     self.max_pages = 20 # Default Free Ride
     self.mappers = 3
-    self.psuedo_dist = False # so don't try to grab success files
+    self.psuedo_dist = True # so don't try to grab success files
 
   def checkRedisQueue(self):
     """ Checks the Central Redis server for jobs and passes them to Grid Engine.
