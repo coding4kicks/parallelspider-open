@@ -27,7 +27,7 @@ class SpiderCleaner(object):
         """   
         self.redis_info = redis_info      
         self.crawl_info = crawl_info
-        # Is this necessary???
+        
         self.psuedo_dist = True # Psuedo distributed for testing
            
 
@@ -81,7 +81,7 @@ class SpiderCleaner(object):
         # CONTEXT
         if ('context_search_tag' in config and
             len(config['context_search_tag']) > 0):
-            analysis_types.append('wordContexts')
+            analysis_types.append('wordContexts')                
 
         # SYNONYMS
         if 'wordnet_lists' in config:
@@ -357,13 +357,19 @@ class SpiderCleaner(object):
                         print "OUTPUT"
                         #print out
 
+
+                    # Set up dictioary for context words
+                    contexts = {}
+                    for word in config['context_search_tag']:
+                        contexts[word] = []
+
+
+
                     for line in out.split('\n')[:-1]:
-                        print line
+
                         try:
                             # Extract word and tuple
                             w, t = line.split('\t')
-                            print "w: " + w
-                            print "t: " + t
 
                             # Strip key and clean word
                             word = w.split(key)[1][:-1]
@@ -373,13 +379,42 @@ class SpiderCleaner(object):
                             count = ct[1:]
                             context = cw[:-2]
 
-                            print word
-                            print count
-                            print context
+                            contexts[context].append((int(count), word))
+ 
                         except:
                             # error unpacking line
                             # TODO: figure out why it blow up sometimes.
                             pass
+
+                    for j, context in enumerate(contexts):
+                        contexts[context].sort(reverse=True)
+
+                        words = []
+                        total_count = 0
+
+                        for i, tup in enumerate(contexts[context]):
+                            word = {}
+                            word['rank'] = i + 1
+                            c, w = tup
+                            # Remove the key 
+                            word['word'] = w
+                            word['count'] = c
+                            word['pages'] = []
+                            word['tags'] = []
+                            words.append(word)
+                            total_count += c
+
+                        context_details = {}
+                        context_details['word'] = context
+                        context_details['count'] = total_count
+                        context_details['words'] = words
+                        context_details['pages'] = []
+                        context_details['tags'] = []
+
+                        results[analysis[a_type]['web_name']][j] \
+                                = context_details
+                    
+                #pp.pprint( results['context'] )
 
 
                 #TODO: Handle Synonyms
@@ -442,7 +477,7 @@ class SpiderCleaner(object):
         #with open('../spiderweb/app/results1SiteAll.json', 'w') as f:
         #    f.write(json_data)
 
-        #pp.pprint(json_data)
+        pp.pprint(json_data)
 
 def main():
     """Handle command line options"""
