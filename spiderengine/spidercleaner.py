@@ -205,8 +205,12 @@ class SpiderCleaner(object):
                         # where the file is created but nothing is in it
                         out = ""
                         while not out:
-                            out = subprocess.check_output(cmd_line, shell=True,
+                            try:
+                                out = subprocess.check_output(cmd_line, shell=True,
                                     cwd=cwd)
+                            except:
+                                # File should be ready at some point???
+                                pass
                         print ""
                         print "PSUEDO OUTPUT"
                         print type(out)
@@ -351,7 +355,7 @@ class SpiderCleaner(object):
                         print "OUTPUT"
                         #print out
 
-                    for line in out:
+                    for line in out.split('\n'):
                         print line
                         #w, t = line.split('\t')
                         #print "w: " + w
