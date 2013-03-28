@@ -183,9 +183,10 @@ class SpiderCleaner(object):
                     results[analysis[a_type]['web_name']] = {}
                     
                     # Break from loop if no analysis performed
-                    if a_type not in analysis_types:
+                    # or if it require special handling
+                    if a_type not in analysis_types or a_type == 'wordContexts':
                         continue
-                        
+                    
                     # Create the key to grep/filter the master file by
                     key = analysis[a_type]['key'] + analysis[c_type]['key']
 
@@ -306,10 +307,49 @@ class SpiderCleaner(object):
                         print "domain: " + str(domains)    
                         results[analysis[a_type]['web_name']]['domains'] \
                             = domains 
-                    
-                    #TODO: Handle Context 
-                    
-                    #TODO: Handle Synonyms
+                   
+                #TODO: Handle Context 
+                if 'wordContexts' in analysis_types:
+
+                    print "handling context"
+
+                    # Create the key to grep/filter the master file by
+                    key = analysis[a_type]['key'] + analysis[c_type]['key']
+
+                    if self.psuedo_dist:# Psuedo Distributed
+
+                        cwd = "/home/parallelspider/out/"
+                        cmd_line = ("cat {!s} | "
+                                    "grep '{!s}' "
+                                    ).format(base_path, key)
+
+                        # Loop while no output
+                        # I believe a race has been causing problems
+                        # where the file is created but nothing is in it
+                        out = ""
+                        while not out:
+                            out = subprocess.check_output(cmd_line, shell=True,
+                                    cwd=cwd)
+                        print ""
+                        print "PSUEDO OUTPUT"
+                        print type(out)
+                        print out
+                        
+                    else: # Normal
+                        cwd = "/home/parallelspider/out/"
+                        cmd_line = ("cat {!s} | "
+                                    "grep '{!s}' "
+                                    ).format(base_path, key)
+
+                        # No loop on out
+                        out = subprocess.check_output(cmd_line, shell=True,
+                                                      cwd=cwd)
+                        print ""
+                        print "OUTPUT"
+                        print type(out)
+                        print out
+
+                #TODO: Handle Synonyms
 
                 #TODO: Handle Search Words
                     
