@@ -228,7 +228,7 @@ class SpiderCleaner(object):
                         print out
 
                     # Handle Word Analysis Types
-                    if a_type in ['visible','headline', 'text']:
+                    if a_type in ['visible','headline', 'hidden', 'text']:
                          
                         # Process words
                         words = []
@@ -254,8 +254,58 @@ class SpiderCleaner(object):
                         results[analysis[a_type]['web_name']]['words'] = words 
 
                     #TODO: Handle Links
+                    if a_type in ['all']:
+                         
+                        # Process words
+                        links = []
+
+                        # Last line of split is junk
+                        for i, line in enumerate(out.split('\n')[:-1]):
+
+                            link = {}
+                            link['rank'] = i + 1
+                            l, c = line.split('\t')
+                            # Remove the key 
+                            if self.psuedo_dist:
+                                # and end quote
+                                link['link'] = l.split(key)[1][:-1]
+                            else:
+                                link['link'] = l.split(key)[1]
+                            link['count'] = c
+                            link['pages'] = []
+                            link['words'] = []
+                            links.append(link)
+
+                        print "links: " + str(links)    
+                        results[analysis[a_type]['web_name']]['links'] = links 
                     
-                    #TODO: Handle Domains 
+                    #TODO: Handle Domains
+                    if a_type in ['external']:
+                         
+                        # Process words
+                        domains = []
+
+                        # Last line of split is junk
+                        for i, line in enumerate(out.split('\n')[:-1]):
+
+                            domain = {}
+                            domain['rank'] = i + 1
+                            d, c = line.split('\t')
+                            # Remove the key 
+                            if self.psuedo_dist:
+                                # and end quote
+                                domain['domain'] = d.split(key)[1][:-1]
+                            else:
+                                domain['domain'] = d.split(key)[1]
+                            domain['count'] = c
+                            domain['pages'] = []
+                            domain['words'] = []
+                            domain['links'] = []
+                            domains.append(domain)
+
+                        print "domain: " + str(domains)    
+                        results[analysis[a_type]['web_name']]['domains'] \
+                            = domains 
                     
                     #TODO: Handle Context 
                     
