@@ -113,7 +113,6 @@ class SpiderCleaner(object):
         finished_analysis['date'] = config['date']
         crawl_time = config['time']
         start_time = time.clock()
-        print crawl_time
         
         #TODO: pull from config/calculate end here prior to upload
 
@@ -156,7 +155,6 @@ class SpiderCleaner(object):
                            "-hadoop starcluster > /home/parallelspider/out/{!s} "
                            ).format(base_path, base_path)
                 out = subprocess.call(cmd_line, shell=True)
-                print cmd_line
 
             # Format both internal and external results
             for c_type in ['internal','external']:
@@ -214,10 +212,6 @@ class SpiderCleaner(object):
                             except:
                                 # File should be ready at some point???
                                 pass
-                        print ""
-                        print "PSUEDO OUTPUT"
-                        print type(out)
-                        print out
                         
                     else: # Normal
                         cwd = "/home/parallelspider/out/"
@@ -230,10 +224,6 @@ class SpiderCleaner(object):
                         # No loop on out
                         out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
-                        print ""
-                        print "OUTPUT"
-                        print type(out)
-                        print out
 
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'hidden', 'text']:
@@ -258,7 +248,6 @@ class SpiderCleaner(object):
                             word['tags'] = []
                             words.append(word)
 
-                        print "words: " + str(words)    
                         results[analysis[a_type]['web_name']]['words'] = words 
 
                     #TODO: Handle Links
@@ -284,7 +273,6 @@ class SpiderCleaner(object):
                             link['words'] = []
                             links.append(link)
 
-                        print "links: " + str(links)    
                         results[analysis[a_type]['web_name']]['links'] = links 
                     
                     #TODO: Handle Domains
@@ -311,7 +299,6 @@ class SpiderCleaner(object):
                             domain['links'] = []
                             domains.append(domain)
 
-                        print "domain: " + str(domains)    
                         results[analysis[a_type]['web_name']]['domains'] \
                             = domains 
                    
@@ -319,9 +306,6 @@ class SpiderCleaner(object):
                 # Handling as a Python string, may blow up on large data
                 if 'wordContexts' in analysis_types:
                     
-                    print ""
-                    print "handling context"
-
                     # Create the key to grep/filter the master file by
                     key = analysis['wordContexts']['key'] + analysis[c_type]['key']
                     
@@ -344,9 +328,6 @@ class SpiderCleaner(object):
                                 # Not sure why not waiting for file in
                                 # spiderclient?
                                 pass
-                        print ""
-                        print "PSUEDO OUTPUT"
-                        #print out
                         
                     else: # Normal
                         cwd = "/home/parallelspider/out/"
@@ -357,10 +338,6 @@ class SpiderCleaner(object):
                         # No loop on out
                         out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
-                        print ""
-                        print "OUTPUT"
-                        #print out
-
 
                     # Set up dictioary for context words
                     contexts = {}
@@ -426,9 +403,6 @@ class SpiderCleaner(object):
                         results[analysis['wordContexts']['web_name']][j] \
                                 = context_details
                     
-                #pp.pprint( results['context'] )
-
-
                 #TODO: Handle Synonyms
 
                 #TODO: Handle Search Words
@@ -451,11 +425,6 @@ class SpiderCleaner(object):
                     if i > 100:
                         break
 
-                print ""
-                print "page info"
-                print page_count
-                print pages
-                
                 results['summary']['pages'] = {}
                 results['summary']['pages']['count'] = page_count 
                 results['summary']['pages']['list'] = first_pages
@@ -490,10 +459,7 @@ class SpiderCleaner(object):
         # All done, clock time
         finish_time = time.clock()
         cleanup_time = finish_time - start_time
-        print "cleanup: " + str(cleanup_time)
         finished_analysis['time'] = crawl_time + cleanup_time
-        print "finish time: " + str(finished_analysis['time'])
-        #print finish_time
         #finished_analysis['time'] = finish_time - start_time
 
         json_data = json.dumps(finished_analysis)
@@ -502,9 +468,6 @@ class SpiderCleaner(object):
         #TODO: crawl_id is mising random end
         # so either pass in, or remove from Spider Server
 
-        #with open('../spiderweb/app/results1SiteAll.json', 'w') as f:
-        #    f.write(json_data)
-        #print(finished_analysis)
         #pp.pprint(json_data)
 
 def main():
