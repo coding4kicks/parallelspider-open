@@ -232,8 +232,9 @@ class CrawlTracker(object):
         else:
             # Execute the crawl
             # TODO: Sun Grid Engine
+            # TODO: move host info to variable
             cmd_line = "python spiderrunner.py " + site_list + \
-                     " -r host:ec2-23-20-71-90.compute-1.amazonaws.com," + \
+                     " -r host:ec2-54-224-84-24.compute-1.amazonaws.com," + \
                      "port:6380 -m " + str(self.mappers) + " -t " + str(self.max_pages) + \
                      " -c " + engine_crawl_id
             p = subprocess.Popen(cmd_line, shell=True) 
