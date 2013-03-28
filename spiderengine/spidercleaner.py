@@ -50,7 +50,6 @@ class SpiderCleaner(object):
 
         # Types of anlayis acutally performed
         analysis_types = []
-        #analysis_types = ['visible', 'headline', 'text'] #TODO: pull from conf
 
         # TEXT
         if ('text_request' in config and 
@@ -92,6 +91,7 @@ class SpiderCleaner(object):
         if config['analyze_external_pages'] == True:
             content_types.append('external')
 
+        print ""
         print analysis_types
 
         # Variables for analysis types
@@ -105,13 +105,15 @@ class SpiderCleaner(object):
         analysis["all"] = {"key": "link", "web_name": "allLinks"}
         analysis["external"] = {"key": "extl", "web_name": "externalDomains"}
         analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
-        analysis["predefinedSynRings"] = {"key": "cntw", "web_name": "synonymRings"}
+        analysis["predefinedSynRings"] = {"key": "wdnt", "web_name": "synonymRings"}
 
         # Analysis to be output (converted to json and uploaded to S3)
         finished_analysis = {}
         finished_analysis['name'] = config['name']
-        #finished_analysis['date'] = config['date']
-        #start_time = config['time']
+        finished_analysis['date'] = config['date']
+        crawl_time = config['time']
+        start_time = time.clock()
+        print crawl_time
         
         #TODO: pull from config/calculate end here prior to upload
 
@@ -137,6 +139,7 @@ class SpiderCleaner(object):
 
             site_results = {}
             
+            print ""
             print "MADE IT COWBOY"
             print "MADE IT COWBOY"
             print "MADE IT COWBOY"
@@ -315,12 +318,13 @@ class SpiderCleaner(object):
                 # Handle Context
                 # Handling as a Python string, may blow up on large data
                 if 'wordContexts' in analysis_types:
-
+                    
+                    print ""
                     print "handling context"
 
                     # Create the key to grep/filter the master file by
-                    key = analysis[a_type]['key'] + analysis[c_type]['key']
-
+                    key = analysis['wordContexts']['key'] + analysis[c_type]['key']
+                    
                     if self.psuedo_dist:# Psuedo Distributed
 
                         cwd = "/home/parallelspider/out/"
@@ -364,7 +368,7 @@ class SpiderCleaner(object):
                         contexts[word] = []
 
 
-
+                    # Extract info and put into list for each context word
                     for line in out.split('\n')[:-1]:
 
                         try:
@@ -386,7 +390,10 @@ class SpiderCleaner(object):
                             # TODO: figure out why it blow up sometimes.
                             pass
 
+                    # Sort and reformat words list for each context word
                     for j, context in enumerate(contexts):
+
+                        # Sort the word for the context
                         contexts[context].sort(reverse=True)
 
                         words = []
@@ -404,6 +411,10 @@ class SpiderCleaner(object):
                             words.append(word)
                             total_count += c
 
+                            # Only add top 150
+                            if i > 150:
+                                break
+
                         context_details = {}
                         context_details['word'] = context
                         context_details['count'] = total_count
@@ -411,7 +422,8 @@ class SpiderCleaner(object):
                         context_details['pages'] = []
                         context_details['tags'] = []
 
-                        results[analysis[a_type]['web_name']][j] \
+                        # Add context word details to the results
+                        results[analysis['wordContexts']['web_name']][j] \
                                 = context_details
                     
                 #pp.pprint( results['context'] )
@@ -430,29 +442,41 @@ class SpiderCleaner(object):
                 results['summary']['links']['internal'] = 4000 #TODO: pull?
  
                 # Pull page download info from engine redis
+                finished = base + "::finished"
+                page_count = r.scard(finished)
+                pages = r.smembers(finished)
+                first_pages = []
+                for i, page in enumerate(pages):
+                    first_pages.append(page)
+                    if i > 100:
+                        break
+
+                print ""
+                print "page info"
+                print page_count
+                print pages
+                
                 results['summary']['pages'] = {}
-                results['summary']['pages']['count'] = 200000 
-                results['summary']['pages']['list'] = ['http://www.exsite.com/path1',
-                                                           'http://www.exsite.com/path2',
-                                                           'http://www.exsite.com/path3']
+                results['summary']['pages']['count'] = page_count 
+                results['summary']['pages']['list'] = first_pages
 
                 #TODO: I'm not counting tags?
                 results['summary']['tags'] = {}
-                results['summary']['tags']['list'] = [{ 'count': 25000,
+                results['summary']['tags']['list'] = [{ 'count': "",
                                                             'type': 'text'},
-                                                          { 'count': 5000,
+                                                          { 'count': "",
                                                             'type': 'links'},
-                                                          { 'count': 8000,
+                                                          { 'count': "",
                                                             'type': 'headlines'},
-                                                          { 'count': 4000,
+                                                          { 'count': "",
                                                             'type': 'image'},
-                                                          { 'count': 3000,
+                                                          { 'count': "",
                                                             'type': 'other'}]
-                results['summary']['tags']['total'] = 45000
+                results['summary']['tags']['total'] = ""
 
                 #TODO: ??? Must do total count on every analysis?
                 results['summary']['words'] = {}
-                results['summary']['words']['count'] = 5000000
+                results['summary']['words']['count'] = ""
 
                 if c_type == 'internal':
                     site_results['internalResults'] = results
@@ -465,6 +489,10 @@ class SpiderCleaner(object):
                 
         # All done, clock time
         finish_time = time.clock()
+        cleanup_time = finish_time - start_time
+        print "cleanup: " + str(cleanup_time)
+        finished_analysis['time'] = crawl_time + cleanup_time
+        print "finish time: " + str(finished_analysis['time'])
         #print finish_time
         #finished_analysis['time'] = finish_time - start_time
 
@@ -476,8 +504,8 @@ class SpiderCleaner(object):
 
         #with open('../spiderweb/app/results1SiteAll.json', 'w') as f:
         #    f.write(json_data)
-
-        pp.pprint(json_data)
+        #print(finished_analysis)
+        #pp.pprint(json_data)
 
 def main():
     """Handle command line options"""

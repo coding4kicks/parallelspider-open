@@ -99,7 +99,7 @@ class SpiderRunner(object):
 
         # Set up configuration file
         #config_file = r.get('config')
-        print self.crawl_info
+        
         config_file = r.get(self.crawl_info)
         config = json.loads(config_file)
 
