@@ -19,12 +19,12 @@ def mocker():
     crawl = {}
 
     # Implemented (At least partially)
-    crawl["primarySite"] = "http://www.foxnews.com/"
+    crawl["primarySite"] = "http://www.nbcnews.com/"
     crawl["text"] = {"visible":True,"headlines":True,"hidden":False}
     crawl["links"] = {"text":True,"all":False,"external":False}
     crawl["wordContexts"] = [] #["but", "and"]
     crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
-    crawl["maxPages"] = 5
+    crawl["maxPages"] = 25
     crawl["externalSites"] = False
     crawl["stopWords"] = "crazy, cool, world"
     crawl["name"] = "My Fake Crawls Name"

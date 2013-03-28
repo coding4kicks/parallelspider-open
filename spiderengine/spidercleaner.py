@@ -27,7 +27,8 @@ class SpiderCleaner(object):
         """   
         self.redis_info = redis_info      
         self.crawl_info = crawl_info
-        self.psuedo_dist = True # Psuedo distributed for testing
+        # Is this necessary???
+        self.psuedo_dist = False # Psuedo distributed for testing
            
 
     def execute(self):
@@ -140,7 +141,19 @@ class SpiderCleaner(object):
             print "MADE IT COWBOY"
             print "MADE IT COWBOY"
 
-            #TODO: Download master file from HDFS
+            # Construct file name details
+            base = '%s::%s' % (site, config['crawl_id'])
+            base_path = base.replace("/","_").replace(":","-")
+
+            if not self.psuedo_dist:
+                # Download master file from HDFS
+                # TODO: unix tee into separate files & filter and sort and head
+                # if able, or move to MapReduce solution
+                cmd_line = ("dumbo cat /HDFS/parallelspider/out/{!s}/part-00000 "
+                           "-hadoop starcluster > /home/parallelspider/out/{!s} "
+                           ).format(base_path, base_path)
+                out = subprocess.call(cmd_line, shell=True)
+                print cmd_line
 
             # Format both internal and external results
             for c_type in ['internal','external']:
@@ -176,10 +189,6 @@ class SpiderCleaner(object):
                     # Create the key to grep/filter the master file by
                     key = analysis[a_type]['key'] + analysis[c_type]['key']
 
-                    # Construct file name details
-                    base = '%s::%s' % (site, config['crawl_id'])
-                    base_path = base.replace("/","_").replace(":","-")
-
                     # Cat the master file into the sort filter
                     if self.psuedo_dist:# Psuedo Distributed
 
@@ -202,13 +211,22 @@ class SpiderCleaner(object):
                         print type(out)
                         print out
                         
-                    else:
-                        #TODO: call for distributed
-                        pass
+                    else: # Normal
+                        cwd = "/home/parallelspider/out/"
+                        cmd_line = ("cat {!s} | "
+                                    "grep '{!s}' | "
+                                    "sort -k 2 -n -r | "
+                                    "head -n 10"
+                                    ).format(base_path, key)
 
+                        # No loop on out
+                        out = subprocess.check_output(cmd_line, shell=True,
+                                                      cwd=cwd)
+                        print ""
+                        print "OUTPUT"
+                        print type(out)
+                        print out
 
-                    # Don't worry about following for now
-                    break
 
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'text']:
@@ -223,7 +241,14 @@ class SpiderCleaner(object):
                             print line
                             word = {}
                             word['rank'] = i + 1
-                            word['word'], word['count'] = line.split('\t')
+                            w, c = line.split('\t')
+                            # Remove the key 
+                            if self.psuedo_dist:
+                                # and end quote
+                                word['word'] = w.split(key)[1][:-1]
+                            else:
+                                word['word'] = w.split(key)[1]
+                            word['count'] = c
                             word['pages'] = []
                             word['tags'] = []
                             words.append(word)
@@ -297,7 +322,7 @@ class SpiderCleaner(object):
         #with open('../spiderweb/app/results1SiteAll.json', 'w') as f:
         #    f.write(json_data)
 
-        #pp.pprint(json_data)
+        pp.pprint(json_data)
 
 def main():
     """Handle command line options"""

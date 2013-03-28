@@ -1,3 +1,13 @@
+""" 
+    Spider Client
+
+    Part of Spider Engine, handles communication with Central Redis
+
+    TODO: In distributed mode, small crawls (< 50???) fail to update
+    quick enough that reports back > -1 (initializing) to entering 
+    cleanup
+"""
+
 from twisted.internet import reactor
 
 import os
@@ -42,7 +52,7 @@ class CrawlTracker(object):
     self.mock = mock
     self.max_pages = 20 # Default Free Ride
     self.mappers = 3
-    self.psuedo_dist = True # so don't try to grab success files
+    self.psuedo_dist = False # so don't try to grab success files
 
   def checkRedisQueue(self):
     """ Checks the Central Redis server for jobs and passes them to Grid Engine.
