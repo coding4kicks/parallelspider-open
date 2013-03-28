@@ -308,7 +308,8 @@ class SpiderCleaner(object):
                         results[analysis[a_type]['web_name']]['domains'] \
                             = domains 
                    
-                #TODO: Handle Context 
+                # Handle Context
+                # Handling as a Python string, may blow up on large data
                 if 'wordContexts' in analysis_types:
 
                     print "handling context"
@@ -328,12 +329,14 @@ class SpiderCleaner(object):
                         # where the file is created but nothing is in it
                         out = ""
                         while not out:
-                            out = subprocess.check_output(cmd_line, shell=True,
+                            try: # Just in case file doesn't exist???
+                                out = subprocess.check_output(cmd_line, shell=True,
                                     cwd=cwd)
+                            except:
+                                print "wtf"
                         print ""
                         print "PSUEDO OUTPUT"
-                        print type(out)
-                        print out
+                        #print out
                         
                     else: # Normal
                         cwd = "/home/parallelspider/out/"
@@ -346,8 +349,14 @@ class SpiderCleaner(object):
                                                       cwd=cwd)
                         print ""
                         print "OUTPUT"
-                        print type(out)
-                        print out
+                        #print out
+
+                    for line in out:
+                        print line
+                        #w, t = line.split('\t')
+                        #print "w: " + w
+                        #print "t: " + t
+
 
                 #TODO: Handle Synonyms
 
