@@ -53,6 +53,7 @@ class CrawlTracker(object):
     self.max_pages = 20 # Default Free Ride
     self.mappers = 3
     self.psuedo_dist = True # so don't try to grab success files
+    self.master_host = "ec2-54-224-84-24.compute-1.amazonaws.com"
 
   def checkRedisQueue(self):
     """ Checks the Central Redis server for jobs and passes them to Grid Engine.
@@ -232,9 +233,8 @@ class CrawlTracker(object):
         else:
             # Execute the crawl
             # TODO: Sun Grid Engine
-            # TODO: move host info to variable
             cmd_line = "python spiderrunner.py " + site_list + \
-                     " -r host:ec2-54-224-84-24.compute-1.amazonaws.com," + \
+                     " -r host:" + self.master_host + "," + \
                      "port:6380 -m " + str(self.mappers) + " -t " + str(self.max_pages) + \
                      " -c " + engine_crawl_id
             p = subprocess.Popen(cmd_line, shell=True) 
@@ -330,7 +330,7 @@ class CrawlTracker(object):
 
                 # Call cleanup
                 cmd_line = "python spidercleaner.py " +  \
-                    "-r host:ec2-23-20-71-90.compute-1.amazonaws.com," + \
+                    "-r host:" + self.master_host + "," + \
                     "port:6380 " + \
                     "-c " + engine_crawl_id
                 p = subprocess.Popen(cmd_line, shell=True) 
