@@ -337,7 +337,9 @@ class SpiderCleaner(object):
                                 out = subprocess.check_output(cmd_line, shell=True,
                                     cwd=cwd)
                             except:
-                                print "wtf"
+                                # Not sure why not waiting for file in
+                                # spiderclient?
+                                pass
                         print ""
                         print "PSUEDO OUTPUT"
                         #print out
@@ -355,11 +357,29 @@ class SpiderCleaner(object):
                         print "OUTPUT"
                         #print out
 
-                    for line in out.split('\n'):
+                    for line in out.split('\n')[:-1]:
                         print line
-                        #w, t = line.split('\t')
-                        #print "w: " + w
-                        #print "t: " + t
+                        try:
+                            # Extract word and tuple
+                            w, t = line.split('\t')
+                            print "w: " + w
+                            print "t: " + t
+
+                            # Strip key and clean word
+                            word = w.split(key)[1][:-1]
+
+                            # Split and clean tuple
+                            ct, cw = t.split(", u'")
+                            count = ct[1:]
+                            context = cw[:-2]
+
+                            print word
+                            print count
+                            print context
+                        except:
+                            # error unpacking line
+                            # TODO: figure out why it blow up sometimes.
+                            pass
 
 
                 #TODO: Handle Synonyms
