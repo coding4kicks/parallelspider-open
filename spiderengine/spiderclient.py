@@ -16,6 +16,7 @@ import redis
 import json # for mock test
 import math
 import time
+import base64
 import optparse
 import subprocess
 
@@ -77,9 +78,11 @@ class CrawlTracker(object):
         # Not sure why, but the random component of crawl id 
         # destroys psuedo distributed mode, so pulling removing it
         engine_crawl_id, d, rand = crawl_id.rpartition("-")
+        user_id = base64.b64decode(crawl_id.partition("-")[0])
 
         crawl['crawl_id'] = engine_crawl_id
         crawl['random'] = rand
+        crawl['user_id'] = user_id
 
         if 'primarySite' in web_crawl:
             site_list = web_crawl['primarySite']

@@ -14,6 +14,9 @@ import redis
 import optparse
 import subprocess
 
+import boto
+import boto.s3.key
+
 import pprint
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -27,7 +30,7 @@ class SpiderCleaner(object):
         """   
         self.redis_info = redis_info      
         self.crawl_info = crawl_info
-        
+
         self.psuedo_dist = True # Psuedo distributed for testing
            
 
@@ -464,8 +467,23 @@ class SpiderCleaner(object):
 
         json_data = json.dumps(finished_analysis)
 
-        #TODO: use boto to upload data
-        #TODO: crawl_id is mising random end
+        # Re-add random to crawl id
+        full_crawl_id = config['crawl_id'] + "-" + config['random']
+        user_id = config['user_id']
+
+        key = user_id + '/' + full_crawl_id + '.json'
+            
+        # Upload to S3 (assumes AWS keys are in .bashrc / env)
+        s3conn = boto.connect_s3()
+        bucket_name = "ps_users" # TODO: put in config init
+        bucket = s3conn.create_bucket(bucket_name)
+        k = boto.s3.key.Key(bucket)
+        k.key = key
+        # TODO: add upload monitoring
+        k.set_contents_from_string(json_data) 
+
+        print 'success'
+
         # so either pass in, or remove from Spider Server
 
         #pp.pprint(json_data)
@@ -508,3 +526,4 @@ def main():
 if __name__ == "__main__":
     """Enable command line execution """
     sys.exit(main())
+
