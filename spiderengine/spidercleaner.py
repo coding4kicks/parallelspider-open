@@ -484,7 +484,13 @@ class SpiderCleaner(object):
 
         print 'success'
 
-        # so either pass in, or remove from Spider Server
+        # Update first site's count in Engine Redis
+        engine_crawl_id = config['crawl_id']
+        for site in site_list:
+            base = '%s::%s' % (site, engine_crawl_id)
+            r.set(base + "::count", "-2")
+            print "updated count"
+            print base
 
         #pp.pprint(json_data)
 

@@ -47,6 +47,7 @@ class CrawlTracker(object):
 
   def __init__(self, central_redis, engine_redis, mock):
     self.crawlQueue = []
+    self.cleanQueue = []
     self.site_list = {}
     self.central_redis = central_redis
     self.engine_redis = engine_redis
@@ -322,6 +323,9 @@ class CrawlTracker(object):
                 # Kick crawl out of the queue
                 self.crawlQueue.remove(crawl_id)
 
+                # Add to cleaning queue
+                self.cleanQueue.append(crawl_id)
+
                 # Get start time details and set elapsed
                 config_file = self.engine_redis.get(engine_crawl_id)
                 config = json.loads(config_file)
@@ -331,6 +335,8 @@ class CrawlTracker(object):
                 config_json = json.dumps(config)
                 self.engine_redis.set(engine_crawl_id, config_json)
 
+                # TODO: should add a -3 for cleaning up
+
                 # Call cleanup
                 cmd_line = "python spidercleaner.py " +  \
                     "-r host:" + self.master_host + "," + \
@@ -338,15 +344,21 @@ class CrawlTracker(object):
                     "-c " + engine_crawl_id
                 p = subprocess.Popen(cmd_line, shell=True) 
                 
-            # Cleanup will update central redis to -2 for complete
-            # could add a -3 for cleaning up if necessary
-            # clean up will also need to try multiple times since
-            # even though past total_count, still may need a few moments to 
-            # wrap everything up. (this is probably easiest way, otherwise
-            # mappers would have to cordinate and indicate done.
-            # Or check hadoop success file
-            
-            
+                            
+        for crawl_id in self.cleanQueue:
+
+            engine_crawl_id, d, rand = crawl_id.rpartition("-")
+
+            # only check the first site for -2 (complete)
+            site = self.site_list[crawl_id][0]
+            base = '%s::%s' % (site, engine_crawl_id)
+            site_count = self.engine_redis.get(base + "::count")
+            print base
+            print site_count
+            if site_count == "-2":
+                self.central_redis.set(crawl_id + "_count", site_count)
+                self.cleanQueue.remove(crawl_id)
+
     reactor.callLater(5, self.checkCrawlStatus)
 
 
