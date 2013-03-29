@@ -330,7 +330,8 @@ class InitiateCrawl(resource.Resource):
     
             # Create crawl id (user id, crawlname, date, random)
             crawl = data['crawl']
-            user_id = base64.b64decode(long_session).split("///")[1]
+            user_decoded = base64.b64decode(long_session).split("///")[1]
+            user_id = base64.b64encode(user_decoded)
             name = base64.b64encode(crawl['name'])
             time = base64.b64encode(crawl['time'])
             rand = uuid.uuid4().bytes.encode("base64")[:4]
@@ -344,6 +345,10 @@ class InitiateCrawl(resource.Resource):
             # Set crawl count into Redis
             self.central_redis.set(crawl_id + "_count", -1)
             self.central_redis.expire(crawl_id + "_count", (60*60))
+
+            print ""
+            print "Crawl ID"
+            print crawl_id
 
             # Set crawl id into Redis crawl queue
             self.central_redis.rpush("crawl_queue", crawl_id)

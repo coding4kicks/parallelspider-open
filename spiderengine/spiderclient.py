@@ -78,6 +78,7 @@ class CrawlTracker(object):
 
         # Not sure why, but the random component of crawl id 
         # destroys psuedo distributed mode, so pulling removing it
+        print crawl_id
         engine_crawl_id, d, rand = crawl_id.rpartition("-")
         user_id = base64.b64decode(crawl_id.partition("-")[0])
 

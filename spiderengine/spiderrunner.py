@@ -180,6 +180,13 @@ class SpiderRunner(object):
                         " -hadoop starcluster")
             subprocess.call(add_file, shell=True)
 
+            print ""
+            print "base"
+            print base
+            print ""
+            print "base path"
+            print base_path
+
             # Distributed mode
             parallel_spider = ("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
                          " -input /HDFS/parallelspider/jobs/" + file_name + \

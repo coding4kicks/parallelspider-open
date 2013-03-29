@@ -21,8 +21,8 @@ def server_master():
     p = subprocess.Popen(cmd_line, shell=True)
 
     # Start the client
-    cmd_line = "nohup python " + path + "spiderengine/spiderclient.py &"
-    p = subprocess.Popen(cmd_line, shell=True)
+    #cmd_line = "nohup python " + path + "spiderengine/spiderclient.py &"
+    #p = subprocess.Popen(cmd_line, shell=True)
 
     return
 
