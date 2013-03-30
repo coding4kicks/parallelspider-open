@@ -1,34 +1,53 @@
 """ 
-    Spider Client
+    Spider Client - Communicates between Spider Server and Spider Runner
 
-    Part of Spider Engine, handles communication with Central Redis
+    Part of Spider Engine, communication with Central Redis, Engine Redis.
+    Calls Spider Runner to execute a crawl, and Spider Cleaner to finish the
+    crawl.  
 
-    TODO: In distributed mode, small crawls (< 50???) fail to update
-    quick enough that reports back > -1 (initializing) to entering 
-    cleanup
 """
 
 from twisted.internet import reactor
 
 import os
 import sys
-import redis
-import json # for mock test
+import json
 import math
 import time
 import base64
+import urllib
 import optparse
 import subprocess
 
+import redis
+
 
 class MockCrawl(object):
+    """ 
+        Similuates a crawl for development.
+    
+        Used for local developmment of Spider Web and Spider Server.
+        Initiated instead of a normal crawl.  Responds with increasing page
+        counts at a predetermined rate.  Initiated by option -r on start.
+    """
+
     def __init__(self, crawl_id, max_pages, engine_redis):
+        """ 
+            MockCrawl Constructor
+
+            Args:
+                crawl_id - ID of crawl
+                max_pages - Used to stop mock
+                engine_redis - Redis used by Spider Engine
+        """
         self.crawl_id = crawl_id
         self.max_pages = max_pages
         self.engine_redis = engine_redis
-        self.count = 0
+
+        self.count = 0 # Simulated crawl page count
 
     def run(self):
+        """Executes the mock crawl until max pages is reached"""
 
         if self.count < self.max_pages:
             self.engine_redis.set(self.crawl_id + "_count", self.count)
@@ -78,9 +97,20 @@ class CrawlTracker(object):
 
         # Not sure why, but the random component of crawl id 
         # destroys psuedo distributed mode, so pulling removing it
+        print ""
+        print "cral_id"
         print crawl_id
-        engine_crawl_id, d, rand = crawl_id.rpartition("-")
-        user_id = base64.b64decode(crawl_id.partition("-")[0])
+        #engine_crawl_id, d, rand = crawl_id.rpartition("-")
+        #user_id = base64.b64decode(crawl_id.partition("-")[0])
+        u, n, t, r = crawl_id.split("-")
+        user_id = base64.b64decode(u)
+        name = base64.b64decode(n)
+        ctime = base64.b64decode(t)
+        rand = r
+        engine_crawl_id = urllib.quote_plus(user_id + '-' + name + '-' + ctime)
+        print ""
+        print "engine id"
+        print engine_crawl_id
 
         crawl['crawl_id'] = engine_crawl_id
         crawl['random'] = rand
@@ -264,7 +294,17 @@ class CrawlTracker(object):
     else: # Real Sexy Crawl
         for crawl_id in self.crawlQueue:
             total_count = 0
-            engine_crawl_id, d, rand = crawl_id.rpartition("-")
+            #engine_crawl_id, d, rand = crawl_id.rpartition("-")
+            u, n, t, r = crawl_id.split("-")
+            user_id = base64.b64decode(u)
+            name = base64.b64decode(n)
+            ctime = base64.b64decode(t)
+            rand = r
+            engine_crawl_id = urllib.quote_plus(user_id + '-' + name + '-' + ctime)
+            print ""
+            print "crawl q engine id"
+            print engine_crawl_id
+
             # must check counter and new link queue for each site
             not_done = False
             really_not_done = False
@@ -348,12 +388,23 @@ class CrawlTracker(object):
                             
         for crawl_id in self.cleanQueue:
 
-            engine_crawl_id, d, rand = crawl_id.rpartition("-")
+            #engine_crawl_id, d, rand = crawl_id.rpartition("-")
+            u, n, t, r = crawl_id.split("-")
+            user_id = base64.b64decode(u)
+            name = base64.b64decode(n)
+            ctime = base64.b64decode(t)
+            rand = r
+            engine_crawl_id = urllib.quote_plus(user_id + '-' + name + '-' + ctime)
+            print ""
+            print "clean q engine id"
+            print engine_crawl_id
 
             # only check the first site for -2 (complete)
             site = self.site_list[crawl_id][0]
             base = '%s::%s' % (site, engine_crawl_id)
             site_count = self.engine_redis.get(base + "::count")
+            print ""
+            print "clean q base and count"
             print base
             print site_count
             if site_count == "-2":

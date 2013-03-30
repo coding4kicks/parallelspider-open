@@ -13,6 +13,7 @@ import time
 import redis
 import optparse
 import subprocess
+import urllib
 
 import boto
 import boto.s3.key
@@ -91,7 +92,8 @@ class SpiderCleaner(object):
 
         # Content (internal/external) types performed
         content_types = ['internal'] # TODO: allow no internal
-        if config['analyze_external_pages'] == True:
+        if ('analyze_external_pages' in config and
+           config['analyze_external_pages'] == True):
             content_types.append('external')
 
         print ""
@@ -161,7 +163,7 @@ class SpiderCleaner(object):
 
             # Format both internal and external results
             for c_type in ['internal','external']:
-                
+                print "hereeeeo" 
                 # If analysis not performed, create empty placeholders and exit
                 if c_type not in content_types:
                     
@@ -182,7 +184,7 @@ class SpiderCleaner(object):
                 results = {} # Holder for specific results
                 
                 for a_type in all_analyses:
-
+                    print a_type
                     # Create the correct key for Spider Web name
                     results[analysis[a_type]['web_name']] = {}
                     
@@ -458,7 +460,7 @@ class SpiderCleaner(object):
                 site_results['url'] = site
                 
                 finished_analysis['sites'].append(site_results)
-                
+        print 'ending'     
         # All done, clock time
         finish_time = time.clock()
         cleanup_time = finish_time - start_time
@@ -468,10 +470,25 @@ class SpiderCleaner(object):
         json_data = json.dumps(finished_analysis)
 
         # Re-add random to crawl id
-        full_crawl_id = config['crawl_id'] + "-" + config['random']
+        u, n, t = urllib.unquote_plus(config['crawl_id']).split("-")
+        user_id = base64.b64encode(u)
+        name = base64.b64encode(n)
+        ctime = base64.b64encode(t)
+        b64_crawl_id = user_id + '-' + name + '-' + ctime
+        print ""
+        print "b64 crawl id"
+        print b64_crawl_id
+        full_crawl_id = b64_crawl_id + '-' + config['random']
+        #full_crawl_id = config['crawl_id'] + "-" + config['random']
         user_id = config['user_id']
-
+        print ""
+        print "full id"
+        print full_crawl_id
         key = user_id + '/' + full_crawl_id + '.json'
+
+        print ""
+        print "key"
+        print key
             
         # Upload to S3 (assumes AWS keys are in .bashrc / env)
         s3conn = boto.connect_s3()
