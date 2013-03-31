@@ -38,6 +38,11 @@ class Brain(object):
             stop_list: list of words not to emit
 
         If the passed url contains a subdomain, only this will be searched.
+
+        TODO: Massive Refactor - Each type of process should be moved into a
+        strategy pattern, with a common input and output format: input should
+        be the data passed by lxml and output should be the appendage to the
+        map output. 
         """   
         import copy
  
