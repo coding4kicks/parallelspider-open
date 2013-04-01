@@ -14,6 +14,7 @@ import math
 import time
 import base64
 import urllib
+import logging
 import optparse
 import subprocess
 
@@ -32,6 +33,7 @@ class CrawlTracker(object):
     crawl is complete Spider Cleaner is called and when complete, Spider
     Server is notified via Central Redis that the crawl is ready in S3.
 
+    __init__ - sets up Redis and testing info
     checkRedisQueue - monitors Central Redis for crawals and starts crawls
     """
 
@@ -91,7 +93,7 @@ class CrawlTracker(object):
   
             crawl = {} # crawl info formatted for Spider Engine
   
-            # Not sure why, but the random component of crawl id 
+            # TODO: Not sure why, but the random component of crawl id 
             # destroys psuedo distributed mode, so pulling removing it
             print ""
             print "cral_id"
@@ -112,52 +114,58 @@ class CrawlTracker(object):
             crawl['random'] = rand
             crawl['user_id'] = user_id
   
+            # Add primary site to crawl site list
             if 'primarySite' in web_crawl:
-                site_list = web_crawl['primarySite']
-                
+                site_list = web_crawl['primarySite']    
             else:
-                print 'error, error loan ranger'
-                sys.exit(1)
+                logging.error('No primary site to crawl.')
   
+            # Add other sites to crawl site list
             if 'additionalSites' in web_crawl:
                 for site in web_crawl['additionalSites']:
                     site_list += "," + site
   
+            # Set crawl name as either passed name or primary site
             if 'name' in web_crawl:
                 crawl['name'] = web_crawl['name']
             else:
                 crawl['name'] = web_crawl['primarySite']
   
+            # Set crawl date and time
             if 'time' in web_crawl:
+                # TODO: web_crawl['time'] should be date
                 crawl['date'] = web_crawl['time']
             else:
-                # could just add, but should already be set
+                logging.error('Crawl date not set in web data.')
                 crawl['date'] = 'error'
-  
             crawl['time'] = time.clock()
   
+            # Set max pages to crawl
             if 'maxPages' in web_crawl:
                 self.max_pages = web_crawl['maxPages']
             else:
                 self.max_pages = 20
   
-            # Asjust mappers based upon pages (TODO: benchmark)
+            # Adjust mappers based upon max pages 
+            # TODO: benchmark
             if self.max_pages > 100:
                 self.mappers = 20
             elif self.max_pages > 20:
                 self.mappers = 5
   
-            # Adjust max pages by number of sites
+            # Calculate max pages for each site (total/# of sites)
             if 'additionalSites' in web_crawl:
                 total_num_sites = 1 + len(web_crawl['additionalSites'])
                 pages_per_site = float(self.max_pages)/total_num_sites
-                # Round up to make sure we finish
+                # Round up to make sure we hit total max pages and finish
                 self.max_pages = int(math.ceil(pages_per_site))
-            
+  
+            # Set external sites
             if 'externalSites' in web_crawl:
                 crawl['analyze_external_pages'] = web_crawl['externalSites']
   
-            # Default stop word list.  TODO: Enable deslection
+            # Default stop word list.  
+            # TODO: Enable deslection
             # TODO: Enable site dependent stoplists
             stop_list = ['a', 'about', 'above', 'after', 'again', 'against', 'all',
                 'am', 'an', 'and', 'any', 'are', "aren't", 'as', 'at', 'be', 
@@ -189,21 +197,10 @@ class CrawlTracker(object):
                 # stopWords is a string with possible white space
                 new_list = [w.strip() for w in web_crawl['stopWords'].split(',')]
                 for word in new_list:
-                    stop_list.append(word)
-  
+                    stop_list.append(word) 
             crawl['stop_list'] = stop_list
-  
-            if 'links' in web_crawl:
-                if 'text' in web_crawl['links']:
-                    if web_crawl['links']['text'] == True:
-                        crawl['a_tags_request'] = True
-                if 'all' in web_crawl['links']:
-                    if web_crawl['links']['all'] == True:
-                        crawl['all_links_request'] = True
-                if 'external' in web_crawl['links']:
-                    if web_crawl['links']['external'] == True:
-                        crawl['external_links_request'] = True
-  
+
+            # Set text analysis details
             if 'text' in web_crawl:
                 if 'visible' in web_crawl['text']:
                     if web_crawl['text']['visible'] == True:
@@ -214,13 +211,28 @@ class CrawlTracker(object):
                 if 'hidden' in web_crawl['text']:
                     if web_crawl['text']['hidden'] == True:
                         crawl['meta_request'] = True
-  
+
+            # Set link analysis details
+            if 'links' in web_crawl:
+                if 'text' in web_crawl['links']:
+                    if web_crawl['links']['text'] == True:
+                        crawl['a_tags_request'] = True
+                if 'all' in web_crawl['links']:
+                    if web_crawl['links']['all'] == True:
+                        crawl['all_links_request'] = True
+                if 'external' in web_crawl['links']:
+                    if web_crawl['links']['external'] == True:
+                        crawl['external_links_request'] = True
+ 
+            # Set context analysis details
             if 'wordContexts' in web_crawl:
                 crawl['context_search_tag'] = web_crawl['wordContexts']
   
-            # Predefined lists (TODO: make more, put into redis, load in init)
+            # Predefined synonym ring lists 
+            # TODO: make more, put into redis, load in init
             predefinedRings = {'stopWords': ['and','but','a','on','off','again']}
   
+            # Set synonym ring analysis
             if 'predefinedSynRings' in web_crawl:
                 for ring in web_crawl['predefinedSynRings']:
                     name = ring['name']
@@ -230,7 +242,6 @@ class CrawlTracker(object):
                         crawl['wordnet_lists'][name] = list
                     else:
                         print 'error error should not be here'
-  
   
             # Add crawls site to the site list
             sites = site_list.split(',')
@@ -242,21 +253,21 @@ class CrawlTracker(object):
             # Add crawl info to local engine redis
             crawl_info = json.dumps(crawl)
             self.engine_redis.set(engine_crawl_id, crawl_info)
-            hour = 60 * 60
+            hour = 60 * 60 # Expiration
             self.engine_redis.expire(engine_crawl_id, hour)
   
-            # Add crawl to the crawl queue to monitor
+            # Add crawl to the crawl queue for monitoring by checkCrawlStatus
             self.crawlQueue.append(crawl_id)
+
             # If mocking then fake the funk.
             if self.mock:
                 mocker = MockCrawl(crawl_id, self.max_pages, engine_redis)
                 mocker.run()
-                # END TESTING
   
             # Otherwise it's the real deal
             else:
                 # Execute the crawl
-                # TODO: Sun Grid Engine
+                # TODO: Incorporate Sun Grid Engine
                 cmd_line = "python spiderrunner.py " + site_list + \
                            " -r host:" + self.engine_master_host + "," + \
                                "port:" + self.engine_master_port + \
@@ -265,7 +276,7 @@ class CrawlTracker(object):
                            " -c " + engine_crawl_id
                 p = subprocess.Popen(cmd_line, shell=True) 
   
-        # Continue check queue, default every second
+        # Continue to check the Central Redis queue (default every second).
         reactor.callLater(queue_poll_time, self.checkRedisQueue)
     
 
