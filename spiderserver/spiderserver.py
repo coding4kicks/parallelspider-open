@@ -25,20 +25,19 @@
 
      Notes: All responses prefaced with:  )]}',\n
             Stripped by Angular and helps prevent CSRF
-     test scp
 """
 
 import json
 import uuid
-import datetime
 import base64
 import optparse
+import datetime
 import unicodedata
 
-from twisted.cred import portal, checkers, credentials, error as credError
-from twisted.internet import protocol, reactor, defer
 from twisted.web import resource, static, server
 from zope.interface import Interface, implements
+from twisted.internet import protocol, reactor, defer
+from twisted.cred import portal, checkers, credentials, error as credError
 
 import boto
 import redis
@@ -141,16 +140,7 @@ class CheckUserCredentials(resource.Resource):
         """
 
         # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
         if request.method == "OPTIONS":
@@ -186,6 +176,7 @@ class CheckUserCredentials(resource.Resource):
         u = uuid.uuid4().bytes.encode("base64")[:4]
 
         # Include nickname, id, and date for cookie reload and logging
+        # TODO:  fix crawl id
         v = base64.b64encode(avatar.nickname + '///' + avatar.username + '///'
                 + str(datetime.datetime.now))
         long_session = v + u
@@ -229,20 +220,10 @@ class SignOut(resource.Resource):
         """
    
         # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
@@ -300,21 +281,10 @@ class InitiateCrawl(resource.Resource):
                  'longSession': 'long session token'}          
         """
 
-        # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         crawl_json = request.content.getvalue()
         data = json.loads(crawl_json)
@@ -329,6 +299,7 @@ class InitiateCrawl(resource.Resource):
             self.session_redis.expire(long_session, self.longExpire)
     
             # Create crawl id (user id, crawlname, date, random)
+            # TODO: fix crawl id
             crawl = data['crawl']
             user_decoded = base64.b64decode(long_session).split("///")[1]
             user_id = base64.b64encode(user_decoded)
@@ -397,21 +368,10 @@ class CheckCrawlStatus(resource.Resource):
                 -2 - crawl complete
         """
 
-        # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
@@ -467,21 +427,10 @@ class GetS3Signature(resource.Resource):
                 Signed URL to access object on S3
             """
    
-        # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
@@ -498,6 +447,7 @@ class GetS3Signature(resource.Resource):
             self.session_redis.expire(long_session, self.longExpire)
 
             # Create S3 key with user's id and analysis id
+            # TODO: fix crawl id
             user_id = base64.b64decode(long_session).split("///")[1] 
             key = user_id + '/' + analysis_id + '.json'
             
@@ -567,25 +517,10 @@ class GetAnalysisFolders(resource.Resource):
                 {'name': 'analysisname', 'data': 'data', 'id': 'id'}            
         """
    
-        self.request = request
-
-        # Add headers prior to writing
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORS 
-        # TODO: refactor stuff out to function
-
-        # TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
@@ -601,6 +536,7 @@ class GetAnalysisFolders(resource.Resource):
             self.session_redis.expire(long_session, self.longExpire)
 
             # Get user's id 
+            # TODO:  fix crawl id
             user_id = base64.b64decode(long_session).split("///")[1] 
 
             # Retrieve user info from Redis
@@ -653,25 +589,10 @@ class UpdateAnalysisFolders(resource.Resource):
                 {'name': 'analysisname', 'data': 'data', 'id': 'id'}            
         """
    
-        self.request = request
-
-        # Add headers prior to writing
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORS 
-        # TODO: refactor stuff out to function
-
-        # TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
@@ -688,6 +609,7 @@ class UpdateAnalysisFolders(resource.Resource):
             self.session_redis.expire(long_session, self.longExpire)
 
             # Get user's id 
+            # TODO:  fix crawl id
             user_id = base64.b64decode(long_session).split("///")[1] 
 
             # Turn folder info back into JSON
@@ -706,9 +628,29 @@ class UpdateAnalysisFolders(resource.Resource):
             return """)]}',\n{"success": false}"""
 
 
+# Helper Funcs
+###############################################################################
+def set_headers(request):
+    """Set CORS info required on all headers"""
+
+    # TODO: Limit origin and headers in production?
+
+    # Content type is always json
+    request.setHeader('Content-Type', 'application/json')
+
+    # Access control: CORs
+    request.setHeader('Access-Control-Allow-Origin', '*')
+    request.setHeader('Access-Control-Allow-Methods', 'POST')
+
+    # Echo back all request headers for CORs
+    access_headers = request.getHeader('Access-Control-Request-Headers')
+    request.setHeader('Access-Control-Allow-Headers', access_headers)
+
+    return request
+
+
 # Command Line Crap & Initialization
 ###############################################################################
-
 
 if __name__ == "__main__":
 
