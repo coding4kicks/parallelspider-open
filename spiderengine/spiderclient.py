@@ -80,19 +80,16 @@ class CrawlTracker(object):
             poll_time - how often in seconds to check Central Redis crawl queue
         """
         
-        # Get a crawlid  from the central queue
+        # Process a crawlid  from the Central Redis queue
         crawl_id = self.central_redis.lpop('crawl_queue') 
-  
-        # Only do something if a crawl exists
         if crawl_id is not None:
   
-            # Get the crawl info from central redis
+            # Get the crawl info from Central Redis
             web_crawl_json = self.central_redis.get(crawl_id)       
             web_crawl_info = json.loads(web_crawl_json)
             web_crawl = web_crawl_info['crawl']
   
-            # Convert crawl info to format expected by Spider Engine
-            crawl = {}
+            crawl = {} # crawl info formatted for Spider Engine
   
             # Not sure why, but the random component of crawl id 
             # destroys psuedo distributed mode, so pulling removing it

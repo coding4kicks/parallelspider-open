@@ -9,6 +9,14 @@
     margin: 0px
 }
 
+body {
+  min-width: 1200px;
+
+  .navbar {
+    min-width: 900px;
+  }
+}
+
 .navbar .brand {
   margin-left: 0px;
 }
@@ -128,6 +136,7 @@
 .for-text {
 
   height: 60px;
+  min-width: 410px;
 
   a {
     float: right;
