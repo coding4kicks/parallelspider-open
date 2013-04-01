@@ -34,7 +34,10 @@ class CrawlTracker(object):
     Server is notified via Central Redis that the crawl is ready in S3.
 
     __init__ - sets up Redis and testing info
-    checkRedisQueue - monitors Central Redis for crawals and starts crawls
+    checkRedisQueue - monitors Central Redis for crawls, upon retrieving a
+                      crawl, it formats the crawl info and starts the crawl
+    checkCrawlStatus - monitors crawl and clean queues for completion and 
+                       handles notifying Central Redis of completion
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,
@@ -93,6 +96,7 @@ class CrawlTracker(object):
   
             crawl = {} # crawl info formatted for Spider Engine
   
+            # TODO: fix crawl id
             # TODO: Not sure why, but the random component of crawl id 
             # destroys psuedo distributed mode, so pulling removing it
             print ""
@@ -105,7 +109,8 @@ class CrawlTracker(object):
             name = base64.b64decode(n)
             ctime = base64.b64decode(t)
             rand = r
-            engine_crawl_id = urllib.quote_plus(user_id + '-' + name + '-' + ctime)
+            engine_crawl_id = urllib.quote_plus(user_id + '-' + 
+                                                name + '-' + ctime)
             print ""
             print "engine id"
             print engine_crawl_id
@@ -124,7 +129,14 @@ class CrawlTracker(object):
             if 'additionalSites' in web_crawl:
                 for site in web_crawl['additionalSites']:
                     site_list += "," + site
+
+            # Add crawls site to the site list
+            sites = site_list.split(',')
+            self.site_list[crawl_id] = sites
   
+            # Add sites to crawl info for spidercleaner
+            crawl['sites'] = site_list
+
             # Set crawl name as either passed name or primary site
             if 'name' in web_crawl:
                 crawl['name'] = web_crawl['name']
@@ -167,30 +179,7 @@ class CrawlTracker(object):
             # Default stop word list.  
             # TODO: Enable deslection
             # TODO: Enable site dependent stoplists
-            stop_list = ['a', 'about', 'above', 'after', 'again', 'against', 'all',
-                'am', 'an', 'and', 'any', 'are', "aren't", 'as', 'at', 'be', 
-                'because', 'been', 'before', 'being', 'below', 'between', 'both',
-                'but', 'by', "can't", 'cannot', 'could', "couldn't", 'did',
-                "didn't", 'do', 'does', "doesn't", 'doing', "don't", 'down',
-                'during', 'each', 'few', 'for', 'from', 'further', 'had', "hadn't",
-                'has', "hasn't", 'have', "haven't", 'having', 'he', "he'd",
-                "he'll", "he's", 'her', 'here', "here's", 'hers', 'herself', 'him',
-                'himself', 'his', 'how', "how's", 'i', "i'd", "i'll", "i'm",
-                "i've", 'if', 'in', 'into', 'is', "isn't", 'it', "it's", 'its',
-                'itself', "let's", 'me', 'more', 'most', "mustn't", 'my', 'myself',
-                'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or',
-                'other', 'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own',
-                'same', "shan't", 'she', "she'd", "she'll", "she's", 'should',
-                "shouldn't", 'so', 'some', 'such', 'than', 'that', "that's", 'the',
-                'their', 'theirs', 'them', 'themselves', 'then', 'there',
-                "there's", 'these', 'they', "they'd", "they'll", "they're", 
-                "they've", 'this', 'those', 'through', 'to', 'too', 'under',
-                'until', 'up', 'very', 'was', "wasn't", 'we', "we'd", "we'll",
-                "we're", "we've", 'were', "weren't", 'what', "what's", 'when', 
-                "when's", 'where', "where's", 'which', 'while', 'who', "who's", 
-                'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't",
-                'you', "you'd", "you'll", "you're", "you've", 'your', 'yours', 
-                'yourself', 'yourselves', '&', '<', '>', '^', '(', ')']
+            stop_list = ['a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', "can't", 'cannot', 'could', "couldn't", 'did', "didn't", 'do', 'does', "doesn't", 'doing', "don't", 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had', "hadn't", 'has', "hasn't", 'have', "haven't", 'having', 'he', "he'd", "he'll", "he's", 'her', 'here', "here's", 'hers', 'herself', 'him', 'himself', 'his', 'how', "how's", 'i', "i'd", "i'll", "i'm", "i've", 'if', 'in', 'into', 'is', "isn't", 'it', "it's", 'its', 'itself', "let's", 'me', 'more', 'most', "mustn't", 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', "shan't", 'she', "she'd", "she'll", "she's", 'should', "shouldn't", 'so', 'some', 'such', 'than', 'that', "that's", 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', "there's", 'these', 'they', "they'd", "they'll", "they're", "they've", 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', "wasn't", 'we', "we'd", "we'll", "we're", "we've", 'were', "weren't", 'what', "what's", 'when', "when's", 'where', "where's", 'which', 'while', 'who', "who's", 'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't", 'you', "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves', '&', '<', '>', '^', '(', ')']
             
             # Add additional words to default stop list
             if 'stopWords' in web_crawl:
@@ -230,7 +219,8 @@ class CrawlTracker(object):
   
             # Predefined synonym ring lists 
             # TODO: make more, put into redis, load in init
-            predefinedRings = {'stopWords': ['and','but','a','on','off','again']}
+            predefinedRings = {'stopWords': ['and','but','a',
+                                             'on','off','again']}
   
             # Set synonym ring analysis
             if 'predefinedSynRings' in web_crawl:
@@ -242,14 +232,7 @@ class CrawlTracker(object):
                         crawl['wordnet_lists'][name] = list
                     else:
                         print 'error error should not be here'
-  
-            # Add crawls site to the site list
-            sites = site_list.split(',')
-            self.site_list[crawl_id] = sites
-  
-            # Add sites to crawl info for spidercleaner
-            crawl['sites'] = site_list
-  
+    
             # Add crawl info to local engine redis
             crawl_info = json.dumps(crawl)
             self.engine_redis.set(engine_crawl_id, crawl_info)
@@ -281,148 +264,162 @@ class CrawlTracker(object):
     
 
     def checkCrawlStatus(self, status_poll_time=5):
-      """ 
-          Tracks the crawl progress of the Spider Engine
+        """ 
+        Tracks the crawl progress of the Spider Engine
   
-          Retrieves the crawl progress for each site from Engine
-          and passes the total count back to Central Redis.  When the crawl is
-          finished, either when there are no new links or max pages is reach,
-          Spider Cleaner is called to process the results of the crawl.  When
-          Spider Cleaner updates Engine Redis with -2, the is passed back to
-          Central Redis and the crawl is removed from the queue.        
-      """
+        Retrieves the crawl progress for each site from Engine
+        and passes the total count back to Central Redis.  When the crawl is
+        finished, either when there are no new links or max pages is reach,
+        Spider Cleaner is called to process the results of the crawl.  When
+        Spider Cleaner updates Engine Redis with -2, the is passed back to
+        Central Redis and the crawl is removed from the queue.
+
+        Args
+            poll_time - how often in seconds to check Central Redis crawl queue
+        """
   
-      if self.mock:
-          for crawl_id in self.crawlQueue:
+        # Fake the funck
+        if self.mock:
+            for crawl_id in self.crawlQueue:
+                # Retrieve page count from engine and set in central redis
+                page_count = self.engine_redis.get(crawl_id + "_count")
+                self.central_redis.set(crawl_id + "_count", page_count)
+                # If page count is complete (-2), remove from queue
+                if page_count == "-2":
+                    self.crawlQueue.remove(crawl_id)
+
+        # Real Sexy Crawl
+        else: 
+
+            # Monitor the crawl queue
+            for crawl_id in self.crawlQueue:
+                total_count = 0
+                
+                # TODO: fix crawl id
+                #engine_crawl_id, d, rand = crawl_id.rpartition("-")
+                u, n, t, r = crawl_id.split("-")
+                user_id = base64.b64decode(u)
+                name = base64.b64decode(n)
+                ctime = base64.b64decode(t)
+                rand = r
+                engine_crawl_id = urllib.quote_plus(user_id + '-' + \
+                                                    name + '-' + ctime)
+                print ""
+                print "crawl q engine id"
+                print engine_crawl_id
+
+                # Crawl Completion Variables
+                not_done = False            # True if still new links
+                really_not_done = False     # True if no success files
+                done = False                # True if count > max pages
+
+                # Check counter and new link queue for each site
+                # If either indicates complete, then check Success files exist
+                for site in self.site_list[crawl_id]:
+                    base = '%s::%s' % (site, engine_crawl_id)
+                    site_count = self.engine_redis.get(base + "::count")
+                    if site_count:
+                        total_count += int(site_count)
   
-              # Retrieve page count from engine and set in central redis
-              page_count = self.engine_redis.get(crawl_id + "_count")
-              self.central_redis.set(crawl_id + "_count", page_count)
-              # If page count is complete (-2), remove from queue
-              if page_count == "-2":
-                  self.crawlQueue.remove(crawl_id)
+                        # Check if new links empty (only if count has started)
+                        new_links = \
+                            self.engine_redis.scard(base + "::new_links")
+                        if new_links > 0:
+                            not_done = True
+                        
   
-      else: # Real Sexy Crawl
-          for crawl_id in self.crawlQueue:
-              total_count = 0
-              #engine_crawl_id, d, rand = crawl_id.rpartition("-")
-              u, n, t, r = crawl_id.split("-")
-              user_id = base64.b64decode(u)
-              name = base64.b64decode(n)
-              ctime = base64.b64decode(t)
-              rand = r
-              engine_crawl_id = urllib.quote_plus(user_id + '-' + name + '-' + ctime)
-              print ""
-              print "crawl q engine id"
-              print engine_crawl_id
+                # Only update to crawling vice initializing if total > 0
+                if total_count > 0:
+                    self.central_redis.set(crawl_id + "_count", total_count) 
+                if total_count > self.max_pages or not not_done:
+                    done = True
   
-              # must check counter and new link queue for each site
-              not_done = False
-              really_not_done = False
-              done = False
-              for site in self.site_list[crawl_id]:
-                  base = '%s::%s' % (site, engine_crawl_id)
-                  site_count = self.engine_redis.get(base + "::count")
-                  if site_count:
-                      total_count += int(site_count)
+                # If done check all sites for a success file
+                if done:
+                    for site in self.site_list[crawl_id]:
+                        base = '%s::%s' % (site, engine_crawl_id)
+                        base_path = base.replace("/","_").replace(":","-")
   
-                      # check if all new links are empty - if so then done
-                      # only check if count has started
-                      new_links = self.engine_redis.scard(base + "::new_links")
-                      if new_links > 0:
-  
-                          not_done = True
-                      
-  
-              # Only update to crawling vice initializing if total > 0
-              if total_count > 0:
-                  self.central_redis.set(crawl_id + "_count", total_count)
-  
-              if total_count > self.max_pages or not not_done:
-                  done = True
-  
-              # If done or total > max pages, check for success file
-              if done:
-  
-                  # make sure all sites have success file
-                  for site in self.site_list[crawl_id]:
-  
-                      base = '%s::%s' % (site, engine_crawl_id)
-                      base_path = base.replace("/","_").replace(":","-")
-  
-                      # If testing in psuedo distributed
-                      if self.psuedo_dist:
-  
-                          path = "/home/parallelspider/out/"
-                          if not os.path.exists(path + base_path):
-                              really_not_done = True
-                      else:
-                          # list output files and look for success
-                          # should add deferred (will break on psuedo dist)
-                          cmd = "dumbo ls /HDFS/parallelspider/out/" + \
-                                 base_path + " -hadoop starcluster"
-                          files = subprocess.check_output(cmd, shell=True)
-                      
-                          if "_SUCCESS" not in files:
-                              really_not_done = True
+                        # Special case: testing in psuedo distributed mode
+                        # No success file so check path exists, TODO: broken
+                        if self.psuedo_dist:
+                            path = "/home/parallelspider/out/"
+                            if not os.path.exists(path + base_path):
+                                really_not_done = True
+
+                        # Distributed Crawl 
+                        else:
+                            # list output files and look for success
+                            # TODO: add deferred (will break on psuedo dist)
+                            cmd = "dumbo ls /HDFS/parallelspider/out/" + \
+                                   base_path + " -hadoop starcluster"
+                            files = subprocess.check_output(cmd, shell=True)
+
+                            # If success file then we're not really done yet
+                            if "_SUCCESS" not in files:
+                                really_not_done = True
   
   
-              # If all sites are done, crawl is really done! Cleanup.
-              # If done (> max pages or new links are empty) 
-              # & really done (success files exists)
-              if done and not really_not_done:
+                # If all sites are done, crawl is complete so cleanup.
+                # done (> max pages or new links are empty) 
+                # really done (success files exist)
+                if done and not really_not_done:
   
-                  # Kick crawl out of the queue
-                  self.crawlQueue.remove(crawl_id)
+                    # Kick crawl out of the queue
+                    self.crawlQueue.remove(crawl_id)
   
-                  # Add to cleaning queue
-                  self.cleanQueue.append(crawl_id)
+                    # Add crawl to cleaning queue
+                    self.cleanQueue.append(crawl_id)
   
-                  # Get start time details and set elapsed
-                  config_file = self.engine_redis.get(engine_crawl_id)
-                  config = json.loads(config_file)
-                  start_time = config['time']
-                  stop_time = time.clock()
-                  config['time'] = stop_time - start_time
-                  config_json = json.dumps(config)
-                  self.engine_redis.set(engine_crawl_id, config_json)
+                    # Get start time details and set elapsed time
+                    config_file = self.engine_redis.get(engine_crawl_id)
+                    config = json.loads(config_file)
+                    start_time = config['time']
+                    stop_time = time.clock()
+                    config['time'] = stop_time - start_time
+                    config_json = json.dumps(config)
+                    self.engine_redis.set(engine_crawl_id, config_json)
   
-                  # TODO: should add a -3 for cleaning up
+                    # TODO: should add a -3 for cleaning up
   
-                  # Call cleanup
-                  cmd_line = "python spidercleaner.py " +  \
-                      "-r host:" + self.master_host + "," + \
-                      "port:6380 " + \
-                      "-c " + engine_crawl_id
-                  p = subprocess.Popen(cmd_line, shell=True) 
-                  
-                              
-          for crawl_id in self.cleanQueue:
+                    # Call cleanup
+                    cmd_line = "python spidercleaner.py " +  \
+                        "-r host:" + self.master_host + "," + \
+                        "port:6380 " + \
+                        "-c " + engine_crawl_id
+                    p = subprocess.Popen(cmd_line, shell=True) 
+                    
+             
+            # Monitor clean queue            
+            for crawl_id in self.cleanQueue:
   
-              #engine_crawl_id, d, rand = crawl_id.rpartition("-")
-              u, n, t, r = crawl_id.split("-")
-              user_id = base64.b64decode(u)
-              name = base64.b64decode(n)
-              ctime = base64.b64decode(t)
-              rand = r
-              engine_crawl_id = urllib.quote_plus(user_id + '-' + name + '-' + ctime)
-              print ""
-              print "clean q engine id"
-              print engine_crawl_id
+                # TODO: fix crawl id
+                #engine_crawl_id, d, rand = crawl_id.rpartition("-")
+                u, n, t, r = crawl_id.split("-")
+                user_id = base64.b64decode(u)
+                name = base64.b64decode(n)
+                ctime = base64.b64decode(t)
+                rand = r
+                engine_crawl_id = urllib.quote_plus(user_id + '-' + 
+                                                    name + '-' + ctime)
+                print ""
+                print "clean q engine id"
+                print engine_crawl_id
   
-              # only check the first site for -2 (complete)
-              site = self.site_list[crawl_id][0]
-              base = '%s::%s' % (site, engine_crawl_id)
-              site_count = self.engine_redis.get(base + "::count")
-              print ""
-              print "clean q base and count"
-              print base
-              print site_count
-              if site_count == "-2":
-                  self.central_redis.set(crawl_id + "_count", site_count)
-                  self.cleanQueue.remove(crawl_id)
-  
-      reactor.callLater(status_poll_time, self.checkCrawlStatus)
+                # Check the first site for -2 (complete)
+                site = self.site_list[crawl_id][0]
+                base = '%s::%s' % (site, engine_crawl_id)
+                site_count = self.engine_redis.get(base + "::count")
+                print ""
+                print "clean q base and count"
+                print base
+                print site_count
+                if site_count == "-2":
+                    self.central_redis.set(crawl_id + "_count", site_count)
+                    self.cleanQueue.remove(crawl_id)
+
+        # Continue to montitor crawl statuses (default every 5 seconds).
+        reactor.callLater(status_poll_time, self.checkCrawlStatus)
 
 
 class MockCrawl(object):
