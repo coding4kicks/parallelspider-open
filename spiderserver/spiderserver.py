@@ -240,8 +240,7 @@ class InitiateCrawl(resource.Resource):
 
         self.central_redis = central_redis
         self.session_redis = session_redis
-        self.longExpire = expire['longExpire']
-        self.shortExpire = expire['shortExpire']
+        self.shortExpire = expire['shortExpire'] # for crawl info
         self.expire = expire
 
     def render(self, request):
@@ -261,45 +260,29 @@ class InitiateCrawl(resource.Resource):
         crawl_json = request.content.getvalue()
         data = json.loads(crawl_json)
 
-        long_session = data['longSession']
-
         if short_session_exists(self.session_redis, data, self.expire):
     
-            # Create crawl id (user id, crawlname, date, random)
-            # TODO: fix crawl id
-            crawl = data['crawl']
-            #user_decoded = base64.b64decode(long_session).split("///")[1]
-            user_decoded = get_user_from_session(data)
-            user_id = base64.b64encode(user_decoded)
-            name = base64.b64encode(crawl['name'])
-            time = base64.b64encode(crawl['time'])
-            rand = uuid.uuid4().bytes.encode("base64")[:4]
+            # Create crawl id 
+            user = get_user_from_session(data)
+            crawl_id = generate_crawl_id(user, data)
 
-            crawl_id = user_id + "-" + name + "-" + time + "-" + rand
-
-            # Set crawl info into Redis
+            # Set crawl info into Central Redis
             self.central_redis.set(crawl_id, crawl_json)
             self.central_redis.expire(crawl_id, self.shortExpire)
 
-            # Set crawl count into Redis
+            # Set crawl count into Central Redis
             self.central_redis.set(crawl_id + "_count", -1)
             self.central_redis.expire(crawl_id + "_count", self.shortExpire)
 
-            print ""
-            print "Crawl ID"
-            print crawl_id
-
-            # Set crawl id into Redis crawl queue
+            # Set crawl id into Central Redis crawl queue
             self.central_redis.rpush("crawl_queue", crawl_id)
 
             # return success
-            value = """)]}',\n{"loggedIn": true, "crawlId": "%s"}
+            return """)]}',\n{"loggedIn": true, "crawlId": "%s"}
                       """ % (crawl_id)
 
         else:
-            value = """)]}',\n{"loggedIn": false}"""
-
-        return value
+            return """)]}',\n{"loggedIn": false}"""
 
 
 class CheckCrawlStatus(resource.Resource):
@@ -602,7 +585,7 @@ def set_headers(request):
 
 # TODO: Refactor session helper functions into object passed to classes
 def generate_session(avatar, session_redis, expire):
-    """Generate and set session info upon login"""
+    """Generate and set session info upon login."""
 
     # Short session token - for crawl purchases and changing user info
     short_session = uuid.uuid4().bytes.encode("base64")[:21]
@@ -638,7 +621,7 @@ def short_session_exists(session_redis, data, expire):
         return False
 
 def get_user_from_session(data):
-    """Get the user's name form the long session token"""
+    """Get the user's name form the long session token."""
 
     if 'longSession' in data:
         ls = data['longSession']
@@ -648,7 +631,7 @@ def get_user_from_session(data):
         return None
 
 def remove_session(session_redis, data):
-    """Remove session information from redis"""
+    """Remove session information from redis."""
 
     if 'shortSession' in data:
         short_session = data['shortSession'] 
@@ -659,6 +642,20 @@ def remove_session(session_redis, data):
         if session_redis.exists(long_session):
             session_redis.delete(long_session)
     return None
+
+def generate_crawl_id(user, data):
+    """Generate a crawl id from user and crawl info."""
+
+    crawl = data['crawl']
+    user_id = base64.b64encode(user)
+    name = base64.b64encode(crawl['name'])
+    time = base64.b64encode(crawl['time'])
+    rand = uuid.uuid4().bytes.encode("base64")[:4]
+
+    crawl_id = user_id + "-" + name + "-" + time + "-" + rand
+
+    return crawl_id
+
 
 
 
