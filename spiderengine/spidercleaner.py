@@ -11,9 +11,10 @@ import sys
 import json
 import time
 import redis
+import urllib
 import optparse
 import subprocess
-import urllib
+
 
 import boto
 import boto.s3.key
@@ -150,7 +151,6 @@ class SpiderCleaner(object):
             print "MADE IT COWBOY"
 
             # Construct file name details
-            # TODO: fix crawl id
             base = '%s::%s' % (site, config['crawl_id'])
             base_path = base.replace("/","_").replace(":","-")
 
@@ -473,20 +473,21 @@ class SpiderCleaner(object):
 
         # Re-add random to crawl id
         # TODO: fix crawl id
-        u, n, t = urllib.unquote_plus(config['crawl_id']).split("-")
-        user_id = base64.b64encode(u)
-        name = base64.b64encode(n)
-        ctime = base64.b64encode(t)
-        b64_crawl_id = user_id + '-' + name + '-' + ctime
-        print ""
-        print "b64 crawl id"
-        print b64_crawl_id
-        full_crawl_id = b64_crawl_id + '-' + config['random']
+        #u, n, t = urllib.unquote_plus(config['crawl_id']).split("-")
+        #user_id = base64.b64encode(u)
+        #name = base64.b64encode(n)
+        #ctime = base64.b64encode(t)
+        #b64_crawl_id = user_id + '-' + name + '-' + ctime
+        #print ""
+        #print "b64 crawl id"
+        #print b64_crawl_id
+        #full_crawl_id = b64_crawl_id + '-' + config['random']
         #full_crawl_id = config['crawl_id'] + "-" + config['random']
         user_id = config['user_id']
-        print ""
-        print "full id"
-        print full_crawl_id
+        #print ""
+        #print "full id"
+        #print full_crawl_id
+        full_crawl_id = config['crawl_id']
         key = user_id + '/' + full_crawl_id + '.json'
 
         print ""

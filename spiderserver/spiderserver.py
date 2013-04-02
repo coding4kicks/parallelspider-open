@@ -30,6 +30,7 @@
 import json
 import uuid
 import base64
+import urllib
 import optparse
 import datetime
 import unicodedata
@@ -553,7 +554,6 @@ def generate_session(avatar, session_redis, expire):
     u = uuid.uuid4().bytes.encode("base64")[:4]
     
     # Include nickname, id, and date for cookie reload and logging
-    # TODO:  fix crawl id
     v = base64.b64encode(avatar.nickname + '///' + avatar.username + '///'
             + str(datetime.datetime.now))
     long_session = v + u
@@ -619,13 +619,9 @@ def generate_crawl_id(user, data):
     """Generate a crawl id from user and crawl info."""
 
     crawl = data['crawl']
-    user_id = base64.b64encode(user)
-    name = base64.b64encode(crawl['name'])
-    time = base64.b64encode(crawl['time'])
-    rand = uuid.uuid4().bytes.encode("base64")[:4]
-
-    crawl_id = user_id + "-" + name + "-" + time + "-" + rand
-
+    name = crawl['name']
+    time = crawl['time']
+    crawl_id = urllib.quote_plus(user + "__" + name + "__" + time)
     return crawl_id
 
 

@@ -96,12 +96,14 @@ class CrawlTracker(object):
   
             crawl = {} # crawl info formatted for Spider Engine
             # TODO: fix crawl id
-            user_id, name, ctime, rand = get_crawl_components(crawl_id)
+            print ""
+            print crawl_id
+            user_id, name, ctime = get_crawl_components(crawl_id)
             engine_crawl_id = urllib.quote_plus(user_id + '-' + 
                                         name + '-' + ctime)
   
             crawl['crawl_id'] = engine_crawl_id
-            crawl['random'] = rand
+            #crawl['random'] = rand
             crawl['user_id'] = user_id
   
             # Add primary site to crawl site list
@@ -282,7 +284,7 @@ class CrawlTracker(object):
             for crawl_id in self.crawlQueue:
                 total_count = 0
                 # TODO: fix crawl id
-                user_id, name, ctime, rand = get_crawl_components(crawl_id)
+                user_id, name, ctime = get_crawl_components(crawl_id)
                 engine_crawl_id = urllib.quote_plus(user_id + '-' + 
                                         name + '-' + ctime)
 
@@ -373,7 +375,7 @@ class CrawlTracker(object):
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
                 # TODO: fix crawl id
-                user_id, name, ctime, rand = get_crawl_components(crawl_id)
+                user_id, name, ctima = get_crawl_components(crawl_id)
                 engine_crawl_id = urllib.quote_plus(user_id + '-' + 
                                         name + '-' + ctime)
  
@@ -438,13 +440,8 @@ class MockCrawl(object):
 def get_crawl_components(crawl_id):
     """Construct sanitized engine crawl id"""
 
-    u, n, t, r = crawl_id.split("-")
-    user_id = base64.b64decode(u)
-    name = base64.b64decode(n)
-    ctime = base64.b64decode(t)
-    rand = r
-
-    return (user_id, name, ctime, rand)
+    u, n, t  = urllib.unquote_plus(crawl_id).split("__")
+    return (u, n, t)
 
 
 
