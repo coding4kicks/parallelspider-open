@@ -95,25 +95,10 @@ class CrawlTracker(object):
             web_crawl = web_crawl_info['crawl']
   
             crawl = {} # crawl info formatted for Spider Engine
-  
-            # TODO: fix crawl id
-            # TODO: Not sure why, but the random component of crawl id 
-            # destroys psuedo distributed mode, so pulling removing it
-            print ""
-            print "cral_id"
-            print crawl_id
-            #engine_crawl_id, d, rand = crawl_id.rpartition("-")
-            #user_id = base64.b64decode(crawl_id.partition("-")[0])
-            u, n, t, r = crawl_id.split("-")
-            user_id = base64.b64decode(u)
-            name = base64.b64decode(n)
-            ctime = base64.b64decode(t)
-            rand = r
+ 
+            user_id, name, ctime, rand = get_crawl_components(crawl_id)
             engine_crawl_id = urllib.quote_plus(user_id + '-' + 
-                                                name + '-' + ctime)
-            print ""
-            print "engine id"
-            print engine_crawl_id
+                                        name + '-' + ctime)
   
             crawl['crawl_id'] = engine_crawl_id
             crawl['random'] = rand
@@ -294,19 +279,10 @@ class CrawlTracker(object):
             # Monitor the crawl queue
             for crawl_id in self.crawlQueue:
                 total_count = 0
-                
-                # TODO: fix crawl id
-                #engine_crawl_id, d, rand = crawl_id.rpartition("-")
-                u, n, t, r = crawl_id.split("-")
-                user_id = base64.b64decode(u)
-                name = base64.b64decode(n)
-                ctime = base64.b64decode(t)
-                rand = r
-                engine_crawl_id = urllib.quote_plus(user_id + '-' + \
-                                                    name + '-' + ctime)
-                print ""
-                print "crawl q engine id"
-                print engine_crawl_id
+
+                user_id, name, ctime, rand = get_crawl_components(crawl_id)
+                engine_crawl_id = urllib.quote_plus(user_id + '-' + 
+                                        name + '-' + ctime)
 
                 # Crawl Completion Variables
                 not_done = False            # True if still new links
@@ -393,19 +369,10 @@ class CrawlTracker(object):
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
   
-                # TODO: fix crawl id
-                #engine_crawl_id, d, rand = crawl_id.rpartition("-")
-                u, n, t, r = crawl_id.split("-")
-                user_id = base64.b64decode(u)
-                name = base64.b64decode(n)
-                ctime = base64.b64decode(t)
-                rand = r
+                user_id, name, ctime, rand = get_crawl_components(crawl_id)
                 engine_crawl_id = urllib.quote_plus(user_id + '-' + 
-                                                    name + '-' + ctime)
-                print ""
-                print "clean q engine id"
-                print engine_crawl_id
-  
+                                        name + '-' + ctime)
+ 
                 # Check the first site for -2 (complete)
                 site = self.site_list[crawl_id][0]
                 base = '%s::%s' % (site, engine_crawl_id)
@@ -462,6 +429,24 @@ class MockCrawl(object):
 
         reactor.callLater(5, self.run)
 
+# Helper Funcs
+###############################################################################
+def get_crawl_components(crawl_id):
+    """Construct sanitized engine crawl id"""
+
+    u, n, t, r = crawl_id.split("-")
+    user_id = base64.b64decode(u)
+    name = base64.b64decode(n)
+    ctime = base64.b64decode(t)
+    rand = r
+
+    return (user_id, name, ctime, rand)
+
+
+
+
+# Command Line Crap & Initialization
+###############################################################################
 
 if __name__ == "__main__":
     """

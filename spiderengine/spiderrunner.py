@@ -119,6 +119,7 @@ class SpiderRunner(object):
             links = brain.on_site_links
 
             # Create base part of Redis key from timestamp and site name
+            # TODO: fix crawl id
             base = '%s::%s' % (site, config['crawl_id'])
             new_link_set = '%s::new_links' % (base)
             

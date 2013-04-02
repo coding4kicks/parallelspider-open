@@ -149,6 +149,7 @@ class SpiderCleaner(object):
             print "MADE IT COWBOY"
 
             # Construct file name details
+            # TODO: fix crawl id
             base = '%s::%s' % (site, config['crawl_id'])
             base_path = base.replace("/","_").replace(":","-")
 
@@ -470,6 +471,7 @@ class SpiderCleaner(object):
         json_data = json.dumps(finished_analysis)
 
         # Re-add random to crawl id
+        # TODO: fix crawl id
         u, n, t = urllib.unquote_plus(config['crawl_id']).split("-")
         user_id = base64.b64encode(u)
         name = base64.b64encode(n)
@@ -502,6 +504,7 @@ class SpiderCleaner(object):
         print 'success'
 
         # Update first site's count in Engine Redis
+        # TODO: fix crawl id
         engine_crawl_id = config['crawl_id']
         for site in site_list:
             base = '%s::%s' % (site, engine_crawl_id)

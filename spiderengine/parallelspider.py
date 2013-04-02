@@ -55,6 +55,7 @@ class Mapper():
 
         self.base = self.redis_info["base"]
 
+        # TODO: fix crawl id
         self.site, d, crawl_id = self.base.partition("::")
 
         # Set up configuration file
@@ -296,6 +297,7 @@ class Reducer():
 
         self.base = self.redis_info["base"]
 
+        # TODO: fix crawl id
         self.site, d, crawl_id = self.base.partition("::")
 
         # Set up configuration file 
