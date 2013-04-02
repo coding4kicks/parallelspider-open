@@ -163,7 +163,7 @@ class CheckUserCredentials(resource.Resource):
 
         avatar = avatarInfo[1]
 
-        short_session, long_session = generate_sessions(
+        short_session, long_session = generate_session(
                 avatar, self.session_redis, self.expire)
     
         value = """)]}',\n{"login": "success", 
@@ -207,14 +207,7 @@ class SignOut(resource.Resource):
 
         data = json.loads(request.content.getvalue())
 
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
-
-        # Remove session info from Redis
-        if self.session_redis.exists(long_session):
-            self.session_redis.delete(long_session)
-        if self.session_redis.exists(short_session):
-            self.session_redis.delete(short_session)
+        remove_session(self.session_redis, data)
 
         return """)]}',\n{"loggedOut": true}"""
 
@@ -610,7 +603,8 @@ def set_headers(request):
 
     return request
 
-def generate_sessions(avatar, session_redis, expire):
+# TODO: Refactor session helper functions into object passed to classes
+def generate_session(avatar, session_redis, expire):
     """Generate and set session info upon login"""
 
     # Short session token - for crawl purchases and changing user info
@@ -630,6 +624,19 @@ def generate_sessions(avatar, session_redis, expire):
     session_redis.expire(long_session, expire['longExpire'])
     
     return (short_session, long_session)
+
+def remove_session(session_redis, data):
+    """Remove session information from redis"""
+
+    if 'shortSession' in data:
+        short_session = data['shortSession'] 
+        if session_redis.exists(short_session):
+            session_redis.delete(short_session)
+    if 'longSession' in data:
+        long_session = data['longSession']
+        if session_redis.exists(long_session):
+            session_redis.delete(long_session)
+    return None
 
 
 
