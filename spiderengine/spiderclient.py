@@ -95,17 +95,9 @@ class CrawlTracker(object):
             web_crawl = web_crawl_info['crawl']
   
             crawl = {} # crawl info formatted for Spider Engine
-            # TODO: fix crawl id
-            print ""
-            print crawl_id
-            user_id, name, ctime = get_crawl_components(crawl_id)
-            engine_crawl_id = urllib.quote_plus(user_id + '-' + 
-                                        name + '-' + ctime)
-  
-            crawl['crawl_id'] = engine_crawl_id
-            #crawl['random'] = rand
-            crawl['user_id'] = user_id
-  
+            crawl['crawl_id'] = crawl_id
+            crawl['user_id'] = get_crawl_components(crawl_id)[0]
+
             # Add primary site to crawl site list
             if 'primarySite' in web_crawl:
                 site_list = web_crawl['primarySite']    
@@ -222,9 +214,9 @@ class CrawlTracker(object):
     
             # Add crawl info to local engine redis
             crawl_info = json.dumps(crawl)
-            self.engine_redis.set(engine_crawl_id, crawl_info)
+            self.engine_redis.set(crawl_id, crawl_info)
             hour = 60 * 60 # Expiration
-            self.engine_redis.expire(engine_crawl_id, hour)
+            self.engine_redis.expire(crawl_id, hour)
   
             # Add crawl to the crawl queue for monitoring by checkCrawlStatus
             self.crawlQueue.append(crawl_id)
@@ -243,7 +235,7 @@ class CrawlTracker(object):
                                "port:" + self.engine_master_port + \
                            " -m " + str(self.mappers) + \
                            " -t " + str(self.max_pages) + \
-                           " -c " + engine_crawl_id
+                           " -c " + crawl_id
                 if self.psuedo_dist:
                     cmd_line += " -d"
                 p = subprocess.Popen(cmd_line, shell=True) 
@@ -283,10 +275,6 @@ class CrawlTracker(object):
             # Monitor the crawl queue
             for crawl_id in self.crawlQueue:
                 total_count = 0
-                # TODO: fix crawl id
-                user_id, name, ctime = get_crawl_components(crawl_id)
-                engine_crawl_id = urllib.quote_plus(user_id + '-' + 
-                                        name + '-' + ctime)
 
                 # Crawl Completion Variables
                 not_done = False            # True if still new links
@@ -296,7 +284,7 @@ class CrawlTracker(object):
                 # Check counter and new link queue for each site
                 # If either indicates complete, then check Success files exist
                 for site in self.site_list[crawl_id]:
-                    base = '%s::%s' % (site, engine_crawl_id)
+                    base = '%s::%s' % (site, crawl_id)
                     site_count = self.engine_redis.get(base + "::count")
                     if site_count:
                         total_count += int(site_count)
@@ -317,7 +305,7 @@ class CrawlTracker(object):
                 # If done check all sites for a success file
                 if done:
                     for site in self.site_list[crawl_id]:
-                        base = '%s::%s' % (site, engine_crawl_id)
+                        base = '%s::%s' % (site, crawl_id)
                         base_path = base.replace("/","_").replace(":","-")
   
                         # Special case: testing in psuedo distributed mode
@@ -352,13 +340,13 @@ class CrawlTracker(object):
                     self.cleanQueue.append(crawl_id)
   
                     # Get start time details and set elapsed time
-                    config_file = self.engine_redis.get(engine_crawl_id)
+                    config_file = self.engine_redis.get(crawl_id)
                     config = json.loads(config_file)
                     start_time = config['time']
                     stop_time = time.clock()
                     config['time'] = stop_time - start_time
                     config_json = json.dumps(config)
-                    self.engine_redis.set(engine_crawl_id, config_json)
+                    self.engine_redis.set(crawl_id, config_json)
   
                     # TODO: should add a -3 for cleaning up
   
@@ -366,7 +354,7 @@ class CrawlTracker(object):
                     cmd_line = "python spidercleaner.py " +  \
                         "-r host:" + self.master_host + "," + \
                         "port:6380 " + \
-                        "-c " + engine_crawl_id
+                        "-c " + crawl_id
                     if self.psuedo_dist:
                         cmd_line += " -d"
                     p = subprocess.Popen(cmd_line, shell=True) 
@@ -374,14 +362,10 @@ class CrawlTracker(object):
              
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
-                # TODO: fix crawl id
-                user_id, name, ctima = get_crawl_components(crawl_id)
-                engine_crawl_id = urllib.quote_plus(user_id + '-' + 
-                                        name + '-' + ctime)
  
                 # Check the first site for -2 (complete)
                 site = self.site_list[crawl_id][0]
-                base = '%s::%s' % (site, engine_crawl_id)
+                base = '%s::%s' % (site, crawl_id)
                 site_count = self.engine_redis.get(base + "::count")
                 print ""
                 print "clean q base and count"
