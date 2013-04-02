@@ -423,8 +423,6 @@ class GetAnalysisFolders(resource.Resource):
 
         self.session_redis = session_redis
         self.user_redis = user_redis
-        #self.longExpire = expire['longExpire']
-        #self.shortExpire = expire['shortExpire']
         self.expire = expire
 
     def render(self, request):
@@ -450,23 +448,10 @@ class GetAnalysisFolders(resource.Resource):
 
         data = json.loads(request.content.getvalue())
 
-        #short_session = data['shortSession'] 
-        #long_session = data['longSession']
-
         # Logged in user
-        #if self.session_redis.exists(long_session):
         if long_session_exists(self.session_redis, data, self.expire):
 
-            # set new expirations
-            #if self.session_redis.exists(short_session):
-            #  self.session_redis.expire(short_session, self.shortExpire)
-            #self.session_redis.expire(long_session, self.longExpire)
-
-            # Get user's id 
-            # TODO:  fix crawl id
-            #user_id = base64.b64decode(long_session).split("///")[1] 
-
-            # Retrieve user info from Redis
+            # Retrieve user's folder info from Redis
             user = get_user_from_session(data)
             folder_info = self.user_redis.get(user + "_folders")
 
@@ -474,8 +459,6 @@ class GetAnalysisFolders(resource.Resource):
 
         # Anonymous User so show samples
         else:
-
-            # Retrieve user info from Redis
             folder_info = self.user_redis.get("sample_folders")
 
             return ")]}',\n" + folder_info
@@ -493,8 +476,6 @@ class UpdateAnalysisFolders(resource.Resource):
 
         self.session_redis = session_redis
         self.user_redis = user_redis
-        #self.longExpire = expire['longExpire']
-        #self.shortExpire = expire['shortExpire']
         self.expire = expire
 
     def render(self, request):
@@ -611,7 +592,6 @@ def long_session_exists(session_redis, data, expire):
     else:
         return False
 
-
 def get_user_from_session(data):
     """Get the user's name form the long session token."""
 
@@ -647,8 +627,6 @@ def generate_crawl_id(user, data):
     crawl_id = user_id + "-" + name + "-" + time + "-" + rand
 
     return crawl_id
-
-
 
 
 # Command Line Crap & Initialization
