@@ -299,6 +299,7 @@ class CheckCrawlStatus(resource.Resource):
         self.session_redis = session_redis
         self.longExpire = expire['longExpire']
         self.shortExpire = expire['shortExpire']
+        self.expire = expire
 
     def render(self, request):
         """
@@ -323,14 +324,8 @@ class CheckCrawlStatus(resource.Resource):
         data = json.loads(request.content.getvalue())
 
         crawl_id = data['id']
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
 
-        if self.session_redis.exists(short_session):
-
-            # set new expirations
-            self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
+        if short_session_exists(self.session_redis, data, self.expire):
 
             # retrieve crawl status
             count = self.central_redis.get(crawl_id + "_count")
@@ -746,6 +741,7 @@ if __name__ == "__main__":
     e = {}
     e['longExpire'] = (60 * 60 * 24) # 1 day
     e['shortExpire'] = (60 * 60) # 1 hour
+    e['centralExpire'] = (60 * 60) # 1 hour
     
     # Set up site and resources
     root = resource.Resource()
