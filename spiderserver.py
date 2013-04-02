@@ -25,20 +25,20 @@
 
      Notes: All responses prefaced with:  )]}',\n
             Stripped by Angular and helps prevent CSRF
-     test scp
 """
 
 import json
 import uuid
-import datetime
 import base64
+import urllib
 import optparse
+import datetime
 import unicodedata
 
-from twisted.cred import portal, checkers, credentials, error as credError
-from twisted.internet import protocol, reactor, defer
 from twisted.web import resource, static, server
 from zope.interface import Interface, implements
+from twisted.internet import protocol, reactor, defer
+from twisted.cred import portal, checkers, credentials, error as credError
 
 import boto
 import redis
@@ -101,6 +101,7 @@ class SpiderRealm(object):
 
     def requestAvatar(self, avatarId, mind, *interfaces):
         if INamedUserAvatar in interfaces:
+            
             user_data = self.user_redis.get(avatarId + '_info')
             user_info = json.loads(user_data)
             nickname = user_info['nickname']
@@ -121,15 +122,11 @@ class SpiderRealm(object):
 class CheckUserCredentials(resource.Resource):
     """ Validate user's credentials for login """
 
-    def __init__(self, portal, session_redis):
+    def __init__(self, portal, session_redis, expire):
         """Initialize Session Redis and Twisted Portal for Authentication"""
         self.portal = portal
         self.session_redis = session_redis
-        self.request = ""
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
+        self.expire = expire
 
     def render(self, request):
         """
@@ -141,21 +138,12 @@ class CheckUserCredentials(resource.Resource):
         """
 
         # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
         if request.method == "OPTIONS":
             return ""
-
+        
         # Get json payload from post request
         data = json.loads(request.content.getvalue())
 
@@ -174,24 +162,10 @@ class CheckUserCredentials(resource.Resource):
 
             Generates, stores, and returns session tokens
         """
+        avatar = avatarInfo[1]
 
-        avatarInterface, avatar, logout = avatarInfo
-
-        # Short session token - for crawl purchases and changing user info
-        short_session = uuid.uuid4().bytes.encode("base64")[:21]
-        self.session_redis.set(short_session, 'ps_shortsession') 
-        self.session_redis.expire(short_session, self.shortExpire)
-
-        # Long session token - for user info and data analysis - longer expire
-        u = uuid.uuid4().bytes.encode("base64")[:4]
-
-        # Include nickname, id, and date for cookie reload and logging
-        v = base64.b64encode(avatar.nickname + '///' + avatar.username + '///'
-                + str(datetime.datetime.now))
-        long_session = v + u
-        self.session_redis.set(long_session, 'ps_longsession')
-        self.session_redis.expire(long_session, self.longExpire)
-
+        short_session, long_session = generate_session(
+                avatar, self.session_redis, self.expire)
     
         value = """)]}',\n{"login": "success", 
                             "name": "%s", 
@@ -217,7 +191,6 @@ class SignOut(resource.Resource):
         """Only arg is session datastore"""
 
         self.session_redis = session_redis
-        self.request = ""
 
     def render(self, request):
         """
@@ -228,32 +201,14 @@ class SignOut(resource.Resource):
                  'longSession': 'long session token'}
         """
    
-        # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
-
-        # Remove session info from Redis
-        if self.session_redis.exists(long_session):
-            self.session_redis.delete(long_session)
-        if self.session_redis.exists(short_session):
-            self.session_redis.delete(short_session)
+        remove_session(self.session_redis, data)
 
         return """)]}',\n{"loggedOut": true}"""
 
@@ -277,7 +232,7 @@ class PasswordReminder(resource.Resource):
 class InitiateCrawl(resource.Resource):
     """Initiate a crawl and return the crawl id"""
 
-    def __init__(self, central_redis, session_redis):
+    def __init__(self, central_redis, session_redis, expire):
         """ 
             Args: 
                 Central Redis - to communicate with analysis engine
@@ -286,10 +241,8 @@ class InitiateCrawl(resource.Resource):
 
         self.central_redis = central_redis
         self.session_redis = session_redis
-
-        # Expiration Info TODO: factor out so don't repeat
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
+        self.centralExpire = expire['centralExpire']
+        self.expire = expire
 
     def render(self, request):
         """
@@ -300,73 +253,43 @@ class InitiateCrawl(resource.Resource):
                  'longSession': 'long session token'}          
         """
 
-        # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         crawl_json = request.content.getvalue()
         data = json.loads(crawl_json)
 
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
-
-        if self.session_redis.exists(short_session):
-
-            # set new expirations
-            self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
+        if short_session_exists(self.session_redis, data, self.expire):
     
-            # Create crawl id (user id, crawlname, date, random)
-            crawl = data['crawl']
-            user_decoded = base64.b64decode(long_session).split("///")[1]
-            user_id = base64.b64encode(user_decoded)
-            name = base64.b64encode(crawl['name'])
-            time = base64.b64encode(crawl['time'])
-            rand = uuid.uuid4().bytes.encode("base64")[:4]
+            # Create crawl id 
+            user = get_user_from_session(data)
+            crawl_id = generate_crawl_id(user, data)
 
-            crawl_id = user_id + "-" + name + "-" + time + "-" + rand
-
-            # Set crawl info into Redis
+            # Set crawl info into Central Redis
             self.central_redis.set(crawl_id, crawl_json)
-            self.central_redis.expire(crawl_id, (60*60))
+            self.central_redis.expire(crawl_id, self.centralExpire)
 
-            # Set crawl count into Redis
+            # Set crawl count into Central Redis
             self.central_redis.set(crawl_id + "_count", -1)
-            self.central_redis.expire(crawl_id + "_count", (60*60))
+            self.central_redis.expire(crawl_id + "_count", self.centralExpire)
 
-            print ""
-            print "Crawl ID"
-            print crawl_id
-
-            # Set crawl id into Redis crawl queue
+            # Set crawl id into Central Redis crawl queue
             self.central_redis.rpush("crawl_queue", crawl_id)
 
             # return success
-            value = """)]}',\n{"loggedIn": true, "crawlId": "%s"}
+            return """)]}',\n{"loggedIn": true, "crawlId": "%s"}
                       """ % (crawl_id)
 
         else:
-            value = """)]}',\n{"loggedIn": false}"""
-
-        return value
+            return """)]}',\n{"loggedIn": false}"""
 
 
 class CheckCrawlStatus(resource.Resource):
     """ Check status of a crawl based upon an id """
 
-    def __init__(self, central_redis, session_redis):
+    def __init__(self, central_redis, session_redis, expire):
         """ 
             Args: 
                 Central Redis - to communicate with analysis engine
@@ -375,12 +298,8 @@ class CheckCrawlStatus(resource.Resource):
 
         self.central_redis = central_redis
         self.session_redis = session_redis
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
-
-        self.request = ""
+        self.centralExpire = expire['centralExpire']
+        self.expire = expire
 
     def render(self, request):
         """
@@ -397,37 +316,20 @@ class CheckCrawlStatus(resource.Resource):
                 -2 - crawl complete
         """
 
-        # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
         crawl_id = data['id']
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
 
-        if self.session_redis.exists(short_session):
-
-            # set new expirations
-            self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
+        if short_session_exists(self.session_redis, data, self.expire):
 
             # retrieve crawl status
             count = self.central_redis.get(crawl_id + "_count")
-            self.central_redis.expire(crawl_id + "_count", (60*60))
+            self.central_redis.expire(crawl_id + "_count", self.centralExpire)
 
             return """)]}',\n{"count": %s}""" % count
 
@@ -438,7 +340,7 @@ class CheckCrawlStatus(resource.Resource):
 class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
 
-    def __init__(self, session_redis, mock):
+    def __init__(self, session_redis, mock, expire):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -447,12 +349,7 @@ class GetS3Signature(resource.Resource):
 
         self.session_redis = session_redis
         self.mock = mock
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
-
-        self.request = ""
+        self.expire = expire
 
     def render(self, request):
         """
@@ -467,44 +364,32 @@ class GetS3Signature(resource.Resource):
                 Signed URL to access object on S3
             """
    
-        # Add headers to request prior to writing
-        self.request = request
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORs - TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers for CORs
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
         analysis_id = data['analysisId']
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
 
         # If logged in, retrieve analysis from users bucket
-        if self.session_redis.exists(long_session):
+        if long_session_exists(self.session_redis, data, self.expire):
 
-            # set new expirations
-            if self.session_redis.exists(short_session):
-              self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
 
             # Create S3 key with user's id and analysis id
-            user_id = base64.b64decode(long_session).split("///")[1] 
-            key = user_id + '/' + analysis_id + '.json'
+            user = get_user_from_session(data) 
+            key = user + '/' + analysis_id + '.json'
             
             # Sign URL (assumes AWS keys are in .bashrc / env)
             s3conn = boto.connect_s3()
             url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
- 
+
+            #TEST
+            set_key = "fake_user/" + \
+            "fake_user__fake_name__Fri+Mar+15+731.+21%3A00%3A15+GMT-0700+%28PDT%29.json"
+            url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=set_key)
+            
             # Mock AWS S3 backend
             if self.mock:
                 url = analysis_id + ".json"
@@ -535,7 +420,7 @@ class GetS3Signature(resource.Resource):
 class GetAnalysisFolders(resource.Resource):
     """ Retrieve users analysis folders """
 
-    def __init__(self, session_redis, user_redis):
+    def __init__(self, session_redis, user_redis, expire):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -544,12 +429,7 @@ class GetAnalysisFolders(resource.Resource):
 
         self.session_redis = session_redis
         self.user_redis = user_redis
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
-
-        self.request = ""
+        self.expire = expire
 
     def render(self, request):
         """
@@ -567,51 +447,24 @@ class GetAnalysisFolders(resource.Resource):
                 {'name': 'analysisname', 'data': 'data', 'id': 'id'}            
         """
    
-        self.request = request
-
-        # Add headers prior to writing
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORS 
-        # TODO: refactor stuff out to function
-
-        # TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
-
         # Logged in user
-        if self.session_redis.exists(long_session):
+        if long_session_exists(self.session_redis, data, self.expire):
 
-            # set new expirations
-            if self.session_redis.exists(short_session):
-              self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
-
-            # Get user's id 
-            user_id = base64.b64decode(long_session).split("///")[1] 
-
-            # Retrieve user info from Redis
-            folder_info = self.user_redis.get(user_id + "_folders")
+            # Retrieve user's folder info from Redis
+            user = get_user_from_session(data)
+            folder_info = self.user_redis.get(user + "_folders")
 
             return ")]}',\n" + folder_info
 
         # Anonymous User so show samples
         else:
-
-            # Retrieve user info from Redis
             folder_info = self.user_redis.get("sample_folders")
 
             return ")]}',\n" + folder_info
@@ -620,7 +473,7 @@ class GetAnalysisFolders(resource.Resource):
 class UpdateAnalysisFolders(resource.Resource):
     """ Update user's analysis folders """
 
-    def __init__(self, session_redis, user_redis):
+    def __init__(self, session_redis, user_redis, expire):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -629,12 +482,7 @@ class UpdateAnalysisFolders(resource.Resource):
 
         self.session_redis = session_redis
         self.user_redis = user_redis
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
-
-        self.request = ""
+        self.expire = expire
 
     def render(self, request):
         """
@@ -653,62 +501,137 @@ class UpdateAnalysisFolders(resource.Resource):
                 {'name': 'analysisname', 'data': 'data', 'id': 'id'}            
         """
    
-        self.request = request
-
-        # Add headers prior to writing
-        self.request.setHeader('Content-Type', 'application/json')
-
-        # Set access control: CORS 
-        # TODO: refactor stuff out to function
-
-        # TODO: limit origins on live site?
-        self.request.setHeader('Access-Control-Allow-Origin', '*')
-        self.request.setHeader('Access-Control-Allow-Methods', 'POST')
-        # Echo back all request headers
-        access_headers = self.request \
-                             .getHeader('Access-Control-Request-Headers')
-        self.request.setHeader('Access-Control-Allow-Headers', access_headers)
+        self.request = set_headers(request)
 
         # Return if preflight request
-        if request.method == "OPTIONS":
-            return ""
+        if request.method == "OPTIONS": return ""
 
         data = json.loads(request.content.getvalue())
 
         folder_data = data['folderInfo']
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
 
         # Logged in user
-        if self.session_redis.exists(long_session):
+        if long_session_exists(self.session_redis, data, self.expire):
 
-            # set new expirations
-            if self.session_redis.exists(short_session):
-              self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
-
-            # Get user's id 
-            user_id = base64.b64decode(long_session).split("///")[1] 
-
-            # Turn folder info back into JSON
+            # Set user's new folder info into Redis as JSON
+            user = get_user_from_session(data)
             folder_info = json.dumps(folder_data)
-            
-            # Set new user folder info into Redis
-            self.user_redis.set(user_id + "_folders", folder_info)
+            self.user_redis.set(user + "_folders", folder_info)
 
             return """)]}',\n{"success": true}"""
 
         # Anonymous User so show samples
         else:
-
-            # How to add anonymous users stuff to temp folder? 
-
+            # TODO: How to add anonymous users stuff to temp folder? 
             return """)]}',\n{"success": false}"""
+
+
+# Helper Funcs
+###############################################################################
+def set_headers(request):
+    """Set CORS info required on all headers"""
+
+    # TODO: Limit origin and headers in production?
+
+    # Content type is always json
+    request.setHeader('Content-Type', 'application/json')
+
+    # Access control: CORs
+    request.setHeader('Access-Control-Allow-Origin', '*')
+    request.setHeader('Access-Control-Allow-Methods', 'POST')
+
+    # Echo back all request headers for CORs
+    access_headers = request.getHeader('Access-Control-Request-Headers')
+    request.setHeader('Access-Control-Allow-Headers', access_headers)
+
+    return request
+
+# TODO: Refactor session helper functions into object passed to classes
+def generate_session(avatar, session_redis, expire):
+    """Generate and set session info upon login."""
+
+    # Short session token - for crawl purchases and changing user info
+    short_session = uuid.uuid4().bytes.encode("base64")[:21]
+    session_redis.set(short_session, 'ps_shortsession') 
+    session_redis.expire(short_session, expire['shortExpire'])
+    
+    # Long session token - for user info and data analysis - longer expire
+    u = uuid.uuid4().bytes.encode("base64")[:4]
+    
+    # Include nickname, id, and date for cookie reload and logging
+    v = base64.b64encode(avatar.nickname + '///' + avatar.username + '///'
+            + str(datetime.datetime.now))
+    long_session = v + u
+    session_redis.set(long_session, 'ps_longsession')
+    session_redis.expire(long_session, expire['longExpire'])
+    
+    return (short_session, long_session)
+
+def short_session_exists(session_redis, data, expire):
+    """Check if a short session exists."""
+
+    if 'shortSession' in data:
+        short_session = data['shortSession'] 
+        if session_redis.exists(short_session):
+            # set new expirations (long session also)
+            session_redis.expire(short_session, expire['shortExpire'])
+            if 'longSession' in data:
+                session_redis.expire(
+                    data['longSession'], expire['longExpire'])
+            return True
+    else:
+        return False
+
+def long_session_exists(session_redis, data, expire):
+    """Check if a long session exists"""
+
+    if 'longSession' in data:
+        long_session = data['longSession'] 
+        if session_redis.exists(long_session):
+            # set new expirations (short session also)
+            session_redis.expire(long_session, expire['longExpire'])
+            if 'shortSession' in data:
+                session_redis.expire(
+                    data['shortSession'], expire['shortExpire'])
+            return True
+    else:
+        return False
+
+def get_user_from_session(data):
+    """Get the user's name form the long session token."""
+
+    if 'longSession' in data:
+        ls = data['longSession']
+        user = base64.b64decode(ls).split("///")[1]
+        return user
+    else:
+        return None
+
+def remove_session(session_redis, data):
+    """Remove session information from redis."""
+
+    if 'shortSession' in data:
+        short_session = data['shortSession'] 
+        if session_redis.exists(short_session):
+            session_redis.delete(short_session)
+    if 'longSession' in data:
+        long_session = data['longSession']
+        if session_redis.exists(long_session):
+            session_redis.delete(long_session)
+    return None
+
+def generate_crawl_id(user, data):
+    """Generate a crawl id from user and crawl info."""
+
+    crawl = data['crawl']
+    name = crawl['name']
+    time = crawl['time']
+    crawl_id = urllib.quote_plus(user + "__" + name + "__" + time)
+    return crawl_id
 
 
 # Command Line Crap & Initialization
 ###############################################################################
-
 
 if __name__ == "__main__":
 
@@ -789,16 +712,22 @@ if __name__ == "__main__":
     p.registerChecker(PasswordChecker(u))
 
     m = options.mock
+
+    # Redis Key Expiration Info
+    e = {}
+    e['longExpire'] = (60 * 60 * 24) # 1 day
+    e['shortExpire'] = (60 * 60) # 1 hour
+    e['centralExpire'] = (60 * 60) # 1 hour
     
     # Set up site and resources
     root = resource.Resource()
-    root.putChild('initiatecrawl', InitiateCrawl(c, s))
-    root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s))
-    root.putChild('gets3signature', GetS3Signature(s, m))
-    root.putChild('getanalysisfolders', GetAnalysisFolders(s, u))
-    root.putChild('updateanalysisfolders', UpdateAnalysisFolders(s, u))
+    root.putChild('initiatecrawl', InitiateCrawl(c, s, e))
+    root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s, e))
+    root.putChild('gets3signature', GetS3Signature(s, m, e))
+    root.putChild('getanalysisfolders', GetAnalysisFolders(s, u, e))
+    root.putChild('updateanalysisfolders', UpdateAnalysisFolders(s, u, e))
     root.putChild('addnewuser', AddNewUser())
-    root.putChild('checkusercredentials', CheckUserCredentials(p, s))
+    root.putChild('checkusercredentials', CheckUserCredentials(p, s, e))
     root.putChild('signout', SignOut(s))
     root.putChild('passwordreminder', PasswordReminder())
     site = server.Site(root)

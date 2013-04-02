@@ -216,6 +216,7 @@ class SpiderRunner(object):
                          ",base:" + base + \
                          ",maxPages:" + str(self.max_pages))
 
+            print self.psuedo
             if self.psuedo:
                 subprocess.Popen(psuedo_dist, shell=True)
             else:
@@ -291,7 +292,7 @@ def main():
     max_pages = int(options.maxPages)
     if max_pages < 1:
         parser.error("maxPages must be greater than 0")
-    
+    print options.psuedo
     #  Initialize and execute spider runner
     spider_runner = SpiderRunner(site_list, redis_info, 
                                  max_mappers, max_pages, 

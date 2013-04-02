@@ -101,6 +101,7 @@ class SpiderRealm(object):
 
     def requestAvatar(self, avatarId, mind, *interfaces):
         if INamedUserAvatar in interfaces:
+            
             user_data = self.user_redis.get(avatarId + '_info')
             user_info = json.loads(user_data)
             nickname = user_info['nickname']
@@ -142,7 +143,7 @@ class CheckUserCredentials(resource.Resource):
         # Return if preflight request
         if request.method == "OPTIONS":
             return ""
-
+        
         # Get json payload from post request
         data = json.loads(request.content.getvalue())
 
@@ -161,7 +162,6 @@ class CheckUserCredentials(resource.Resource):
 
             Generates, stores, and returns session tokens
         """
-
         avatar = avatarInfo[1]
 
         short_session, long_session = generate_session(

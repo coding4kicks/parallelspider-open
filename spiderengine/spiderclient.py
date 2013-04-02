@@ -238,6 +238,7 @@ class CrawlTracker(object):
                            " -c " + crawl_id
                 if self.psuedo_dist:
                     cmd_line += " -d"
+                print cmd_line
                 p = subprocess.Popen(cmd_line, shell=True) 
   
         # Continue to check the Central Redis queue (default every second).
@@ -505,7 +506,7 @@ if __name__ == "__main__":
                           port=int(options.centralRedisPort), db=0)
     engine_redis = redis.StrictRedis(host=options.engineRedisHost,
                           port=int(options.engineRedisPort), db=0)
-
+    print options.psuedo
     # Run the twisted client
     tracker = CrawlTracker(central_redis, engine_redis,
                            options.engineRedisHost, options.engineRedisPort, 
