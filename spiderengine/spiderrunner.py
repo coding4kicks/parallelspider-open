@@ -39,7 +39,7 @@ class SpiderRunner(object):
     """
 
     def __init__(self, site_list, redis_info, 
-                 max_mappers, max_pages, crawl_info):
+                 max_mappers, max_pages, crawl_info, psuedo):
         """ 
         Initializes inputs and creates a timestamp
 
@@ -67,6 +67,7 @@ class SpiderRunner(object):
         self.max_mappers = max_mappers
         self.max_pages = max_pages
         self.crawl_info = crawl_info
+        self.psuedo = psuedo
 
         # Create a time stamp (no querries should be issued in the same second
         # for the same website - default to cache??? refactor?)
@@ -215,8 +216,10 @@ class SpiderRunner(object):
                          ",base:" + base + \
                          ",maxPages:" + str(self.max_pages))
 
-            #subprocess.Popen(parallel_spider, shell=True)
-            subprocess.Popen(psuedo_dist, shell=True)
+            if self.psuedo:
+                subprocess.Popen(psuedo_dist, shell=True)
+            else:
+                subprocess.Popen(parallel_spider, shell=True)
 
 
 def main():
@@ -250,6 +253,12 @@ def main():
             "-t", "-T", "--maxPages", action="store",
             default=20, dest="maxPages",
             help="Set total/max pages to download. [default: %default]")
+
+    # Psuedo Distributed (for easier testing on cluster)
+    parser.add_option(
+            "-d", "-D", "--psuedo", action="store_true", 
+            default="", dest="psuedo", 
+            help="Psuedo Distributed Mode. [default: False]")
 
     # Argument is a comma separted list of site names
     (options, args) = parser.parse_args()
@@ -285,7 +294,8 @@ def main():
     
     #  Initialize and execute spider runner
     spider_runner = SpiderRunner(site_list, redis_info, 
-                                 max_mappers, max_pages, options.crawlInfo) 
+                                 max_mappers, max_pages, 
+                                 options.crawlInfo, options.psuedo) 
     spider_runner.execute()
 
 

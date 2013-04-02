@@ -242,6 +242,8 @@ class CrawlTracker(object):
                            " -m " + str(self.mappers) + \
                            " -t " + str(self.max_pages) + \
                            " -c " + engine_crawl_id
+                if self.psuedo_dist:
+                    cmd_line += " -d"
                 p = subprocess.Popen(cmd_line, shell=True) 
   
         # Continue to check the Central Redis queue (default every second).
@@ -363,6 +365,8 @@ class CrawlTracker(object):
                         "-r host:" + self.master_host + "," + \
                         "port:6380 " + \
                         "-c " + engine_crawl_id
+                    if self.psuedo_dist:
+                        cmd_line += " -d"
                     p = subprocess.Popen(cmd_line, shell=True) 
                     
              
