@@ -120,15 +120,12 @@ class SpiderRealm(object):
 class CheckUserCredentials(resource.Resource):
     """ Validate user's credentials for login """
 
-    def __init__(self, portal, session_redis):
+    def __init__(self, portal, session_redis, expire):
         """Initialize Session Redis and Twisted Portal for Authentication"""
         self.portal = portal
         self.session_redis = session_redis
-        self.request = ""
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
+        self.longExpire = expire['longExpire']
+        self.shortExpire = expire['shortExpire']
 
     def render(self, request):
         """
@@ -208,7 +205,6 @@ class SignOut(resource.Resource):
         """Only arg is session datastore"""
 
         self.session_redis = session_redis
-        self.request = ""
 
     def render(self, request):
         """
@@ -219,7 +215,6 @@ class SignOut(resource.Resource):
                  'longSession': 'long session token'}
         """
    
-        # Add headers to request prior to writing
         self.request = set_headers(request)
 
         # Return if preflight request
@@ -258,7 +253,7 @@ class PasswordReminder(resource.Resource):
 class InitiateCrawl(resource.Resource):
     """Initiate a crawl and return the crawl id"""
 
-    def __init__(self, central_redis, session_redis):
+    def __init__(self, central_redis, session_redis, expire):
         """ 
             Args: 
                 Central Redis - to communicate with analysis engine
@@ -267,10 +262,8 @@ class InitiateCrawl(resource.Resource):
 
         self.central_redis = central_redis
         self.session_redis = session_redis
-
-        # Expiration Info TODO: factor out so don't repeat
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
+        self.longExpire = expire['longExpire']
+        self.shortExpire = expire['shortExpire']
 
     def render(self, request):
         """
@@ -311,11 +304,11 @@ class InitiateCrawl(resource.Resource):
 
             # Set crawl info into Redis
             self.central_redis.set(crawl_id, crawl_json)
-            self.central_redis.expire(crawl_id, (60*60))
+            self.central_redis.expire(crawl_id, self.shortExpire)
 
             # Set crawl count into Redis
             self.central_redis.set(crawl_id + "_count", -1)
-            self.central_redis.expire(crawl_id + "_count", (60*60))
+            self.central_redis.expire(crawl_id + "_count", self.shortExpire)
 
             print ""
             print "Crawl ID"
@@ -337,7 +330,7 @@ class InitiateCrawl(resource.Resource):
 class CheckCrawlStatus(resource.Resource):
     """ Check status of a crawl based upon an id """
 
-    def __init__(self, central_redis, session_redis):
+    def __init__(self, central_redis, session_redis, expire):
         """ 
             Args: 
                 Central Redis - to communicate with analysis engine
@@ -346,12 +339,8 @@ class CheckCrawlStatus(resource.Resource):
 
         self.central_redis = central_redis
         self.session_redis = session_redis
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
-
-        self.request = ""
+        self.longExpire = expire['longExpire']
+        self.shortExpire = expire['shortExpire']
 
     def render(self, request):
         """
@@ -387,7 +376,7 @@ class CheckCrawlStatus(resource.Resource):
 
             # retrieve crawl status
             count = self.central_redis.get(crawl_id + "_count")
-            self.central_redis.expire(crawl_id + "_count", (60*60))
+            self.central_redis.expire(crawl_id + "_count", self.shortExpire)
 
             return """)]}',\n{"count": %s}""" % count
 
@@ -398,7 +387,7 @@ class CheckCrawlStatus(resource.Resource):
 class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
 
-    def __init__(self, session_redis, mock):
+    def __init__(self, session_redis, mock, expire):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -407,12 +396,8 @@ class GetS3Signature(resource.Resource):
 
         self.session_redis = session_redis
         self.mock = mock
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
-
-        self.request = ""
+        self.longExpire = expire['longExpire']
+        self.shortExpire = expire['shortExpire']
 
     def render(self, request):
         """
@@ -485,7 +470,7 @@ class GetS3Signature(resource.Resource):
 class GetAnalysisFolders(resource.Resource):
     """ Retrieve users analysis folders """
 
-    def __init__(self, session_redis, user_redis):
+    def __init__(self, session_redis, user_redis, expire):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -494,12 +479,8 @@ class GetAnalysisFolders(resource.Resource):
 
         self.session_redis = session_redis
         self.user_redis = user_redis
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
-
-        self.request = ""
+        self.longExpire = expire['longExpire']
+        self.shortExpire = expire['shortExpire']
 
     def render(self, request):
         """
@@ -556,7 +537,7 @@ class GetAnalysisFolders(resource.Resource):
 class UpdateAnalysisFolders(resource.Resource):
     """ Update user's analysis folders """
 
-    def __init__(self, session_redis, user_redis):
+    def __init__(self, session_redis, user_redis, expire):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -565,12 +546,8 @@ class UpdateAnalysisFolders(resource.Resource):
 
         self.session_redis = session_redis
         self.user_redis = user_redis
-
-        # Expiration Info
-        self.longExpire= (60 * 60 * 24) # 1 day
-        self.shortExpire = (60 * 60) # 1 hour
-
-        self.request = ""
+        self.longExpire = expire['longExpire']
+        self.shortExpire = expire['shortExpire']
 
     def render(self, request):
         """
@@ -731,16 +708,21 @@ if __name__ == "__main__":
     p.registerChecker(PasswordChecker(u))
 
     m = options.mock
+
+    # Redis Key Expiration Info
+    e = {}
+    e['longExpire'] = (60 * 60 * 24) # 1 day
+    e['shortExpire'] = (60 * 60) # 1 hour
     
     # Set up site and resources
     root = resource.Resource()
-    root.putChild('initiatecrawl', InitiateCrawl(c, s))
-    root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s))
-    root.putChild('gets3signature', GetS3Signature(s, m))
-    root.putChild('getanalysisfolders', GetAnalysisFolders(s, u))
-    root.putChild('updateanalysisfolders', UpdateAnalysisFolders(s, u))
+    root.putChild('initiatecrawl', InitiateCrawl(c, s, e))
+    root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s, e))
+    root.putChild('gets3signature', GetS3Signature(s, m, e))
+    root.putChild('getanalysisfolders', GetAnalysisFolders(s, u, e))
+    root.putChild('updateanalysisfolders', UpdateAnalysisFolders(s, u, e))
     root.putChild('addnewuser', AddNewUser())
-    root.putChild('checkusercredentials', CheckUserCredentials(p, s))
+    root.putChild('checkusercredentials', CheckUserCredentials(p, s, e))
     root.putChild('signout', SignOut(s))
     root.putChild('passwordreminder', PasswordReminder())
     site = server.Site(root)
