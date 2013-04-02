@@ -25,14 +25,15 @@ class SpiderCleaner(object):
     """
     """
 
-    def __init__(self, redis_info, crawl_info):
+    def __init__(self, redis_info, crawl_info, psuedo):
         """ 
-
+        args:
+            redis_info - local Engine Redis instance
+            crawl_info - crawl details, needed for cleanup
         """   
         self.redis_info = redis_info      
         self.crawl_info = crawl_info
-
-        self.psuedo_dist = True # Psuedo distributed for testing
+        self.psuedo_dist = psuedo
            
 
     def execute(self):
@@ -533,6 +534,12 @@ def main():
             "-r", "-R", "--redisInfo", action="store",
             dest="redisInfo", help="Set Redis info.")
 
+    # Psuedo Distributed (for easier testing on cluster)
+    parser.add_option(
+            "-d", "-D", "--psuedo", action="store_true", 
+            default="", dest="psuedo", 
+            help="Psuedo Distributed Mode. [default: False]")
+
     # Argument is a comma separted list of site names
     (options, args) = parser.parse_args()
 
@@ -546,7 +553,8 @@ def main():
 
     
     #  Initialize and execute spider runner
-    spider_cleaner = SpiderCleaner(redis_info, options.crawlInfo) 
+    spider_cleaner = SpiderCleaner(redis_info, options.crawlInfo, 
+                                   options.psuedo) 
     spider_cleaner.execute()
 
 if __name__ == "__main__":

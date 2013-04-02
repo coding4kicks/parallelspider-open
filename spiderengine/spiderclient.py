@@ -95,7 +95,7 @@ class CrawlTracker(object):
             web_crawl = web_crawl_info['crawl']
   
             crawl = {} # crawl info formatted for Spider Engine
- 
+            # TODO: fix crawl id
             user_id, name, ctime, rand = get_crawl_components(crawl_id)
             engine_crawl_id = urllib.quote_plus(user_id + '-' + 
                                         name + '-' + ctime)
@@ -279,7 +279,7 @@ class CrawlTracker(object):
             # Monitor the crawl queue
             for crawl_id in self.crawlQueue:
                 total_count = 0
-
+                # TODO: fix crawl id
                 user_id, name, ctime, rand = get_crawl_components(crawl_id)
                 engine_crawl_id = urllib.quote_plus(user_id + '-' + 
                                         name + '-' + ctime)
@@ -368,7 +368,7 @@ class CrawlTracker(object):
              
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
-  
+                # TODO: fix crawl id
                 user_id, name, ctime, rand = get_crawl_components(crawl_id)
                 engine_crawl_id = urllib.quote_plus(user_id + '-' + 
                                         name + '-' + ctime)
