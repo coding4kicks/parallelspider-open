@@ -297,7 +297,6 @@ class CheckCrawlStatus(resource.Resource):
 
         self.central_redis = central_redis
         self.session_redis = session_redis
-        self.longExpire = expire['longExpire']
         self.centralExpire = expire['centralExpire']
         self.expire = expire
 
@@ -349,8 +348,7 @@ class GetS3Signature(resource.Resource):
 
         self.session_redis = session_redis
         self.mock = mock
-        self.longExpire = expire['longExpire']
-        self.shortExpire = expire['shortExpire']
+        self.expire = expire
 
     def render(self, request):
         """
@@ -373,21 +371,14 @@ class GetS3Signature(resource.Resource):
         data = json.loads(request.content.getvalue())
 
         analysis_id = data['analysisId']
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
 
         # If logged in, retrieve analysis from users bucket
-        if self.session_redis.exists(long_session):
+        if long_session_exists(self.session_redis, data, self.expire):
 
-            # set new expirations
-            if self.session_redis.exists(short_session):
-              self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
 
             # Create S3 key with user's id and analysis id
-            # TODO: fix crawl id
-            user_id = base64.b64decode(long_session).split("///")[1] 
-            key = user_id + '/' + analysis_id + '.json'
+            user = get_user_from_session(data) 
+            key = user + '/' + analysis_id + '.json'
             
             # Sign URL (assumes AWS keys are in .bashrc / env)
             s3conn = boto.connect_s3()
@@ -614,6 +605,22 @@ def short_session_exists(session_redis, data, expire):
             return True
     else:
         return False
+
+def long_session_exists(session_redis, data, expire):
+    """Check if a long session exists"""
+
+    if 'longSession' in data:
+        long_session = data['longSession'] 
+        if session_redis.exists(long_session):
+            # set new expirations (short session also)
+            session_redis.expire(long_session, expire['longExpire'])
+            if 'shortSession' in data:
+                session_redis.expire(
+                    data['shortSession'], expire['shortExpire'])
+            return True
+    else:
+        return False
+
 
 def get_user_from_session(data):
     """Get the user's name form the long session token."""
