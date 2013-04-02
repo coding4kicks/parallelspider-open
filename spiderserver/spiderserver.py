@@ -423,8 +423,9 @@ class GetAnalysisFolders(resource.Resource):
 
         self.session_redis = session_redis
         self.user_redis = user_redis
-        self.longExpire = expire['longExpire']
-        self.shortExpire = expire['shortExpire']
+        #self.longExpire = expire['longExpire']
+        #self.shortExpire = expire['shortExpire']
+        self.expire = expire
 
     def render(self, request):
         """
@@ -449,23 +450,25 @@ class GetAnalysisFolders(resource.Resource):
 
         data = json.loads(request.content.getvalue())
 
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
+        #short_session = data['shortSession'] 
+        #long_session = data['longSession']
 
         # Logged in user
-        if self.session_redis.exists(long_session):
+        #if self.session_redis.exists(long_session):
+        if long_session_exists(self.session_redis, data, self.expire):
 
             # set new expirations
-            if self.session_redis.exists(short_session):
-              self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
+            #if self.session_redis.exists(short_session):
+            #  self.session_redis.expire(short_session, self.shortExpire)
+            #self.session_redis.expire(long_session, self.longExpire)
 
             # Get user's id 
             # TODO:  fix crawl id
-            user_id = base64.b64decode(long_session).split("///")[1] 
+            #user_id = base64.b64decode(long_session).split("///")[1] 
 
             # Retrieve user info from Redis
-            folder_info = self.user_redis.get(user_id + "_folders")
+            user = get_user_from_session(data)
+            folder_info = self.user_redis.get(user + "_folders")
 
             return ")]}',\n" + folder_info
 
@@ -490,8 +493,9 @@ class UpdateAnalysisFolders(resource.Resource):
 
         self.session_redis = session_redis
         self.user_redis = user_redis
-        self.longExpire = expire['longExpire']
-        self.shortExpire = expire['shortExpire']
+        #self.longExpire = expire['longExpire']
+        #self.shortExpire = expire['shortExpire']
+        self.expire = expire
 
     def render(self, request):
         """
@@ -518,34 +522,20 @@ class UpdateAnalysisFolders(resource.Resource):
         data = json.loads(request.content.getvalue())
 
         folder_data = data['folderInfo']
-        short_session = data['shortSession'] 
-        long_session = data['longSession']
 
         # Logged in user
-        if self.session_redis.exists(long_session):
+        if long_session_exists(self.session_redis, data, self.expire):
 
-            # set new expirations
-            if self.session_redis.exists(short_session):
-              self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
-
-            # Get user's id 
-            # TODO:  fix crawl id
-            user_id = base64.b64decode(long_session).split("///")[1] 
-
-            # Turn folder info back into JSON
+            # Set user's new folder info into Redis as JSON
+            user = get_user_from_session(data)
             folder_info = json.dumps(folder_data)
-            
-            # Set new user folder info into Redis
-            self.user_redis.set(user_id + "_folders", folder_info)
+            self.user_redis.set(user + "_folders", folder_info)
 
             return """)]}',\n{"success": true}"""
 
         # Anonymous User so show samples
         else:
-
-            # How to add anonymous users stuff to temp folder? 
-
+            # TODO: How to add anonymous users stuff to temp folder? 
             return """)]}',\n{"success": false}"""
 
 
