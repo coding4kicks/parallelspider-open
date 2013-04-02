@@ -240,7 +240,7 @@ class InitiateCrawl(resource.Resource):
 
         self.central_redis = central_redis
         self.session_redis = session_redis
-        self.shortExpire = expire['shortExpire'] # for crawl info
+        self.centralExpire = expire['centralExpire']
         self.expire = expire
 
     def render(self, request):
@@ -268,11 +268,11 @@ class InitiateCrawl(resource.Resource):
 
             # Set crawl info into Central Redis
             self.central_redis.set(crawl_id, crawl_json)
-            self.central_redis.expire(crawl_id, self.shortExpire)
+            self.central_redis.expire(crawl_id, self.centralExpire)
 
             # Set crawl count into Central Redis
             self.central_redis.set(crawl_id + "_count", -1)
-            self.central_redis.expire(crawl_id + "_count", self.shortExpire)
+            self.central_redis.expire(crawl_id + "_count", self.centralExpire)
 
             # Set crawl id into Central Redis crawl queue
             self.central_redis.rpush("crawl_queue", crawl_id)
@@ -298,7 +298,7 @@ class CheckCrawlStatus(resource.Resource):
         self.central_redis = central_redis
         self.session_redis = session_redis
         self.longExpire = expire['longExpire']
-        self.shortExpire = expire['shortExpire']
+        self.centralExpire = expire['centralExpire']
         self.expire = expire
 
     def render(self, request):
@@ -329,7 +329,7 @@ class CheckCrawlStatus(resource.Resource):
 
             # retrieve crawl status
             count = self.central_redis.get(crawl_id + "_count")
-            self.central_redis.expire(crawl_id + "_count", self.shortExpire)
+            self.central_redis.expire(crawl_id + "_count", self.centralExpire)
 
             return """)]}',\n{"count": %s}""" % count
 
