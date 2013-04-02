@@ -124,8 +124,7 @@ class CheckUserCredentials(resource.Resource):
         """Initialize Session Redis and Twisted Portal for Authentication"""
         self.portal = portal
         self.session_redis = session_redis
-        self.longExpire = expire['longExpire']
-        self.shortExpire = expire['shortExpire']
+        self.expire = expire
 
     def render(self, request):
         """
@@ -162,24 +161,10 @@ class CheckUserCredentials(resource.Resource):
             Generates, stores, and returns session tokens
         """
 
-        avatarInterface, avatar, logout = avatarInfo
+        avatar = avatarInfo[1]
 
-        # Short session token - for crawl purchases and changing user info
-        short_session = uuid.uuid4().bytes.encode("base64")[:21]
-        self.session_redis.set(short_session, 'ps_shortsession') 
-        self.session_redis.expire(short_session, self.shortExpire)
-
-        # Long session token - for user info and data analysis - longer expire
-        u = uuid.uuid4().bytes.encode("base64")[:4]
-
-        # Include nickname, id, and date for cookie reload and logging
-        # TODO:  fix crawl id
-        v = base64.b64encode(avatar.nickname + '///' + avatar.username + '///'
-                + str(datetime.datetime.now))
-        long_session = v + u
-        self.session_redis.set(long_session, 'ps_longsession')
-        self.session_redis.expire(long_session, self.longExpire)
-
+        short_session, long_session = generate_sessions(
+                avatar, self.session_redis, self.expire)
     
         value = """)]}',\n{"login": "success", 
                             "name": "%s", 
@@ -624,6 +609,28 @@ def set_headers(request):
     request.setHeader('Access-Control-Allow-Headers', access_headers)
 
     return request
+
+def generate_sessions(avatar, session_redis, expire):
+    """Generate and set session info upon login"""
+
+    # Short session token - for crawl purchases and changing user info
+    short_session = uuid.uuid4().bytes.encode("base64")[:21]
+    session_redis.set(short_session, 'ps_shortsession') 
+    session_redis.expire(short_session, expire['shortExpire'])
+    
+    # Long session token - for user info and data analysis - longer expire
+    u = uuid.uuid4().bytes.encode("base64")[:4]
+    
+    # Include nickname, id, and date for cookie reload and logging
+    # TODO:  fix crawl id
+    v = base64.b64encode(avatar.nickname + '///' + avatar.username + '///'
+            + str(datetime.datetime.now))
+    long_session = v + u
+    session_redis.set(long_session, 'ps_longsession')
+    session_redis.expire(long_session, expire['longExpire'])
+    
+    return (short_session, long_session)
+
 
 
 # Command Line Crap & Initialization
