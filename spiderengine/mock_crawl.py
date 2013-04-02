@@ -4,12 +4,13 @@
   Places a crawl in the Central Redis Queue to test the SpiderEngine
 """
 
-import base64
-import datetime
-import json
-import random
 import sys
 import time
+import json
+import urllib
+import random
+import base64
+import datetime
 
 import redis
 
@@ -52,15 +53,16 @@ def mocker():
     crawl_json = json.dumps(crawl_info)
 
     # Create fake crawl id
-    fake_user = base64.b64encode('fake_user')
-    fake_name = base64.b64encode('fake_name')
+    #fake_user = base64.b64encode('fake_user')
+    #fake_name = base64.b64encode('fake_name')
     # Create random fake time so files don't collide
     random_year = str(random.random() * 10000)[:4]
     fake_time = "Fri Mar 15 " + random_year + " 21:00:15 GMT-0700 (PDT)"
-    fake_time = base64.b64encode(fake_time)
-    fake_rand = base64.b64encode(str(random.random())[:4])
-    fake_crawl_id = fake_user + "-" + fake_name + "-" + \
-                    fake_time + "-" + fake_rand
+    #fake_time = base64.b64encode(fake_time)
+    #fake_rand = base64.b64encode(str(random.random())[:4])
+    fake_crawl_id = 'fake_user' + "__" + 'fake_name' + "__" + \
+                    fake_time
+    fake_crawl_id = urllib.quote_plus(fake_crawl_id)
 
     # Push into Central Redis (hardcoded)
     c = redis.Redis('localhost', 6379)

@@ -231,8 +231,8 @@ class CrawlTracker(object):
                 # Execute the crawl
                 # TODO: Incorporate Sun Grid Engine
                 cmd_line = "python spiderrunner.py " + site_list + \
-                           " -r host:" + self.engine_master_host + "," + \
-                               "port:" + self.engine_master_port + \
+                           " -r host:" + self.engine_redis_host + "," + \
+                               "port:" + self.engine_redis_port + \
                            " -m " + str(self.mappers) + \
                            " -t " + str(self.max_pages) + \
                            " -c " + crawl_id
@@ -352,7 +352,7 @@ class CrawlTracker(object):
   
                     # Call cleanup
                     cmd_line = "python spidercleaner.py " +  \
-                        "-r host:" + self.master_host + "," + \
+                        "-r host:" + self.engine_redis_host + "," + \
                         "port:6380 " + \
                         "-c " + crawl_id
                     if self.psuedo_dist:
@@ -426,8 +426,6 @@ def get_crawl_components(crawl_id):
 
     u, n, t  = urllib.unquote_plus(crawl_id).split("__")
     return (u, n, t)
-
-
 
 
 # Command Line Crap & Initialization
@@ -511,7 +509,7 @@ if __name__ == "__main__":
     # Run the twisted client
     tracker = CrawlTracker(central_redis, engine_redis,
                            options.engineRedisHost, options.engineRedisPort, 
-                           options.mock)
+                           options.mock, options.psuedo)
     reactor.callWhenRunning(tracker.checkRedisQueue, 
                             int(options.queuePollTime))
     reactor.callWhenRunning(tracker.checkCrawlStatus,

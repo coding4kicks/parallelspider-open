@@ -371,7 +371,7 @@ class SpiderCleaner(object):
  
                         except:
                             # error unpacking line
-                            # TODO: figure out why it blow up sometimes.
+                            # TODO: figure out why it blows up sometimes.
                             pass
 
                     # Sort and reformat words list for each context word
@@ -471,22 +471,7 @@ class SpiderCleaner(object):
 
         json_data = json.dumps(finished_analysis)
 
-        # Re-add random to crawl id
-        # TODO: fix crawl id
-        #u, n, t = urllib.unquote_plus(config['crawl_id']).split("-")
-        #user_id = base64.b64encode(u)
-        #name = base64.b64encode(n)
-        #ctime = base64.b64encode(t)
-        #b64_crawl_id = user_id + '-' + name + '-' + ctime
-        #print ""
-        #print "b64 crawl id"
-        #print b64_crawl_id
-        #full_crawl_id = b64_crawl_id + '-' + config['random']
-        #full_crawl_id = config['crawl_id'] + "-" + config['random']
         user_id = config['user_id']
-        #print ""
-        #print "full id"
-        #print full_crawl_id
         full_crawl_id = config['crawl_id']
         key = user_id + '/' + full_crawl_id + '.json'
 
