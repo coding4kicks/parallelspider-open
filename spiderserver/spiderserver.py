@@ -242,6 +242,7 @@ class InitiateCrawl(resource.Resource):
         self.session_redis = session_redis
         self.longExpire = expire['longExpire']
         self.shortExpire = expire['shortExpire']
+        self.expire = expire
 
     def render(self, request):
         """
@@ -260,19 +261,15 @@ class InitiateCrawl(resource.Resource):
         crawl_json = request.content.getvalue()
         data = json.loads(crawl_json)
 
-        short_session = data['shortSession'] 
         long_session = data['longSession']
 
-        if self.session_redis.exists(short_session):
-
-            # set new expirations
-            self.session_redis.expire(short_session, self.shortExpire)
-            self.session_redis.expire(long_session, self.longExpire)
+        if short_session_exists(self.session_redis, data, self.expire):
     
             # Create crawl id (user id, crawlname, date, random)
             # TODO: fix crawl id
             crawl = data['crawl']
-            user_decoded = base64.b64decode(long_session).split("///")[1]
+            #user_decoded = base64.b64decode(long_session).split("///")[1]
+            user_decoded = get_user_from_session(data)
             user_id = base64.b64encode(user_decoded)
             name = base64.b64encode(crawl['name'])
             time = base64.b64encode(crawl['time'])
@@ -624,6 +621,31 @@ def generate_session(avatar, session_redis, expire):
     session_redis.expire(long_session, expire['longExpire'])
     
     return (short_session, long_session)
+
+def short_session_exists(session_redis, data, expire):
+    """Check if a short session exists."""
+
+    if 'shortSession' in data:
+        short_session = data['shortSession'] 
+        if session_redis.exists(short_session):
+            # set new expirations (long session also)
+            session_redis.expire(short_session, expire['shortExpire'])
+            if 'longSession' in data:
+                session_redis.expire(
+                    data['longSession'], expire['longExpire'])
+            return True
+    else:
+        return False
+
+def get_user_from_session(data):
+    """Get the user's name form the long session token"""
+
+    if 'longSession' in data:
+        ls = data['longSession']
+        user = base64.b64decode(ls).split("///")[1]
+        return user
+    else:
+        return None
 
 def remove_session(session_redis, data):
     """Remove session information from redis"""
