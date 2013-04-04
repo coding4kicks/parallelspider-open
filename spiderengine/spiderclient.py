@@ -12,7 +12,6 @@ import sys
 import json
 import math
 import time
-import base64
 import urllib
 import logging
 import optparse
@@ -38,6 +37,9 @@ class CrawlTracker(object):
                       crawl, it formats the crawl info and starts the crawl
     checkCrawlStatus - monitors crawl and clean queues for completion and 
                        handles notifying Central Redis of completion
+
+    TODO: Not returning page counts? But returning completion -2.
+    *** Because going immediately to the clean queue???
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,

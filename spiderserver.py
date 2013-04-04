@@ -384,11 +384,6 @@ class GetS3Signature(resource.Resource):
             # Sign URL (assumes AWS keys are in .bashrc / env)
             s3conn = boto.connect_s3()
             url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=key)
-
-            #TEST
-            set_key = "fake_user/" + \
-            "fake_user__fake_name__Fri+Mar+15+731.+21%3A00%3A15+GMT-0700+%28PDT%29.json"
-            url = s3conn.generate_url(30, 'GET', bucket='ps_users', key=set_key)
             
             # Mock AWS S3 backend
             if self.mock:
