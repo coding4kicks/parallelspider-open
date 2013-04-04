@@ -321,19 +321,29 @@ class CrawlTracker(object):
                             self.engine_redis.scard(base + "::new_links")
                         if new_links > 0:
                             not_done = True
-                        
+
+                            # Logging
+                            msg = 'Not Done, still links'                            
+                            self.logger.debug(msg, extra=self.log_header)
+
+                    else: # Haven't started so definitely not done
+                        not_done = True
+
+                        # Logging
+                        msg = 'Not Done, no count yet'                            
+                        self.logger.debug(msg, extra=self.log_header)
   
                 # Only update to crawling vice initializing if total > 0
                 if total_count > 0:
                     self.central_redis.set(crawl_id + "_count", total_count) 
-                if total_count > self.max_pages or not not_done:
-                    done = True
+                    if total_count > self.max_pages or not not_done:
+                        done = True
 
-                    # Logging
-                    msg = ('total_count: {!s} max_pages: {!s} '
-                           'links_not_done {!s}'
-                           ).format(total_count, self.max_pages, not_done) 
-                    self.logger.debug(msg, extra=self.log_header)
+                        # Logging
+                        msg = ('total_count: {!s} max_pages: {!s} '
+                               'links_not_done {!s}'
+                               ).format(total_count, self.max_pages, not_done) 
+                        self.logger.debug(msg, extra=self.log_header)
 
   
                 # If done check all sites for a success file
