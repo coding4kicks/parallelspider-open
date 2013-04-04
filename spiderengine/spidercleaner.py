@@ -12,6 +12,7 @@ import json
 import time
 import redis
 import urllib
+import logging
 import optparse
 import subprocess
 
@@ -501,6 +502,64 @@ class SpiderCleaner(object):
 
         #pp.pprint(json_data)
 
+
+# Helper Funcs
+###############################################################################
+
+def set_logging_level(level="production"):
+    """
+    Initialize logging parameters
+    
+    3 levels: Production, Develop & Debug
+    Production - default, output info & errors to logfile
+    Develop - output info and errors to console
+    Debug - output debug, info and errors to console
+
+    Args:
+        level - set output content & location
+
+    Message format:
+        type: spider type: cleaner, server, client, ...
+        host: computer executing program
+        id: unique run id (set at start of program)
+        asctime: time
+        mtype: type of message (set at call in program)
+        message: (set at call in program)
+
+    Sample:
+        logger.warning('Protocol problem: %s', 'connection reset', 
+                        extra=log_header)
+
+    TODO: import vice copy and paste
+    """
+    import socket
+
+    # Log message is spider type, host, unique run id, time, and message
+    #FORMAT = "spider%(spider_type)s %(host)s %(id)d %(asctime)s " + \
+    #         "%(msg_type)s %(message)s"
+    FORMAT = "%(host)s %(id)d %(message)s"
+    HOST = socket.gethostbyname(socket.gethostname())
+    SPDR_TYPE = "cleaner"
+    FILENAME = "~/var/log/spider/spider" + SPDR_TYPE + ".log"
+    log_header = {'id': 0, 'spider_type': SPDR_TYPE, 'host': HOST, 'msg_type':'none'}
+
+    if level == "development": # to console
+        logging.basicConfig(format=FORMAT, level=logging.INFO)
+    elif level == "debug": # extra info
+        logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+    else: # production, to file (default)
+        logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.INFO)
+
+    logger = logging.getLogger('spider' + SPDR_TYPE)
+
+    return (logger, log_header)
+
+
+
+
+# Command Line Crap & Initialization
+###############################################################################
+
 def main():
     """Handle command line options"""
 
@@ -526,8 +585,24 @@ def main():
             default="", dest="psuedo", 
             help="Psuedo Distributed Mode. [default: False]")
 
+    # Logging Level 
+    parser.add_option(
+            "-l", "-L", "--logging", action="store", 
+            default="production", dest="log_level", 
+            help="Set log level. [default: False]")
+
     # Argument is a comma separted list of site names
     (options, args) = parser.parse_args()
+
+    # Set up logging
+    options.log_level = "debug" #TESTING
+    log_info = set_logging_level(level=options.log_level)
+    logger, log_header = log_info
+    log_header['msg_type'] = "Initialization"
+    msg = """Starting with parameters"""
+    print log_header
+    logger.info(msg, extra=log_header)
+
 
     # Convert Redis info to a Python dictionary
     # TODO: make argument if required or create default

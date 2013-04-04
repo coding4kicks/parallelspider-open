@@ -430,6 +430,10 @@ def get_crawl_components(crawl_id):
     u, n, t  = urllib.unquote_plus(crawl_id).split("__")
     return (u, n, t)
 
+def set_logging_level(level):
+    pass
+
+
 
 # Command Line Crap & Initialization
 ###############################################################################
