@@ -748,10 +748,9 @@ def set_logging_level(level="production"):
     # Log message is spider type, host, unique run id, time, and message
     FORMAT = "spider%(spider_type)s %(host)s %(id)d %(asctime)s " + \
              "%(msg_type)s %(message)s"
-    #FORMAT = "%(host)s %(id)d %(asctime)s %(message)s"
     HOST = socket.gethostbyname(socket.gethostname())
     SPDR_TYPE = "server"
-    FILENAME = "~/var/log/spider/spider" + SPDR_TYPE + ".log"
+    FILENAME = "/var/log/spider/spider" + SPDR_TYPE + ".log"
     log_header = {'id': 0, 'spider_type': SPDR_TYPE, 'host': HOST, 'msg_type':'none'}
 
     if level == "develop": # to console

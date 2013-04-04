@@ -10,6 +10,7 @@ import os
 import sys
 import json
 import time
+import copy
 import redis
 import urllib
 import logging
@@ -20,23 +21,25 @@ import subprocess
 import boto
 import boto.s3.key
 
-import pprint
-pp = pprint.PrettyPrinter(indent=2)
 
 class SpiderCleaner(object):
     """
     """
 
-    def __init__(self, redis_info, crawl_info, psuedo):
+    def __init__(self, redis_info, crawl_info, psuedo, log_info):
         """ 
         args:
             redis_info - local Engine Redis instance
             crawl_info - crawl details, needed for cleanup
+            psuedo - True for psuedo distributed testing
+            log_info - logger and log header
         """   
         self.redis_info = redis_info      
         self.crawl_info = crawl_info
         self.psuedo_dist = psuedo
-           
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "Execute - "
 
     def execute(self):
         """
@@ -99,9 +102,6 @@ class SpiderCleaner(object):
            config['analyze_external_pages'] == True):
             content_types.append('external')
 
-        print ""
-        print analysis_types
-
         # Variables for analysis types
         analysis = {}
         analysis['internal'] = {"key": "i_", "web_name": ""}
@@ -146,11 +146,6 @@ class SpiderCleaner(object):
 
             site_results = {}
             
-            print ""
-            print "MADE IT COWBOY"
-            print "MADE IT COWBOY"
-            print "MADE IT COWBOY"
-
             # Construct file name details
             base = '%s::%s' % (site, config['crawl_id'])
             base_path = base.replace("/","_").replace(":","-")
@@ -166,7 +161,6 @@ class SpiderCleaner(object):
 
             # Format both internal and external results
             for c_type in ['internal','external']:
-                print "hereeeeo" 
                 # If analysis not performed, create empty placeholders and exit
                 if c_type not in content_types:
                     
@@ -187,7 +181,6 @@ class SpiderCleaner(object):
                 results = {} # Holder for specific results
                 
                 for a_type in all_analyses:
-                    print a_type
                     # Create the correct key for Spider Web name
                     results[analysis[a_type]['web_name']] = {}
                     
@@ -463,7 +456,7 @@ class SpiderCleaner(object):
                 site_results['url'] = site
                 
                 finished_analysis['sites'].append(site_results)
-        print 'ending'     
+        
         # All done, clock time
         finish_time = time.clock()
         cleanup_time = finish_time - start_time
@@ -476,10 +469,6 @@ class SpiderCleaner(object):
         full_crawl_id = config['crawl_id']
         key = user_id + '/' + full_crawl_id + '.json'
 
-        print ""
-        print "key"
-        print key
-            
         # Upload to S3 (assumes AWS keys are in .bashrc / env)
         s3conn = boto.connect_s3()
         bucket_name = "ps_users" # TODO: put in config init
@@ -489,31 +478,24 @@ class SpiderCleaner(object):
         # TODO: add upload monitoring
         k.set_contents_from_string(json_data) 
 
-        print 'success'
-
         # Update first site's count in Engine Redis
         # TODO: fix crawl id
         engine_crawl_id = config['crawl_id']
         for site in site_list:
             base = '%s::%s' % (site, engine_crawl_id)
             r.set(base + "::count", "-2")
-            print "updated count"
-            print base
-
-        #pp.pprint(json_data)
 
 
 # Helper Funcs
 ###############################################################################
-
 def set_logging_level(level="production"):
     """
     Initialize logging parameters
     
-    3 levels: Production, Develop & Debug
-    Production - default, output info & errors to logfile
-    Develop - output info and errors to console
-    Debug - output debug, info and errors to console
+    3 levels: production, develop & debug
+    production - default, output info & errors to logfile
+    develop - output info and errors to console
+    debug - output debug, info and errors to console
 
     Args:
         level - set output content & location
@@ -535,26 +517,25 @@ def set_logging_level(level="production"):
     import socket
 
     # Log message is spider type, host, unique run id, time, and message
-    #FORMAT = "spider%(spider_type)s %(host)s %(id)d %(asctime)s " + \
-    #         "%(msg_type)s %(message)s"
-    FORMAT = "%(host)s %(id)d %(message)s"
+    FORMAT = "spider%(spider_type)s %(host)s %(id)d %(asctime)s " + \
+             "%(msg_type)s %(message)s"
+    # Special format for debugging so boto doesn't blow up
+    FORMAT_DEBUG = "SpiderCleaner %(asctime)s %(message)s"
     HOST = socket.gethostbyname(socket.gethostname())
     SPDR_TYPE = "cleaner"
-    FILENAME = "~/var/log/spider/spider" + SPDR_TYPE + ".log"
+    FILENAME = "/var/log/spider/spider" + SPDR_TYPE + ".log"
     log_header = {'id': 0, 'spider_type': SPDR_TYPE, 'host': HOST, 'msg_type':'none'}
 
-    if level == "development": # to console
+    if level == "develop": # to console
         logging.basicConfig(format=FORMAT, level=logging.INFO)
     elif level == "debug": # extra info
-        logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+        logging.basicConfig(format=FORMAT_DEBUG, level=logging.DEBUG)
     else: # production, to file (default)
         logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.INFO)
 
     logger = logging.getLogger('spider' + SPDR_TYPE)
 
     return (logger, log_header)
-
-
 
 
 # Command Line Crap & Initialization
@@ -595,14 +576,13 @@ def main():
     (options, args) = parser.parse_args()
 
     # Set up logging
-    options.log_level = "debug" #TESTING
+    #options.log_level = "debug"
+    options.log_level = "develop"
     log_info = set_logging_level(level=options.log_level)
     logger, log_header = log_info
-    log_header['msg_type'] = "Initialization"
-    msg = """Starting with parameters"""
-    print log_header
-    logger.info(msg, extra=log_header)
-
+    log_header['msg_type'] = "Initialization - "
+    msg = """starting options: %s""" % (options)
+    #logger.info(msg, extra=log_header)
 
     # Convert Redis info to a Python dictionary
     # TODO: make argument if required or create default
@@ -615,7 +595,7 @@ def main():
     
     #  Initialize and execute spider runner
     spider_cleaner = SpiderCleaner(redis_info, options.crawlInfo, 
-                                   options.psuedo) 
+                                   options.psuedo, log_info) 
     spider_cleaner.execute()
 
 if __name__ == "__main__":
