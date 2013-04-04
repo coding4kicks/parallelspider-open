@@ -548,6 +548,7 @@ if __name__ == "__main__":
         -q - Engine Redis port info (default 6380)
         -m - Mock backend for front-end testing
         -d - psuedo distributed mode for testing
+        -l - logging level (default production)
     """
 
     usage = "usage: %prog [options]"

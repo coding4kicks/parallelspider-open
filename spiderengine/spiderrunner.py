@@ -16,9 +16,11 @@
 """
 
 import sys
-import redis
-import datetime
 import json
+import copy
+import redis
+import logging
+import datetime
 import optparse
 import lxml.html
 import contextlib
@@ -38,8 +40,8 @@ class SpiderRunner(object):
     main     - executes the program from the command line
     """
 
-    def __init__(self, site_list, redis_info, 
-                 max_mappers, max_pages, crawl_info, psuedo):
+    def __init__(self, site_list, redis_info, max_mappers, max_pages,
+                 crawl_info, psuedo, log_info):
         """ 
         Initializes inputs and creates a timestamp
 
@@ -48,6 +50,9 @@ class SpiderRunner(object):
         redis_info      --  host location and port of redis
         max_mappers     --  number of mappers to control concurrency
         max_pages       --  max number of pages to download
+        crawl_info      --  crawl id
+        psuedo          --  psuedo distributed for testing
+        log_info        --  logger and header info
 
         Returns:
         data_location   --  location in S3 data is saved to
@@ -59,7 +64,6 @@ class SpiderRunner(object):
         user.
 
         TODO: save initial link into new_links???
-
         """
 
         self.site_list = site_list         
@@ -68,6 +72,9 @@ class SpiderRunner(object):
         self.max_pages = max_pages
         self.crawl_info = crawl_info
         self.psuedo = psuedo
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "Execute - "
 
         # Create a time stamp (no querries should be issued in the same second
         # for the same website - default to cache??? refactor?)
@@ -97,9 +104,6 @@ class SpiderRunner(object):
         # Connect to Redis
         r = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
-
-        # Set up configuration file
-        #config_file = r.get('config')
         
         config_file = r.get(self.crawl_info)
         config = json.loads(config_file)
@@ -182,13 +186,6 @@ class SpiderRunner(object):
                         " -hadoop starcluster")
             subprocess.call(add_file, shell=True)
 
-            print ""
-            print "base"
-            print base
-            print ""
-            print "base path"
-            print base_path
-
             # Distributed mode
             parallel_spider = ("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
                          " -input /HDFS/parallelspider/jobs/" + file_name + \
@@ -216,13 +213,78 @@ class SpiderRunner(object):
                          ",base:" + base + \
                          ",maxPages:" + str(self.max_pages))
 
-            print self.psuedo
+            # Logging
+            msg = ('psuedo: {!s}').format(self.psuedo) 
+            self.logger.debug(msg, extra=self.log_header)
+
             if self.psuedo:
                 subprocess.Popen(psuedo_dist, shell=True)
+
+                # Logging
+                msg = ('cmd_line: {!s}').format(psuedo_dist) 
+                self.logger.debug(msg, extra=self.log_header)
+
             else:
                 subprocess.Popen(parallel_spider, shell=True)
 
+                # Logging
+                msg = ('cmd_line: {!s}').format(parallel_spider) 
+                self.logger.debug(msg, extra=self.log_header)
 
+
+# Helper Funcs
+###############################################################################
+def set_logging_level(level="production"):
+    """
+    Initialize logging parameters
+    
+    3 levels: production, develop & debug
+    production - default, output info & errors to logfile
+    develop - output info and errors to console
+    debug - output debug, info and errors to console
+
+    Args:
+        level - set output content & location
+
+    Message format:
+        type: spider type: cleaner, server, client, ...
+        host: computer executing program
+        id: unique run id (set at start of program)
+        asctime: time
+        mtype: type of message (set at call in program)
+        message: (set at call in program)
+
+    Sample:
+        logger.warning('Protocol problem: %s', 'connection reset', 
+                        extra=log_header)
+
+    TODO: import vice copy and paste
+    """
+    import socket
+
+    # Log message is spider type, host, unique run id, time, and message
+    FORMAT = "spider%(spider_type)s %(host)s %(id)d %(asctime)s " + \
+             "%(msg_type)s %(message)s"
+    #FORMAT = "%(host)s %(id)d %(asctime)s %(message)s"
+    HOST = socket.gethostbyname(socket.gethostname())
+    SPDR_TYPE = "runner"
+    FILENAME = "~/var/log/spider/spider" + SPDR_TYPE + ".log"
+    log_header = {'id': 0, 'spider_type': SPDR_TYPE, 'host': HOST, 'msg_type':'none'}
+
+    if level == "develop": # to console
+        logging.basicConfig(format=FORMAT, level=logging.INFO)
+    elif level == "debug": # extra info
+        logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+    else: # production, to file (default)
+        logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.INFO)
+
+    logger = logging.getLogger('spider' + SPDR_TYPE)
+
+    return (logger, log_header)
+
+
+# Command Line Crap & Initialization
+###############################################################################
 def main():
     """Run the program from the command line."""
 
@@ -259,6 +321,12 @@ def main():
             "-d", "-D", "--psuedo", action="store_true", 
             default="", dest="psuedo", 
             help="Psuedo Distributed Mode. [default: False]")
+    
+    # Logging Level 
+    parser.add_option(
+            "-l", "-L", "--logging", action="store", 
+            default="production", dest="log_level", 
+            help="Set log level. [default: False]")
 
     # Argument is a comma separted list of site names
     (options, args) = parser.parse_args()
@@ -286,6 +354,15 @@ def main():
     if max_mappers < 1:
         parser.error("maxMappers must be greater than 0")
 
+    # Set up logging
+    options.log_level = "debug"
+    #options.log_level = "develop"
+    log_info = set_logging_level(level=options.log_level)
+    logger, log_header = log_info
+    log_header['msg_type'] = "Initialization - "
+    msg = """starting options: %s""" % (options)
+    logger.info(msg, extra=log_header)
+
     # Check total pages is greater than 0
     # TODO: make robust against float or string
     max_pages = int(options.maxPages)
@@ -295,7 +372,8 @@ def main():
     #  Initialize and execute spider runner
     spider_runner = SpiderRunner(site_list, redis_info, 
                                  max_mappers, max_pages, 
-                                 options.crawlInfo, options.psuedo) 
+                                 options.crawlInfo, options.psuedo,
+                                 log_info) 
     spider_runner.execute()
 
 
