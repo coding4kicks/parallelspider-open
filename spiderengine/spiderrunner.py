@@ -236,7 +236,6 @@ def main():
             default='config', dest="crawlInfo", 
             help="Where crawl info is stored in Redis [default: %default]")
 
-
     # Maximum number of mappers (controls download rate)
     parser.add_option(
             "-m", "-M", "--maxMappers", action="store", 

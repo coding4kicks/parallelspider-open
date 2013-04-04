@@ -12,6 +12,7 @@ import sys
 import json
 import math
 import time
+import copy
 import urllib
 import logging
 import optparse
@@ -43,7 +44,7 @@ class CrawlTracker(object):
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,
-            engine_redis_port=6380, mock=False, psuedo=False):
+            engine_redis_port=6380, mock=False, psuedo=False, log_info=None):
         """
         Construct a singleton Crawl Tracker
 
@@ -61,6 +62,8 @@ class CrawlTracker(object):
         self.engine_redis_port = engine_redis_port
         self.mock = mock
         self.psuedo_dist = psuedo
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
 
         self.crawlQueue = [] # Queue of IDs of Crawls being executed
         self.cleanQueue = [] # Queue of IDs of Crawls being cleaned up
@@ -86,6 +89,8 @@ class CrawlTracker(object):
         Args
             poll_time - how often in seconds to check Central Redis crawl queue
         """
+                
+        self.log_header['msg_type'] = "checkRedisQueue - "
         
         # Process a crawlid  from the Central Redis queue
         crawl_id = self.central_redis.lpop('crawl_queue') 
@@ -100,11 +105,18 @@ class CrawlTracker(object):
             crawl['crawl_id'] = crawl_id
             crawl['user_id'] = get_crawl_components(crawl_id)[0]
 
+            # Logging
+            msg = """Crawl info from Spider Web: %s""" % (web_crawl)
+            self.logger.debug(msg, extra=self.log_header)
+
+
             # Add primary site to crawl site list
             if 'primarySite' in web_crawl:
                 site_list = web_crawl['primarySite']    
             else:
-                logging.error('No primary site to crawl.')
+                # TODO: throw exception
+                msg = """No primary site to crawl."""
+                self.logger.error(msg, extra=self.log_header)
   
             # Add other sites to crawl site list
             if 'additionalSites' in web_crawl:
@@ -129,8 +141,10 @@ class CrawlTracker(object):
                 # TODO: web_crawl['time'] should be date
                 crawl['date'] = web_crawl['time']
             else:
-                logging.error('Crawl date not set in web data.')
+                msg = """Time not set."""
+                self.logger.warning(msg, extra=self.log_header)
                 crawl['date'] = 'error'
+
             crawl['time'] = time.clock()
   
             # Set max pages to crawl
@@ -213,7 +227,11 @@ class CrawlTracker(object):
                         crawl['wordnet_lists'][name] = list
                     else:
                         print 'error error should not be here'
-    
+
+            # Logging
+            msg = """Crawl info to Spider Runner: %s""" % (crawl)
+            self.logger.info(msg, extra=self.log_header)
+
             # Add crawl info to local engine redis
             crawl_info = json.dumps(crawl)
             self.engine_redis.set(crawl_id, crawl_info)
@@ -240,7 +258,11 @@ class CrawlTracker(object):
                            " -c " + crawl_id
                 if self.psuedo_dist:
                     cmd_line += " -d"
-                print cmd_line
+
+                # Logging
+                msg = """Cmd Line: %s""" % (cmd_line)
+                self.logger.debug(msg, extra=self.log_header)
+
                 p = subprocess.Popen(cmd_line, shell=True) 
   
         # Continue to check the Central Redis queue (default every second).
@@ -261,8 +283,10 @@ class CrawlTracker(object):
         Args
             poll_time - how often in seconds to check Central Redis crawl queue
         """
-  
-        # Fake the funck
+
+        self.log_header['msg_type'] = "checkCrawlStatus - "
+
+        # Fake the funk
         if self.mock:
             for crawl_id in self.crawlQueue:
                 # Retrieve page count from engine and set in central redis
@@ -304,12 +328,23 @@ class CrawlTracker(object):
                     self.central_redis.set(crawl_id + "_count", total_count) 
                 if total_count > self.max_pages or not not_done:
                     done = True
+
+                    # Logging
+                    msg = ('total_count: {!s} max_pages: {!s} '
+                           'links_not_done {!s}'
+                           ).format(total_count, self.max_pages, not_done) 
+                    self.logger.debug(msg, extra=self.log_header)
+
   
                 # If done check all sites for a success file
                 if done:
                     for site in self.site_list[crawl_id]:
                         base = '%s::%s' % (site, crawl_id)
                         base_path = base.replace("/","_").replace(":","-")
+
+                        # Logging
+                        msg = """Done, checking: %s""" % (base_path) 
+                        self.logger.debug(msg, extra=self.log_header)
   
                         # Special case: testing in psuedo distributed mode
                         # No success file so check path exists, TODO: broken
@@ -318,6 +353,10 @@ class CrawlTracker(object):
                             if not os.path.exists(path + base_path):
                                 really_not_done = True
 
+                                # Logging
+                                msg = """Path doesn't exist""" 
+                                self.logger.debug(msg, extra=self.log_header)
+
                         # Distributed Crawl 
                         else:
                             # list output files and look for success
@@ -325,10 +364,19 @@ class CrawlTracker(object):
                             cmd = "dumbo ls /HDFS/parallelspider/out/" + \
                                    base_path + " -hadoop starcluster"
                             files = subprocess.check_output(cmd, shell=True)
+        
+                            # Logging
+                            msg = """Checking for success file in: %s""" \
+                                    % (files)
+                            self.logger.debug(msg, extra=self.log_header)
 
                             # If success file then we're not really done yet
                             if "_SUCCESS" not in files:
                                 really_not_done = True
+
+                                # Logging
+                                msg = """No success file""" 
+                                self.logger.debug(msg, extra=self.log_header)
   
   
                 # If all sites are done, crawl is complete so cleanup.
@@ -350,7 +398,7 @@ class CrawlTracker(object):
                     config['time'] = stop_time - start_time
                     config_json = json.dumps(config)
                     self.engine_redis.set(crawl_id, config_json)
-  
+
                     # TODO: should add a -3 for cleaning up
   
                     # Call cleanup
@@ -360,6 +408,11 @@ class CrawlTracker(object):
                         "-c " + crawl_id
                     if self.psuedo_dist:
                         cmd_line += " -d"
+
+                    # Logging
+                    msg = """cmd_line: %s""" % (cmd_line)
+                    self.logger.debug(msg, extra=self.log_header)
+
                     p = subprocess.Popen(cmd_line, shell=True) 
                     
              
@@ -370,10 +423,12 @@ class CrawlTracker(object):
                 site = self.site_list[crawl_id][0]
                 base = '%s::%s' % (site, crawl_id)
                 site_count = self.engine_redis.get(base + "::count")
-                print ""
-                print "clean q base and count"
-                print base
-                print site_count
+
+                # Logging
+                msg = """Cleanup Queue base: %s count: %s""" \
+                            % (base, site_count)
+                self.logger.debug(msg, extra=self.log_header)
+
                 if site_count == "-2":
                     self.central_redis.set(crawl_id + "_count", site_count)
                     self.cleanQueue.remove(crawl_id)
@@ -430,9 +485,53 @@ def get_crawl_components(crawl_id):
     u, n, t  = urllib.unquote_plus(crawl_id).split("__")
     return (u, n, t)
 
-def set_logging_level(level):
-    pass
+def set_logging_level(level="production"):
+    """
+    Initialize logging parameters
+    
+    3 levels: production, develop & debug
+    production - default, output info & errors to logfile
+    develop - output info and errors to console
+    debug - output debug, info and errors to console
 
+    Args:
+        level - set output content & location
+
+    Message format:
+        type: spider type: cleaner, server, client, ...
+        host: computer executing program
+        id: unique run id (set at start of program)
+        asctime: time
+        mtype: type of message (set at call in program)
+        message: (set at call in program)
+
+    Sample:
+        logger.warning('Protocol problem: %s', 'connection reset', 
+                        extra=log_header)
+
+    TODO: import vice copy and paste
+    """
+    import socket
+
+    # Log message is spider type, host, unique run id, time, and message
+    FORMAT = "spider%(spider_type)s %(host)s %(id)d %(asctime)s " + \
+             "%(msg_type)s %(message)s"
+    #FORMAT = "%(host)s %(id)d %(asctime)s %(message)s"
+    HOST = socket.gethostbyname(socket.gethostname())
+    SPDR_TYPE = "client"
+    FILENAME = "~/var/log/spider/spider" + SPDR_TYPE + ".log"
+    log_header = {'id': 0, 'spider_type': SPDR_TYPE, 'host': HOST, 'msg_type':'none'}
+
+    if level == "develop": # to console
+        logging.basicConfig(format=FORMAT, level=logging.INFO)
+    elif level == "debug": # extra info
+        logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+    else: # production, to file (default)
+        logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.INFO)
+
+    logger = logging.getLogger('spider' + SPDR_TYPE)
+
+    return (logger, log_header)
 
 
 # Command Line Crap & Initialization
@@ -496,6 +595,12 @@ if __name__ == "__main__":
             default="5", dest="statusPollTime", 
             help="How often to poll for crawl status. [default: %default]")
 
+    # Logging Level 
+    parser.add_option(
+            "-l", "-L", "--logging", action="store", 
+            default="production", dest="log_level", 
+            help="Set log level. [default: False]")
+
     # Parse and validate
     (options, args) = parser.parse_args()
     if int(options.centralRedisPort) < 1:
@@ -507,16 +612,25 @@ if __name__ == "__main__":
     if int(options.statusPollTime) <= 0:
         parser.error("Status poll time must be positive")
 
+    # Set up logging
+    options.log_level = "debug"
+    #options.log_level = "develop"
+    log_info = set_logging_level(level=options.log_level)
+    logger, log_header = log_info
+    log_header['msg_type'] = "Initialization - "
+    msg = """starting options: %s""" % (options)
+    logger.info(msg, extra=log_header)
+
     # Create redis objects
     central_redis = redis.StrictRedis(host=options.centralRedisHost,
                           port=int(options.centralRedisPort), db=0)
     engine_redis = redis.StrictRedis(host=options.engineRedisHost,
                           port=int(options.engineRedisPort), db=0)
-    print options.psuedo
+    
     # Run the twisted client
     tracker = CrawlTracker(central_redis, engine_redis,
                            options.engineRedisHost, options.engineRedisPort, 
-                           options.mock, options.psuedo)
+                           options.mock, options.psuedo, log_info)
     reactor.callWhenRunning(tracker.checkRedisQueue, 
                             int(options.queuePollTime))
     reactor.callWhenRunning(tracker.checkCrawlStatus,

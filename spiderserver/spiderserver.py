@@ -721,10 +721,10 @@ def set_logging_level(level="production"):
     """
     Initialize logging parameters
     
-    3 levels: Production, Develop & Debug
-    Production - default, output info & errors to logfile
-    Develop - output info and errors to console
-    Debug - output debug, info and errors to console
+    3 levels: production, develop & debug
+    production - default, output info & errors to logfile
+    develop - output info and errors to console
+    debug - output debug, info and errors to console
 
     Args:
         level - set output content & location
@@ -754,7 +754,7 @@ def set_logging_level(level="production"):
     FILENAME = "~/var/log/spider/spider" + SPDR_TYPE + ".log"
     log_header = {'id': 0, 'spider_type': SPDR_TYPE, 'host': HOST, 'msg_type':'none'}
 
-    if level == "development": # to console
+    if level == "develop": # to console
         logging.basicConfig(format=FORMAT, level=logging.INFO)
     elif level == "debug": # extra info
         logging.basicConfig(format=FORMAT, level=logging.DEBUG)
@@ -831,12 +831,13 @@ if __name__ == "__main__":
     if int(options.centralRedisPort) < 1:
         parser.error("Central Redis port number must be greater than 0")
     if int(options.userRedisPort) < 1:
-        parser.error("User Redis port number must be greater than 0")
+        parser.error("User Redis port number must be greater than 0")
     if int(options.sessionRedisPort) < 1:
         parser.error("User Redis port number must be greater than 0")
 
     # Set up logging
-    options.log_level = "debug" #TESTING
+    #options.log_level = "debug"
+    options.log_level = "develop"
     l = set_logging_level(level=options.log_level)
     logger, log_header = l
     log_header['msg_type'] = "Initialization - "
