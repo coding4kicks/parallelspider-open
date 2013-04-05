@@ -48,8 +48,8 @@ class Brain(object):
         1) Make easy to add additional data
         2) Add Selectors
         3) Add Synonym Rings
-        4) Get Total Word Count
-        5) Get Total Tag Count for each type
+        4) x Get Total Word Count
+        5) x Get Total Tag Count for each type
         6) Get Total External and Internal link counts
         LATER
         7) Make variables more consitent with Spider Client and Spider Web
@@ -147,7 +147,7 @@ class Brain(object):
                         'context_word': 'cntw', 'wordnet': 'wdnt',
                         'total_count': 'totl', 'selector': 'selc', 
                         'selector_word': 'selw', 'tag_count': 'tagc',
-                        'error_message': 'zmsg'}
+                        'link_count': 'lnkc', 'error_message': 'zmsg'}
 
 
     def analyze(self, doc, page_link, robots_txt,
@@ -207,7 +207,6 @@ class Brain(object):
                 tag = element.tag
                 text = element.text
                 tail = element.tail
-                words = None # text words split to list
             except:
                 breaker = True
 
@@ -216,6 +215,7 @@ class Brain(object):
                 continue
 
             # Combine text and tail, then lowercase and split to list
+            words = None # text words split to list
             if tail:
                 if text:
                     text = text + " " + tail
@@ -243,6 +243,13 @@ class Brain(object):
             if no_emit:
                 continue
 
+            # TODO: emit tag_count + tag, 1
+            key_total = '%s%s_%s' % (
+                self.label['tag_count'],
+                external_bit, tag) 
+            value = (key_total, 1)
+            mapper_output.append(value)
+
             # TODO: Break if no words
             if not words:
                 continue
@@ -261,18 +268,11 @@ class Brain(object):
                 #    (tag, total)))
                 value = (key_total, total)
                 mapper_output.append(value)
-
-            # TODO: emit tag_count + tag, 1
-            key_total = '%s%s_%s' % (
-                self.label['tag_count'],
-                external_bit, tag) 
-            value = (key_total, 1)
-            mapper_output.append(value)
  
             # Process Text
             # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: check "if words" earlier and break if none
             # TODO: move to function
+            # TODO: Add span and div, duplicates???
             if self.text_request:
                 if (tag == 'p' or tag == 'li' or tag == 'td' or 
                     tag == 'h1' or tag == 'h2' or tag == 'h3' or
@@ -291,7 +291,6 @@ class Brain(object):
 
             # Process Headers
             # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: check "if words" earlier and break if none
             # TODO: move to function
             if self.header_request:
                 if (tag == 'h1' or tag == 'h2' or tag == 'h3' or
@@ -309,7 +308,6 @@ class Brain(object):
 
             # Process anchor tags
             # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: check "if words" earlier and break if none
             # TODO: move to function
             if self.a_tags_request:
                 if (tag == 'a'):
@@ -326,7 +324,6 @@ class Brain(object):
 
             # Process meta data
             # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: check "if words" earlier and break if none
             # TODO: move to function
             if self.meta_request:
                 # Retrieve text from the title
