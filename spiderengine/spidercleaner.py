@@ -137,7 +137,8 @@ class SpiderCleaner(object):
         finished_analysis['sites'] = []
 
         if isinstance(config['sites'], (str, unicode)):
-            site_list = [config['sites']]
+
+            site_list = config['sites'].split(',')
         else:
             site_list = config['sites']
 
