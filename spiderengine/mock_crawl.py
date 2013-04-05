@@ -32,11 +32,6 @@ def mocker():
     crawl["time"] = "Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)" 
     crawl["additionalSites"] = [] #["http://www.nbcnews.com", "http://www.cnn.com"]
 
-    # TODO: Have Spider Client monitor for completion
-    # and call cleanup code.  Track max pages from all sites
-    # and track new_link queues to check if empty
-    # TODO: Switch out harcoded config to crawl_id
-    # TODO: divide total max pages by number of sites
     
     # TODO: Implement
     crawl["totalResults"] = 100
@@ -53,13 +48,9 @@ def mocker():
     crawl_json = json.dumps(crawl_info)
 
     # Create fake crawl id
-    #fake_user = base64.b64encode('fake_user')
-    #fake_name = base64.b64encode('fake_name')
     # Create random fake time so files don't collide
     random_year = str(random.random() * 10000)[:4]
     fake_time = "Fri Mar 15 " + random_year + " 21:00:15 GMT-0700 (PDT)"
-    #fake_time = base64.b64encode(fake_time)
-    #fake_rand = base64.b64encode(str(random.random())[:4])
     fake_crawl_id = 'fake_user' + "__" + 'fake_name' + "__" + \
                     fake_time
     fake_crawl_id = urllib.quote_plus(fake_crawl_id)

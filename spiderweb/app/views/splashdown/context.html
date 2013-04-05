@@ -7,7 +7,7 @@
 
 <!-- CONTEXT WORDS
 ================================================== -->
-    <div ng-repeat="context in site[results].context.contextWords" class="analysis-box">
+    <div ng-repeat="context in site[results].context" class="analysis-box">
       <h4 ng-click="showInfo(site, 'context', context, 'Word', 'Context Word', 'context')" class="clickable">{{context.word}}</h4>
       <div class="count-and-percent">
         <h5 class="count-total">Count: <span class="url">{{context.count}}</span></h5>

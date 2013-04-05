@@ -152,7 +152,6 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
     }
   }
 
-
   /*
    * getAnalysis - retrieves crawl results from results service and performs initialization
    *

@@ -175,8 +175,8 @@ class SpiderCleaner(object):
                     
                     placeholders = {'visibleText': {}, 'hiddenText': {}, 'headlineText': {},
                     'allLinks': {}, 'externalDomains': {}, 'linkText': {},
-                    'searchWords': {}, 'context': {},
-                    'synonymRings': {}, 'summary': {'pages':{'count':0}, 'words':{'count':0}},
+                    'searchWords': {}, 'context': [],
+                    'synonymRings': [], 'summary': {'pages':{'count':0}, 'words':{'count':0}},
                     'selectors': {} }
                     
                     if c_type == 'internal':
@@ -315,7 +315,10 @@ class SpiderCleaner(object):
                 # Handle Context
                 # Handling as a Python string, may blow up on large data
                 if 'wordContexts' in analysis_types:
-                    
+
+                    # Word contexts are in a list
+                    results[analysis['wordContexts']['web_name']] = []
+
                     # Create the key to grep/filter the master file by
                     key = analysis['wordContexts']['key'] + analysis[c_type]['key']
                     
@@ -410,8 +413,10 @@ class SpiderCleaner(object):
                         context_details['tags'] = []
 
                         # Add context word details to the results
-                        results[analysis['wordContexts']['web_name']][j] \
-                                = context_details
+                        #results[analysis['wordContexts']['web_name']][j] \
+                        #        = context_details
+                        results[analysis['wordContexts']['web_name']].append(context_details)
+
                     
                 #TODO: Handle Synonyms
 
