@@ -243,7 +243,7 @@ class Brain(object):
             if no_emit:
                 continue
 
-            # TODO: emit tag_count + tag, 1
+            # Emit tag count for each tag
             key_total = '%s%s_%s' % (
                 self.label['tag_count'],
                 external_bit, tag) 
@@ -450,12 +450,29 @@ class Brain(object):
                                            self.paths_to_follow,
                                            robots_txt)
 
-        # TODO: emit total_lins + ext/int, len(ext_links) or 
-        # len(all_links - ext_links)
-
         # If not processing just return with new links
         if no_emit:
             return
+
+        # TODO: emit total_lins + ext/int, len(ext_links) or 
+        # len(all_links - ext_links)
+        total_links = len(all_links)
+        external_links = len(ext_links)
+        internal_links = total_links - external_links
+        if internal_links > 0:
+            key_total = '%s%s_%s' % (
+                self.label['link_count'],
+                external_bit, 'internal') 
+            value = (key_total, internal_links)
+            mapper_output.append(value)
+        if external_links > 0:
+            key_total = '%s%s_%s' % (
+                self.label['link_count'],
+                external_bit, 'external') 
+            value = (key_total, external_links)
+            mapper_output.append(value)
+
+
 
         # Analyze all the links on the page
         if self.all_links_request:
@@ -588,7 +605,8 @@ class Brain(object):
             label == self.label['meta_data'] or
             label == self.label['wordnet'] or
             label == self.label['total_count'] or
-            label == self.label['tag_count']):
+            label == self.label['tag_count'] or
+            label == self.label['link_count']):
 
             # Disabled Addition Info
             #for value in values:
