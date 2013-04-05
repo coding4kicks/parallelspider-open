@@ -8,6 +8,7 @@
 
 import os
 import unittest
+import robotparser
 import lxml.html
 import lxml
 
@@ -20,6 +21,11 @@ class TestMrFeynman(unittest.TestCase):
 
     def setUp(self):
         """Initialize the brains"""
+
+                # Get robots.txt
+        self.robots_txt = robotparser.RobotFileParser()
+        self.robots_txt.set_url('http://www.foxnews.com/')
+        self.robots_txt.read() 
 
         # Set up configuration file
         config = {}
@@ -36,11 +42,11 @@ class TestMrFeynman(unittest.TestCase):
                 'list1':['word', 'something', 'loser'],
                 'list2':['news', 'journalism', 'great']}        
         config['xpath_selectors'] = [
-            {'selector': "//img/@alt", 'name': "image alt", 
+           {'selector': "//img/@alt", 'name': "image alt", 
                 'analyze': False, 'css_text': False},
-            {'selector': "//div[@class='story']/descendant::text()",
+           {'selector': "//div[@class='story']/descendant::text()",
                 'name': "test1", 'analyze': False, 'css_text': False},
-            {'selector': 
+           {'selector': 
     "//a[@href='http://video.msnbc.msn.com/nightly-news/50032975/']/text()", 
             'name': "test2", 'analyze': True, 'css_text': False},
             {'selector': "//div[@id='tbx-29618997']/div/h2/text()", 
@@ -106,8 +112,8 @@ class TestMrFeynman(unittest.TestCase):
         for file_name in os.listdir("."):
 
             # Limit input to one doc for testing
-            #if file_name != "nbc0":
-            #    continue
+            if file_name != "nbc0":
+                continue
 
             # Brain is filename minus number on the end
             brain = self.site_brains[file_name[:-1]]
@@ -122,7 +128,7 @@ class TestMrFeynman(unittest.TestCase):
             print "-----------------------"
 
             # Analyze the parsed output
-            output = brain.analyze(page, file_name)
+            output = brain.analyze(page, file_name, self.robots_txt)
             
             ### TEST MAPPER OUTPUT ###
             #for put in output:

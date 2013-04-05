@@ -22,7 +22,7 @@ class Brain(object):
         """
         Initialize the Brain with site_url and configuration parameters
         
-        Arguments:
+        Args:
         passed_url - the url of the site to be searched
         config_dict - dictionary of configuration parameters
             text_request: boolean - true to analyze text
@@ -42,7 +42,19 @@ class Brain(object):
         TODO: Massive Refactor - Each type of process should be moved into a
         strategy pattern, with a common input and output format: input should
         be the data passed by lxml and output should be the appendage to the
-        map output. 
+        map output.
+
+        GOALS of REFACTOR:
+        1) Make easy to add additional data
+        2) Add Selectors
+        3) Add Synonym Rings
+        4) Get Total Word Count
+        5) Get Total Tag Count for each type
+        6) Get Total External and Internal link counts
+        LATER
+        7) Make variables more consitent with Spider Client and Spider Web
+        8) Add other stuff???
+
         """   
         import copy
  
@@ -128,6 +140,7 @@ class Brain(object):
         # Labels for various processing types - append to start of key
         # All labelels are 4 characters.  A tag for external or internal is
         # then appended, followed by an underscore.
+        # TODO: add tag_count, link_count
         self.label = { 'text': 'text', 'header': 'head', 'anchor_tag': 'atag',
                         'meta_data': 'meta', 'all_links': 'link',
                         'external_links': 'extl', 'context': 'cnxt', 
@@ -141,15 +154,18 @@ class Brain(object):
         """ 
         Analyze a parsed document, returning key,value pairs (a mapper).
 
-        Arguments:
-        doc -- a lxml.html parsed document
-        external -- boolean, if True will not pass any links to follow 
-                    and will mark all output as external
-        no_emit -- boolean, if True will only find links on the page 
-                    and will generate output to anlyze 
+        Args:
+            doc - a lxml.html parsed document
+            external - boolean, if True will not pass any links to follow 
+                       and will mark all output as external
+            no_emit - boolean, if True will only find links on the page 
+                      and will not generate output to anlyze. This allows a
+                      hole site to be scraped but only certain pages to be
+                      analyzed.
 
         Returns:
-        mapper_output - a list of key value pair tuples
+            mapper_output - a list of key value pair tuples for Parallel Spider 
+                            to emit
 
         Keys are prefixed with a 4 character label for type,
         along with one character for external or internal, 
@@ -163,12 +179,18 @@ class Brain(object):
             all_links - analyze all the links on a page
             external_links - analyze external site links on a page
             context - analyze the context around a specified word
-            context_word - analyze each word in the context
+            context_word - analyze each word in the context ???
+                Q. Do I need this?
             wordnet - analyze synonym rings
             total_count - a total count of all words
             selector - select certain element out of the page
+                Q. Do I need this?
             selector_word - analyze the selected words
             error_message - error messages in processing
+
+            TODO: Add
+            tag_count - count for each tag type
+            link_count - for external and internal links
         """
 
         mapper_output = [] # key-value tuples for mapper output
@@ -219,71 +241,100 @@ class Brain(object):
             # Skip the rest of loop if not processing
             if no_emit:
                 continue
+
+            # TODO: Break if no words
+            if not words:
+                continue
+
+            # Emit the total count of word
+            total = len(words)
+            #if word not in self.stop_list:
+            #    total = total + 1
+            if total > 0:
+                key_total = '%s%s_%s' % (
+                    self.label['total_count'],
+                    external_bit, "total") 
+                # Additional Info (Disabled)
+                #value = (key_total, (
+                #    total, (page_link, total),
+                #    (tag, total)))
+                value = (key_total, total)
+                mapper_output.append(value)
+
+            # TODO: emit tag_count + tag, 1
  
             # Process Text
+            # TODO: switch to if tag in tag_list (and initialize lists)
+            # TODO: check "if words" earlier and break if none
+            # TODO: move to function
             if self.text_request:
                 if (tag == 'p' or tag == 'li' or tag == 'td' or 
                     tag == 'h1' or tag == 'h2' or tag == 'h3' or
                     tag == 'h4' or tag == 'h5' or tag == 'h6' or
                     tag == 'a'):
-                    if words:
-                        for word in words:
-                            if word not in self.stop_list:
-                                key_word = '%s%s_%s' % (
-                                        self.label['text'],
-                                        external_bit, word)
-                                # Additional Info
-                                #value = (key_word, ( 
-                                #    1, (page_link, 1), (tag, 1)))
-                                value = (key_word, 1)
-                                mapper_output.append(value)
+                    for word in words:
+                        if word not in self.stop_list:
+                            key_word = '%s%s_%s' % (
+                                    self.label['text'],
+                                    external_bit, word)
+                            # Additional Info
+                            #value = (key_word, ( 
+                            #    1, (page_link, 1), (tag, 1)))
+                            value = (key_word, 1)
+                            mapper_output.append(value)
 
             # Process Headers
+            # TODO: switch to if tag in tag_list (and initialize lists)
+            # TODO: check "if words" earlier and break if none
+            # TODO: move to function
             if self.header_request:
                 if (tag == 'h1' or tag == 'h2' or tag == 'h3' or
                     tag == 'h4' or tag == 'h5' or tag == 'h6'):
-                    if words:
-                        for word in words:
-                            if word not in self.stop_list:
-                                key_word = '%s%s_%s' % (
-                                        self.label['header'],
-                                        external_bit, word)
-                                # Additional Info
-                                #value = (key_word, ( 
-                                #    1, (page_link, 1), (tag, 1)))
-                                value = (key_word, 1)
-                                mapper_output.append(value)
+                    for word in words:
+                        if word not in self.stop_list:
+                            key_word = '%s%s_%s' % (
+                                    self.label['header'],
+                                    external_bit, word)
+                            # Additional Info
+                            #value = (key_word, ( 
+                            #    1, (page_link, 1), (tag, 1)))
+                            value = (key_word, 1)
+                            mapper_output.append(value)
 
             # Process anchor tags
+            # TODO: switch to if tag in tag_list (and initialize lists)
+            # TODO: check "if words" earlier and break if none
+            # TODO: move to function
             if self.a_tags_request:
                 if (tag == 'a'):
-                    if words:
-                        for word in words:
-                            if word not in self.stop_list:
-                                key_word = '%s%s_%s' % (
-                                        self.label['anchor_tag'],
-                                        external_bit, word)
-                                # Additional Info
-                                #value = (key_word, ( 
-                                #    1, (page_link, 1), (tag, 1)))
-                                value = (key_word, 1)
-                                mapper_output.append(value)
+                   for word in words:
+                       if word not in self.stop_list:
+                           key_word = '%s%s_%s' % (
+                                   self.label['anchor_tag'],
+                                   external_bit, word)
+                           # Additional Info
+                           #value = (key_word, ( 
+                           #    1, (page_link, 1), (tag, 1)))
+                           value = (key_word, 1)
+                           mapper_output.append(value)
 
             # Process meta data
+            # TODO: switch to if tag in tag_list (and initialize lists)
+            # TODO: check "if words" earlier and break if none
+            # TODO: move to function
             if self.meta_request:
                 # Retrieve text from the title
                 if tag == 'title':
-                    if words:
-                        for word in words:
-                            if word not in self.stop_list:
-                                key_word = '%s%s_%s' % (
-                                    self.label['meta_data'],
-                                    external_bit, word)
-                                # Additional Info
-                                #value = (key_word, ( 
-                                #    1, (page_link, 1), (tag, 1)))
-                                value = (key_word, 1)
-                                mapper_output.append(value)
+                    for word in words:
+                        if word not in self.stop_list:
+                            key_word = '%s%s_%s' % (
+                                self.label['meta_data'],
+                                external_bit, word)
+                            # Additional Info
+                            #value = (key_word, ( 
+                            #    1, (page_link, 1), (tag, 1)))
+                            value = (key_word, 1)
+                            mapper_output.append(value)
                 # Retrieve text from the meta description
                 if tag == 'meta':
                     try:
@@ -311,75 +362,81 @@ class Brain(object):
             
             # Process words based upon context 
             # (i.e. if a specified word is in the text)
+            # TODO: switch to if tag in tag_list (and initialize lists)
+            # TODO: check "if words" earlier and break if none
+            # TODO: move to function
             if self.context_search_tag:
-                if words:
-                    if (tag == 'p' or tag == 'li' or tag == 'td' or 
-                        tag == 'h1' or tag == 'h2' or tag == 'h3' or
-                        tag == 'h4' or tag == 'h5' or tag == 'h6' or
-                        tag == 'a'):
-                        for search_word in self.context_search_tag:
-                            search_word = search_word.lower()
-                            if search_word in words:
-                                # Emit each word in context
-                                for word in words:
-                                    if word not in self.stop_list:
-                                        key_word = '%s%s_%s' % (
-                                            self.label['context_word'],
-                                            external_bit, word)
-                                        # Additional Info (Disabled)
-                                        #value = (key_word, (
-                                        #    1, (page_link, 1),
-                                        #    (tag, 1), search_word))
-                                        value = (key_word, (1, search_word))
-                                        mapper_output.append(value)
-                                # Disable for now,
-                                # ??? I think this is like search ???
-                                # Emit whole context
-                               # key_context = '%s%s_%s' % (
-                               #     self.label['context'],
-                               #     external_bit, search_word)  
-                               # # use text not words-since list type
-                               # value = (key_context, (
-                               #     1, (page_link, 1), 
-                               #     (tag, 1), (page_link, text),
-                               #     (text, page_link)))
-                               # mapper_output.append(value)
+               if (tag == 'p' or tag == 'li' or tag == 'td' or 
+                   tag == 'h1' or tag == 'h2' or tag == 'h3' or
+                   tag == 'h4' or tag == 'h5' or tag == 'h6' or
+                   tag == 'a'):
+                   for search_word in self.context_search_tag:
+                       search_word = search_word.lower()
+                       if search_word in words:
+                           # Emit each word in context
+                           for word in words:
+                               if word not in self.stop_list:
+                                   key_word = '%s%s_%s' % (
+                                       self.label['context_word'],
+                                       external_bit, word)
+                                   # Additional Info (Disabled)
+                                   #value = (key_word, (
+                                   #    1, (page_link, 1),
+                                   #    (tag, 1), search_word))
+                                   value = (key_word, (1, search_word))
+                                   mapper_output.append(value)
+                           # Disable for now,
+                           # ??? I think this is like search ???
+                           # Emit whole context
+                          # key_context = '%s%s_%s' % (
+                          #     self.label['context'],
+                          #     external_bit, search_word)  
+                          # # use text not words-since list type
+                          # value = (key_context, (
+                          #     1, (page_link, 1), 
+                          #     (tag, 1), (page_link, text),
+                          #     (text, page_link)))
+                          # mapper_output.append(value)
 
             # Process Synonym Rings (WordNet Synsets or User Chosen)
+            # TODO: switch to if tag in tag_list (and initialize lists)
+            # TODO: check "if words" earlier and break if none
+            # TODO: move to function
             if self.wordnet_lists:
-                if words:
-                    if (tag == 'p' or tag == 'li' or tag == 'td' or 
-                        tag == 'h1' or tag == 'h2' or tag == 'h3' or
-                        tag == 'h4' or tag == 'h5' or tag == 'h6' or
-                        tag == 'a'):
-                        for list_key in self.wordnet_lists:
-                            total = 0
-                            for word in words:
-                                if word in self.wordnet_lists[list_key]: 
-                                    key_wordnet = '%s%s_%s' % (
-                                        self.label['wordnet'],
-                                        external_bit, list_key) 
-                                    # Additional Info (Disabled)
-                                    #value = (key_wordnet, (
-                                    #    1, (page_link, 1),
-                                    #    (tag, 1)))
-                                    value = (key_wordnet, 1)
-                                    mapper_output.append(value)
+               if (tag == 'p' or tag == 'li' or tag == 'td' or 
+                   tag == 'h1' or tag == 'h2' or tag == 'h3' or
+                   tag == 'h4' or tag == 'h5' or tag == 'h6' or
+                   tag == 'a'):
+                   for list_key in self.wordnet_lists:
+                       total = 0
+                       for word in words:
+                           if word in self.wordnet_lists[list_key]: 
+                               key_wordnet = '%s%s_%s' % (
+                                   self.label['wordnet'],
+                                   external_bit, list_key) 
+                               # Additional Info (Disabled)
+                               #value = (key_wordnet, (
+                               #    1, (page_link, 1),
+                               #    (tag, 1)))
+                               value = (key_wordnet, 1)
+                               mapper_output.append(value)
 
-                                # TODO: pull this out so always get total
-                                # and not just for wordnet
-                                if word not in self.stop_list:
-                                    total = total + 1
-                                if total > 0:
-                                    key_total = '%s%s_%s' % (
-                                        self.label['total_count'],
-                                        external_bit, "total") 
-                                    # Additional Info (Disabled)
-                                    #value = (key_total, (
-                                    #    total, (page_link, total),
-                                    #    (tag, total)))
-                                    value = (key_total, total)
-                                    mapper_output.append(value)
+                           # TODO: pull this out so always get total
+                           # and not just for wordnet
+                          # if word not in self.stop_list:
+                          #     total = total + 1
+                          # if total > 0:
+                          #     key_total = '%s%s_%s' % (
+                          #         self.label['total_count'],
+                          #         external_bit, "total") 
+                          #     # Additional Info (Disabled)
+                          #     #value = (key_total, (
+                          #     #    total, (page_link, total),
+                          #     #    (tag, total)))
+                          #     value = (key_total, total)
+                          #     mapper_output.append(value)
+
+        # END - cycle through elem in doc
 
         # Process the links on the page for parallel spider to follow
         (self.on_site_links, self.off_site_links, all_links, 
@@ -389,6 +446,9 @@ class Brain(object):
                                            self.scheme, 
                                            self.paths_to_follow,
                                            robots_txt)
+
+        # TODO: emit total_lins + ext/int, len(ext_links) or 
+        # len(all_links - ext_links)
 
         # If not processing just return with new links
         if no_emit:
