@@ -31,28 +31,28 @@ class TestMrFeynman(unittest.TestCase):
         config = {}
         
         # Config variables
-        config['text_request'] = True
-        config['header_request']  = True
-        config['meta_request']  = True
-        config['a_tags_request'] = True
-        config['all_links_request'] = True
-        config['external_links_request'] = True
-        config['context_search_tag'] = ['dream']
-        config['wordnet_lists'] = {
-                'list1':['word', 'something', 'loser'],
-                'list2':['news', 'journalism', 'great']}        
-        config['xpath_selectors'] = [
-           {'selector': "//img/@alt", 'name': "image alt", 
-                'analyze': False, 'css_text': False},
-           {'selector': "//div[@class='story']/descendant::text()",
-                'name': "test1", 'analyze': False, 'css_text': False},
-           {'selector': 
-    "//a[@href='http://video.msnbc.msn.com/nightly-news/50032975/']/text()", 
-            'name': "test2", 'analyze': True, 'css_text': False},
-            {'selector': "//div[@id='tbx-29618997']/div/h2/text()", 
-                'name': "test3", 'analyze': False, 'css_text': False}] 
-        config['css_selectors'] = [{'selector': 'p.abstr', 
-            'name': "testCss", 'analyze': True, 'css_text': True}]
+       # config['text_request'] = True
+       # config['header_request']  = True
+       # config['meta_request']  = True
+       # config['a_tags_request'] = True
+       # config['all_links_request'] = True
+       # config['external_links_request'] = True
+       # config['context_search_tag'] = ['dream']
+       # config['wordnet_lists'] = {
+       #         'list1':['word', 'something', 'loser'],
+       #         'list2':['news', 'journalism', 'great']}        
+       # config['xpath_selectors'] = [
+       #    {'selector': "//img/@alt", 'name': "image alt", 
+       #         'analyze': False, 'css_text': False},
+       #    {'selector': "//div[@class='story']/descendant::text()",
+       #         'name': "test1", 'analyze': False, 'css_text': False},
+       #    {'selector': 
+    #"//#a[@href='http://video.msnbc.msn.com/nightly-news/50032975/']/text()", 
+       #     'name': "test2", 'analyze': True, 'css_text': False},
+       #     {'selector': "//div[@id='tbx-29618997']/div/h2/text()", 
+       #         'name': "test3", 'analyze': False, 'css_text': False}] 
+       # config['css_selectors'] = [{'selector': 'p.abstr', 
+       #     'name': "testCss", 'analyze': True, 'css_text': True}]
 
         config['paths_to_follow'] = [] #['worldnews'] 
 

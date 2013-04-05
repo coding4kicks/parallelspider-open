@@ -146,7 +146,8 @@ class Brain(object):
                         'external_links': 'extl', 'context': 'cnxt', 
                         'context_word': 'cntw', 'wordnet': 'wdnt',
                         'total_count': 'totl', 'selector': 'selc', 
-                        'selector_word': 'selw', 'error_message': 'zmsg'}
+                        'selector_word': 'selw', 'tag_count': 'tagc',
+                        'error_message': 'zmsg'}
 
 
     def analyze(self, doc, page_link, robots_txt,
@@ -262,6 +263,11 @@ class Brain(object):
                 mapper_output.append(value)
 
             # TODO: emit tag_count + tag, 1
+            key_total = '%s%s_%s' % (
+                self.label['tag_count'],
+                external_bit, tag) 
+            value = (key_total, 1)
+            mapper_output.append(value)
  
             # Process Text
             # TODO: switch to if tag in tag_list (and initialize lists)
@@ -584,7 +590,8 @@ class Brain(object):
             label == self.label['anchor_tag'] or
             label == self.label['meta_data'] or
             label == self.label['wordnet'] or
-            label == self.label['total_count']):
+            label == self.label['total_count'] or
+            label == self.label['tag_count']):
 
             # Disabled Addition Info
             #for value in values:
