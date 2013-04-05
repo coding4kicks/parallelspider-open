@@ -333,6 +333,10 @@ class CrawlTracker(object):
                         msg = 'Not Done, no count yet'                            
                         self.logger.debug(msg, extra=self.log_header)
   
+                # Logging
+                msg = ('Total count: {!s}').format(total_count)                            
+                self.logger.debug(msg, extra=self.log_header)
+
                 # Only update to crawling vice initializing if total > 0
                 if total_count > 0:
                     self.central_redis.set(crawl_id + "_count", total_count) 
@@ -442,6 +446,11 @@ class CrawlTracker(object):
                 if site_count == "-2":
                     self.central_redis.set(crawl_id + "_count", site_count)
                     self.cleanQueue.remove(crawl_id)
+
+                    # Logging
+                    msg = """Cleanup Success"""
+                    self.logger.debug(msg, extra=self.log_header)
+
 
         # Continue to montitor crawl statuses (default every 5 seconds).
         reactor.callLater(status_poll_time, self.checkCrawlStatus)

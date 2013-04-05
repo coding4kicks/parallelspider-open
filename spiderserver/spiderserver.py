@@ -835,8 +835,8 @@ if __name__ == "__main__":
         parser.error("User Redis port number must be greater than 0")
 
     # Set up logging
-    #options.log_level = "debug"
-    options.log_level = "develop"
+    options.log_level = "debug"
+    #options.log_level = "develop"
     l = set_logging_level(level=options.log_level)
     logger, log_header = l
     log_header['msg_type'] = "Initialization - "

@@ -10,7 +10,7 @@ spiderwebApp.service('configService', function() {
     // change4deployment
     var host = 'ec2-174-129-125-34.compute-1.amazonaws.com:8000',
         protocol = 'http',
-        mock = true;
+        mock = false;
 
     // TODO: later allow user to set
     var defaultFolder = "new analyses";

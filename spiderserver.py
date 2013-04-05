@@ -29,8 +29,10 @@
 
 import json
 import uuid
+import copy
 import base64
 import urllib
+import logging
 import optparse
 import datetime
 import unicodedata
@@ -122,11 +124,14 @@ class SpiderRealm(object):
 class CheckUserCredentials(resource.Resource):
     """ Validate user's credentials for login """
 
-    def __init__(self, portal, session_redis, expire):
+    def __init__(self, portal, session_redis, expire, log_info):
         """Initialize Session Redis and Twisted Portal for Authentication"""
         self.portal = portal
         self.session_redis = session_redis
         self.expire = expire
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "CheckUserCredentials - "
 
     def render(self, request):
         """
@@ -151,6 +156,10 @@ class CheckUserCredentials(resource.Resource):
                 data['user'],
                 data['password'])
 
+        # Logging
+        msg = """login info: user %s loging in""" % (data['user'])
+        self.logger.info(msg, extra=self.log_header)
+
         self.portal.login(creds, None, INamedUserAvatar).addCallback(
             self._loginSucceeded).addErrback(self._loginFailed)
 
@@ -163,6 +172,7 @@ class CheckUserCredentials(resource.Resource):
             Generates, stores, and returns session tokens
         """
         avatar = avatarInfo[1]
+
 
         short_session, long_session = generate_session(
                 avatar, self.session_redis, self.expire)
@@ -177,9 +187,23 @@ class CheckUserCredentials(resource.Resource):
 
         self.request.write(value)
         self.request.finish()
+        
+        # Logging
+        msg = """login success: user %s""" % (avatar.nickname)
+        self.logger.info(msg, extra=self.log_header)
+        msg = """session info: short %s long %s""" \
+                % (short_session, long_session)
+        self.logger.info(msg, extra=self.log_header)
+        msg = """return value: %s""" % (value)
+        self.logger.debug(msg, extra=self.log_header)
+
 
 
     def _loginFailed(self, failure):
+
+        msg = """login failed: reason %s""" % (failure)
+        self.logger.info(msg, extra=self.log_header)
+
         self.request.write(""")]}',\n{"login": "fail"}""")
         self.request.finish()
 
@@ -187,10 +211,14 @@ class CheckUserCredentials(resource.Resource):
 class SignOut(resource.Resource):
     """ Log user out by destroying session tokens"""
 
-    def __init__(self, session_redis):
+    def __init__(self, session_redis, log_info):
         """Only arg is session datastore"""
 
         self.session_redis = session_redis
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "SignOut - "
+
 
     def render(self, request):
         """
@@ -209,6 +237,12 @@ class SignOut(resource.Resource):
         data = json.loads(request.content.getvalue())
 
         remove_session(self.session_redis, data)
+
+        # Logging
+        user = get_user_from_session(data)
+        msg = """user %s""" % (user)
+        self.logger.info(msg, extra=self.log_header)
+
 
         return """)]}',\n{"loggedOut": true}"""
 
@@ -232,17 +266,22 @@ class PasswordReminder(resource.Resource):
 class InitiateCrawl(resource.Resource):
     """Initiate a crawl and return the crawl id"""
 
-    def __init__(self, central_redis, session_redis, expire):
+    def __init__(self, central_redis, session_redis, expire, log_info):
         """ 
             Args: 
-                Central Redis - to communicate with analysis engine
-                Session Redis - maintain session state
+                central_redis - to communicate with analysis engine
+                session_redis - maintain session state
+                epire - Redis expiration info
+                log_info - logger and log_header
         """
 
         self.central_redis = central_redis
         self.session_redis = session_redis
         self.centralExpire = expire['centralExpire']
         self.expire = expire
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "InitiateCrawl - "
 
     def render(self, request):
         """
@@ -278,6 +317,10 @@ class InitiateCrawl(resource.Resource):
             # Set crawl id into Central Redis crawl queue
             self.central_redis.rpush("crawl_queue", crawl_id)
 
+            # Logging
+            msg = """crawl_id %s""" % (crawl_id)
+            self.logger.info(msg, extra=self.log_header)
+
             # return success
             return """)]}',\n{"loggedIn": true, "crawlId": "%s"}
                       """ % (crawl_id)
@@ -289,17 +332,22 @@ class InitiateCrawl(resource.Resource):
 class CheckCrawlStatus(resource.Resource):
     """ Check status of a crawl based upon an id """
 
-    def __init__(self, central_redis, session_redis, expire):
+    def __init__(self, central_redis, session_redis, expire, log_info):
         """ 
             Args: 
-                Central Redis - to communicate with analysis engine
-                Session Redis - maintain session state
+                central_redis - to communicate with analysis engine
+                session_redis - maintain session state
+                expire - redis expiration info
+                log_info - logger and log_header
         """
 
         self.central_redis = central_redis
         self.session_redis = session_redis
         self.centralExpire = expire['centralExpire']
         self.expire = expire
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "CheckCrawlStatus - "
 
     def render(self, request):
         """
@@ -331,16 +379,26 @@ class CheckCrawlStatus(resource.Resource):
             count = self.central_redis.get(crawl_id + "_count")
             self.central_redis.expire(crawl_id + "_count", self.centralExpire)
 
+            # Logging
+            msg = """count %s""" % (crawl_id)
+            self.logger.debug(msg, extra=self.log_header)
+
             return """)]}',\n{"count": %s}""" % count
 
         else:
-          return """)]}',\n{"count": -99}"""
+
+            # Logging
+            msg = """crawl %s has no session""" % (crawl_id,
+                                                   data['shortSession'])
+            self.logger.debug(msg, extra=self.log_header)
+
+            return """)]}',\n{"count": -99}"""
 
 
 class GetS3Signature(resource.Resource):
     """ Sign a Url to retrieve objects from S3 """
 
-    def __init__(self, session_redis, mock, expire):
+    def __init__(self, session_redis, mock, expire, log_info):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -350,6 +408,9 @@ class GetS3Signature(resource.Resource):
         self.session_redis = session_redis
         self.mock = mock
         self.expire = expire
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "GetS3Signature - "
 
     def render(self, request):
         """
@@ -376,7 +437,6 @@ class GetS3Signature(resource.Resource):
         # If logged in, retrieve analysis from users bucket
         if long_session_exists(self.session_redis, data, self.expire):
 
-
             # Create S3 key with user's id and analysis id
             user = get_user_from_session(data) 
             key = user + '/' + analysis_id + '.json'
@@ -390,7 +450,11 @@ class GetS3Signature(resource.Resource):
                 url = analysis_id + ".json"
                 url = unicodedata.normalize('NFKD', url) \
                                  .encode('ascii','ignore')
-            
+
+            # Logging
+            msg = """key: %s""" % (key)
+            self.logger.info(msg, extra=self.log_header)
+
             return """)]}',\n{"url": "%s"}""" % url
 
         # Otherwise, not logged in, so retrieve from anonymous bucket
@@ -409,13 +473,17 @@ class GetS3Signature(resource.Resource):
                 url = unicodedata.normalize('NFKD', url) \
                                  .encode('ascii','ignore')
 
+            # Logging
+            msg = """key: %s""" % (key)
+            self.logger.info(msg, extra=self.log_header)
+
             return """)]}',\n{"url": "%s"}""" % url
 
 
 class GetAnalysisFolders(resource.Resource):
     """ Retrieve users analysis folders """
 
-    def __init__(self, session_redis, user_redis, expire):
+    def __init__(self, session_redis, user_redis, expire, log_info):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -425,6 +493,9 @@ class GetAnalysisFolders(resource.Resource):
         self.session_redis = session_redis
         self.user_redis = user_redis
         self.expire = expire
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "GetAnalysisFolders - "
 
     def render(self, request):
         """
@@ -456,11 +527,23 @@ class GetAnalysisFolders(resource.Resource):
             user = get_user_from_session(data)
             folder_info = self.user_redis.get(user + "_folders")
 
+            # Logging
+            msg = """user: %s""" % (user)
+            self.logger.info(msg, extra=self.log_header)
+            msg = """folder info: %s""" % (folder_info)
+            self.logger.debug(msg, extra=self.log_header)
+
             return ")]}',\n" + folder_info
 
         # Anonymous User so show samples
         else:
             folder_info = self.user_redis.get("sample_folders")
+
+            # Logging
+            msg = """anonymous"""
+            self.logger.info(msg, extra=self.log_header)
+            msg = """folder info: %s""" % (folder_info)
+            self.logger.debug(msg, extra=self.log_header)
 
             return ")]}',\n" + folder_info
 
@@ -468,7 +551,7 @@ class GetAnalysisFolders(resource.Resource):
 class UpdateAnalysisFolders(resource.Resource):
     """ Update user's analysis folders """
 
-    def __init__(self, session_redis, user_redis, expire):
+    def __init__(self, session_redis, user_redis, expire, log_info):
         """ 
             Args: 
                 Session Redis - maintain session state
@@ -478,6 +561,10 @@ class UpdateAnalysisFolders(resource.Resource):
         self.session_redis = session_redis
         self.user_redis = user_redis
         self.expire = expire
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.log_header['msg_type'] = "UpdateAnalysisFolders - "
+
 
     def render(self, request):
         """
@@ -512,6 +599,12 @@ class UpdateAnalysisFolders(resource.Resource):
             user = get_user_from_session(data)
             folder_info = json.dumps(folder_data)
             self.user_redis.set(user + "_folders", folder_info)
+
+            # Logging
+            msg = """user: %s""" % (user)
+            self.logger.info(msg, extra=self.log_header)
+            msg = """folder info: %s""" % (folder_info)
+            self.logger.debug(msg, extra=self.log_header)
 
             return """)]}',\n{"success": true}"""
 
@@ -624,6 +717,52 @@ def generate_crawl_id(user, data):
     crawl_id = urllib.quote_plus(user + "__" + name + "__" + time)
     return crawl_id
 
+def set_logging_level(level="production"):
+    """
+    Initialize logging parameters
+    
+    3 levels: production, develop & debug
+    production - default, output info & errors to logfile
+    develop - output info and errors to console
+    debug - output debug, info and errors to console
+
+    Args:
+        level - set output content & location
+
+    Message format:
+        type: spider type: cleaner, server, client, ...
+        host: computer executing program
+        id: unique run id (set at start of program)
+        asctime: time
+        mtype: type of message (set at call in program)
+        message: (set at call in program)
+
+    Sample:
+        logger.warning('Protocol problem: %s', 'connection reset', 
+                        extra=log_header)
+
+    TODO: import vice copy and paste
+    """
+    import socket
+
+    # Log message is spider type, host, unique run id, time, and message
+    FORMAT = "spider%(spider_type)s %(host)s %(id)d %(asctime)s " + \
+             "%(msg_type)s %(message)s"
+    HOST = socket.gethostbyname(socket.gethostname())
+    SPDR_TYPE = "server"
+    FILENAME = "/var/log/spider/spider" + SPDR_TYPE + ".log"
+    log_header = {'id': 0, 'spider_type': SPDR_TYPE, 'host': HOST, 'msg_type':'none'}
+
+    if level == "develop": # to console
+        logging.basicConfig(format=FORMAT, level=logging.INFO)
+    elif level == "debug": # extra info
+        logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+    else: # production, to file (default)
+        logging.basicConfig(filename=FILENAME, format=FORMAT, level=logging.INFO)
+
+    logger = logging.getLogger('spider' + SPDR_TYPE)
+
+    return (logger, log_header)
 
 # Command Line Crap & Initialization
 ###############################################################################
@@ -673,6 +812,12 @@ if __name__ == "__main__":
             default="6377", dest="sessionRedisPort", 
             help="Set Session Redis port information. [default: %default]")
 
+    # Logging Level 
+    parser.add_option(
+            "-l", "-L", "--logging", action="store", 
+            default="production", dest="log_level", 
+            help="Set log level. [default: False]")
+
     # Mock AWS S3 Backend
     # Mock folder structure must match test S3 structure and vice versa
     # Files should be in the app directory on localhost
@@ -685,9 +830,18 @@ if __name__ == "__main__":
     if int(options.centralRedisPort) < 1:
         parser.error("Central Redis port number must be greater than 0")
     if int(options.userRedisPort) < 1:
-        parser.error("User Redis port number must be greater than 0")
+        parser.error("User Redis port number must be greater than 0")
     if int(options.sessionRedisPort) < 1:
         parser.error("User Redis port number must be greater than 0")
+
+    # Set up logging
+    options.log_level = "debug"
+    #options.log_level = "develop"
+    l = set_logging_level(level=options.log_level)
+    logger, log_header = l
+    log_header['msg_type'] = "Initialization - "
+    msg = """starting options: %s""" % (options)
+    logger.info(msg, extra=log_header)
 
     # Initialize Central Redis connection to 
     c = redis.StrictRedis(host=options.centralRedisHost,
@@ -716,14 +870,14 @@ if __name__ == "__main__":
     
     # Set up site and resources
     root = resource.Resource()
-    root.putChild('initiatecrawl', InitiateCrawl(c, s, e))
-    root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s, e))
-    root.putChild('gets3signature', GetS3Signature(s, m, e))
-    root.putChild('getanalysisfolders', GetAnalysisFolders(s, u, e))
-    root.putChild('updateanalysisfolders', UpdateAnalysisFolders(s, u, e))
+    root.putChild('initiatecrawl', InitiateCrawl(c, s, e, l))
+    root.putChild('checkcrawlstatus', CheckCrawlStatus(c, s, e, l))
+    root.putChild('gets3signature', GetS3Signature(s, m, e, l))
+    root.putChild('getanalysisfolders', GetAnalysisFolders(s, u, e, l))
+    root.putChild('updateanalysisfolders', UpdateAnalysisFolders(s, u, e, l))
     root.putChild('addnewuser', AddNewUser())
-    root.putChild('checkusercredentials', CheckUserCredentials(p, s, e))
-    root.putChild('signout', SignOut(s))
+    root.putChild('checkusercredentials', CheckUserCredentials(p, s, e, l))
+    root.putChild('signout', SignOut(s, l))
     root.putChild('passwordreminder', PasswordReminder())
     site = server.Site(root)
 

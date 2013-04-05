@@ -140,7 +140,15 @@ class SpiderCleaner(object):
             site_list = [config['sites']]
         else:
             site_list = config['sites']
-        
+
+        # Logging
+        msg = ('sites: {!s}').format(site_list) 
+        self.logger.debug(msg, extra=self.log_header)
+        msg = ('analysis: {!s}').format(analysis_types) 
+        self.logger.debug(msg, extra=self.log_header)
+        msg = ('content: {!s}').format(content_types) 
+        self.logger.debug(msg, extra=self.log_header)
+
         # Format results for each site
         for site in site_list:
 
@@ -469,6 +477,15 @@ class SpiderCleaner(object):
         full_crawl_id = config['crawl_id']
         key = user_id + '/' + full_crawl_id + '.json'
 
+        # Logging
+        msg = ('crawl_time: {!s}').format(crawl_time + cleanup_time) 
+        self.logger.info(msg, extra=self.log_header)
+        msg = ('Posting to S3, key: {!s}').format(key) 
+        self.logger.debug(msg, extra=self.log_header)
+        msg = ('Data: {!s}').format(json_data) 
+        self.logger.debug(msg, extra=self.log_header)
+
+
         # Upload to S3 (assumes AWS keys are in .bashrc / env)
         s3conn = boto.connect_s3()
         bucket_name = "ps_users" # TODO: put in config init
@@ -576,13 +593,13 @@ def main():
     (options, args) = parser.parse_args()
 
     # Set up logging
-    #options.log_level = "debug"
-    options.log_level = "develop"
+    options.log_level = "debug"
+    #options.log_level = "develop"
     log_info = set_logging_level(level=options.log_level)
     logger, log_header = log_info
     log_header['msg_type'] = "Initialization - "
     msg = """starting options: %s""" % (options)
-    #logger.info(msg, extra=log_header)
+    logger.info(msg, extra=log_header)
 
     # Convert Redis info to a Python dictionary
     # TODO: make argument if required or create default

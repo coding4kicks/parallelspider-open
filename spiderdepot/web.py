@@ -90,8 +90,8 @@ def set_deploy_config():
     for line in fileinput.input(file_path, inplace=1):
         new_host_line = line.replace("localhost:8000", host)
         # not setting mock yet
-        #new_mock_line = new_host_line.replace("mock = true", "mock = false")
-        #print "%s" % (new_mock_line),
-        print "%s" % (new_host_line),
+        new_mock_line = new_host_line.replace("mock = true", "mock = false")
+        print "%s" % (new_mock_line),
+        #print "%s" % (new_host_line),
 
 
