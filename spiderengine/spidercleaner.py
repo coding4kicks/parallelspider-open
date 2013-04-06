@@ -430,17 +430,15 @@ class SpiderCleaner(object):
                 #TODO: Handle Synonyms
 
                 #TODO: Handle Search Words
+                # just add to grep for summary info?
+                # or do separate?
                     
                 # Summary Information
                 results['summary'] = {}
 
-                print "here ho"
-
                 # Create the key to grep/filter the master file by
                 key = ('totl{0}{1}|lnkc{0}{1}|tagc{0}'
                        ).format(analysis[c_type]['key'], "\\")
-
-                print key
 
                 # Cat the master file into the filter
                 if self.psuedo_dist:# Psuedo Distributed
@@ -472,15 +470,42 @@ class SpiderCleaner(object):
                     out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
 
-                print ""
-                print "OUT"
-                print out
-                print ""
+                total_count = 0
+                int_link_count = 0
+                ext_link_count = 0
+                tag_total = 0
+                tag_list = []
+
+                for line in out.split('\n')[:-1]:
+
+                    w, c = line.split('\t')
+
+                    if 'tagc' in w:
+                        tag = w.split('_')[1]
+                        dic = '{' + \
+                            ("'type':'{0}', 'count': {1}").format(tag, c) + \
+                              '}'
+
+                        tag_list.append(dic)
+                        tag_total += int(c)
+                        
+                    elif 'lnkc' in w:
+                        if 'internal' in w:
+                            int_link_count = c
+                        else: 
+                            ext_link_count = c
+
+                    elif 'totl' in w:
+                        total_count = c
+
+                    else:
+                        msg = 'No proper tag in summary output'
+                        self.logger.error(msg, extra=self.log_header)
 
                 #TODO: ??? Must do link analysis to retrieve this info?
                 results['summary']['links'] = {}
-                results['summary']['links']['external'] = 1000 #TODO: pull?
-                results['summary']['links']['internal'] = 4000 #TODO: pull?
+                results['summary']['links']['external'] = ext_link_count
+                results['summary']['links']['internal'] = int_link_count 
  
                 # Pull page download info from engine redis
                 finished = base + "::finished"
@@ -496,23 +521,13 @@ class SpiderCleaner(object):
                 results['summary']['pages']['count'] = page_count 
                 results['summary']['pages']['list'] = first_pages
 
-                #TODO: I'm not counting tags?
                 results['summary']['tags'] = {}
-                results['summary']['tags']['list'] = [{ 'count': "",
-                                                            'type': 'text'},
-                                                          { 'count': "",
-                                                            'type': 'links'},
-                                                          { 'count': "",
-                                                            'type': 'headlines'},
-                                                          { 'count': "",
-                                                            'type': 'image'},
-                                                          { 'count': "",
-                                                            'type': 'other'}]
-                results['summary']['tags']['total'] = ""
+                results['summary']['tags']['list'] = tag_list
+                results['summary']['tags']['total'] = tag_total
 
                 #TODO: ??? Must do total count on every analysis?
                 results['summary']['words'] = {}
-                results['summary']['words']['count'] = ""
+                results['summary']['words']['count'] = total_count
 
                 if c_type == 'internal':
                     site_results['internalResults'] = results
