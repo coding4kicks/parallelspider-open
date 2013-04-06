@@ -6,6 +6,8 @@
 
     TODO: Add pagerank for links
 """
+import copy
+
 import lxml.html
 import lxml.cssselect
 
@@ -50,13 +52,12 @@ class Brain(object):
         3) Add Synonym Rings
         4) x Get Total Word Count
         5) x Get Total Tag Count for each type
-        6) Get Total External and Internal link counts
+        6) x Get Total External and Internal link counts
         LATER
         7) Make variables more consitent with Spider Client and Spider Web
         8) Add other stuff???
 
         """   
-        import copy
  
         # URL passed by the user, may contain a path
         self.passed_url = passed_url

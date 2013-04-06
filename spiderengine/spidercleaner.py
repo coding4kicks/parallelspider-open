@@ -137,7 +137,6 @@ class SpiderCleaner(object):
         finished_analysis['sites'] = []
 
         if isinstance(config['sites'], (str, unicode)):
-
             site_list = config['sites'].split(',')
         else:
             site_list = config['sites']
@@ -197,7 +196,12 @@ class SpiderCleaner(object):
                     # or if it require special handling
                     if a_type not in analysis_types or a_type == 'wordContexts':
                         continue
-                    
+
+                    # Logging
+                    msg = ('cleaning up analysis: {!s}'
+                           ).format(analysis[a_type]['web_name']) 
+                    self.logger.debug(msg, extra=self.log_header)
+
                     # Create the key to grep/filter the master file by
                     key = analysis[a_type]['key'] + analysis[c_type]['key']
 
@@ -214,6 +218,7 @@ class SpiderCleaner(object):
                         # Loop while no output
                         # I believe a race has been causing problems
                         # where the file is created but nothing is in it
+                        # TODO: My have fixed this???
                         out = ""
                         while not out:
                             try:
@@ -315,6 +320,10 @@ class SpiderCleaner(object):
                 # Handle Context
                 # Handling as a Python string, may blow up on large data
                 if 'wordContexts' in analysis_types:
+
+                    # Logging
+                    msg = 'cleaning up analysis: wordContexts'
+                    self.logger.debug(msg, extra=self.log_header)
 
                     # Word contexts are in a list
                     results[analysis['wordContexts']['web_name']] = []
@@ -424,6 +433,49 @@ class SpiderCleaner(object):
                     
                 # Summary Information
                 results['summary'] = {}
+
+                print "here ho"
+
+                # Create the key to grep/filter the master file by
+                key = ('totl{0}{1}|lnkc{0}{1}|tagc{0}'
+                       ).format(analysis[c_type]['key'], "\\")
+
+                print key
+
+                # Cat the master file into the filter
+                if self.psuedo_dist:# Psuedo Distributed
+
+                    cwd = "/home/parallelspider/out/"
+                    cmd_line = ("cat {!s} | "
+                                "grep '{!s}'"
+                                ).format(base_path, key)
+
+                    # Loop while no output
+                    # I believe a race has been causing problems
+                    # where the file is created but nothing is in it
+                    out = ""
+                    while not out:
+                        try:
+                            out = subprocess.check_output(cmd_line, shell=True,
+                                cwd=cwd)
+                        except:
+                            # File should be ready at some point???
+                            pass
+                    
+                else: # Normal
+                    cwd = "/home/parallelspider/out/"
+                    cmd_line = ("cat {!s} | "
+                                "grep '{!s}'"
+                                ).format(base_path, key)
+
+                    # No loop on out
+                    out = subprocess.check_output(cmd_line, shell=True,
+                                                      cwd=cwd)
+
+                print ""
+                print "OUT"
+                print out
+                print ""
 
                 #TODO: ??? Must do link analysis to retrieve this info?
                 results['summary']['links'] = {}
