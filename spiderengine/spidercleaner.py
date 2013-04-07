@@ -198,8 +198,8 @@ class SpiderCleaner(object):
                         continue
 
                     # Logging
-                    msg = ('cleaning up analysis: {!s}'
-                           ).format(analysis[a_type]['web_name']) 
+                    msg = ('{!s} cleaning up analysis: {!s}'
+                           ).format(site, analysis[a_type]['web_name']) 
                     self.logger.debug(msg, extra=self.log_header)
 
                     # Create the key to grep/filter the master file by
@@ -273,20 +273,23 @@ class SpiderCleaner(object):
 
                         # Last line of split is junk
                         for i, line in enumerate(out.split('\n')[:-1]):
-
-                            link = {}
-                            link['rank'] = i + 1
-                            l, c = line.split('\t')
-                            # Remove the key 
-                            if self.psuedo_dist:
-                                # and end quote
-                                link['link'] = l.split(key)[1][:-1]
-                            else:
-                                link['link'] = l.split(key)[1]
-                            link['count'] = c
-                            link['pages'] = []
-                            link['words'] = []
-                            links.append(link)
+                            try:
+                                link = {}
+                                link['rank'] = i + 1
+                                l, c = line.split('\t')
+                                # Remove the key 
+                                if self.psuedo_dist:
+                                    # and end quote
+                                    link['link'] = l.split(key)[1][:-1]
+                                else:
+                                    link['link'] = l.split(key)[1]
+                                link['count'] = c
+                                link['pages'] = []
+                                link['words'] = []
+                                links.append(link)
+                            except:
+                                # Why is the split blowing up?
+                                pass
 
                         results[analysis[a_type]['web_name']]['links'] = links 
                     

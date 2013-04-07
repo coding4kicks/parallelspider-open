@@ -181,15 +181,24 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
           $scope.commonGround = true;
         }
 
+        // Zero out calculated summary info on reload
+        $scope.summary.totalPages = 0;
+        $scope.summary.totalPages = 0;
+        $scope.summary.totalWords = 0;
+        $scope.summary.numberOfSites = 0;
+
         // Set per site information
         for (var i = 0; i < $scope.analysis.sites.length; i++) {
 
           // Set summary information (TODO: I'm mixing and matching
           // is summary for external and internal separate or both???
+          //alert($scope.summary.totalPages);
           $scope.summary.totalPages = $scope.summary.totalPages + 
                                       $scope.analysis.sites[i].internalResults.summary.pages.count;
+          //alert($scope.summary.totalPages);
           $scope.summary.totalPages = $scope.summary.totalPages + 
                                       $scope.analysis.sites[i].externalResults.summary.pages.count;
+          //alert($scope.summary.totalPages); 
           $scope.summary.totalWords = $scope.summary.totalWords + 
                                       $scope.analysis.sites[i].internalResults.summary.words.count;
           $scope.summary.totalWords = $scope.summary.totalWords + 

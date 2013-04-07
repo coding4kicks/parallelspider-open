@@ -51,7 +51,7 @@ spiderwebApp.directive('psFullscreen', function() {
 //  })
 //
 
-  // Validates integers (from Angular websites)
+  // Validates integers (from Angular's website)
   .directive('integer', function() {
     var INTEGER_REGEXP = /^\-?\d*$/;
     return {
