@@ -312,6 +312,11 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
       // Create a list of "word lists" for each site
       for (var i = 0; i < sites.length; i++) {
 
+        if (resultType === "headlineText") {
+                console.log(sites[i]);
+        }
+
+
         // Handle text and links
         if (sites[i].include === true && 
             resultType !== 'context' && 
@@ -369,6 +374,12 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
             // only add items from new list if in hash of starting list
             if (typeof startList[items[j][itemType]] !== "undefined") {
 
+              // TODO: better fix for this bug
+              // Certain words get turned into functions and blow up
+              if (typeof startList[items[j][itemType]] === "function") {
+                continue;
+              }
+
               // set templist word rank = to rank of start list word
               // and push current list rank to list
               tempList[items[j][itemType]] = startList[items[j][itemType]];
@@ -388,7 +399,7 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
               commonFormat.push({'word':prop, 'rank':obj[prop]});
           }
         } 
-
+        console.log("complete");
         return commonFormat;
       }
 

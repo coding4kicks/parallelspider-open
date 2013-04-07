@@ -240,6 +240,9 @@ class SpiderCleaner(object):
                         out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
 
+                    self.logger.debug("Done with subprocess",
+                                       extra=self.log_header)
+
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'hidden', 'text']:
                          
@@ -249,21 +252,31 @@ class SpiderCleaner(object):
                         # Last line of split is junk
                         for i, line in enumerate(out.split('\n')[:-1]):
 
-                            word = {}
-                            word['rank'] = i + 1
-                            w, c = line.split('\t')
-                            # Remove the key 
-                            if self.psuedo_dist:
-                                # and end quote
-                                word['word'] = w.split(key)[1][:-1]
-                            else:
-                                word['word'] = w.split(key)[1]
-                            word['count'] = c
-                            word['pages'] = []
-                            word['tags'] = []
-                            words.append(word)
+                            try:
+                                word = {}
+                                word['rank'] = i + 1
+                                w, c = line.split('\t')
+                                # Remove the key 
+                                if self.psuedo_dist:
+                                    # and end quote
+                                    word['word'] = w.split(key)[1][:-1]
+                                else:
+                                    word['word'] = w.split(key)[1]
+                                word['count'] = c
+                                word['pages'] = []
+                                word['tags'] = []
+                                words.append(word)
+
+                            except:
+                                # error unpacking line
+                                # TODO: figure out why it blows up sometimes.
+                                pass
+
 
                         results[analysis[a_type]['web_name']]['words'] = words 
+
+                        self.logger.debug("Done handling text",
+                                           extra=self.log_header)
 
                     #TODO: Handle Links
                     if a_type in ['all']:
@@ -292,6 +305,10 @@ class SpiderCleaner(object):
                                 pass
 
                         results[analysis[a_type]['web_name']]['links'] = links 
+
+                        self.logger.debug("Done handling all links",
+                                           extra=self.log_header)
+
                     
                     #TODO: Handle Domains
                     if a_type in ['external']:
@@ -302,30 +319,41 @@ class SpiderCleaner(object):
                         # Last line of split is junk
                         for i, line in enumerate(out.split('\n')[:-1]):
 
-                            domain = {}
-                            domain['rank'] = i + 1
-                            d, c = line.split('\t')
-                            # Remove the key 
-                            if self.psuedo_dist:
-                                # and end quote
-                                domain['domain'] = d.split(key)[1][:-1]
-                            else:
-                                domain['domain'] = d.split(key)[1]
-                            domain['count'] = c
-                            domain['pages'] = []
-                            domain['words'] = []
-                            domain['links'] = []
-                            domains.append(domain)
+                            try:
+                                domain = {}
+                                domain['rank'] = i + 1
+                                d, c = line.split('\t')
+                                # Remove the key 
+                                if self.psuedo_dist:
+                                    # and end quote
+                                    domain['domain'] = d.split(key)[1][:-1]
+                                else:
+                                    domain['domain'] = d.split(key)[1]
+                                domain['count'] = c
+                                domain['pages'] = []
+                                domain['words'] = []
+                                domain['links'] = []
+                                domains.append(domain)
+
+                            except:
+                                # error unpacking line
+                                # TODO: figure out why it blows up sometimes.
+                                pass
+
 
                         results[analysis[a_type]['web_name']]['domains'] \
                             = domains 
-                   
+
+                        self.logger.debug("Done handling external links",
+                                           extra=self.log_header)
+
                 # Handle Context
                 # Handling as a Python string, may blow up on large data
                 if 'wordContexts' in analysis_types:
 
                     # Logging
-                    msg = 'cleaning up analysis: wordContexts'
+                    msg = ('{!s} cleaning up analysis: wordContexts'
+                           ).format(site) 
                     self.logger.debug(msg, extra=self.log_header)
 
                     # Word contexts are in a list
@@ -363,6 +391,9 @@ class SpiderCleaner(object):
                         # No loop on out
                         out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
+
+                    self.logger.debug("Done with subprocess",
+                                       extra=self.log_header)
 
                     # Set up dictioary for context words
                     contexts = {}
@@ -429,12 +460,19 @@ class SpiderCleaner(object):
                         #        = context_details
                         results[analysis['wordContexts']['web_name']].append(context_details)
 
+                    self.logger.debug("Done handling context",
+                                       extra=self.log_header)
+
                     
                 #TODO: Handle Synonyms
 
                 #TODO: Handle Search Words
                 # just add to grep for summary info?
                 # or do separate?
+
+                msg = ('{!s} finishing with summary'
+                           ).format(site) 
+                self.logger.debug(msg, extra=self.log_header)
                     
                 # Summary Information
                 results['summary'] = {}
@@ -473,6 +511,9 @@ class SpiderCleaner(object):
                     out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
 
+                self.logger.debug("Done with subprocess",
+                                   extra=self.log_header)
+
                 total_count = 0
                 int_link_count = 0
                 ext_link_count = 0
@@ -481,34 +522,42 @@ class SpiderCleaner(object):
 
                 for line in out.split('\n')[:-1]:
 
-                    w, c = line.split('\t')
+                    try:
 
-                    if 'tagc' in w:
-                        tag = w.split('_')[1]
-                        dic = '{' + \
-                            ("'type':'{0}', 'count': {1}").format(tag, c) + \
-                              '}'
+                        w, c = line.split('\t')
 
-                        tag_list.append(dic)
-                        tag_total += int(c)
-                        
-                    elif 'lnkc' in w:
-                        if 'internal' in w:
-                            int_link_count = c
-                        else: 
-                            ext_link_count = c
+                        if 'tagc' in w:
+                            tag = w.split('_')[1]
+                            dic = '{' + \
+                                ("'type':'{0}', 'count': {1}").format(tag, c) + \
+                                  '}'
 
-                    elif 'totl' in w:
-                        total_count = c
+                            tag_list.append(dic)
+                            tag_total += int(c)
+                            
+                        elif 'lnkc' in w:
+                            if 'internal' in w:
+                                int_link_count = c
+                            else: 
+                                ext_link_count = c
 
-                    else:
-                        msg = 'No proper tag in summary output'
-                        self.logger.error(msg, extra=self.log_header)
+                        elif 'totl' in w:
+                            total_count = c
+
+                        else:
+                            msg = 'No proper tag in summary output'
+                            self.logger.error(msg, extra=self.log_header)
+
+                    except:
+                        # error unpacking line
+                        # TODO: figure out why it blows up sometimes.
+                        pass
+
 
                 #TODO: ??? Must do link analysis to retrieve this info?
                 results['summary']['links'] = {}
-                results['summary']['links']['external'] = ext_link_count
-                results['summary']['links']['internal'] = int_link_count 
+                results['summary']['links']['external'] = int(ext_link_count)
+                results['summary']['links']['internal'] = int(int_link_count) 
  
                 # Pull page download info from engine redis
                 finished = base + "::finished"
@@ -530,7 +579,21 @@ class SpiderCleaner(object):
 
                 #TODO: ??? Must do total count on every analysis?
                 results['summary']['words'] = {}
-                results['summary']['words']['count'] = total_count
+                results['summary']['words']['count'] = int(total_count)
+
+                print ""
+                print "Summary"
+                print results['summary']
+                print ""
+                print "types"
+                print type(ext_link_count)
+                print type(tag_total)
+                print type(page_count)
+                print type(total_count)
+                print ""
+
+                self.logger.debug("Done handling summary",
+                                    extra=self.log_header)
 
                 if c_type == 'internal':
                     site_results['internalResults'] = results
