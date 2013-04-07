@@ -247,10 +247,10 @@ class Brain(object):
                 continue
 
             # Emit tag count for each tag
-            key_total = '%s%s_%s' % (
+            key_tag = '%s%s_%s' % (
                 self.label['tag_count'],
                 external_bit, tag) 
-            value = (key_total, 1)
+            value = (key_tag, 1)
             mapper_output.append(value)
 
             # Break if no words
@@ -462,16 +462,16 @@ class Brain(object):
         external_links = len(ext_links)
         internal_links = total_links - external_links
         if internal_links > 0:
-            key_total = '%s%s_%s' % (
+            key_int_links = '%s%s_%s' % (
                 self.label['link_count'],
                 external_bit, 'internal') 
-            value = (key_total, internal_links)
+            value = (key_int_links, internal_links)
             mapper_output.append(value)
         if external_links > 0:
-            key_total = '%s%s_%s' % (
+            key_ext_links = '%s%s_%s' % (
                 self.label['link_count'],
                 external_bit, 'external') 
-            value = (key_total, external_links)
+            value = (key_ext_links, external_links)
             mapper_output.append(value)
 
 

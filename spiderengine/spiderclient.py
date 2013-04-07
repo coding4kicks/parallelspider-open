@@ -71,6 +71,7 @@ class CrawlTracker(object):
 
         # Defaults
         self.max_pages = 20 # Default Free Ride
+        self.total_max = 20 # total for all sites
         self.mappers = 3
         
   
@@ -164,6 +165,7 @@ class CrawlTracker(object):
             if 'additionalSites' in web_crawl:
                 total_num_sites = 1 + len(web_crawl['additionalSites'])
                 pages_per_site = float(self.max_pages)/total_num_sites
+                self.total_max = self.max_pages # used for completion check
                 # Round up to make sure we hit total max pages and finish
                 self.max_pages = int(math.ceil(pages_per_site))
   
@@ -340,13 +342,13 @@ class CrawlTracker(object):
                 # Only update to crawling vice initializing if total > 0
                 if total_count > 0:
                     self.central_redis.set(crawl_id + "_count", total_count) 
-                    if total_count > self.max_pages or not not_done:
+                    if total_count > self.total_max or not not_done:
                         done = True
 
                         # Logging
                         msg = ('total_count: {!s} max_pages: {!s} '
                                'links_not_done {!s}'
-                               ).format(total_count, self.max_pages, not_done) 
+                               ).format(total_count, self.total_max, not_done) 
                         self.logger.debug(msg, extra=self.log_header)
 
   

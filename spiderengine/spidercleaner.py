@@ -221,6 +221,7 @@ class SpiderCleaner(object):
                         # TODO: My have fixed this???
                         out = ""
                         while not out:
+                            print "wtf"
                             try:
                                 out = subprocess.check_output(cmd_line, shell=True,
                                     cwd=cwd)
@@ -494,9 +495,11 @@ class SpiderCleaner(object):
                     # where the file is created but nothing is in it
                     out = ""
                     while not out:
+                        print "summary"
                         try:
                             out = subprocess.check_output(cmd_line, shell=True,
                                 cwd=cwd)
+                            print out   
                         except:
                             # File should be ready at some point???
                             pass
@@ -520,8 +523,8 @@ class SpiderCleaner(object):
                 tag_total = 0
                 tag_list = []
 
-                for line in out.split('\n')[:-1]:
-
+                for line in out.split('\n'):
+                    
                     try:
 
                         w, c = line.split('\t')
@@ -577,20 +580,8 @@ class SpiderCleaner(object):
                 results['summary']['tags']['list'] = tag_list
                 results['summary']['tags']['total'] = tag_total
 
-                #TODO: ??? Must do total count on every analysis?
                 results['summary']['words'] = {}
                 results['summary']['words']['count'] = int(total_count)
-
-                print ""
-                print "Summary"
-                print results['summary']
-                print ""
-                print "types"
-                print type(ext_link_count)
-                print type(tag_total)
-                print type(page_count)
-                print type(total_count)
-                print ""
 
                 self.logger.debug("Done handling summary",
                                     extra=self.log_header)
@@ -609,6 +600,12 @@ class SpiderCleaner(object):
         cleanup_time = finish_time - start_time
         finished_analysis['time'] = crawl_time + cleanup_time
         #finished_analysis['time'] = finish_time - start_time
+
+        print ""
+        print "times"
+        print "start: " + str(start_time)
+        print "finish: " + str(finish_time)
+        print "crawl_time: " + str(crawl_time)
 
         json_data = json.dumps(finished_analysis)
 

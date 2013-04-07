@@ -9,7 +9,7 @@
     </tr>
     <tr>
       <td><h4>Total Words:</h4></td> 
-      <td><h4>{{summary.totalWords}}</h4></td>
+      <td><h4>{{summary.totalWords | number:0}}</h4></td>
       <td>&nbsp;</td> 
       <td><h4>Number of Sites:</h4></td> 
       <td><h4>{{summary.numberOfSites}}</h4></td>
@@ -36,18 +36,18 @@
         <td><h4>{{site[results].summary.words.count}}</h4></td>
         <td>&nbsp;</td> 
         <td><h4>Internal Links:</h4></td> 
-        <td><h4>{{site[results].summary.links.internal/totalLinks*100}}%</h4></td>
+        <td><h4>{{site[results].summary.links.internal/totalLinks*100 | number:1}}%</h4></td>
       </tr>
       <tr>
         <td><h4>Words/Page:</h4></td> 
-        <td><h4>{{site[results].summary.words.count/site[results].summary.pages.count}}</h4></td>
+        <td><h4>{{site[results].summary.words.count/site[results].summary.pages.count | number:0}}</h4></td>
         <td>&nbsp;</td> 
         <td><h4>External Links:</h4></td> 
-        <td><h4>{{site[results].summary.links.external/totalLinks*100}}%</h4></td>
+        <td><h4>{{site[results].summary.links.external/totalLinks*100 | number:1}}%</h4></td>
       </tr>
       <tr>
         <td><h4>Links/Page:</h4></td>
-        <td><h4>{{totalLinks/site[results].summary.pages.count}}</h4></td>
+        <td><h4>{{totalLinks/site[results].summary.pages.count | number:0}}</h4></td>
       </tr>
     </table>
 
