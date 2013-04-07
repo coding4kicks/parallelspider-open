@@ -8,7 +8,7 @@
  * Functions:
  *  selectFolder - displays the analysis of the selected folder
  *  selectAnalysis - make analysis current and display results
- *  getFoldersOrAnalysis - display analysis if avilable or folders
+ *  getFoldersOrAnalysis - display analysis if avilable or folders if not
  *  getAnalysis - retrieves crawl results from results service and performs initialization
  *  compareSites - Compare which words are common between sites
  *  resultsChoice - selects between internal and external results
@@ -329,7 +329,6 @@ spiderwebApp.controller('SplashdownCtrl', ['$scope', '$http', 'resultsService', 
           itemsList.push({'site': i + 1, 
                           'items': sites[i][$scope.results].selectors[itemType].words});
         }
-
       }
 
       if (resultType === 'context' || 

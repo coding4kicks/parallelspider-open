@@ -121,7 +121,7 @@ class Brain(object):
         else:
             self.stop_list = []
 
-        # Need to deep copy for lxml or css to xpath conversion fails?
+        # Need to deep copy for lxml or css to xpath conversion fails. Why?
         if 'css_selectors' in config_dict:
             self.css_selectors = copy.deepcopy(config_dict['css_selectors'])
         else:
@@ -158,6 +158,8 @@ class Brain(object):
 
         Args:
             doc - a lxml.html parsed document
+            page_link - link to page currently being analyzed
+            robots_text - used to determine which links can be followed 
             external - boolean, if True will not pass any links to follow 
                        and will mark all output as external
             no_emit - boolean, if True will only find links on the page 
@@ -251,14 +253,13 @@ class Brain(object):
             value = (key_total, 1)
             mapper_output.append(value)
 
-            # TODO: Break if no words
+            # Break if no words
             if not words:
                 continue
 
-            # Emit the total count of word
+            # Emit the total count of words
+            # Counts all words including stop words
             total = len(words)
-            #if word not in self.stop_list:
-            #    total = total + 1
             if total > 0:
                 key_total = '%s%s_%s' % (
                     self.label['total_count'],
