@@ -504,16 +504,6 @@ class SpiderCleaner(object):
                     out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
                 
-                print ""
-                print "out"
-                print out
-                print ""
-                print "file find"
-                #with open('/home/parallelspider/out/' + base_path) as f:
-                #    for line in f:
-                #        if 'totl' in line:
-                #            print line
-
                 self.logger.debug("Done with subprocess",
                                    extra=self.log_header)
 
@@ -531,9 +521,6 @@ class SpiderCleaner(object):
 
                         if 'tagc' in w:
                             tag = w.split('_')[1][:-1]
-                            #dic = '{' + \
-                            #    ("'type':'{0}', 'count': {1}").format(tag, c) + \
-                            #      '}'
                             dic = {}
                             dic['type'] = tag
                             dic['count'] = int(c)
@@ -559,8 +546,24 @@ class SpiderCleaner(object):
                         # TODO: figure out why it blows up sometimes.
                         pass
 
+                # Bug fix: sometimes total words is not in out
+                # so pull from file
+                # TODO: fix grep? so hack not necessary?
+                if total_count == 0:
+                    key = 'totl' + analysis[c_type]['key']
+                    with open('/home/parallelspider/out/' + base_path) as f:
+                        string = f.read()
+                        index = string.find(key)
+                        upper_newline = string.rfind('\n', 0, index)
+                        bottom_newline = string.find('\n', index)
+                        line = string[upper_newline:bottom_newline]
+                        try:
+                            w, c = line.split('\t')
+                            total_count = c
+                        except:
+                            msg = 'Not able to process total count.'
+                            self.logger.error(msg, extra=self.log_header)
 
-                #TODO: ??? Must do link analysis to retrieve this info?
                 results['summary']['links'] = {}
                 results['summary']['links']['external'] = int(ext_link_count)
                 results['summary']['links']['internal'] = int(int_link_count) 
@@ -574,6 +577,11 @@ class SpiderCleaner(object):
                     first_pages.append(page)
                     if i > 100:
                         break
+
+                print ""
+                print "total count"
+                print total_count
+                print ""
 
                 results['summary']['pages'] = {}
                 results['summary']['pages']['count'] = page_count 
