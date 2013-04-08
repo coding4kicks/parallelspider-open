@@ -11,7 +11,7 @@
       <h4 ng-click="showInfo(site, 'context', context, 'Word', 'Context Word', 'context')" class="clickable">{{context.word}}</h4>
       <div class="count-and-percent">
         <h5 class="count-total">Count: <span class="url">{{context.count}}</span></h5>
-        <h5 class="percent-total">Percent: <span class="url">{{context.count/site[results].summary.words.count}}</span></h5>
+        <h5 class="percent-total">Percent: <span class="url">{{context.count/site[results].summary.words.count | number:10}}</span></h5>
       </div>
       <div class="word-pane">
         <div class="word-box title">
