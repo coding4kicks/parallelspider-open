@@ -158,8 +158,8 @@ class SpiderCleaner(object):
             base = '%s::%s' % (site, config['crawl_id'])
             base_path = base.replace("/","_").replace(":","-")
 
+            # Download master file from HDFS if psudeo distributed
             if not self.psuedo_dist:
-                # Download master file from HDFS
                 # TODO: unix tee into separate files & filter and sort and head
                 # if able, or move to MapReduce solution
                 cmd_line = ("dumbo cat /HDFS/parallelspider/out/{!s}/part-00000 "
@@ -206,29 +206,14 @@ class SpiderCleaner(object):
                     key = analysis[a_type]['key'] + analysis[c_type]['key']
 
                     # Cat the master file into the sort filter
-                    # TODO: elimanate separate processing and test distributed
-                    if self.psuedo_dist:# Psuedo Distributed
+                    cwd = "/home/parallelspider/out/"
+                    cmd_line = ("cat {!s} | "
+                                "grep '{!s}' | "
+                                "sort -k 2 -n -r | "
+                                "head -n 150"
+                                ).format(base_path, key)
 
-                        cwd = "/home/parallelspider/out/"
-                        cmd_line = ("cat {!s} | "
-                                    "grep '{!s}' | "
-                                    "sort -k 2 -n -r | "
-                                    "head -n 100"
-                                    ).format(base_path, key)
-
-                        out = subprocess.check_output(cmd_line, shell=True,
-                                    cwd=cwd)
-                        
-                    else: # Normal
-                        cwd = "/home/parallelspider/out/"
-                        cmd_line = ("cat {!s} | "
-                                    "grep '{!s}' | "
-                                    "sort -k 2 -n -r | "
-                                    "head -n 10"
-                                    ).format(base_path, key)
-
-                        # No loop on out
-                        out = subprocess.check_output(cmd_line, shell=True,
+                    out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
 
                     self.logger.debug("Done with subprocess",
@@ -353,35 +338,13 @@ class SpiderCleaner(object):
                     # Create the key to grep/filter the master file by
                     key = analysis['wordContexts']['key'] + analysis[c_type]['key']
                     
-                    if self.psuedo_dist:# Psuedo Distributed
+                    cwd = "/home/parallelspider/out/"
+                    cmd_line = ("cat {!s} | "
+                                "grep '{!s}' "
+                                ).format(base_path, key)
 
-                        cwd = "/home/parallelspider/out/"
-                        cmd_line = ("cat {!s} | "
-                                    "grep '{!s}' "
-                                    ).format(base_path, key)
-
-                        # Loop while no output
-                        # I believe a race has been causing problems
-                        # where the file is created but nothing is in it
-                        out = ""
-                        while not out:
-                            try: # Just in case file doesn't exist???
-                                out = subprocess.check_output(cmd_line, shell=True,
-                                    cwd=cwd)
-                            except:
-                                # Not sure why not waiting for file in
-                                # spiderclient?
-                                pass
-                        
-                    else: # Normal
-                        cwd = "/home/parallelspider/out/"
-                        cmd_line = ("cat {!s} | "
-                                    "grep '{!s}' "
-                                    ).format(base_path, key)
-
-                        # No loop on out
-                        out = subprocess.check_output(cmd_line, shell=True,
-                                                      cwd=cwd)
+                    out = subprocess.check_output(cmd_line, shell=True,
+                                                  cwd=cwd)
 
                     self.logger.debug("Done with subprocess",
                                        extra=self.log_header)
@@ -447,9 +410,8 @@ class SpiderCleaner(object):
                         context_details['tags'] = []
 
                         # Add context word details to the results
-                        #results[analysis['wordContexts']['web_name']][j] \
-                        #        = context_details
-                        results[analysis['wordContexts']['web_name']].append(context_details)
+                        results[analysis['wordContexts']['web_name']] \
+                                .append(context_details)
 
                     self.logger.debug("Done handling context",
                                        extra=self.log_header)
@@ -473,36 +435,13 @@ class SpiderCleaner(object):
                        ).format(analysis[c_type]['key'], "\\")
 
                 # Cat the master file into the filter
-                if self.psuedo_dist:# Psuedo Distributed
+                cwd = "/home/parallelspider/out/"
+                cmd_line = ("cat {!s} | "
+                            "grep '{!s}'"
+                            ).format(base_path, key)
 
-                    cwd = "/home/parallelspider/out/"
-                    cmd_line = ("cat {!s} | "
-                                "grep '{!s}'"
-                                ).format(base_path, key)
-
-                    # Loop while no output
-                    # I believe a race has been causing problems
-                    # where the file is created but nothing is in it
-                    out = ""
-                    #while not out:
-                    #    print "summary"
-                    #    try:
-                    out = subprocess.check_output(cmd_line, shell=True,
-                                cwd=cwd)
-                       
-                    #    except:
-                    #        # File should be ready at some point???
-                    #        pass
-                    
-                else: # Normal
-                    cwd = "/home/parallelspider/out/"
-                    cmd_line = ("cat {!s} | "
-                                "grep '{!s}'"
-                                ).format(base_path, key)
-
-                    # No loop on out
-                    out = subprocess.check_output(cmd_line, shell=True,
-                                                      cwd=cwd)
+                out = subprocess.check_output(cmd_line, shell=True,
+                                                  cwd=cwd)
                 
                 self.logger.debug("Done with subprocess",
                                    extra=self.log_header)
@@ -549,6 +488,7 @@ class SpiderCleaner(object):
                 # Bug fix: sometimes total words is not in out
                 # so pull from file
                 # TODO: fix grep? so hack not necessary?
+                # or just do Parallel Cleaner
                 if total_count == 0:
                     key = 'totl' + analysis[c_type]['key']
                     with open('/home/parallelspider/out/' + base_path) as f:
@@ -578,11 +518,6 @@ class SpiderCleaner(object):
                     if i > 100:
                         break
 
-                print ""
-                print "total count"
-                print total_count
-                print ""
-
                 results['summary']['pages'] = {}
                 results['summary']['pages']['count'] = page_count 
                 results['summary']['pages']['list'] = first_pages
@@ -610,13 +545,6 @@ class SpiderCleaner(object):
         finish_time = time.time()
         cleanup_time = finish_time - start_time
         finished_analysis['time'] = crawl_time + cleanup_time
-        #finished_analysis['time'] = finish_time - start_time
-
-        print ""
-        print "times"
-        print "start: " + str(start_time)
-        print "finish: " + str(finish_time)
-        print "crawl_time: " + str(crawl_time)
 
         json_data = json.dumps(finished_analysis)
 

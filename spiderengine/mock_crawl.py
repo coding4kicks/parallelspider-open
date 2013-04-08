@@ -21,16 +21,16 @@ def mocker():
 
     # Implemented (At least partially)
     crawl["primarySite"] = "http://www.foxnews.com/"
-    crawl["text"] = {"visible":False,"headlines":False,"hidden":False}
-    crawl["links"] = {"text":True,"all":True,"external":True}
+    crawl["text"] = {"visible":True,"headlines":False,"hidden":False}
+    crawl["links"] = {"text":False,"all":False,"external":False}
     crawl["wordContexts"] = [] #["democrat", "republican", "obama"]
     crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
-    crawl["maxPages"] = 30
+    crawl["maxPages"] = 10
     crawl["externalSites"] = False
     crawl["stopWords"] = ""
     crawl["name"] = "News Showdown - Text"
     crawl["time"] = "Sat Apr 06 2013 20:00:00 GMT-0700 (PDT)" 
-    crawl["additionalSites"] = ["http://www.nbcnews.com", "http://www.cnn.com"]
+    crawl["additionalSites"] = [] #["http://www.nbcnews.com", "http://www.cnn.com"]
 
     
     # TODO: Implement
