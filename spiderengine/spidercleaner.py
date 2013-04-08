@@ -120,7 +120,7 @@ class SpiderCleaner(object):
         finished_analysis['name'] = config['name']
         finished_analysis['date'] = config['date']
         crawl_time = config['time']
-        start_time = time.clock()
+        start_time = time.time()
         
         #TODO: pull from config/calculate end here prior to upload
 
@@ -206,6 +206,7 @@ class SpiderCleaner(object):
                     key = analysis[a_type]['key'] + analysis[c_type]['key']
 
                     # Cat the master file into the sort filter
+                    # TODO: elimanate separate processing and test distributed
                     if self.psuedo_dist:# Psuedo Distributed
 
                         cwd = "/home/parallelspider/out/"
@@ -215,26 +216,8 @@ class SpiderCleaner(object):
                                     "head -n 100"
                                     ).format(base_path, key)
 
-                        # Loop while no output
-                        # I believe a race has been causing problems
-                        # where the file is created but nothing is in it
-                        # TODO: My have fixed this???
-                        out = ""
-                        #while not out:
-                        #    path = "/home/parallelspider/out/"
-                        #    if os.path.exists(path + base_path):
-                        #        print "The path exists"
-                        #    print "wtf"
-                        #    try:
                         out = subprocess.check_output(cmd_line, shell=True,
                                     cwd=cwd)
-                            #except:
-                                # File should be ready at some point???
-                            #    print "exception???"
-                            #    pass
-                        while not out:
-                            print "waiting"
-                            time.sleep(1)
                         
                     else: # Normal
                         cwd = "/home/parallelspider/out/"
@@ -510,10 +493,6 @@ class SpiderCleaner(object):
                     #    except:
                     #        # File should be ready at some point???
                     #        pass
-                    while not out:
-                        print "waiting"
-                        time.sleep(1)
-                    print out
                     
                 else: # Normal
                     cwd = "/home/parallelspider/out/"
@@ -524,6 +503,16 @@ class SpiderCleaner(object):
                     # No loop on out
                     out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
+                
+                print ""
+                print "out"
+                print out
+                print ""
+                print "file find"
+                with open('/home/parallelspider/out/' + base_path) as f:
+                    for line in f:
+                        if 'totl' in line:
+                            print line
 
                 self.logger.debug("Done with subprocess",
                                    extra=self.log_header)
@@ -607,7 +596,7 @@ class SpiderCleaner(object):
                 finished_analysis['sites'].append(site_results)
         
         # All done, clock time
-        finish_time = time.clock()
+        finish_time = time.time()
         cleanup_time = finish_time - start_time
         finished_analysis['time'] = crawl_time + cleanup_time
         #finished_analysis['time'] = finish_time - start_time

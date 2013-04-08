@@ -146,7 +146,7 @@ class CrawlTracker(object):
                 self.logger.warning(msg, extra=self.log_header)
                 crawl['date'] = 'error'
 
-            crawl['time'] = time.clock()
+            crawl['time'] = time.time()
   
             # Set max pages to crawl
             if 'maxPages' in web_crawl:
@@ -368,9 +368,9 @@ class CrawlTracker(object):
                             path = "/home/parallelspider/out/"
                             with open(path + base_path) as f:
                                 line = f.readline()
-                                print line
+                                self.logger.debug("Reducing...", 
+                                    extra=self.log_header)
                                 if line == "":
-                                    #if not os.path.exists(path + base_path):
                                     really_not_done = True
 
                                     # Logging
@@ -414,7 +414,7 @@ class CrawlTracker(object):
                     config_file = self.engine_redis.get(crawl_id)
                     config = json.loads(config_file)
                     start_time = config['time']
-                    stop_time = time.clock()
+                    stop_time = time.time()
                     config['time'] = stop_time - start_time
                     config_json = json.dumps(config)
                     self.engine_redis.set(crawl_id, config_json)
