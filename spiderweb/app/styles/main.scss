@@ -621,8 +621,9 @@ body {
 
 .tag-pane {
   background-color: white;
-  height: 200px;
+  height: 300px;
   text-align: left;
+  overflow-y: scroll;
 
   .tag {
     width: 50%;

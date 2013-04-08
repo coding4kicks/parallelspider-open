@@ -157,7 +157,7 @@ class CrawlTracker(object):
             # Adjust mappers based upon max pages 
             # TODO: benchmark
             if self.max_pages > 100:
-                self.mappers = 20
+                self.mappers = 15
             elif self.max_pages > 20:
                 self.mappers = 5
   

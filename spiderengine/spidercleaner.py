@@ -509,10 +509,10 @@ class SpiderCleaner(object):
                 print out
                 print ""
                 print "file find"
-                with open('/home/parallelspider/out/' + base_path) as f:
-                    for line in f:
-                        if 'totl' in line:
-                            print line
+                #with open('/home/parallelspider/out/' + base_path) as f:
+                #    for line in f:
+                #        if 'totl' in line:
+                #            print line
 
                 self.logger.debug("Done with subprocess",
                                    extra=self.log_header)
@@ -530,10 +530,13 @@ class SpiderCleaner(object):
                         w, c = line.split('\t')
 
                         if 'tagc' in w:
-                            tag = w.split('_')[1]
-                            dic = '{' + \
-                                ("'type':'{0}', 'count': {1}").format(tag, c) + \
-                                  '}'
+                            tag = w.split('_')[1][:-1]
+                            #dic = '{' + \
+                            #    ("'type':'{0}', 'count': {1}").format(tag, c) + \
+                            #      '}'
+                            dic = {}
+                            dic['type'] = tag
+                            dic['count'] = int(c)
 
                             tag_list.append(dic)
                             tag_total += int(c)

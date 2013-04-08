@@ -69,7 +69,7 @@
       <div class="analysis-box tag-box">
         <h4>Tag Types</h4>
         <div class="tag-pane">
-          <div ng-repeat="tag in site[results].summary.tags.list" class="word-box">
+          <div ng-repeat="tag in site[results].summary.tags.list | orderBy:'count':true" class="word-box">
             <div class="tag">{{tag.type}}</div>
             <div class="percent">{{tag.count/site[results].summary.tags.total * 100 | number:1}}%</div>
           </div>
