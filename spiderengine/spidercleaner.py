@@ -220,14 +220,21 @@ class SpiderCleaner(object):
                         # where the file is created but nothing is in it
                         # TODO: My have fixed this???
                         out = ""
-                        while not out:
-                            print "wtf"
-                            try:
-                                out = subprocess.check_output(cmd_line, shell=True,
+                        #while not out:
+                        #    path = "/home/parallelspider/out/"
+                        #    if os.path.exists(path + base_path):
+                        #        print "The path exists"
+                        #    print "wtf"
+                        #    try:
+                        out = subprocess.check_output(cmd_line, shell=True,
                                     cwd=cwd)
-                            except:
+                            #except:
                                 # File should be ready at some point???
-                                pass
+                            #    print "exception???"
+                            #    pass
+                        while not out:
+                            print "waiting"
+                            time.sleep(1)
                         
                     else: # Normal
                         cwd = "/home/parallelspider/out/"
@@ -494,15 +501,19 @@ class SpiderCleaner(object):
                     # I believe a race has been causing problems
                     # where the file is created but nothing is in it
                     out = ""
-                    while not out:
-                        print "summary"
-                        try:
-                            out = subprocess.check_output(cmd_line, shell=True,
+                    #while not out:
+                    #    print "summary"
+                    #    try:
+                    out = subprocess.check_output(cmd_line, shell=True,
                                 cwd=cwd)
-                            print out   
-                        except:
-                            # File should be ready at some point???
-                            pass
+                       
+                    #    except:
+                    #        # File should be ready at some point???
+                    #        pass
+                    while not out:
+                        print "waiting"
+                        time.sleep(1)
+                    print out
                     
                 else: # Normal
                     cwd = "/home/parallelspider/out/"

@@ -366,12 +366,16 @@ class CrawlTracker(object):
                         # No success file so check path exists, TODO: broken
                         if self.psuedo_dist:
                             path = "/home/parallelspider/out/"
-                            if not os.path.exists(path + base_path):
-                                really_not_done = True
+                            with open(path + base_path) as f:
+                                line = f.readline()
+                                print line
+                                if line == "":
+                                    #if not os.path.exists(path + base_path):
+                                    really_not_done = True
 
-                                # Logging
-                                msg = """Path doesn't exist""" 
-                                self.logger.debug(msg, extra=self.log_header)
+                                    # Logging
+                                    msg = """Path doesn't exist""" 
+                                    self.logger.debug(msg, extra=self.log_header)
 
                         # Distributed Crawl 
                         else:
