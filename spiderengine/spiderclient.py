@@ -39,8 +39,8 @@ class CrawlTracker(object):
     checkCrawlStatus - monitors crawl and clean queues for completion and 
                        handles notifying Central Redis of completion
 
-    TODO: Not returning page counts? But returning completion -2.
-    *** Because going immediately to the clean queue???
+    TODO: Break if don't make progress: less than max, still new links
+          and count stuck at same number: "-1"
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,

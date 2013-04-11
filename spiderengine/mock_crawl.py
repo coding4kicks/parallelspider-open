@@ -20,12 +20,12 @@ def mocker():
     crawl = {}
 
     # Implemented (At least partially)
-    crawl["primarySite"] = "http://www.foxnews.com/"
+    crawl["primarySite"] = "http://www.cnn.com/" #"https://news.ycombinator.com/"
     crawl["text"] = {"visible":True,"headlines":True,"hidden":True}
-    crawl["links"] = {"text":False,"all":False,"external":False}
-    crawl["wordContexts"] = ["democrat", "republican", "obama"]
+    crawl["links"] = {"text":True,"all":False,"external":True}
+    crawl["wordContexts"] = ["python", "ruby"]
     crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
-    crawl["maxPages"] = 500
+    crawl["maxPages"] = 10
     crawl["externalSites"] = False
     crawl["stopWords"] = ""
     crawl["name"] = "News Showdown - Text"

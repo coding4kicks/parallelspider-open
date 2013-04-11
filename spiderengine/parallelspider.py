@@ -31,6 +31,7 @@ class Mapper():
         import json
         import sys
         import redis
+        import urllib2
                       
         # Convert Redis info to Python Dictionary
         self.redis_info = {}
@@ -153,7 +154,15 @@ class Mapper():
                     link = link[4:len(link)]
             
                 # Download and parse page
-                page = lxml.html.parse(link)
+                if 'https' in link:
+                    page = lxml.html.parse(urllib2.urlopen(link))
+                elif 'http' in link:
+                    page = lxml.html.parse(link)
+                else: # file type not supported
+                    msg = ('File type not supported: {!s}').format(link) 
+                    self.logger.error(msg, extra=self.log_header)
+                    break
+
                 output = brain.analyze(page, link, robots_txt,
                                        external=external)
                 links = brain.on_site_links

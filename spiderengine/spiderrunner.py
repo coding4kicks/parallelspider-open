@@ -20,6 +20,7 @@ import json
 import copy
 import redis
 import logging
+import urllib2
 import datetime
 import optparse
 import lxml.html
@@ -118,11 +119,16 @@ class SpiderRunner(object):
             robots_txt.read() 
 
             # Download and parse page
+            # TODO: need try catch so failure to parse doesn't loop forever
+            # and need to report back failure to Spider Web
             if 'https' in site:
-                print 'https'
-                break
-            else
+                page = lxml.html.parse(urllib2.urlopen(site))
+            elif 'http' in site:
                 page = lxml.html.parse(site)
+            else: # file type not supported
+                msg = ('File type not supported: {!s}').format(site) 
+                self.logger.error(msg, extra=self.log_header)
+                break
             brain = Brain(site, config)
             output = brain.analyze(page, site, robots_txt, no_emit=True)
             links = brain.on_site_links
