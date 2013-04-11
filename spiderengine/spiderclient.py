@@ -294,6 +294,7 @@ class CrawlTracker(object):
                 # Retrieve page count from engine and set in central redis
                 page_count = self.engine_redis.get(crawl_id + "_count")
                 self.central_redis.set(crawl_id + "_count", page_count)
+                self.central_redis.expire(crawl_id + "_count", 60*60)
                 # If page count is complete (-2), remove from queue
                 if page_count == "-2":
                     self.crawlQueue.remove(crawl_id)
@@ -418,6 +419,7 @@ class CrawlTracker(object):
                     config['time'] = stop_time - start_time
                     config_json = json.dumps(config)
                     self.engine_redis.set(crawl_id, config_json)
+                    self.engine_redis.expire(crawl_id, 60*60)
 
                     # TODO: should add a -3 for cleaning up
   

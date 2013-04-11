@@ -592,6 +592,7 @@ class SpiderCleaner(object):
         for site in site_list:
             base = '%s::%s' % (site, engine_crawl_id)
             r.set(base + "::count", "-2")
+            r.expire(base + "::count", (60*60))
 
 
 # Helper Funcs
