@@ -198,8 +198,8 @@ class TestMrFeynman(unittest.TestCase):
 
                 self.assertEqual(len(put), 2)
                 red_output = brain.process(put[0], put[1])
-                #print red_output
-            print brain.on_site_links
+                print red_output
+            #print brain.on_site_links
             print "What up crew!"
 
 if __name__ == '__main__':

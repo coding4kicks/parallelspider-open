@@ -155,6 +155,10 @@ class SpiderRunner(object):
             finish = 250
             i = 0
 
+            #for link in links:
+            #    print link
+            #break
+
             # Add links to Engine Redis as a batch 
             # vice adding 1 at a time (max 255)
             while i < breaks:

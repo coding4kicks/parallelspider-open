@@ -84,7 +84,7 @@ class Mapper():
        """
         
         import redis
-        import urllib
+        import urllib2
         import lxml.html
         import robotparser
 
@@ -139,8 +139,11 @@ class Mapper():
                 r.sadd(processing, link)
 
             # Alert that can't pop a link
-            except:
-                message = "Unable to pop a link"
+            except Exception as exc:
+                message = """Unable to pop a link
+                             Exception: %s
+                             Exception args: %s
+                          """ % (type(exc), exc)                
                 yield 'zmsg__error', (message, 1)
                 break
 
@@ -177,8 +180,11 @@ class Mapper():
                 #yield('zmsg_error', (links, 1)
 
             # Alert that can't parse and restart loop
-            except:
-                message = "Unable to download and parse: " + link
+            except Exception as exc:
+                message = """Unable to download and parse: %s
+                             Exception: %s
+                             Exception args: %s
+                          """ % (link, type(exc), exc)
                 yield 'zmsg__error', (message, 1)
                 continue
 
@@ -189,8 +195,11 @@ class Mapper():
                     yield key, value
 
             # Alert that can't process info
-            except:
-                message = "Unable to process info for: " + link
+            except Exception as exc:
+                message = """Unable to process info for: %s
+                             Exception: %s
+                             Exception args: %s
+                          """ % (link, type(exc), exc)
                 yield 'zmsg__error', (message, 1)
                 continue
 
@@ -248,8 +257,11 @@ class Mapper():
                 pipe.execute()
  
             # Alert that can't process info
-            except:
-                message = "Unable to finish processing: " + link
+            except Exception as exc:
+                message = """Unable to finish processing: %s
+                             Exception: %s
+                             Exception args: %s
+                          """ % (link, type(exc), exc)
                 yield 'zmsg__error', (message, 1)
                 continue          
             
@@ -334,8 +346,11 @@ class Reducer():
 
             yield key, new_values
 
-        except:
-            message = "Unable to reduce: " + key
+        except Exception as exc:
+            message = """Unable to reduce: %s
+                         Exception: %s
+                         Exception args: %s
+                      """ % (key, type(exc), exc)
             yield 'zmsg__error', (message, 1)
 
 if __name__ == "__main__":
