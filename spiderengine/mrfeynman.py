@@ -806,7 +806,7 @@ def process_links(links, site_url, site_domain, scheme,
                 ext_links.append(element)
 
         # If schemeless add scheme
-        if (link and link[0:2] == '//'):
+        elif (link and link[0:2] == '//'):
             link_abs = scheme + link
             if robots_txt.can_fetch('*', link_abs):
                 on_site.append(link_abs)
@@ -816,8 +816,13 @@ def process_links(links, site_url, site_domain, scheme,
             link_abs = site_url + link
             if robots_txt.can_fetch('*', link_abs):
                 on_site.append(link_abs)
-            
-        # Else skip, junk
+        
+        # Relative without backslash so add
+        else:
+            link_abs = site_url + '/' + link
+            if robots_txt.can_fetch('*', link_abs):
+                on_site.append(link_abs)
+
             
     return (on_site, off_site, all_links, ext_links)
 

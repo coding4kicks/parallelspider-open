@@ -102,7 +102,8 @@ class TestMrFeynman(unittest.TestCase):
             "nbc": Brain("http://www.nbcnews.com/", config),
             "reddit": Brain("http://www.reddit.com/", config),
             "wh": Brain("http://www.whitehouse.gov/", config),
-            "wiki": Brain("http://www.wikipedia.org/", config)}
+            "wiki": Brain("http://www.wikipedia.org/", config),
+            "hn": Brain("https://news.ycombinator.com/", config)}
         
         
     def test_parser(self):
@@ -112,7 +113,7 @@ class TestMrFeynman(unittest.TestCase):
         for file_name in os.listdir("."):
 
             # Limit input to one doc for testing
-            if file_name != "nbc0":
+            if file_name != "hn0":
                 continue
 
             # Brain is filename minus number on the end
@@ -197,8 +198,8 @@ class TestMrFeynman(unittest.TestCase):
 
                 self.assertEqual(len(put), 2)
                 red_output = brain.process(put[0], put[1])
-                print red_output
-
+                #print red_output
+            print brain.on_site_links
             print "What up crew!"
 
 if __name__ == '__main__':

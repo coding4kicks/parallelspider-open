@@ -125,7 +125,6 @@ class SpiderRunner(object):
                 page = lxml.html.parse(urllib2.urlopen(site))
             elif 'http' in site:
                 page = lxml.html.parse(site)
-                print 'hereooo'
             else: # file type not supported
                 msg = ('File type not supported: {!s}').format(site) 
                 self.logger.error(msg, extra=self.log_header)
@@ -133,6 +132,11 @@ class SpiderRunner(object):
             brain = Brain(site, config)
             output = brain.analyze(page, site, robots_txt, no_emit=True)
             links = brain.on_site_links
+
+            msg = """output: %s""" % (output)
+            self.logger.debug(msg, extra=self.log_header)
+            msg = """links: %s""" % (links)
+            self.logger.debug(msg, extra=self.log_header)
 
             # Create base part of Redis key from timestamp and site name
             # TODO: fix crawl id
