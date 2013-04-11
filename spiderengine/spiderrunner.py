@@ -118,7 +118,11 @@ class SpiderRunner(object):
             robots_txt.read() 
 
             # Download and parse page
-            page = lxml.html.parse(site)
+            if 'https' in site:
+                print 'https'
+                break
+            else
+                page = lxml.html.parse(site)
             brain = Brain(site, config)
             output = brain.analyze(page, site, robots_txt, no_emit=True)
             links = brain.on_site_links

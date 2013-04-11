@@ -41,6 +41,7 @@ def deploy():
     #                     recursive=True)
 
     # Upload entire APP folder (should be dist, WTF yeoman)
+    # is this redundant with loading all of temp???
     sb = staticbuilder.StaticBuilder()
     directory = path + "spiderweb/app"
     sb.upload(paths_in=directory, path_out="www.parallelspider.com",
