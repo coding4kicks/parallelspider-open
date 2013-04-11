@@ -212,9 +212,15 @@ class SpiderCleaner(object):
                                 "sort -k 2 -n -r | "
                                 "head -n 150"
                                 ).format(base_path, key)
-
-                    out = subprocess.check_output(cmd_line, shell=True,
+                    
+                    try:
+                        out = subprocess.check_output(cmd_line, shell=True,
                                                       cwd=cwd)
+                    except:
+                        msg = ('Failed to process pipeline for {0}'
+                               ).format(a_type) 
+                        self.logger.debug(msg, extra=self.log_header)
+ 
 
                     self.logger.debug("Done with subprocess",
                                        extra=self.log_header)
@@ -343,8 +349,13 @@ class SpiderCleaner(object):
                                 "grep '{!s}' "
                                 ).format(base_path, key)
 
-                    out = subprocess.check_output(cmd_line, shell=True,
-                                                  cwd=cwd)
+                    try:
+                        out = subprocess.check_output(cmd_line, shell=True,
+                                                      cwd=cwd)
+                    except:
+                        msg = ('Failed to process pipeline for {0}'
+                               ).format('wordContexts') 
+                        self.logger.debug(msg, extra=self.log_header)
 
                     self.logger.debug("Done with subprocess",
                                        extra=self.log_header)
@@ -440,8 +451,13 @@ class SpiderCleaner(object):
                             "grep '{!s}'"
                             ).format(base_path, key)
 
-                out = subprocess.check_output(cmd_line, shell=True,
+                try:
+                    out = subprocess.check_output(cmd_line, shell=True,
                                                   cwd=cwd)
+                except:
+                    msg = ('Failed to process pipeline for {0}'
+                           ).format('summary') 
+                    self.logger.debug(msg, extra=self.log_header)
                 
                 self.logger.debug("Done with subprocess",
                                    extra=self.log_header)
