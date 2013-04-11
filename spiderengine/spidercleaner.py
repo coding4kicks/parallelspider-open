@@ -475,7 +475,7 @@ class SpiderCleaner(object):
                         w, c = line.split('\t')
 
                         if 'tagc' in w:
-                            tag = w.split('_')[1][:-1]
+                            tag = w.split('_')[1]
                             dic = {}
                             dic['type'] = tag
                             dic['count'] = int(c)
