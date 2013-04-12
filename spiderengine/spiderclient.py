@@ -160,6 +160,9 @@ class CrawlTracker(object):
                 self.mappers = 15
             elif self.max_pages > 20:
                 self.mappers = 5
+
+            # Adjust mappers for number of sites so don't max out the engine
+            self.mappers = self.mappers/(len(web_crawl['additionalSites']) + 1)
   
             # Calculate max pages for each site (total/# of sites)
             if 'additionalSites' in web_crawl:

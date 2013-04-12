@@ -21,17 +21,18 @@ def mocker():
 
     # Implemented (At least partially)
     crawl["primarySite"] = "https://news.ycombinator.com/"
-    #crawl["primarySite"] = "http://www.cnn.com/"
+    #crawl["primarySite"] = "http://www.federalreserve.gov/"
+    #crawl["primarySite"] = "http://www.uspto.gov/"
     crawl["text"] = {"visible":True,"headlines":True,"hidden":True}
-    crawl["links"] = {"text":True,"all":False,"external":True}
-    crawl["wordContexts"] = [] #["python", "ruby"]
+    crawl["links"] = {"text":True,"all":True,"external":True}
+    crawl["wordContexts"] = [] #["Obama", "democrat", "republican", "sequester"]
     crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
-    crawl["maxPages"] = 20
+    crawl["maxPages"] = 1000
     crawl["externalSites"] = False
     crawl["stopWords"] = ""
-    crawl["name"] = "News Showdown - Text"
-    crawl["time"] = "Sat Apr 06 2013 20:00:00 GMT-0700 (PDT)" 
-    crawl["additionalSites"] = [] #["http://www.nbcnews.com", "http://www.cnn.com"]
+    crawl["name"] = "Hackalicious News"
+    crawl["time"] = "April 11, 2013" 
+    crawl["additionalSites"] = [] #["http://www.dhs.gov/"] #, "http://www.cnn.com"]
 
     
     # TODO: Implement
@@ -52,7 +53,7 @@ def mocker():
     # Create random fake time so files don't collide
     random_year = str(random.random() * 10000)[:4]
     fake_time = "Fri Mar 15 " + random_year + " 21:00:15 GMT-0700 (PDT)"
-    fake_crawl_id = 'fake_user' + "__" + 'fake_name' + "__" + \
+    fake_crawl_id = 'yankeecharlie' + "__" + 'politic' + "__" + \
                     fake_time
     fake_crawl_id = urllib.quote_plus(fake_crawl_id)
 

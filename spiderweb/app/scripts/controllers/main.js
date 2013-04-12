@@ -187,6 +187,10 @@ spiderwebApp.controller('MainCtrl', ['$scope', '$http', '$timeout', '$location',
   $scope.crawl.name = ""
   $scope.crawlName = "";
 
+  // Visual text analysis is only type that defaults to true
+  $scope.crawl.text = {};
+  $scope.crawl.text.visible = true;
+
   $scope.crawl.additionalSites = [];
   $scope.additionalSites;
 

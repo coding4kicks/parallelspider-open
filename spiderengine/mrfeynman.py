@@ -819,7 +819,8 @@ def process_links(links, site_url, site_domain, scheme,
         
         # Relative without backslash so add
         else:
-            if (link and link != '/' and (';' not in link)):
+            if (link and link != '/' and (';' not in link)
+                and ('javascript' not in link)):
                 link_abs = site_url + '/' + link
                 if robots_txt.can_fetch('*', link_abs):
                     on_site.append(link_abs)
