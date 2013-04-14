@@ -14,6 +14,10 @@ import lxml
 
 from spiderengine.mrfeynman import Brain
 
+# Global robot.txt so don't download over and over
+global_robots_txt = ""
+
+# Switch to TestSpeed
 class TestMrFeynman(unittest.TestCase):
     """
     Tests mrfeynman on 50 documents
@@ -22,10 +26,8 @@ class TestMrFeynman(unittest.TestCase):
     def setUp(self):
         """Initialize the brains"""
 
-                # Get robots.txt
-        self.robots_txt = robotparser.RobotFileParser()
-        self.robots_txt.set_url('http://www.foxnews.com/')
-        self.robots_txt.read() 
+        self.robots_txt = FakeRobotText().get()
+
 
         # Set up configuration file
         config = {}
@@ -113,7 +115,7 @@ class TestMrFeynman(unittest.TestCase):
         for file_name in os.listdir("."):
 
             # Limit input to one doc for testing
-            if file_name != "hn0":
+            if file_name != "nbc0":
                 continue
 
             # Brain is filename minus number on the end
@@ -201,6 +203,37 @@ class TestMrFeynman(unittest.TestCase):
                 print red_output
             #print brain.on_site_links
             print "What up crew!"
+
+class TestSummary (unittest.TestCase):
+    """
+    Tests Mr Feynman's processing of summary information 
+    """
+
+    def setUp(self):
+        print 'hereeee'
+        self.robots_txt = FakeRobotText().get()
+
+    def test_reducer(self):
+        pass
+
+###############################################################################
+### Helper Classes & Functions
+###############################################################################
+class FakeRobotText(object):
+    """Singleton of robot.txt used by the Brain."""
+
+    # Borg Singleton: http://code.activestate.com/recipes/66531/
+    __shared_state = {"robots_txt":""}
+
+    def __init__(self):
+        self.__dict__ = self.__shared_state
+
+    def get(self):
+        if type(self.robots_txt) is str:
+            self.robots_txt = robotparser.RobotFileParser()
+            self.robots_txt.set_url('http://www.foxnews.com/')
+            self.robots_txt.read()
+        return self.robots_txt
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,5 +1,5 @@
 """
-    Mr Feynman analyzes a parsed html document.
+    Mr. Feynman analyzes a parsed html document.
 
     The module takes in a parsed document and emits key value pairs.
     It is designed to be incorporated into a MapReduce solution.
