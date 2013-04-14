@@ -7,11 +7,17 @@
 
 import os
 import unittest
+import optparse
 import robotparser
+
 import lxml.html
 
 from spiderengine.mrfeynman import Brain
 
+
+###############################################################################
+### Test Cases
+###############################################################################
 
 class TestSummary(unittest.TestCase):
     """Tests Mr Feynman's processing of summary information."""
@@ -20,7 +26,7 @@ class TestSummary(unittest.TestCase):
         """Load test file and output, plus robot.txt."""
         test = 'summary'
         self.params = _load_parameters()
-        config = {} # No config info for summary
+        config = _get_config('summary') 
         self.brain = Brain(self.params['test_site'], config)
         self.results = _get_results(self.params['test_file'], test)
 
@@ -42,57 +48,7 @@ class TestSpeed(unittest.TestCase):
         """Initialize the brains"""
 
         self.robots_txt = _FakeRobotText().get()
-
-
-        # Set up configuration file
-        config = {}
-        
-        # Config variables
-       # config['text_request'] = True
-       # config['header_request']  = True
-       # config['meta_request']  = True
-       # config['a_tags_request'] = True
-       # config['all_links_request'] = True
-       # config['external_links_request'] = True
-       # config['context_search_tag'] = ['dream']
-       # config['wordnet_lists'] = {
-       #         'list1':['word', 'something', 'loser'],
-       #         'list2':['news', 'journalism', 'great']}        
-       # config['xpath_selectors'] = [
-       #    {'selector': "//img/@alt", 'name': "image alt", 
-       #         'analyze': False, 'css_text': False},
-       #    {'selector': "//div[@class='story']/descendant::text()",
-       #         'name': "test1", 'analyze': False, 'css_text': False},
-       #    {'selector': 
-    #"//#a[@href='http://video.msnbc.msn.com/nightly-news/50032975/']/text()", 
-       #     'name': "test2", 'analyze': True, 'css_text': False},
-       #     {'selector': "//div[@id='tbx-29618997']/div/h2/text()", 
-       #         'name': "test3", 'analyze': False, 'css_text': False}] 
-       # config['css_selectors'] = [{'selector': 'p.abstr', 
-       #     'name': "testCss", 'analyze': True, 'css_text': True}]
-
-        config['paths_to_follow'] = [] #['worldnews'] 
-
-        # Hardcode stop words, later load from pickle config file
-        stop_words = ("a,about,above,after,again,against,all,am,an,and,any,"+
-            "are,aren't,as,at,be,because,been,before,being,below,between,"+
-            "both,but,by,can't,cannot,could,couldn't,did,didn't,do,does,"+
-            "doesn't,doing,don't,down,during,each,few,for,from,further,had,"+
-            "hadn't,has,hasn't,have,haven't,having,he,he'd,he'll,he's,her,"+
-            "here,here's,hers,herself,him,himself,his,how,how's,i,i'd,i'll,"+
-            "i'm,i've,if,in,into,is,isn't,it,it's,its,itself,let's,me,more,"+
-            "most,mustn't,my,myself,no,nor,not,of,off,on,once,only,or,other,"+
-            "ought,our,ours,ourselves,out,over,own,same,shan't,she,she'd,"+
-            "she'll,she's,should,shouldn't,so,some,such,than,that,that's,"+
-            "the,their,theirs,them,themselves,then,there,there's,these,they,"+
-            "they'd,they'll,they're,they've,this,those,through,to,too,under,"+
-            "until,up,very,was,wasn't,we,we'd,we'll,we're,we've,were,weren't,"+
-            "what,what's,when,when's,where,where's,which,while,who,who's,"+
-            "whom,why,why's,with,won't,would,wouldn't,you,you'd,you'll,"+
-            "you're,you've,your,yours,yourself,yourselves,&,<,>,^,(,)")
-
-        config['stop_list'] = stop_words.split(",")
-
+        config = _get_config('all')
 
         # Test with path: ford, fox
         # Test with subdomain: nasa
@@ -162,57 +118,6 @@ class TestSpeed(unittest.TestCase):
             ### SET UP FOR REDUCER ###
             sorter_output = _sort_output(mapper_output)
 
-            # skip if no output
-            #if not output:
-            #    continue
-
-           # # sort the output
-           # sorted_out = sorted(output)
-
-           # # split the sorted output based upon key types
-           # # necessary since different value sizes for key type
-           # total_out = [] # list to hold outputs for each key type
-           # mini_out = [] # list to hold each type's keys
-           # previous_key_type = sorted_out[0][0][0:4]
-           # for out in sorted_out:
-           #     key_type = out[0][0:4]
-           #     if key_type == previous_key_type:
-           #         mini_out.append(out)
-           #     else:
-           #         total_out.append(mini_out)
-           #         mini_out = [out]
-           #         previous_key_type = key_type
-           # total_out.append(mini_out)
-           # 
-           # # a list to hold the new output
-           # new_output = []
-
-           # for sorted_out in total_out:
-           #     
-           #     # Save the value of the previous key for comparison
-           #     previous_key = sorted_out[0][0]
-           #     key = ""
-           #     value_list = []
-
-           #     # For each instance of the same key combine values
-           #     for out in sorted_out:
-           #         key, value = out
-           #           
-           #         # If the key is the same just add items to list
-           #         if key == previous_key:
-           #             value_list.append(value)
-
-           #         # If key is different, output new key_value, reset lists
-           #         else:
-           #             key_value = (previous_key, value_list)
-           #             new_output.append(key_value)
-           #             previous_key = key
-           #             value_list = [value]
-
-           #     # Clean up last one
-           #     key_value = (key, value_list)
-           #     new_output.append(key_value)
-
             # Test mapper output processed correctly
             #for out in new_output:
             #    print out
@@ -225,43 +130,83 @@ class TestSpeed(unittest.TestCase):
             #print brain.on_site_links
             print "What up crew!"
 
+
+###############################################################################
+### Output Generator for Testing
+###############################################################################
+def generate_output(test_type, output_type):
+    pass
+
+
 ###############################################################################
 ### Helper Delper Classes & Functions
 ###############################################################################
 
-class _FakeRobotText(object):
-    """Singleton of robot.txt used by the Brain."""
+def _get_test_file():
+    """Single source for test file."""
+    return 'nbc0'
 
-    # Borg Singleton: http://code.activestate.com/recipes/66531/
-    __shared_state = {"robots_txt":""}
+def _get_test_site():
+    """Single source for test site."""
+    return 'http://www.nbcnews.com/'
 
-    def __init__(self):
-        self.__dict__ = self.__shared_state
+def _get_config(test_type):
+    """Single source for config creation"""
+    config = {}
+    if test_type == 'text' or test_type == 'all':
+        config['text_request'] = True
+    if test_type == 'header' or test_type == 'all':
+        config['header_request']  = True
+    if test_type == 'meta' or test_type == 'all':
+        config['meta_request']  = True
+    if test_type == 'a_tags' or test_type == 'all':
+        config['a_tags_request'] = True
+    if test_type == 'all_links' or test_type == 'all':
+        config['all_links_request'] = True
+    if test_type == 'external_links' or test_type == 'all':
+        config['external_links_request'] = True
+    if test_type == 'context_search' or test_type == 'all':
+        config['context_search_tag'] = ['and', 'but']
+    if test_type == 'wordnet_lists' or test_type == 'all':
+        config['wordnet_lists'] = {
+                'list1':['and', 'but', 'loser'],
+                'list2':['news', 'journalism', 'great']}  
+    if test_type == 'xpath_selector' or test_type == 'all':
+        config['xpath_selectors'] = [
+            {'selector': "//img/@alt", 'name': "image alt", 
+             'analyze': False, 'css_text': False},
+            {'selector': "//div[@class='story']/descendant::text()",
+             'name': "test1", 'analyze': False, 'css_text': False}] 
+    if test_type == 'css_selector' or test_type == 'all':
+        config['css_selectors'] = [{'selector': 'p.abstr', 
+            'name': "testCss", 'analyze': True, 'css_text': True}]
+    #if test_type == 'paths' or test_type == 'all':
+    #    config['paths_to_follow'] = [] #['worldnews']
+    config['stop_list'] = _get_stop_list()
+    return config
 
-    def get(self):
-        if type(self.robots_txt) is str:
-            self.robots_txt = robotparser.RobotFileParser()
-            self.robots_txt.set_url('http://www.foxnews.com/')
-            self.robots_txt.read()
-        return self.robots_txt
-
-class _TestPage(object):
-    """Singleton to parse test page."""
-
-    # Borg Singleton: http://code.activestate.com/recipes/66531/
-    __shared_state = {"test_file":"", "test_page": ""}
-
-    def __init__(self):
-        self.__dict__ = self.__shared_state
-
-    def get(self, test_file):
-        if self.test_file != test_file:
-            test_path = _test_pages_dir() + '/' + test_file
-            self.test_file = test_file
-            self.test_page = lxml.html.parse(test_path)
-        return self.test_page
+def _get_stop_list():
+    """Single source for stop list."""
+    stop_words = ("a,about,above,after,again,against,all,am,an,and,any,"+
+        "are,aren't,as,at,be,because,been,before,being,below,between,"+
+        "both,but,by,can't,cannot,could,couldn't,did,didn't,do,does,"+
+        "doesn't,doing,don't,down,during,each,few,for,from,further,had,"+
+        "hadn't,has,hasn't,have,haven't,having,he,he'd,he'll,he's,her,"+
+        "here,here's,hers,herself,him,himself,his,how,how's,i,i'd,i'll,"+
+        "i'm,i've,if,in,into,is,isn't,it,it's,its,itself,let's,me,more,"+
+        "most,mustn't,my,myself,no,nor,not,of,off,on,once,only,or,other,"+
+        "ought,our,ours,ourselves,out,over,own,same,shan't,she,she'd,"+
+        "she'll,she's,should,shouldn't,so,some,such,than,that,that's,"+
+        "the,their,theirs,them,themselves,then,there,there's,these,they,"+
+        "they'd,they'll,they're,they've,this,those,through,to,too,under,"+
+        "until,up,very,was,wasn't,we,we'd,we'll,we're,we've,were,weren't,"+
+        "what,what's,when,when's,where,where's,which,while,who,who's,"+
+        "whom,why,why's,with,won't,would,wouldn't,you,you'd,you'll,"+
+        "you're,you've,your,yours,yourself,yourselves,&,<,>,^,(,)")
+    return stop_words.split(",")
 
 def _load_parameters():
+    """Configure parameters necessary for all tests."""
     params = {}
     params['robots_txt'] = _FakeRobotText().get()
     params['test_file'] = _get_test_file()
@@ -283,14 +228,6 @@ def _process(brain, params):
     reducer_output = _sort_output(mapper_output)
     final_output = _process_output(reducer_output, brain)
     return final_output
-
-def _get_test_file():
-    """Single source for test file."""
-    return 'nbc0'
-
-def _get_test_site():
-    """Single source for test site."""
-    return 'http://www.nbcnews.com/'
 
 def _test_pages_dir():
     """Return directory containing test pages"""
@@ -373,9 +310,65 @@ def _sort_output(map_output):
 
     return reducer_input
 
+class _FakeRobotText(object):
+    """Singleton of robot.txt used by the Brain."""
+
+    # Borg Singleton: http://code.activestate.com/recipes/66531/
+    __shared_state = {"robots_txt":""}
+
+    def __init__(self):
+        self.__dict__ = self.__shared_state
+
+    def get(self):
+        if type(self.robots_txt) is str:
+            self.robots_txt = robotparser.RobotFileParser()
+            self.robots_txt.set_url('http://www.foxnews.com/')
+            self.robots_txt.read()
+        return self.robots_txt
+
+class _TestPage(object):
+    """Singleton to parse test page."""
+
+    # Borg Singleton: http://code.activestate.com/recipes/66531/
+    __shared_state = {"test_file":"", "test_page": ""}
+
+    def __init__(self):
+        self.__dict__ = self.__shared_state
+
+    def get(self, test_file):
+        if self.test_file != test_file:
+            test_path = _test_pages_dir() + '/' + test_file
+            self.test_file = test_file
+            self.test_page = lxml.html.parse(test_path)
+        return self.test_page
+
+
+###############################################################################
+### Commad Line Gunk
+###############################################################################
 
 if __name__ == '__main__':
-    unittest.main()
+    """Run test or generate new output for tests."""
+
+    usage = "usage: %prog [options]"
+    parser = optparse.OptionParser(usage)
+
+    parser.add_option(
+            "-o", "-O", "--outputType", action="store", dest="outputType", 
+            help="Type of output to generate: map or reduce")
+
+    parser.add_option(
+            "-t", "-T", "--testType", action="store", dest="testType", 
+            help="Type of test to generate output for: summary, visible, ...")
+
+    (options, args) = parser.parse_args()
+
+    # If testType then generate output, otherwise run tests
+    if options.testType:
+        generate_output(options.testType, options.outputType)
+        print options.testType
+    else:
+        unittest.main()
 
     
     
