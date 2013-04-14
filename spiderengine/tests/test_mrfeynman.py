@@ -45,97 +45,64 @@ class TestSpeed(unittest.TestCase):
     """Tests speed of Mr Feynman on 51 documents."""
 
     def setUp(self):
-        """Initialize the brains"""
+        """Initialize all brains for all analysis types"""
 
         self.robots_txt = _FakeRobotText().get()
         config = _get_config('all')
-
-        # Test with path: ford, fox
-        # Test with subdomain: nasa
-        ### Test various configurations of config
-        self.site_brains = {  
-            "cnn": Brain("http://www.cnn.com/", config),
-            "dhs": Brain("http://www.dhs.gov/", config),
-            "drudge": Brain("http://www.drudgereport.com/", config),
-            "fed": Brain("http://www.federalreserve.gov/", config),
-            "ford": Brain("http://www.ford.com/help/sitemap/", config),
-            "fox": Brain("http://www.foxnews.com/us/index.html", config),
-            "ge": Brain("http://www.ge.com/", config),
-            "github": Brain("https://github.com/", config),
-            "gm": Brain("http://www.gm.com/", config),
-            "google": Brain("http://www.google.com/intl/en/about/", config),
-            "hn": Brain("http://news.ycombinator.com/", config),
-            "huff": Brain("http://www.huffingtonpost.com/", config),
-            "microsoft": Brain("http://www.microsoft.com/en-us/default.aspx",
-                config),
-            "mish": Brain("http://globaleconomicanalysis.blogspot.com/",
-                config),
-            "nasa": Brain("http://women.nasa.gov/", config),
-            "navy": Brain("http://www.navy.mil/", config),
-            "nbc": Brain("http://www.nbcnews.com/", config),
-            "reddit": Brain("http://www.reddit.com/", config),
-            "wh": Brain("http://www.whitehouse.gov/", config),
-            "wiki": Brain("http://www.wikipedia.org/", config),
-            "hn": Brain("https://news.ycombinator.com/", config)}
+        self.site_brains = _setup_brains(config)
         
-        
-    def test_parser(self):
-        """Test both the mapper and reducer."""
+    def test_speed(self):
+        """Run all analysis types on all test files."""
 
-        #os.chdir("testpages")
-        directory = _test_pages_dir()
-        #for file_name in os.listdir("."):
-        for file_name in os.listdir(directory):
-            # Limit input to one doc for testing
-            if file_name != "nbc0":
-                continue
+        for file_name in os.listdir(_test_pages_dir()):
+
+            # un/comment to turn on/off speed test
+            continue
 
             # Brain is filename minus number on the end
             brain = self.site_brains[file_name[:-1]]
-
             file_path = _test_pages_dir() + '/' + file_name
-            # Parse the page with lxml.html
-            #page = lxml.html.parse(file_name)
-            page = lxml.html.parse(file_path)
-        
-            # Set up output header
-            print
-            print "-----------------------"
-            print file_name
-            print "-----------------------"
-
-            # Analyze the parsed output
+            page = lxml.html.parse(file_path)       
             mapper_output = brain.analyze(page, file_name, self.robots_txt)
-            
-            ### TEST/SAVE MAPPER OUTPUT ###
-            #string = ""
-            #test_file = _test_results_dir() + '/nbc0_results_summary_map'
-            #with open(test_file, 'w') as f:
-            #    for put in output:
-            #        string += str(put)
-            #    f.write(str(string))
-
-            ### SET UP FOR REDUCER ###
             sorter_output = _sort_output(mapper_output)
-
-            # Test mapper output processed correctly
-            #for out in new_output:
-            #    print out
-              
-            # Process key value pairs
-            for put in sorter_output:
-                self.assertEqual(len(put), 2)
-                reducer_output = brain.process(put[0], put[1])
-                #print reducer_output
-            #print brain.on_site_links
-            print "What up crew!"
+            reducer_output = _process_output(sorter_output, brain) 
+            #print reducer_output
 
 
 ###############################################################################
 ### Output Generator for Testing
 ###############################################################################
 def generate_output(test_type, output_type):
-    pass
+    # Brain is filename minus number on the end
+    brain = self.site_brains[file_name[:-1]]
+    file_path = _test_pages_dir() + '/' + file_name
+    page = lxml.html.parse(file_path)       
+    mapper_output = brain.analyze(page, file_name, self.robots_txt)
+    
+    ### TEST/SAVE MAPPER OUTPUT ###
+    #string = ""
+    #test_file = _test_results_dir() + '/nbc0_results_summary_map'
+    #with open(test_file, 'w') as f:
+    #    for put in output:
+    #        string += str(put)
+    #    f.write(str(string))
+
+    ### SET UP FOR REDUCER ###
+    sorter_output = _sort_output(mapper_output)
+
+    # Test mapper output processed correctly
+    #for out in new_output:
+    #    print out
+    reducer_output = _process_output(sorter_output, brain) 
+    # Process key value pairs
+    #for put in sorter_output:
+    #    self.assertEqual(len(put), 2)
+    #    reducer_output = brain.process(put[0], put[1])
+        #print reducer_output
+    #print brain.on_site_links
+    print reducer_output
+    print "What up crew!"
+
 
 
 ###############################################################################
@@ -257,10 +224,10 @@ def _concat_output(mapper_output):
         final_output += str(put)
     return final_output
 
-def _process_output(reducer_output, brain):
+def _process_output(sorter_output, brain):
     """Combines all output following brain processing."""
     final_output = ""
-    for put in reducer_output:
+    for put in sorter_output:
         processed_output = brain.process(put[0], put[1])
         final_output += str(processed_output) + "\n"
     return final_output
@@ -309,6 +276,34 @@ def _sort_output(map_output):
         reducer_input.append(key_value)
 
     return reducer_input
+
+def _setup_brains(config):
+    """Initialize all brains for speed test."""
+    site_brains = {  
+        "cnn": Brain("http://www.cnn.com/", config),
+        "dhs": Brain("http://www.dhs.gov/", config),
+        "drudge": Brain("http://www.drudgereport.com/", config),
+        "fed": Brain("http://www.federalreserve.gov/", config),
+        "ford": Brain("http://www.ford.com/help/sitemap/", config),
+        "fox": Brain("http://www.foxnews.com/us/index.html", config),
+        "ge": Brain("http://www.ge.com/", config),
+        "github": Brain("https://github.com/", config),
+        "gm": Brain("http://www.gm.com/", config),
+        "google": Brain("http://www.google.com/intl/en/about/", config),
+        "hn": Brain("http://news.ycombinator.com/", config),
+        "huff": Brain("http://www.huffingtonpost.com/", config),
+        "microsoft": Brain("http://www.microsoft.com/en-us/default.aspx",
+            config),
+        "mish": Brain("http://globaleconomicanalysis.blogspot.com/",
+            config),
+        "nasa": Brain("http://women.nasa.gov/", config),
+        "navy": Brain("http://www.navy.mil/", config),
+        "nbc": Brain("http://www.nbcnews.com/", config),
+        "reddit": Brain("http://www.reddit.com/", config),
+        "wh": Brain("http://www.whitehouse.gov/", config),
+        "wiki": Brain("http://www.wikipedia.org/", config),
+        "hn": Brain("https://news.ycombinator.com/", config)}
+    return site_brains
 
 class _FakeRobotText(object):
     """Singleton of robot.txt used by the Brain."""
@@ -369,6 +364,3 @@ if __name__ == '__main__':
         print options.testType
     else:
         unittest.main()
-
-    
-    
