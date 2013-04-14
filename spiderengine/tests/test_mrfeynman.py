@@ -14,8 +14,48 @@ import lxml
 
 from spiderengine.mrfeynman import Brain
 
-# Global robot.txt so don't download over and over
-global_robots_txt = ""
+
+class TestSummary (unittest.TestCase):
+    """Tests Mr Feynman's processing of summary information."""
+
+    def setUp(self):
+        """Load test files and output, plus robot.txt."""
+
+        self.robots_txt = FakeRobotText().get()
+
+        config = {} # No config info for summary
+
+        self.http_brain = Brain("http://www.nbcnews.com/", config)
+        self.https_brain = Brain("https://news.ycombinator.com/", config)
+
+        self.http_file = 'nbc0'
+        https_file = 'hn0'
+        http_page = _test_pages_dir() + '/' + self.http_file
+        https_page = _test_pages_dir() + '/' + https_file
+        self.http_page = lxml.html.parse(http_page)
+        self.https_page = lxml.html.parse(https_page)
+        http_results = _test_results_dir() + '/' + self.http_file + '_results'
+        https_results = _test_results_dir() + '/' + https_file + '_results'
+        with open(http_results) as f:
+            self.http_results = f.read()
+        #self.https_results
+
+    def test_process_http(self):
+        """Test processing of http reducer output"""
+
+        mapper_output = self.http_brain.analyze(
+            self.http_page, self.http_file, self.robots_txt)
+
+        reducer_output = _reduce_output(mapper_output)
+        
+        final_output = ""
+
+        for put in reducer_output:
+            self.assertEqual(len(put), 2)
+            processed_output = self.http_brain.process(put[0], put[1])
+            final_output += str(processed_output) + "\n"
+
+        self.assertEqual(self.http_results, final_output)
 
 # Switch to TestSpeed
 class TestMrFeynman(unittest.TestCase):
@@ -111,9 +151,10 @@ class TestMrFeynman(unittest.TestCase):
     def test_parser(self):
         """Test both the mapper and reducer."""
 
-        os.chdir("testpages")
-        for file_name in os.listdir("."):
-
+        #os.chdir("testpages")
+        directory = _test_pages_dir()
+        #for file_name in os.listdir("."):
+        for file_name in os.listdir(directory):
             # Limit input to one doc for testing
             if file_name != "nbc0":
                 continue
@@ -121,8 +162,10 @@ class TestMrFeynman(unittest.TestCase):
             # Brain is filename minus number on the end
             brain = self.site_brains[file_name[:-1]]
 
+            file_path = _test_pages_dir() + '/' + file_name
             # Parse the page with lxml.html
-            page = lxml.html.parse(file_name)
+            #page = lxml.html.parse(file_name)
+            page = lxml.html.parse(file_path)
         
             # Set up output header
             print
@@ -204,21 +247,10 @@ class TestMrFeynman(unittest.TestCase):
             #print brain.on_site_links
             print "What up crew!"
 
-class TestSummary (unittest.TestCase):
-    """
-    Tests Mr Feynman's processing of summary information 
-    """
-
-    def setUp(self):
-        print 'hereeee'
-        self.robots_txt = FakeRobotText().get()
-
-    def test_reducer(self):
-        pass
-
 ###############################################################################
-### Helper Classes & Functions
+### Helper Delper Classes & Functions
 ###############################################################################
+
 class FakeRobotText(object):
     """Singleton of robot.txt used by the Brain."""
 
@@ -234,6 +266,65 @@ class FakeRobotText(object):
             self.robots_txt.set_url('http://www.foxnews.com/')
             self.robots_txt.read()
         return self.robots_txt
+
+def _test_pages_dir():
+    """Return directory containing test pages"""
+    return os.path.realpath(__file__).rpartition('/')[0] + '/testpages'
+
+def _test_results_dir():
+    """Return directory containing test results"""
+    return os.path.realpath(__file__).rpartition('/')[0] + '/testresults'
+
+def _reduce_output(map_output):
+    """Reduce output for processing by Brain."""
+
+    sorted_out = sorted(map_output)
+
+    # split the sorted output based upon key types
+    # necessary since different value sizes for key type
+    total_out = [] # list to hold outputs for each key type
+    mini_out = [] # list to hold each type's keys
+    previous_key_type = sorted_out[0][0][0:4]
+    for out in sorted_out:
+        key_type = out[0][0:4]
+        if key_type == previous_key_type:
+            mini_out.append(out)
+        else:
+            total_out.append(mini_out)
+            mini_out = [out]
+            previous_key_type = key_type
+    total_out.append(mini_out)
+    
+    new_output = []
+
+    for sorted_out in total_out:
+        
+        # Save the value of the previous key for comparison
+        previous_key = sorted_out[0][0]
+        key = ""
+        value_list = []
+
+        # For each instance of the same key combine values
+        for out in sorted_out:
+            key, value = out
+              
+            # If the key is the same just add items to list
+            if key == previous_key:
+                value_list.append(value)
+
+            # If key is different, output new key_value, reset lists
+            else:
+                key_value = (previous_key, value_list)
+                new_output.append(key_value)
+                previous_key = key
+                value_list = [value]
+
+        # Clean up last one
+        key_value = (key, value_list)
+        new_output.append(key_value)
+
+    return new_output
+
 
 if __name__ == '__main__':
     unittest.main()
