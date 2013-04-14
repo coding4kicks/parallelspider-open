@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """
-    A test for Mr Feynman
+    Test Suite for Mr. Feynman
 
-    Needs test pages to parse.
     TODO: handle/test PDFs?
 """
 
@@ -10,63 +9,39 @@ import os
 import unittest
 import robotparser
 import lxml.html
-import lxml
 
 from spiderengine.mrfeynman import Brain
 
 
-class TestSummary (unittest.TestCase):
+class TestSummary(unittest.TestCase):
     """Tests Mr Feynman's processing of summary information."""
 
     def setUp(self):
-        """Load test files and output, plus robot.txt."""
-
-        self.robots_txt = FakeRobotText().get()
-
+        """Load test file and output, plus robot.txt."""
+        test = 'summary'
+        self.params = _load_parameters()
         config = {} # No config info for summary
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
 
-        self.http_brain = Brain("http://www.nbcnews.com/", config)
-        self.https_brain = Brain("https://news.ycombinator.com/", config)
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
 
-        self.http_file = 'nbc0'
-        https_file = 'hn0'
-        http_page = _test_pages_dir() + '/' + self.http_file
-        https_page = _test_pages_dir() + '/' + https_file
-        self.http_page = lxml.html.parse(http_page)
-        self.https_page = lxml.html.parse(https_page)
-        http_results = _test_results_dir() + '/' + self.http_file + '_results'
-        https_results = _test_results_dir() + '/' + https_file + '_results'
-        with open(http_results) as f:
-            self.http_results = f.read()
-        #self.https_results
-
-    def test_process_http(self):
-        """Test processing of http reducer output"""
-
-        mapper_output = self.http_brain.analyze(
-            self.http_page, self.http_file, self.robots_txt)
-
-        reducer_output = _reduce_output(mapper_output)
-        
-        final_output = ""
-
-        for put in reducer_output:
-            self.assertEqual(len(put), 2)
-            processed_output = self.http_brain.process(put[0], put[1])
-            final_output += str(processed_output) + "\n"
-
-        self.assertEqual(self.http_results, final_output)
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
 
 # Switch to TestSpeed
-class TestMrFeynman(unittest.TestCase):
-    """
-    Tests mrfeynman on 50 documents
-    """
+class TestSpeed(unittest.TestCase):
+    """Tests speed of Mr Feynman on 51 documents."""
 
     def setUp(self):
         """Initialize the brains"""
 
-        self.robots_txt = FakeRobotText().get()
+        self.robots_txt = _FakeRobotText().get()
 
 
         # Set up configuration file
@@ -174,76 +149,79 @@ class TestMrFeynman(unittest.TestCase):
             print "-----------------------"
 
             # Analyze the parsed output
-            output = brain.analyze(page, file_name, self.robots_txt)
+            mapper_output = brain.analyze(page, file_name, self.robots_txt)
             
-            ### TEST MAPPER OUTPUT ###
-            #for put in output:
-            #    print put
-
+            ### TEST/SAVE MAPPER OUTPUT ###
+            #string = ""
+            #test_file = _test_results_dir() + '/nbc0_results_summary_map'
+            #with open(test_file, 'w') as f:
+            #    for put in output:
+            #        string += str(put)
+            #    f.write(str(string))
 
             ### SET UP FOR REDUCER ###
+            sorter_output = _sort_output(mapper_output)
 
             # skip if no output
-            if not output:
-                continue
+            #if not output:
+            #    continue
 
-            # sort the output
-            sorted_out = sorted(output)
+           # # sort the output
+           # sorted_out = sorted(output)
 
-            # split the sorted output based upon key types
-            # necessary since different value sizes for key type
-            total_out = [] # list to hold outputs for each key type
-            mini_out = [] # list to hold each type's keys
-            previous_key_type = sorted_out[0][0][0:4]
-            for out in sorted_out:
-                key_type = out[0][0:4]
-                if key_type == previous_key_type:
-                    mini_out.append(out)
-                else:
-                    total_out.append(mini_out)
-                    mini_out = [out]
-                    previous_key_type = key_type
-            total_out.append(mini_out)
-            
-            # a list to hold the new output
-            new_output = []
+           # # split the sorted output based upon key types
+           # # necessary since different value sizes for key type
+           # total_out = [] # list to hold outputs for each key type
+           # mini_out = [] # list to hold each type's keys
+           # previous_key_type = sorted_out[0][0][0:4]
+           # for out in sorted_out:
+           #     key_type = out[0][0:4]
+           #     if key_type == previous_key_type:
+           #         mini_out.append(out)
+           #     else:
+           #         total_out.append(mini_out)
+           #         mini_out = [out]
+           #         previous_key_type = key_type
+           # total_out.append(mini_out)
+           # 
+           # # a list to hold the new output
+           # new_output = []
 
-            for sorted_out in total_out:
-                
-                # Save the value of the previous key for comparison
-                previous_key = sorted_out[0][0]
-                key = ""
-                value_list = []
+           # for sorted_out in total_out:
+           #     
+           #     # Save the value of the previous key for comparison
+           #     previous_key = sorted_out[0][0]
+           #     key = ""
+           #     value_list = []
 
-                # For each instance of the same key combine values
-                for out in sorted_out:
-                    key, value = out
-                      
-                    # If the key is the same just add items to list
-                    if key == previous_key:
-                        value_list.append(value)
+           #     # For each instance of the same key combine values
+           #     for out in sorted_out:
+           #         key, value = out
+           #           
+           #         # If the key is the same just add items to list
+           #         if key == previous_key:
+           #             value_list.append(value)
 
-                    # If key is different, output new key_value, reset lists
-                    else:
-                        key_value = (previous_key, value_list)
-                        new_output.append(key_value)
-                        previous_key = key
-                        value_list = [value]
+           #         # If key is different, output new key_value, reset lists
+           #         else:
+           #             key_value = (previous_key, value_list)
+           #             new_output.append(key_value)
+           #             previous_key = key
+           #             value_list = [value]
 
-                # Clean up last one
-                key_value = (key, value_list)
-                new_output.append(key_value)
+           #     # Clean up last one
+           #     key_value = (key, value_list)
+           #     new_output.append(key_value)
 
             # Test mapper output processed correctly
             #for out in new_output:
             #    print out
               
             # Process key value pairs
-            for put in new_output:
-
+            for put in sorter_output:
                 self.assertEqual(len(put), 2)
-                red_output = brain.process(put[0], put[1])
-                print red_output
+                reducer_output = brain.process(put[0], put[1])
+                #print reducer_output
             #print brain.on_site_links
             print "What up crew!"
 
@@ -251,7 +229,7 @@ class TestMrFeynman(unittest.TestCase):
 ### Helper Delper Classes & Functions
 ###############################################################################
 
-class FakeRobotText(object):
+class _FakeRobotText(object):
     """Singleton of robot.txt used by the Brain."""
 
     # Borg Singleton: http://code.activestate.com/recipes/66531/
@@ -267,6 +245,53 @@ class FakeRobotText(object):
             self.robots_txt.read()
         return self.robots_txt
 
+class _TestPage(object):
+    """Singleton to parse test page."""
+
+    # Borg Singleton: http://code.activestate.com/recipes/66531/
+    __shared_state = {"test_file":"", "test_page": ""}
+
+    def __init__(self):
+        self.__dict__ = self.__shared_state
+
+    def get(self, test_file):
+        if self.test_file != test_file:
+            test_path = _test_pages_dir() + '/' + test_file
+            self.test_file = test_file
+            self.test_page = lxml.html.parse(test_path)
+        return self.test_page
+
+def _load_parameters():
+    params = {}
+    params['robots_txt'] = _FakeRobotText().get()
+    params['test_file'] = _get_test_file()
+    params['test_site'] = _get_test_site()
+    params['test_page'] = _TestPage().get(params['test_file'])
+    return params
+
+def _analyze(brain, params):
+    """Brain analyze mapper output."""
+    mapper_output = brain.analyze(
+        params['test_page'], params['test_file'], params['robots_txt'])
+    final_output = _concat_output(mapper_output)
+    return final_output
+
+def _process(brain, params):
+    """Brain process reducer output."""
+    mapper_output = brain.analyze(
+        params['test_page'], params['test_file'], params['robots_txt'])
+    reducer_output = _sort_output(mapper_output)
+    final_output = _process_output(reducer_output, brain)
+    return final_output
+
+def _get_test_file():
+    """Single source for test file."""
+    return 'nbc0'
+
+def _get_test_site():
+    """Single source for test site."""
+    return 'http://www.nbcnews.com/'
+
 def _test_pages_dir():
     """Return directory containing test pages"""
     return os.path.realpath(__file__).rpartition('/')[0] + '/testpages'
@@ -275,16 +300,44 @@ def _test_results_dir():
     """Return directory containing test results"""
     return os.path.realpath(__file__).rpartition('/')[0] + '/testresults'
 
-def _reduce_output(map_output):
-    """Reduce output for processing by Brain."""
+def _get_results(test_file, results_type):
+    """Load the saved test results."""
+    test_results = {}
+    test_path = ('{0}/{1}_results_{2}_map').format(
+            _test_results_dir(), test_file, results_type)
+    with open(test_path) as f:
+        test_results['map'] = f.read()
+    test_path = ('{0}/{1}_results_{2}_red').format(
+            _test_results_dir(), test_file, results_type)
+    with open(test_path) as f:
+        test_results['red'] = f.read()
+    return test_results
+
+def _concat_output(mapper_output):
+    """Combines all output from the mapper."""
+    final_output = ""
+    for put in mapper_output:
+        final_output += str(put)
+    return final_output
+
+def _process_output(reducer_output, brain):
+    """Combines all output following brain processing."""
+    final_output = ""
+    for put in reducer_output:
+        processed_output = brain.process(put[0], put[1])
+        final_output += str(processed_output) + "\n"
+    return final_output
+
+def _sort_output(map_output):
+    """Sorts output for reducer."""
 
     sorted_out = sorted(map_output)
-
     # split the sorted output based upon key types
     # necessary since different value sizes for key type
     total_out = [] # list to hold outputs for each key type
     mini_out = [] # list to hold each type's keys
     previous_key_type = sorted_out[0][0][0:4]
+
     for out in sorted_out:
         key_type = out[0][0:4]
         if key_type == previous_key_type:
@@ -293,37 +346,32 @@ def _reduce_output(map_output):
             total_out.append(mini_out)
             mini_out = [out]
             previous_key_type = key_type
-    total_out.append(mini_out)
-    
-    new_output = []
 
-    for sorted_out in total_out:
-        
+    total_out.append(mini_out)    
+    reducer_input = []
+
+    for sorted_out in total_out:       
         # Save the value of the previous key for comparison
         previous_key = sorted_out[0][0]
         key = ""
         value_list = []
-
         # For each instance of the same key combine values
         for out in sorted_out:
-            key, value = out
-              
+            key, value = out              
             # If the key is the same just add items to list
             if key == previous_key:
                 value_list.append(value)
-
             # If key is different, output new key_value, reset lists
             else:
                 key_value = (previous_key, value_list)
-                new_output.append(key_value)
+                reducer_input.append(key_value)
                 previous_key = key
                 value_list = [value]
-
         # Clean up last one
         key_value = (key, value_list)
-        new_output.append(key_value)
+        reducer_input.append(key_value)
 
-    return new_output
+    return reducer_input
 
 
 if __name__ == '__main__':
