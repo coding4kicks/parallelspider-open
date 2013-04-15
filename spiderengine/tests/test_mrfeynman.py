@@ -26,7 +26,133 @@ class TestSummary(unittest.TestCase):
         """Load test file and output, plus robot.txt."""
         test = 'summary'
         self.params = _load_parameters()
-        config = _get_config('summary') 
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestText(unittest.TestCase):
+    """Tests Mr Feynman's processing of visible text information."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'text'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestHeadlines(unittest.TestCase):
+    """Tests Mr Feynman's processing of headline text information."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'header'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestHidden(unittest.TestCase):
+    """Tests Mr Feynman's processing of hidden text information."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'meta'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestLinkText(unittest.TestCase):
+    """Tests Mr Feynman's processing link text information."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'a_tags'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestAllLinks(unittest.TestCase):
+    """Tests Mr Feynman's processing of all link information."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'all_links'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestHeadlines(unittest.TestCase):
+    """Tests Mr Feynman's processing of external link information."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'external_links'
+        self.params = _load_parameters()
+        config = _get_config(test) 
         self.brain = Brain(self.params['test_site'], config)
         self.results = _get_results(self.params['test_file'], test)
 
@@ -105,37 +231,6 @@ def generate_output(test_type, output_type):
             f.write(final_output)
             print final_output
 
-    # Brain is filename minus number on the end
-    #brain = self.site_brains[file_name[:-1]]
-    #file_path = _test_pages_dir() + '/' + file_name
-    #page = lxml.html.parse(file_path)       
-    #mapper_output = brain.analyze(page, file_name, self.robots_txt)
-    
-    ### TEST/SAVE MAPPER OUTPUT ###
-    #string = ""
-    #test_file = _test_results_dir() + '/nbc0_results_summary_map'
-    #with open(test_file, 'w') as f:
-    #    for put in output:
-    #        string += str(put)
-    #    f.write(str(string))
-
-    ### SET UP FOR REDUCER ###
-    #sorter_output = _sort_output(mapper_output)
-
-    # Test mapper output processed correctly
-    #for out in new_output:
-    #    print out
-    #reducer_output = _process_output(sorter_output, brain) 
-    # Process key value pairs
-    #for put in sorter_output:
-    #    self.assertEqual(len(put), 2)
-    #    reducer_output = brain.process(put[0], put[1])
-        #print reducer_output
-    #print brain.on_site_links
-    #print reducer_output
-    #print "What up crew!"
-
-
 
 ###############################################################################
 ### Helper Delper Classes & Functions
@@ -165,7 +260,7 @@ def _get_config(test_type):
     if test_type == 'external_links' or test_type == 'all':
         config['external_links_request'] = True
     if test_type == 'context_search' or test_type == 'all':
-        config['context_search_tag'] = ['and', 'but']
+        config['context_search_tag'] = ['twitter', 'travel', 'video']
     if test_type == 'wordnet_lists' or test_type == 'all':
         config['wordnet_lists'] = {
                 'list1':['and', 'but', 'loser'],
@@ -358,7 +453,6 @@ class _FakeRobotText(object):
 class _TestPage(object):
     """Singleton to parse test page."""
 
-    # Borg Singleton: http://code.activestate.com/recipes/66531/
     __shared_state = {"test_file":"", "test_page": ""}
 
     def __init__(self):
