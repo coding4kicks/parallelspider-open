@@ -40,7 +40,7 @@ class Parser(object):
 
         # Download robots.txt
         self.robots_txt = robotparser.RobotFileParser()
-        self.robots_txt.set_url(self.site_url)
+        self.robots_txt.set_url(self.site_url + "robots.txt")
         self.robots_txt.read()
 
     def run(self, doc):

@@ -103,7 +103,7 @@ class Mapper():
 
         # Get robots.txt
         robots_txt = robotparser.RobotFileParser()
-        robots_txt.set_url(self.site)
+        robots_txt.set_url(self.site + "robots.txt")
         robots_txt.read() 
 
         # Set up analysis engine

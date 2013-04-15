@@ -73,11 +73,43 @@ class TestSpeed(unittest.TestCase):
 ### Output Generator for Testing
 ###############################################################################
 def generate_output(test_type, output_type):
+    """
+    Generate new test output for map and reduce for all analysis types.
+
+    Creates or modifies a file of the appropriate result type based upon
+    a run of Mr. Feynman.  Use to create new result test files when add 
+    features.  Check visualy and by running the larger system that the new
+    output works, then generate new test files for test coverage.
+    
+    Args:
+        test_type - analysis test type to generate: 'summary', 'test', ...
+        output_type - output type to generate: 'map' or 'red'  
+    """
+
+    params = _load_parameters()
+    config = _get_config(test_type) 
+    brain = Brain(params['test_site'], config)
+
+    if output_type == 'map':
+        test_file = ('{0}/{1}_results_{2}_map').format(
+            _test_results_dir(), params['test_file'], test_type)
+        with open(test_file, 'w') as f:
+            final_output = _analyze(brain, params)
+            f.write(final_output)
+
+    if output_type == 'red':
+        test_file = ('{0}/{1}_results_{2}_red').format(
+            _test_results_dir(), params['test_file'], test_type)
+        with open(test_file, 'w') as f:
+            final_output = _process(brain, params)
+            f.write(final_output)
+            print final_output
+
     # Brain is filename minus number on the end
-    brain = self.site_brains[file_name[:-1]]
-    file_path = _test_pages_dir() + '/' + file_name
-    page = lxml.html.parse(file_path)       
-    mapper_output = brain.analyze(page, file_name, self.robots_txt)
+    #brain = self.site_brains[file_name[:-1]]
+    #file_path = _test_pages_dir() + '/' + file_name
+    #page = lxml.html.parse(file_path)       
+    #mapper_output = brain.analyze(page, file_name, self.robots_txt)
     
     ### TEST/SAVE MAPPER OUTPUT ###
     #string = ""
@@ -88,20 +120,20 @@ def generate_output(test_type, output_type):
     #    f.write(str(string))
 
     ### SET UP FOR REDUCER ###
-    sorter_output = _sort_output(mapper_output)
+    #sorter_output = _sort_output(mapper_output)
 
     # Test mapper output processed correctly
     #for out in new_output:
     #    print out
-    reducer_output = _process_output(sorter_output, brain) 
+    #reducer_output = _process_output(sorter_output, brain) 
     # Process key value pairs
     #for put in sorter_output:
     #    self.assertEqual(len(put), 2)
     #    reducer_output = brain.process(put[0], put[1])
         #print reducer_output
     #print brain.on_site_links
-    print reducer_output
-    print "What up crew!"
+    #print reducer_output
+    #print "What up crew!"
 
 
 
@@ -316,9 +348,11 @@ class _FakeRobotText(object):
 
     def get(self):
         if type(self.robots_txt) is str:
+            file_path = os.path.realpath(__file__).rpartition('/')[0] \
+                    + '/misc/fake_robot.txt'
             self.robots_txt = robotparser.RobotFileParser()
-            self.robots_txt.set_url('http://www.foxnews.com/')
-            self.robots_txt.read()
+            self.robots_txt.set_url(file_path)
+            self.robots_txt.read()            
         return self.robots_txt
 
 class _TestPage(object):
@@ -361,6 +395,5 @@ if __name__ == '__main__':
     # If testType then generate output, otherwise run tests
     if options.testType:
         generate_output(options.testType, options.outputType)
-        print options.testType
     else:
         unittest.main()
