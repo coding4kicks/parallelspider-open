@@ -19,7 +19,7 @@ from spiderengine.mrfeynman import Brain
 ### Test Cases
 ###############################################################################
 
-class TestSummary(unittest.TestCase):
+class TestSummaryInfo(unittest.TestCase):
     """Tests Mr Feynman's processing of summary information."""
 
     def setUp(self):
@@ -40,7 +40,7 @@ class TestSummary(unittest.TestCase):
         final_output = _process(self.brain, self.params)
         self.assertEqual(self.results['red'], final_output)
 
-class TestText(unittest.TestCase):
+class TestVisibleText(unittest.TestCase):
     """Tests Mr Feynman's processing of visible text information."""
 
     def setUp(self):
@@ -61,7 +61,7 @@ class TestText(unittest.TestCase):
         final_output = _process(self.brain, self.params)
         self.assertEqual(self.results['red'], final_output)
 
-class TestHeadlines(unittest.TestCase):
+class TestHeadlineText(unittest.TestCase):
     """Tests Mr Feynman's processing of headline text information."""
 
     def setUp(self):
@@ -82,7 +82,7 @@ class TestHeadlines(unittest.TestCase):
         final_output = _process(self.brain, self.params)
         self.assertEqual(self.results['red'], final_output)
 
-class TestHidden(unittest.TestCase):
+class TestHiddenText(unittest.TestCase):
     """Tests Mr Feynman's processing of hidden text information."""
 
     def setUp(self):
@@ -145,7 +145,7 @@ class TestAllLinks(unittest.TestCase):
         final_output = _process(self.brain, self.params)
         self.assertEqual(self.results['red'], final_output)
 
-class TestHeadlines(unittest.TestCase):
+class TestExternalLinks(unittest.TestCase):
     """Tests Mr Feynman's processing of external link information."""
 
     def setUp(self):
@@ -166,9 +166,133 @@ class TestHeadlines(unittest.TestCase):
         final_output = _process(self.brain, self.params)
         self.assertEqual(self.results['red'], final_output)
 
-# Switch to TestSpeed
+class TestWordContext(unittest.TestCase):
+    """Tests Mr Feynman's processing of context information."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'context_search'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestSynonymRings(unittest.TestCase):
+    """Tests Mr Feynman's processing of synonym rings."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'wordnet_lists'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestXpathSelectors(unittest.TestCase):
+    """Tests Mr Feynman's processing of XPath selectors."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'xpath_selector'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestCssSelectors(unittest.TestCase):
+    """Tests Mr Feynman's processing of CSS selectors."""
+
+    def setUp(self):
+        """Load test file and output, plus robot.txt."""
+        test = 'css_selector'
+        self.params = _load_parameters()
+        config = _get_config(test) 
+        self.brain = Brain(self.params['test_site'], config)
+        self.results = _get_results(self.params['test_file'], test)
+
+    def test_analysis(self):
+        """Test generation of mapper output"""
+        final_output = _analyze(self.brain, self.params)
+        self.assertEqual(self.results['map'], final_output)
+
+    def test_process(self):
+        """Test processing of reducer output"""
+        final_output = _process(self.brain, self.params)
+        self.assertEqual(self.results['red'], final_output)
+
+class TestLinkHandling(unittest.TestCase):
+    """Test Mr. Feynmans ability to correctly generate links to follow."""
+
+    def setUp(self):
+        """Custom configure params for fox, with and without robot.txt."""
+        config = {}
+        self.robot_txt1 = _FakeRobotText().get_empty()
+        self.robot_txt2 = _FakeRobotText().get()
+        self.test_file = 'fox0'
+        self.test_site = 'http://www.foxnews.com/'
+        self.test_page = _TestPage().get(self.test_file)
+        self.brain = Brain(self.test_site, config)
+
+
+    def test_robot_txt(self):
+        """Test robot.txt is honored and those links are removed"""
+        self.brain.analyze(self.test_page, self.test_file, self.robot_txt1)
+        links_no_robot = len(self.brain.on_site_links)
+        self.brain.analyze(self.test_page, self.test_file, self.robot_txt2)
+        links_with_robot = len(self.brain.on_site_links)
+        self.assertTrue(links_with_robot < links_no_robot)
+
+    def test_onsite_links(self):
+        """Test correct link generation of onsite links"""
+        test_path = ('{0}/{1}_results_links_int').format(
+            _test_results_dir(), self.test_file)
+        with open(test_path) as f:
+            link_results = f.read()
+        self.brain.analyze(self.test_page, self.test_file, self.robot_txt2)
+        self.assertEqual(link_results, str(self.brain.on_site_links))
+
+    def test_offsite_links(self):
+        """Test correct link generation of offsite links"""
+        test_path = ('{0}/{1}_results_links_ext').format(
+            _test_results_dir(), self.test_file)
+        with open(test_path) as f:
+            link_results = f.read()
+        self.brain.analyze(self.test_page, self.test_file, self.robot_txt2)
+        self.assertEqual(link_results, str(self.brain.off_site_links))
+
+
 class TestSpeed(unittest.TestCase):
-    """Tests speed of Mr Feynman on 51 documents."""
+    """Tests speed of Mr Feynman by analyzing 51 documents."""
 
     def setUp(self):
         """Initialize all brains for all analysis types"""
@@ -231,6 +355,41 @@ def generate_output(test_type, output_type):
             f.write(final_output)
             print final_output
 
+def generate_links(link_type=None):
+    """Display/Save links generated by Mr. Feynman for testing."""
+    config = {}
+    robot_txt = _FakeRobotText().get()
+    #robot_txt = _FakeRobotText().get_empty()
+    test_file = 'fox0'
+    test_site = 'http://www.foxnews.com/'
+    test_page = _TestPage().get(test_file)
+    brain = Brain(test_site, config)
+    brain.analyze(test_page, test_file, robot_txt)
+
+    if link_type == 'int':
+        test_file = ('{0}/{1}_results_links_int').format(
+            _test_results_dir(), test_file)
+        with open(test_file, 'w') as f:
+            f.write(str(brain.on_site_links))
+
+    elif link_type == 'ext':
+        test_file = ('{0}/{1}_results_links_ext').format(
+            _test_results_dir(), test_file)
+        with open(test_file, 'w') as f:
+            f.write(str(brain.off_site_links))
+
+    else: # Display Links
+        print "---------------------"
+        print "    On Site Links    "
+        print "---------------------"
+        for link in brain.on_site_links:
+            print link
+        print "---------------------"
+        print "    Off Site Links   "
+        print "---------------------"
+        for link in brain.off_site_links:
+            print link
+
 
 ###############################################################################
 ### Helper Delper Classes & Functions
@@ -263,12 +422,12 @@ def _get_config(test_type):
         config['context_search_tag'] = ['twitter', 'travel', 'video']
     if test_type == 'wordnet_lists' or test_type == 'all':
         config['wordnet_lists'] = {
-                'list1':['and', 'but', 'loser'],
-                'list2':['news', 'journalism', 'great']}  
+                'list1':['life', 'health', 'go', 'walking', 'house'],
+                'list2':['news', 'fiscal', 'entertainment', 'cliff']}  
     if test_type == 'xpath_selector' or test_type == 'all':
         config['xpath_selectors'] = [
             {'selector': "//img/@alt", 'name': "image alt", 
-             'analyze': False, 'css_text': False},
+             'analyze': True, 'css_text': False},
             {'selector': "//div[@class='story']/descendant::text()",
              'name': "test1", 'analyze': False, 'css_text': False}] 
     if test_type == 'css_selector' or test_type == 'all':
@@ -436,7 +595,7 @@ class _FakeRobotText(object):
     """Singleton of robot.txt used by the Brain."""
 
     # Borg Singleton: http://code.activestate.com/recipes/66531/
-    __shared_state = {"robots_txt":""}
+    __shared_state = {"robots_txt":"", "empty_txt":""}
 
     def __init__(self):
         self.__dict__ = self.__shared_state
@@ -449,6 +608,15 @@ class _FakeRobotText(object):
             self.robots_txt.set_url(file_path)
             self.robots_txt.read()            
         return self.robots_txt
+
+    def get_empty(self):
+        if type(self.empty_txt) is str:
+            file_path = os.path.realpath(__file__).rpartition('/')[0] \
+                    + '/misc/empty_robot.txt'
+            self.empty_txt = robotparser.RobotFileParser()
+            self.empty_txt.set_url(file_path)
+            self.empty_txt.read()            
+        return self.empty_txt
 
 class _TestPage(object):
     """Singleton to parse test page."""
@@ -484,10 +652,16 @@ if __name__ == '__main__':
             "-t", "-T", "--testType", action="store", dest="testType", 
             help="Type of test to generate output for: summary, visible, ...")
 
+    parser.add_option(
+            "-l", "-L", "--links", action="store", dest="links", 
+            help="dis displays links, int/ext saves output")
+
     (options, args) = parser.parse_args()
 
-    # If testType then generate output, otherwise run tests
+    # If testType then generate output 
     if options.testType:
         generate_output(options.testType, options.outputType)
-    else:
+    elif options.links:
+        generate_links(options.links)
+    else: # run tests
         unittest.main()
