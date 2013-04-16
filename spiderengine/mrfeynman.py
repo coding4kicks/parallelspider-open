@@ -5,10 +5,10 @@
     It is designed to be incorporated into a MapReduce solution.
 
     TODO: Add pagerank for links
+    TODO: Add ability to handle other file types, i.e. PDF
 """
 import copy
 
-import lxml.html
 import lxml.cssselect
 
 class Brain(object):
@@ -27,12 +27,13 @@ class Brain(object):
         Args:
         passed_url - the url of the site to be searched
         config_dict - dictionary of configuration parameters
-            text_request: boolean - true to analyze text
-            header_request: boolean - true to analyze headers
-            meta_request: boolean - true to analyze meta information
-            a_tags_request: boolean - true to analyze anchor tags
+            text_request: boolean - true to analyze visible text
+            header_request: boolean - true to analyze header text
+            meta_request: boolean - true to analyze hidden text
+            a_tags_request: boolean - true to analyze link text
+            all_links_request: boolean - true to analyze all links
             external_links_request: boolean - true to analyze external links
-            context_search_tag: list of words to find context
+            context_search_tag: list of words to find surrounding words
             wordnet_lists: list of synonym rings to find
             xpath_selectors: dictionary of xpath selectors and info
             css_selectors: dictionary of css selectors and info
@@ -41,22 +42,15 @@ class Brain(object):
 
         If the passed url contains a subdomain, only this will be searched.
 
-        TODO: Massive Refactor - Each type of process should be moved into a
-        strategy pattern, with a common input and output format: input should
-        be the data passed by lxml and output should be the appendage to the
-        map output.
-
         GOALS of REFACTOR:
-        1) Make easy to add additional data
-        2) Add Selectors
-        3) Add Synonym Rings
-        4) x Get Total Word Count
-        5) x Get Total Tag Count for each type
-        6) x Get Total External and Internal link counts
-        LATER
-        7) Make variables more consitent with Spider Client and Spider Web
-        8) Add other stuff???
-
+        TODO: Each type of process should be moved into a strategy pattern, 
+            with a common input and output format: 
+            input should be the data passed by lxml and 
+            output should be the appendage to the map output.
+        TODO: Make easy to add additional data
+        TODO: Add Selectors
+        TODO: Add Synonym Rings
+        TODO: Make variables more consitent with Spider Client and Spider Web
         """   
  
         # URL passed by the user, may contain a path
@@ -65,74 +59,7 @@ class Brain(object):
         # URL without path, Site Domain: ex. foxnews.com, Scheme: http/https
         self.site_url, self.site_domain, self.scheme = decode(self.passed_url)
 
-        # Check config variables
-        if 'text_request' in config_dict:
-            self.text_request = config_dict['text_request']
-        else:
-            self.text_request = False
-
-        if 'header_request' in config_dict:
-            self.header_request  = config_dict['header_request']
-        else:
-            self.header_request = False
-
-        if 'meta_request' in config_dict:
-            self.meta_request  = config_dict['meta_request']
-        else:
-            self.meta_request = False
-
-        if 'a_tags_request' in config_dict:
-            self.a_tags_request = config_dict['a_tags_request']
-        else:
-            self.a_tags_request = False;
-
-        if 'all_links_request' in config_dict:
-            self.all_links_request = config_dict['all_links_request']
-        else:
-            self.all_links_request = False
-
-        if 'external_links_request' in config_dict:
-            self.external_links_request = config_dict['external_links_request']
-        else:
-            self.external_links_request = False
-
-        if 'context_search_tag' in config_dict:
-            self.context_search_tag = config_dict['context_search_tag']
-        else:
-            self.context_search_tag = []
-
-        if 'wordnet_lists' in config_dict:
-            self.wordnet_lists = config_dict['wordnet_lists'] 
-        else:
-            self.wordnet_lists = None
-
-        if 'xpath_selectors' in config_dict:
-            self.xpath_selectors = config_dict['xpath_selectors']
-        else:
-            self.xpath_selectors = []
-
-        if 'paths_to_follow' in config_dict:
-            self.paths_to_follow = config_dict['paths_to_follow']
-        else:
-            self.paths_to_follow = []
-
-        if 'stop_list' in config_dict:
-            self.stop_list = config_dict['stop_list']
-        else:
-            self.stop_list = []
-
-        # Need to deep copy for lxml or css to xpath conversion fails. Why?
-        if 'css_selectors' in config_dict:
-            self.css_selectors = copy.deepcopy(config_dict['css_selectors'])
-        else:
-            self.css_selectors = None
-
-        # Compile and append css selectors to xpath_selctors
-        if self.css_selectors:
-            for selector in self.css_selectors:
-                sel = lxml.cssselect.CSSSelector(selector['selector'])
-                selector['selector'] = sel.path
-                self.xpath_selectors.append(selector)
+        self._validate_requests(config_dict) # Validate config variables
  
         # Lists o' Links on the page
         self.on_site_links = []     # links to other pages on the site
@@ -150,7 +77,9 @@ class Brain(object):
                         'selector_word': 'selw', 'tag_count': 'tagc',
                         'link_count': 'lnkc', 'error_message': 'zmsg'}
 
-
+###############################################################################
+### Mapper
+###############################################################################
     def analyze(self, doc, page_link, robots_txt,
                 external=False, no_emit=False):
         """ 
@@ -204,17 +133,12 @@ class Brain(object):
         for element in doc.iter():
             
             # Try to get elements and break if error
-            breaker = False
             try:
                 # Grab tag and text (+tail) for html elements
                 tag = element.tag
                 text = element.text
                 tail = element.tail
             except:
-                breaker = True
-
-            # If an error with this element break from loop
-            if breaker:
                 continue
 
             # Combine text and tail, then lowercase and split to list
@@ -275,7 +199,7 @@ class Brain(object):
             # TODO: switch to if tag in tag_list (and initialize lists)
             # TODO: move to function
             # TODO: Add span and div, duplicates???
-            if self.text_request:
+            if self.visible_text_request:
                 if (tag == 'p' or tag == 'li' or tag == 'td' or 
                     tag == 'h1' or tag == 'h2' or tag == 'h3' or
                     tag == 'h4' or tag == 'h5' or tag == 'h6' or
@@ -294,7 +218,7 @@ class Brain(object):
             # Process Headers
             # TODO: switch to if tag in tag_list (and initialize lists)
             # TODO: move to function
-            if self.header_request:
+            if self.headline_text_request:
                 if (tag == 'h1' or tag == 'h2' or tag == 'h3' or
                     tag == 'h4' or tag == 'h5' or tag == 'h6'):
                     for word in words:
@@ -311,7 +235,7 @@ class Brain(object):
             # Process anchor tags
             # TODO: switch to if tag in tag_list (and initialize lists)
             # TODO: move to function
-            if self.a_tags_request:
+            if self.link_text_request:
                 if (tag == 'a'):
                    for word in words:
                        if word not in self.stop_list:
@@ -327,7 +251,7 @@ class Brain(object):
             # Process meta data
             # TODO: switch to if tag in tag_list (and initialize lists)
             # TODO: move to function
-            if self.meta_request:
+            if self.hidden_text_request:
                 # Retrieve text from the title
                 if tag == 'title':
                     for word in words:
@@ -370,12 +294,12 @@ class Brain(object):
             # TODO: switch to if tag in tag_list (and initialize lists)
             # TODO: check "if words" earlier and break if none
             # TODO: move to function
-            if self.context_search_tag:
+            if self.word_contexts:
                if (tag == 'p' or tag == 'li' or tag == 'td' or 
                    tag == 'h1' or tag == 'h2' or tag == 'h3' or
                    tag == 'h4' or tag == 'h5' or tag == 'h6' or
                    tag == 'a'):
-                   for search_word in self.context_search_tag:
+                   for search_word in self.word_contexts:
                        search_word = search_word.lower()
                        if search_word in words:
                            # Emit each word in context
@@ -407,15 +331,15 @@ class Brain(object):
             # TODO: switch to if tag in tag_list (and initialize lists)
             # TODO: check "if words" earlier and break if none
             # TODO: move to function
-            if self.wordnet_lists:
+            if self.synonym_rings:
                if (tag == 'p' or tag == 'li' or tag == 'td' or 
                    tag == 'h1' or tag == 'h2' or tag == 'h3' or
                    tag == 'h4' or tag == 'h5' or tag == 'h6' or
                    tag == 'a'):
-                   for list_key in self.wordnet_lists:
+                   for list_key in self.synonym_rings:
                        total = 0
                        for word in words:
-                           if word in self.wordnet_lists[list_key]: 
+                           if word in self.synonym_rings[list_key]: 
                                key_wordnet = '%s%s_%s' % (
                                    self.label['wordnet'],
                                    external_bit, list_key) 
@@ -497,7 +421,7 @@ class Brain(object):
                     continue
 
         # Analyze the external links on the page
-        if self.external_links_request:
+        if self.ext_links_request:
             for element in ext_links:
                 try: 
                     link = element.attrib['href']
@@ -552,7 +476,31 @@ class Brain(object):
 
         return mapper_output
 
+    def _validate_requests(self, config):
+        """Validate analysis requests passed in configuration dictionary."""
+        self.visible_text_request = config.get('text_request', False)
+        self.headline_text_request = config.get('header_request', False)
+        self.hidden_text_request = config.get('meta_request', False)
+        self.link_text_request = config.get('a_tags_request', False)
+        self.all_links_request = config.get('all_links_request', False)
+        self.ext_links_request = config.get('external_links_request', False)
+        self.word_contexts = config.get('context_search_tag', [])
+        self.synonym_rings = config.get('wordnet_lists', None)
+        self.xpath_selectors = config.get('xpath_selectors', [])
+        self.paths_to_follow = config.get('paths_to_follow', [])
+        self.stop_list = config.get('stop_list', [])
+        self.css_selectors = \
+                copy.deepcopy(config.get('css_selectors', None))
+        # Compile and append css selectors to xpath_selctors
+        if self.css_selectors:
+            for selector in self.css_selectors:
+                sel = lxml.cssselect.CSSSelector(selector['selector'])
+                selector['selector'] = sel.path
+                self.xpath_selectors.append(selector)
 
+###############################################################################
+### Reducer
+###############################################################################
     def process(self, key, values):
         """
         Processes a key and a list of values (a reducer).
@@ -747,24 +695,27 @@ class Brain(object):
 
             return ('zmsg_error', ('unrecognized key', 1))
 
-
-### Da Func(y) Helpers ###
+###############################################################################
+### Da Func(y) Helpers
+###############################################################################
 def process_links(links, site_url, site_domain, scheme, 
                   paths_to_follow, robots_txt):
     """
     Make relative links absolute and separate on site and off site links
     
-    Arguments:
-    links - list of all the links on the page
-    site_url - the url with any paths removed
-    site_domain - domain with www removed but other hosts included
-    scheme - http or https
+    Args:
+        links - list of all the links on the page
+        site_url - the url with any paths removed
+        site_domain - domain with www removed but other hosts included
+        scheme - http or https
+        paths_to_follow - list of valid paths for links to add to on_site links
+        robots_txt - robot.txt file indicating which links can be followed
 
     Returns:
-    on_site - list of on site urls to follow
-    off_site - list of off site urls to follow
-    all_links - list of all link elements
-    ext_links - list of external site link elements
+        on_site - list of on site urls to follow
+        off_site - list of off site urls to follow
+        all_links - list of all link elements
+        ext_links - list of external site link elements
     """
 
     # Lists to hold internal and external links
@@ -833,17 +784,17 @@ def decode(site_url):
     """
     Separate scheme, host, and path from url
     
-    Arguments
-    site_url - ex. http://www.somesite.com/
+    Args:
+        site_url - ex. http://www.somesite.com/
     
-    Returns
-    site_url - http://www.somesite.com/ 
-    site_domain - somesite.com/
-    scheme - http:
+    Returns:
+        site_url - http://www.somesite.com/ 
+        site_domain - somesite.com/
+        scheme - http:
 
     The returned site_url has no path so it can construct absolute hrefs.
-    The domain will include subdomains, so if one is given, only the 
-    subdomains will be searched on the site
+    The domain will include subdomains, so if one is given, 
+        only the subdomains will be searched on the site
     """
         
     # Remove the scheme
@@ -865,11 +816,11 @@ def sum_list(list_o_tuples):
     """
     Eliminates duplicates and totals counts in a list
 
-    Argument
-    list_o_tuples - a list of label, count pairs
+    Args:
+        list_o_tuples - a list of label, count pairs
 
     Returns
-    new_list - a list of lable, count pairs, no duplicate labels
+        new_list - a list of lable, count pairs, no duplicate labels
 
     i.e. given [(label1, 5),(label2, 6),(label1, 4)]
     the procedure will return: [(label1, 9), (label2, 6)]
@@ -914,11 +865,11 @@ def compress_list(list_o_tuples):
     """
     Eliminates duplicates and creates a list of values
 
-    Argument
-    list_o_tuples - a list of labels and text values
+    Args:
+        list_o_tuples - a list of labels and text values
 
-    Returns
-    new_list - a list of labels and text list pairs, no duplicate labels
+    Returns:
+        new_list - a list of labels and text list pairs, no duplicate labels
 
     i.e. given [(label1, "f"),(label2, "a'hole'),(label1, "off")]
     the procedure will return: [(label1, ["f","off"]), (label2, ["a'hole"])]
