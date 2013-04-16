@@ -315,71 +315,70 @@ class Brain(object):
         if no_emit: return
 
         # Process links for crawl summary information
+        mapper_output.extend(self._analyze_summary_link_info(
+            all_links, ext_links, external_bit))
+
+        # Process all links
+        if self.all_links_request:
+            mapper_output.extend(self._analyze_links(
+                all_links, external_bit, page_link, 'int'))
+
+        # Process external links 
+        if self.ext_links_request:
+            mapper_output.extend(self._analyze_links(
+                ext_links, external_bit, page_link, 'ext'))
+        
+        # Process selectors (all xpath) - Currently not using
+        if self.xpath_selectors:
+            mapper_output.extend(self._analyze_selectors(
+                doc, external_bit, page_link))
+
+        return mapper_output
+
+    def _analyze_summary_link_info(self, all_links, ext_links, external_bit):
+        mapper_output = []
         total_links = len(all_links)
         external_links = len(ext_links)
         internal_links = total_links - external_links
         if internal_links > 0:
             key_int_links = '%s%s_%s' % (
-                self.label['link_count'],
-                external_bit, 'internal') 
+                self.label['link_count'], external_bit, 'internal') 
             value = (key_int_links, internal_links)
             mapper_output.append(value)
         if external_links > 0:
             key_ext_links = '%s%s_%s' % (
-                self.label['link_count'],
-                external_bit, 'external') 
+                self.label['link_count'], external_bit, 'external') 
             value = (key_ext_links, external_links)
             mapper_output.append(value)
-
-        # Process all links
-        if self.all_links_request:
-            for element in all_links:
-                try: 
-                    link = element.attrib['href']
-                    try:
-                        words = element.text
-                    except:
-                        words = []
-                    key_word = '%s%s_%s' % (self.label['all_links'],
-                            external_bit, link)
-                    # Additional Info (Disabled)
-                    #value = (key_word, ( 
-                    #    1, (page_link, 1), (page_link, words), 
-                    #    (words, page_link), (words, 1)))
-                    value = (key_word, 1)
-                    mapper_output.append(value)
-                except:
-                    continue
-
-        # Process external links 
-        if self.ext_links_request:
-            for element in ext_links:
-                try: 
-                    link = element.attrib['href']
-                    try:
-                        words = element.text
-                    except:
-                        words = []
-                    domain = decode(link)[1]
-                    key_domain = '%s%s_%s' % (self.label['external_links'],
-                            external_bit, domain)
-                    # Additional Info (Disabled)
-                    #value = (key_domain, ( 
-                    #    1, (page_link, 1), (page_link, words), 
-                    #    (words, page_link), (words, 1), (link, 1)))
-                    value = (key_domain, 1)
-                    mapper_output.append(value)
-                except:
-                    continue
-        
-        # Process x_path selectors - Currently not using
-        if self.xpath_selectors:
-            mapper_output.extend(self._analyze_xpath_selectors(doc,
-                external_bit, page_link))
-
         return mapper_output
 
-    def _analyze_xpath_selectors(self, doc, external_bit, page_link):
+    def _analyze_links(self, links, external_bit, page_link, link_type):
+        """Generate mapper output for links."""
+        mapper_output = []
+        for element in links:
+            try: 
+                link = element.attrib['href']
+                try:
+                    words = element.text
+                except:
+                    words = []
+                if link_type == 'ext': 
+                    label = self.label['external_links'] 
+                else:
+                    label = self.label['all_links']
+                key_name = decode(link)[1] if link_type == 'ext' else link
+                key = '%s%s_%s' % (label, external_bit, key_name)
+                # Additional Info (Disabled) - different for ext/all (links)
+                #value = (key, ( 
+                #    1, (page_link, 1), (page_link, words), 
+                #    (words, page_link), (words, 1), *(link, 1)*dif))
+                value = (key, 1)
+                mapper_output.append(value)
+            except:
+                continue
+        return mapper_output
+
+    def _analyze_selectors(self, doc, external_bit, page_link):
         """Generate mapper output for all selectors, xpath & converted css."""
         mapper_output = []
         for selector in self.xpath_selectors:
