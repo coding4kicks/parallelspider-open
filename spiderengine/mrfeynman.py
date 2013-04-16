@@ -51,31 +51,25 @@ class Brain(object):
         TODO: Add Selectors
         TODO: Add Synonym Rings
         TODO: Make variables more consitent with Spider Client and Spider Web
+        TODO: QA tags associated with each analysis: visible text add div/span
         """   
  
-        # URL passed by the user, may contain a path
-        self.passed_url = passed_url
-
-        # URL without path, Site Domain: ex. foxnews.com, Scheme: http/https
+        self.passed_url = passed_url # may contain a path
         self.site_url, self.site_domain, self.scheme = decode(self.passed_url)
-
-        self._validate_requests(config_dict) # Validate config variables
- 
-        # Lists o' Links on the page
-        self.on_site_links = []     # links to other pages on the site
-        self.off_site_links = []    # links to pages off the site
-
+        self.on_site_links = []             
+        self.off_site_links = []  
+        self._validate_requests(config_dict)
+        self._set_tag_types()
         # Labels for various processing types - append to start of key
         # All labelels are 4 characters.  A tag for external or internal is
-        # then appended, followed by an underscore.
-        # TODO: add tag_count, link_count
+        # then appended, followed by an underscore. i.e. texti_
         self.label = { 'text': 'text', 'header': 'head', 'anchor_tag': 'atag',
-                        'meta_data': 'meta', 'all_links': 'link',
-                        'external_links': 'extl', 'context': 'cnxt', 
-                        'context_word': 'cntw', 'wordnet': 'wdnt',
-                        'total_count': 'totl', 'selector': 'selc', 
-                        'selector_word': 'selw', 'tag_count': 'tagc',
-                        'link_count': 'lnkc', 'error_message': 'zmsg'}
+                       'meta_data': 'meta', 'all_links': 'link',
+                       'external_links': 'extl', 'context': 'cnxt', 
+                       'context_word': 'cntw', 'wordnet': 'wdnt',
+                       'total_count': 'totl', 'selector': 'selc', 
+                       'selector_word': 'selw', 'tag_count': 'tagc',
+                       'link_count': 'lnkc', 'error_message': 'zmsg'}
 
 ###############################################################################
 ### Mapper
@@ -97,12 +91,12 @@ class Brain(object):
                       analyzed.
 
         Returns:
-            mapper_output - a list of key value pair tuples for Parallel Spider 
-                            to emit
+            mapper_output - a list of key-value-pair tuples 
+                for Parallel Spider to emit
 
         Keys are prefixed with a 4 character label for type,
         along with one character for external or internal, 
-        then an underscore followed by the key itself
+        then an underscore followed by the key name itself
 
         Key types:
             text - analyze visible text on the page           
@@ -129,12 +123,11 @@ class Brain(object):
         mapper_output = [] # key-value tuples for mapper output
         page_links = [] # all the links on the page
         
-        # Iterate once through the document
+        # Iterate once through the entire document
         for element in doc.iter():
             
-            # Try to get elements and break if error
-            try:
-                # Grab tag and text (+tail) for html elements
+            # Grab tag name and text (+ tail text) for html elements
+            try:     
                 tag = element.tag
                 text = element.text
                 tail = element.tail
@@ -144,22 +137,15 @@ class Brain(object):
             # Combine text and tail, then lowercase and split to list
             words = None # text words split to list
             if tail:
-                if text:
-                    text = text + " " + tail
-                else:
-                    text = tail
+                text = text + " " + tail if text else tail
             if text:
                 words = text.lower().split()
 
             # Set as either an external or internal page
-            if external:
-                external_bit = 'e'
-            else:
-                external_bit = 'i'
+            external_bit = 'e' if external else 'i'
  
             # Process links
             if tag == 'a':
-                # Analyze link href
                 try: 
                     link = element.attrib['href']
                     page_links.append((link, element))
@@ -167,19 +153,15 @@ class Brain(object):
                     pass
             
             # Skip the rest of loop if not processing
-            if no_emit:
-                continue
+            if no_emit: continue
 
             # Emit tag count for each tag
-            key_tag = '%s%s_%s' % (
-                self.label['tag_count'],
-                external_bit, tag) 
+            key_tag = '%s%s_%s' % (self.label['tag_count'], external_bit, tag) 
             value = (key_tag, 1)
             mapper_output.append(value)
 
             # Break if no words
-            if not words:
-                continue
+            if not words: continue
 
             # Emit the total count of words
             # Counts all words including stop words
@@ -195,15 +177,9 @@ class Brain(object):
                 value = (key_total, total)
                 mapper_output.append(value)
  
-            # Process Text
-            # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: move to function
-            # TODO: Add span and div, duplicates???
+            # Process Visible Text
             if self.visible_text_request:
-                if (tag == 'p' or tag == 'li' or tag == 'td' or 
-                    tag == 'h1' or tag == 'h2' or tag == 'h3' or
-                    tag == 'h4' or tag == 'h5' or tag == 'h6' or
-                    tag == 'a'):
+                if tag in self.visible_text_tags:
                     for word in words:
                         if word not in self.stop_list:
                             key_word = '%s%s_%s' % (
@@ -215,12 +191,9 @@ class Brain(object):
                             value = (key_word, 1)
                             mapper_output.append(value)
 
-            # Process Headers
-            # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: move to function
+            # Process Headline Text
             if self.headline_text_request:
-                if (tag == 'h1' or tag == 'h2' or tag == 'h3' or
-                    tag == 'h4' or tag == 'h5' or tag == 'h6'):
+                if tag in self.headline_text_tags:
                     for word in words:
                         if word not in self.stop_list:
                             key_word = '%s%s_%s' % (
@@ -232,9 +205,7 @@ class Brain(object):
                             value = (key_word, 1)
                             mapper_output.append(value)
 
-            # Process anchor tags
-            # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: move to function
+            # Process Link Text
             if self.link_text_request:
                 if (tag == 'a'):
                    for word in words:
@@ -248,11 +219,8 @@ class Brain(object):
                            value = (key_word, 1)
                            mapper_output.append(value)
 
-            # Process meta data
-            # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: move to function
+            # Process Hidden Text
             if self.hidden_text_request:
-                # Retrieve text from the title
                 if tag == 'title':
                     for word in words:
                         if word not in self.stop_list:
@@ -264,7 +232,6 @@ class Brain(object):
                             #    1, (page_link, 1), (tag, 1)))
                             value = (key_word, 1)
                             mapper_output.append(value)
-                # Retrieve text from the meta description
                 if tag == 'meta':
                     try:
                         name = element.attrib['name']
@@ -289,53 +256,40 @@ class Brain(object):
                         continue
 
             
-            # Process words based upon context 
-            # (i.e. if a specified word is in the text)
-            # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: check "if words" earlier and break if none
-            # TODO: move to function
+            # Process Context Words 
             if self.word_contexts:
-               if (tag == 'p' or tag == 'li' or tag == 'td' or 
-                   tag == 'h1' or tag == 'h2' or tag == 'h3' or
-                   tag == 'h4' or tag == 'h5' or tag == 'h6' or
-                   tag == 'a'):
-                   for search_word in self.word_contexts:
-                       search_word = search_word.lower()
-                       if search_word in words:
-                           # Emit each word in context
-                           for word in words:
-                               if word not in self.stop_list:
-                                   key_word = '%s%s_%s' % (
-                                       self.label['context_word'],
-                                       external_bit, word)
-                                   # Additional Info (Disabled)
-                                   #value = (key_word, (
-                                   #    1, (page_link, 1),
-                                   #    (tag, 1), search_word))
-                                   value = (key_word, (1, search_word))
-                                   mapper_output.append(value)
-                           # Disable for now,
-                           # ??? I think this is like search ???
-                           # Emit whole context
-                          # key_context = '%s%s_%s' % (
-                          #     self.label['context'],
-                          #     external_bit, search_word)  
-                          # # use text not words-since list type
-                          # value = (key_context, (
-                          #     1, (page_link, 1), 
-                          #     (tag, 1), (page_link, text),
-                          #     (text, page_link)))
-                          # mapper_output.append(value)
+                if tag in self.visible_text_tags:
+                    for search_word in self.word_contexts:
+                        search_word = search_word.lower()
+                        if search_word in words:
+                            # Emit each word in context
+                            for word in words:
+                                if word not in self.stop_list:
+                                    key_word = '%s%s_%s' % (
+                                        self.label['context_word'],
+                                        external_bit, word)
+                                    # Additional Info (Disabled)
+                                    #value = (key_word, (
+                                    #    1, (page_link, 1),
+                                    #    (tag, 1), search_word))
+                                    value = (key_word, (1, search_word))
+                                    mapper_output.append(value)
+                            # Disable for now,
+                            # ??? I think this is like search ???
+                            # Emit whole context
+                           # key_context = '%s%s_%s' % (
+                           #     self.label['context'],
+                           #     external_bit, search_word)  
+                           # # use text not words-since list type
+                           # value = (key_context, (
+                           #     1, (page_link, 1), 
+                           #     (tag, 1), (page_link, text),
+                           #     (text, page_link)))
+                           # mapper_output.append(value)
 
-            # Process Synonym Rings (WordNet Synsets or User Chosen)
-            # TODO: switch to if tag in tag_list (and initialize lists)
-            # TODO: check "if words" earlier and break if none
-            # TODO: move to function
+            # Process Synonym Rings (WordNet Synsets or User Chosin)
             if self.synonym_rings:
-               if (tag == 'p' or tag == 'li' or tag == 'td' or 
-                   tag == 'h1' or tag == 'h2' or tag == 'h3' or
-                   tag == 'h4' or tag == 'h5' or tag == 'h6' or
-                   tag == 'a'):
+               if tag in self.visible_text_tags:
                    for list_key in self.synonym_rings:
                        total = 0
                        for word in words:
@@ -350,38 +304,17 @@ class Brain(object):
                                value = (key_wordnet, 1)
                                mapper_output.append(value)
 
-                           # TODO: pull this out so always get total
-                           # and not just for wordnet
-                          # if word not in self.stop_list:
-                          #     total = total + 1
-                          # if total > 0:
-                          #     key_total = '%s%s_%s' % (
-                          #         self.label['total_count'],
-                          #         external_bit, "total") 
-                          #     # Additional Info (Disabled)
-                          #     #value = (key_total, (
-                          #     #    total, (page_link, total),
-                          #     #    (tag, total)))
-                          #     value = (key_total, total)
-                          #     mapper_output.append(value)
-
         # END - cycle through elem in doc
 
         # Process the links on the page for parallel spider to follow
-        (self.on_site_links, self.off_site_links, all_links, 
-                ext_links) = process_links(page_links, 
-                                           self.site_url, 
-                                           self.site_domain, 
-                                           self.scheme, 
-                                           self.paths_to_follow,
-                                           robots_txt)
+        (self.on_site_links, self.off_site_links, all_links, ext_links) = \
+            process_links(page_links, self.site_url, self.site_domain, 
+                          self.scheme, self.paths_to_follow, robots_txt)
 
         # If not processing just return with new links
-        if no_emit:
-            return
+        if no_emit: return
 
-        # TODO: emit total_lins + ext/int, len(ext_links) or 
-        # len(all_links - ext_links)
+        # Process links for crawl summary information
         total_links = len(all_links)
         external_links = len(ext_links)
         internal_links = total_links - external_links
@@ -398,9 +331,7 @@ class Brain(object):
             value = (key_ext_links, external_links)
             mapper_output.append(value)
 
-
-
-        # Analyze all the links on the page
+        # Process all links
         if self.all_links_request:
             for element in all_links:
                 try: 
@@ -420,7 +351,7 @@ class Brain(object):
                 except:
                     continue
 
-        # Analyze the external links on the page
+        # Process external links 
         if self.ext_links_request:
             for element in ext_links:
                 try: 
@@ -441,41 +372,44 @@ class Brain(object):
                 except:
                     continue
         
-        # Process x_path selectors
-        # Currently not using
+        # Process x_path selectors - Currently not using
         if self.xpath_selectors:
-            for selector in self.xpath_selectors:
-                results = doc.xpath(selector['selector'])
-                for result in results:
-                    if selector['css_text']:
-                        text = result.text
-                        tail = result.tail
-                        if tail:
-                            if text:
-                                text = text + " " + tail
-                            else:
-                                text = tail
-                        result = text
-                    key_selector = '%s%s_%s' % (self.label['selector'],
-                            external_bit, selector['name'])
-                    value = (key_selector, (
-                        1, (page_link, 1), 
-                        (page_link, result),
-                        (result, page_link)))
-                    mapper_output.append(value)
-                    if selector['analyze'] and result:
-                        for word in result.lower().split():
-                            if word not in self.stop_list:
-                                key_word = '%s%s_%s' % (
-                                    self.label['selector_word'],
-                                    external_bit, word) 
-                                value = (key_word, (
-                                    1, (page_link, 1),
-                                    selector['name']))
-                                mapper_output.append(value)
+            mapper_output.extend(self._analyze_xpath_selectors(doc,
+                external_bit, page_link))
 
         return mapper_output
 
+    def _analyze_xpath_selectors(self, doc, external_bit, page_link):
+        """Generate mapper output for all selectors, xpath & converted css."""
+        mapper_output = []
+        for selector in self.xpath_selectors:
+            results = doc.xpath(selector['selector'])
+            for result in results:
+                if selector['css_text']:
+                    text = result.text
+                    tail = result.tail
+                    if tail:
+                        text = text + " " + tail if text else tail
+                    result = text
+                key_selector = '%s%s_%s' % (self.label['selector'],
+                        external_bit, selector['name'])
+                value = (key_selector, (
+                    1, (page_link, 1), 
+                    (page_link, result),
+                    (result, page_link)))
+                mapper_output.append(value)
+                if selector['analyze'] and result:
+                    for word in result.lower().split():
+                        if word not in self.stop_list:
+                            key_word = '%s%s_%s' % (
+                                self.label['selector_word'],
+                                external_bit, word) 
+                            value = (key_word, (
+                                1, (page_link, 1),
+                                selector['name']))
+                            mapper_output.append(value)
+        return mapper_output
+       
     def _validate_requests(self, config):
         """Validate analysis requests passed in configuration dictionary."""
         self.visible_text_request = config.get('text_request', False)
@@ -497,6 +431,13 @@ class Brain(object):
                 sel = lxml.cssselect.CSSSelector(selector['selector'])
                 selector['selector'] = sel.path
                 self.xpath_selectors.append(selector)
+
+    def _set_tag_types(self):
+        """Set up tag types for certain types of analyses."""
+        self.visible_text_tags = ['p', 'li', 'td', 'h1', 'h2', 'h3', 'h4',
+                                  'h5', 'h6', 'a']
+        self.headline_text_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+        
 
 ###############################################################################
 ### Reducer
