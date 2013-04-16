@@ -333,7 +333,6 @@ class TestSpeed(unittest.TestCase):
             mapper_output = brain.analyze(page, file_name, self.robots_txt)
             sorter_output = _sort_output(mapper_output)
             reducer_output = _process_output(sorter_output, brain) 
-            #print reducer_output
 
 
 ###############################################################################

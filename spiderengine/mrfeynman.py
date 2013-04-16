@@ -60,13 +60,14 @@ class Brain(object):
         self.off_site_links = []  
         self._validate_requests(config_dict)
         self._set_tag_types()
+
         # Labels for various processing types - append to start of key
         # All labelels are 4 characters.  A tag for external or internal is
         # then appended, followed by an underscore. i.e. texti_
-        self.label = { 'text': 'text', 'header': 'head', 'anchor_tag': 'atag',
-                       'meta_data': 'meta', 'all_links': 'link',
-                       'external_links': 'extl', 'context': 'cnxt', 
-                       'context_word': 'cntw', 'wordnet': 'wdnt',
+        self.label = { 'visible_text': 'text', 'headline_text': 'head', 'link_text': 'atag',
+                       'hidden_text': 'meta', 'all_links': 'link',
+                       'external_links': 'extl', 
+                       'context_word': 'cntw', 'synonym_ring': 'wdnt',
                        'total_count': 'totl', 'selector': 'selc', 
                        'selector_word': 'selw', 'tag_count': 'tagc',
                        'link_count': 'lnkc', 'error_message': 'zmsg'}
@@ -114,37 +115,29 @@ class Brain(object):
                 Q. Do I need this?
             selector_word - analyze the selected words
             error_message - error messages in processing
-
-            TODO: Add
-            tag_count - count for each tag type
-            link_count - for external and internal links
         """
 
         mapper_output = [] # key-value tuples for mapper output
         page_links = [] # all the links on the page
-        
-        # Iterate once through the entire document
-        for element in doc.iter():
+        external_bit = 'e' if external else 'i' # external or internal page
+        key_total = '%s%s_%s' % (self.label['total_count'],
+                                 external_bit, "total") 
+         
+        for element in doc.iter(): # Iterate once through the entire document
             
-            # Grab tag name and text (+ tail text) for html elements
-            try:     
+            try:  # Grab tag name and text (+ tail text)   
                 tag = element.tag
                 text = element.text
                 tail = element.tail
             except:
                 continue
 
-            # Combine text and tail, then lowercase and split to list
             words = None # text words split to list
-            if tail:
+            if tail: # combine text and tail
                 text = text + " " + tail if text else tail
-            if text:
+            if text: # lowercase and split to list
                 words = text.lower().split()
-
-            # Set as either an external or internal page
-            external_bit = 'e' if external else 'i'
  
-            # Process links
             if tag == 'a':
                 try: 
                     link = element.attrib['href']
@@ -152,190 +145,150 @@ class Brain(object):
                 except:
                     pass
             
-            # Skip the rest of loop if not processing
-            if no_emit: continue
+            if no_emit: continue # Skip rest if not analyzing page
 
             # Emit tag count for each tag
             key_tag = '%s%s_%s' % (self.label['tag_count'], external_bit, tag) 
-            value = (key_tag, 1)
-            mapper_output.append(value)
+            mapper_output.append((key_tag, 1))
 
-            # Break if no words
-            if not words: continue
+            if not words: continue # Skip analysis if no words to analyze
 
-            # Emit the total count of words
-            # Counts all words including stop words
+            # Emit the total count of words - includes stop words
             total = len(words)
             if total > 0:
-                key_total = '%s%s_%s' % (
-                    self.label['total_count'],
-                    external_bit, "total") 
                 # Additional Info (Disabled)
-                #value = (key_total, (
-                #    total, (page_link, total),
-                #    (tag, total)))
+                #value = (key_total, (total, (page_link, total), (tag, total)))
                 value = (key_total, total)
                 mapper_output.append(value)
  
-            # Process Visible Text
             if self.visible_text_request:
                 if tag in self.visible_text_tags:
-                    for word in words:
-                        if word not in self.stop_list:
-                            key_word = '%s%s_%s' % (
-                                    self.label['text'],
-                                    external_bit, word)
-                            # Additional Info
-                            #value = (key_word, ( 
-                            #    1, (page_link, 1), (tag, 1)))
-                            value = (key_word, 1)
-                            mapper_output.append(value)
+                    mapper_output.extend(self._analyze_text(words,
+                        self.label['visible_text'], page_link, external_bit))
 
-            # Process Headline Text
             if self.headline_text_request:
                 if tag in self.headline_text_tags:
-                    for word in words:
-                        if word not in self.stop_list:
-                            key_word = '%s%s_%s' % (
-                                    self.label['header'],
-                                    external_bit, word)
-                            # Additional Info
-                            #value = (key_word, ( 
-                            #    1, (page_link, 1), (tag, 1)))
-                            value = (key_word, 1)
-                            mapper_output.append(value)
+                    mapper_output.extend(self._analyze_text(words,
+                        self.label['headline_text'], page_link, external_bit))
 
-            # Process Link Text
             if self.link_text_request:
                 if (tag == 'a'):
-                   for word in words:
-                       if word not in self.stop_list:
-                           key_word = '%s%s_%s' % (
-                                   self.label['anchor_tag'],
-                                   external_bit, word)
-                           # Additional Info
-                           #value = (key_word, ( 
-                           #    1, (page_link, 1), (tag, 1)))
-                           value = (key_word, 1)
-                           mapper_output.append(value)
+                    mapper_output.extend(self._analyze_text(words,
+                        self.label['link_text'], page_link, external_bit))
 
-            # Process Hidden Text
             if self.hidden_text_request:
-                if tag == 'title':
-                    for word in words:
-                        if word not in self.stop_list:
-                            key_word = '%s%s_%s' % (
-                                self.label['meta_data'],
-                                external_bit, word)
-                            # Additional Info
-                            #value = (key_word, ( 
-                            #    1, (page_link, 1), (tag, 1)))
-                            value = (key_word, 1)
-                            mapper_output.append(value)
-                if tag == 'meta':
-                    try:
-                        name = element.attrib['name']
-                        if name == 'description':
-                            try:
-                                text = element.attrib['content']
-                                if text:
-                                    words = text.lower().split()
-                                    for word in words:
-                                        if word not in self.stop_list:
-                                            key_word = '%s%s_%s' % (
-                                                self.label['meta_data'],
-                                                external_bit, word)
-                                            # Additional Info
-                                            #value = (key_word, ( 
-                                            #    1, (page_link, 1), (tag, 1)))
-                                            value = (key_word, 1)
-                                            mapper_output.append(value)
-                            except:
-                                continue
-                    except:
-                        continue
-
+                if tag in self.hidden_text_tags:
+                   mapper_output.extend(self._analyze_hidden_text(
+                        tag, words, page_link, external_bit))
             
-            # Process Context Words 
-            if self.word_contexts:
+            if self.context_words:
                 if tag in self.visible_text_tags:
-                    for search_word in self.word_contexts:
-                        search_word = search_word.lower()
-                        if search_word in words:
-                            # Emit each word in context
-                            for word in words:
-                                if word not in self.stop_list:
-                                    key_word = '%s%s_%s' % (
-                                        self.label['context_word'],
-                                        external_bit, word)
-                                    # Additional Info (Disabled)
-                                    #value = (key_word, (
-                                    #    1, (page_link, 1),
-                                    #    (tag, 1), search_word))
-                                    value = (key_word, (1, search_word))
-                                    mapper_output.append(value)
-                            # Disable for now,
-                            # ??? I think this is like search ???
-                            # Emit whole context
-                           # key_context = '%s%s_%s' % (
-                           #     self.label['context'],
-                           #     external_bit, search_word)  
-                           # # use text not words-since list type
-                           # value = (key_context, (
-                           #     1, (page_link, 1), 
-                           #     (tag, 1), (page_link, text),
-                           #     (text, page_link)))
-                           # mapper_output.append(value)
+                   mapper_output.extend(self._analyze_context_words(
+                        words, page_link, external_bit))
 
-            # Process Synonym Rings (WordNet Synsets or User Chosin)
             if self.synonym_rings:
                if tag in self.visible_text_tags:
-                   for list_key in self.synonym_rings:
-                       total = 0
-                       for word in words:
-                           if word in self.synonym_rings[list_key]: 
-                               key_wordnet = '%s%s_%s' % (
-                                   self.label['wordnet'],
-                                   external_bit, list_key) 
-                               # Additional Info (Disabled)
-                               #value = (key_wordnet, (
-                               #    1, (page_link, 1),
-                               #    (tag, 1)))
-                               value = (key_wordnet, 1)
-                               mapper_output.append(value)
+                   mapper_output.extend(self._analyze_synonym_rings(
+                        words, page_link, external_bit))
 
-        # END - cycle through elem in doc
+            # END - cycle through elements in doc
 
-        # Process the links on the page for parallel spider to follow
+        # Process links to follow (on/off) and to analyze (all/ext)
         (self.on_site_links, self.off_site_links, all_links, ext_links) = \
             process_links(page_links, self.site_url, self.site_domain, 
                           self.scheme, self.paths_to_follow, robots_txt)
+        
+        if no_emit: return # not analyzing page, return with new links
 
-        # If not processing just return with new links
-        if no_emit: return
-
-        # Process links for crawl summary information
         mapper_output.extend(self._analyze_summary_link_info(
             all_links, ext_links, external_bit))
 
-        # Process all links
-        if self.all_links_request:
+        if self.all_links_request: 
             mapper_output.extend(self._analyze_links(
-                all_links, external_bit, page_link, 'int'))
-
-        # Process external links 
-        if self.ext_links_request:
+                all_links, external_bit, page_link, 'all'))
+ 
+        if self.ext_links_request: 
             mapper_output.extend(self._analyze_links(
                 ext_links, external_bit, page_link, 'ext'))
         
-        # Process selectors (all xpath) - Currently not using
         if self.xpath_selectors:
             mapper_output.extend(self._analyze_selectors(
                 doc, external_bit, page_link))
 
         return mapper_output
 
+    def _analyze_text(self, words, label, page_link, external_bit):
+        """Generate mapper output for text types."""
+        mapper_output = []
+        for word in words:
+           if word not in self.stop_list:
+               key_word = '%s%s_%s' % (label, external_bit, word)
+               # Additional Info
+               #value = (key_word, (1, (page_link, 1), (tag, 1)))
+               value = (key_word, 1)
+               mapper_output.append(value)
+        return mapper_output
+
+    def _analyze_hidden_text(self, tag, words, page_link, external_bit):
+        """Generate mapper output for hidden text."""
+        mapper_output = []
+        if tag == 'title':
+            mapper_output.extend(self._analyze_text(words,
+                self.label['hidden_text'], page_link, external_bit))
+        elif tag == 'meta':
+            try:
+                name = element.attrib['name']
+                if name == 'description':
+                    try:
+                        text = element.attrib['content']
+                        if text:
+                            words = text.lower().split()
+                            mapper_output.extend(self._analyze_text(
+                                words, self.label['hidden_text'], 
+                                page_link, external_bit))
+                    except:
+                        pass
+            except:
+                pass
+        return mapper_output
+
+    def _analyze_context_words(self, words, page_link, external_bit):
+        """Generate mapper output for context words."""
+        mapper_output = []
+        for search_word in self.context_words:
+            search_word = search_word.lower()
+            if search_word in words:
+                # Emit each word in context
+                for word in words:
+                    if word not in self.stop_list:
+                        key_word = '%s%s_%s' % (
+                            self.label['context_word'],
+                            external_bit, word)
+                        # Additional Info (Disabled)
+                        #value = (key_word, (1, (page_link, 1),
+                        #                   (tag, 1), search_word))
+                        value = (key_word, (1, search_word))
+                        mapper_output.append(value)
+        return mapper_output
+
+    def _analyze_synonym_rings(self, words, page_link, external_bit):
+        """Generate mapper output for synonym rings."""
+        mapper_output = []
+        for list_key in self.synonym_rings:
+            total = 0
+            for word in words:
+                if word in self.synonym_rings[list_key]: 
+                    key_wordnet = '%s%s_%s' % (
+                        self.label['synonym_ring'],
+                        external_bit, list_key) 
+                    # Additional Info (Disabled)
+                    #value = (key_wordnet, (1, (page_link, 1), (tag, 1)))
+                    value = (key_wordnet, 1)
+                    mapper_output.append(value)
+        return mapper_output
+
     def _analyze_summary_link_info(self, all_links, ext_links, external_bit):
+        """Generate mapper output for summary int/ext link count."""
         mapper_output = []
         total_links = len(all_links)
         external_links = len(ext_links)
@@ -369,9 +322,8 @@ class Brain(object):
                 key_name = decode(link)[1] if link_type == 'ext' else link
                 key = '%s%s_%s' % (label, external_bit, key_name)
                 # Additional Info (Disabled) - different for ext/all (links)
-                #value = (key, ( 
-                #    1, (page_link, 1), (page_link, words), 
-                #    (words, page_link), (words, 1), *(link, 1)*dif))
+                #value = (key, ( 1, (page_link, 1), (page_link, words), 
+                #              (words, page_link), (words, 1), *(link, 1)*dif))
                 value = (key, 1)
                 mapper_output.append(value)
             except:
@@ -417,7 +369,7 @@ class Brain(object):
         self.link_text_request = config.get('a_tags_request', False)
         self.all_links_request = config.get('all_links_request', False)
         self.ext_links_request = config.get('external_links_request', False)
-        self.word_contexts = config.get('context_search_tag', [])
+        self.context_words = config.get('context_search_tag', [])
         self.synonym_rings = config.get('wordnet_lists', None)
         self.xpath_selectors = config.get('xpath_selectors', [])
         self.paths_to_follow = config.get('paths_to_follow', [])
@@ -436,6 +388,7 @@ class Brain(object):
         self.visible_text_tags = ['p', 'li', 'td', 'h1', 'h2', 'h3', 'h4',
                                   'h5', 'h6', 'a']
         self.headline_text_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+        self.hidden_text_tags = ['title', 'meta'] #add img(alt)???
         
 
 ###############################################################################
@@ -489,11 +442,11 @@ class Brain(object):
         message_count = []
 
         # Process based upon label
-        if (label == self.label['text'] or 
-            label == self.label['header'] or
-            label == self.label['anchor_tag'] or
-            label == self.label['meta_data'] or
-            label == self.label['wordnet'] or
+        if (label == self.label['visible_text'] or 
+            label == self.label['headline_text'] or
+            label == self.label['link_text'] or
+            label == self.label['hidden_text'] or
+            label == self.label['synonym_ring'] or
             label == self.label['total_count'] or
             label == self.label['tag_count'] or
             label == self.label['link_count']):
@@ -572,24 +525,6 @@ class Brain(object):
                 count, context = value
                 total_count.append(count)
             return (key, (sum(total_count), context))
-
-        # Currently not using
-        elif label == self.label['context']:
-
-            for value in values:
-                count, page, tag, pinfo, winfo = value
-                total_count.append(count)
-                page_count.append(page)
-                tag_count.append(tag)
-                page_info.append(pinfo)
-                words_info.append(winfo)
-
-            return (key, ( 
-                sum(total_count), 
-                sum_list(page_count),
-                sum_list(tag_count),
-                compress_list(page_info),
-                compress_list(words_info)))
 
         # Currently not using
         elif label == self.label['selector']:
