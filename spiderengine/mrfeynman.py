@@ -6,7 +6,12 @@
 
     TODO: Add pagerank for links
     TODO: Add ability to handle other file types, i.e. PDF
+    TODO: Implement additional data
+    TODO: Add Selectors and Synonym Rings
+    TODO: Make variables more consitent with Spider Client and Spider Web
+    TODO: QA tags associated with each analysis: visible text add div/span
 """
+
 import copy
 
 import lxml.cssselect
@@ -41,17 +46,6 @@ class Brain(object):
             stop_list: list of words not to emit
 
         If the passed url contains a subdomain, only this will be searched.
-
-        GOALS of REFACTOR:
-        TODO: Each type of process should be moved into a strategy pattern, 
-            with a common input and output format: 
-            input should be the data passed by lxml and 
-            output should be the appendage to the map output.
-        TODO: Make easy to add additional data
-        TODO: Add Selectors
-        TODO: Add Synonym Rings
-        TODO: Make variables more consitent with Spider Client and Spider Web
-        TODO: QA tags associated with each analysis: visible text add div/span
         """   
  
         self.passed_url = passed_url # may contain a path
@@ -60,17 +54,19 @@ class Brain(object):
         self.off_site_links = []  
         self._validate_requests(config_dict)
         self._set_tag_types()
+        self.additional_info = False
 
         # Labels for various processing types - append to start of key
         # All labelels are 4 characters.  A tag for external or internal is
         # then appended, followed by an underscore. i.e. texti_
-        self.label = { 'visible_text': 'text', 'headline_text': 'head', 'link_text': 'atag',
-                       'hidden_text': 'meta', 'all_links': 'link',
-                       'external_links': 'extl', 
+        self.label = { 'visible_text': 'text', 'headline_text': 'head', 
+                       'link_text': 'atag', 'hidden_text': 'meta', 
+                       'all_links': 'link', 'external_links': 'extl', 
                        'context_word': 'cntw', 'synonym_ring': 'wdnt',
                        'total_count': 'totl', 'selector': 'selc', 
                        'selector_word': 'selw', 'tag_count': 'tagc',
                        'link_count': 'lnkc', 'error_message': 'zmsg'}
+        self.standard_labels = self.initialize_reducer_labels()
 
 ###############################################################################
 ### Mapper
@@ -100,17 +96,17 @@ class Brain(object):
         then an underscore followed by the key name itself
 
         Key types:
-            text - analyze visible text on the page           
-            header - analyze headlines on a page         
-            anchor_tag - analyze link text on a page
-            meta_data - analyze hiddent descriptions on a page
+            visible_text - analyze visible text on the page           
+            headline_text - analyze headlines on a page         
+            link_text - analyze link text on a page
+            hidden_text - analyze hiddent descriptions on a page
             all_links - analyze all the links on a page
             external_links - analyze external site links on a page
-            context - analyze the context around a specified word
-            context_word - analyze each word in the context ???
-                Q. Do I need this?
-            wordnet - analyze synonym rings
-            total_count - a total count of all words
+            context_word - analyze each word in the context
+            synonym_rings - analyze synonym rings
+            total_count - a total count of all words (including stop words)
+            tag_count - count for each type of tag on page
+            link_count - number of external/internal links on page
             selector - select certain element out of the page
                 Q. Do I need this?
             selector_word - analyze the selected words
@@ -147,18 +143,20 @@ class Brain(object):
             
             if no_emit: continue # Skip rest if not analyzing page
 
-            # Emit tag count for each tag
+            # Analyze tag count for summary
             key_tag = '%s%s_%s' % (self.label['tag_count'], external_bit, tag) 
             mapper_output.append((key_tag, 1))
 
             if not words: continue # Skip analysis if no words to analyze
 
-            # Emit the total count of words - includes stop words
+            # Analyze total word count for summary - includes stop words
             total = len(words)
             if total > 0:
-                # Additional Info (Disabled)
-                #value = (key_total, (total, (page_link, total), (tag, total)))
-                value = (key_total, total)
+                if self.additional_info:
+                    value = (key_total, (total, (page_link, total), 
+                                        (tag, total)))
+                else:
+                    value = (key_total, total)
                 mapper_output.append(value)
  
             if self.visible_text_request:
@@ -223,9 +221,10 @@ class Brain(object):
         for word in words:
            if word not in self.stop_list:
                key_word = '%s%s_%s' % (label, external_bit, word)
-               # Additional Info
-               #value = (key_word, (1, (page_link, 1), (tag, 1)))
-               value = (key_word, 1)
+               if self.additional_info:
+                   value = (key_word, (1, (page_link, 1), (tag, 1)))
+               else:
+                   value = (key_word, 1)
                mapper_output.append(value)
         return mapper_output
 
@@ -264,10 +263,11 @@ class Brain(object):
                         key_word = '%s%s_%s' % (
                             self.label['context_word'],
                             external_bit, word)
-                        # Additional Info (Disabled)
-                        #value = (key_word, (1, (page_link, 1),
-                        #                   (tag, 1), search_word))
-                        value = (key_word, (1, search_word))
+                        if self.additional_info:
+                            value = (key_word, (1, (page_link, 1),
+                                               (tag, 1), search_word))
+                        else:
+                            value = (key_word, (1, search_word))
                         mapper_output.append(value)
         return mapper_output
 
@@ -281,9 +281,10 @@ class Brain(object):
                     key_wordnet = '%s%s_%s' % (
                         self.label['synonym_ring'],
                         external_bit, list_key) 
-                    # Additional Info (Disabled)
-                    #value = (key_wordnet, (1, (page_link, 1), (tag, 1)))
-                    value = (key_wordnet, 1)
+                    if self.additional_info:
+                        value = (key_wordnet, (1, (page_link, 1), (tag, 1)))
+                    else:
+                        value = (key_wordnet, 1)
                     mapper_output.append(value)
         return mapper_output
 
@@ -321,10 +322,14 @@ class Brain(object):
                     label = self.label['all_links']
                 key_name = decode(link)[1] if link_type == 'ext' else link
                 key = '%s%s_%s' % (label, external_bit, key_name)
-                # Additional Info (Disabled) - different for ext/all (links)
-                #value = (key, ( 1, (page_link, 1), (page_link, words), 
-                #              (words, page_link), (words, 1), *(link, 1)*dif))
-                value = (key, 1)
+                if self.additional_info and link_type == 'ext':
+                    value = (key, ( 1, (page_link, 1), (page_link, words), 
+                                  (words, page_link), (words, 1), (link, 1)))
+                elif self.additional_info and link_type == 'all':
+                    value = (key, ( 1, (page_link, 1), (page_link, words), 
+                                  (words, page_link), (words, 1)))
+                else:
+                    value = (key, 1)
                 mapper_output.append(value)
             except:
                 continue
@@ -398,144 +403,106 @@ class Brain(object):
         """
         Processes a key and a list of values (a reducer).
 
-        Arguments:
-        key - a string of text
-        values - a lists of tuples, tuple size varies by key
+        Args:
+            key - a string of text
+            values - a lists of tuples, tuple size varies by key
 
         Returns:
-        a key value tuple, based upon the key type
+            a key value tuple, based upon the key type
         """
 
-        # The first part of the key is a label for its type
-        label = key[0:4]
+        label = key[0:4] #first part of the key is a label for its type
+        total_count = [] #sum(total_count) - total times item appears
+        page_count = [] #sum_list(page_count) - count of items/page
+        tag_count = [] #sum_list(tag_count) - count of items/tag
+        page_info = [] #compress_list(page_info) - words used on each page
+        words_info = [] #compress_list(words_info) - list of pages
+        words_count = [] #sum_list(words_count) - words with counts  
+        link_count = [] # sum_list(link_count) - counts for each link
+        selector = "" #selector used to extract the information
+        context = "" #context word being analyzed
+        message_count = [] #error message count
 
-        # sum(total_count) is the total times the item appears
-        total_count = []
-
-        # sum_list(page_count) is a list of pages with the count of items/page
-        page_count = []
-
-        # sum_list(tag_count) is a list of tags with the count of items/tag
-        tag_count = []
-
-        # compress_list(page_info) is a list of pages associated with
-        #   the item, and a list of words used on each page
-        page_info = []
-
-        # compress_list(words_info) is a list of words associated with 
-        #   the item, and a list of pages those words are found on
-        words_info = []
-
-        # sum_list(words_count) is a list of words with counts
-        words_count = []
-
-        # sum_list(link_count) is a list of links with counts for each
-        link_count = []
-
-        # selector is the selector used to extract the information
-        selector = ""
-
-        # context is the word being searched for it's context
-        context = ""
-
-        # message is the error message
-        message_count = []
-
-        # Process based upon label
-        if (label == self.label['visible_text'] or 
-            label == self.label['headline_text'] or
-            label == self.label['link_text'] or
-            label == self.label['hidden_text'] or
-            label == self.label['synonym_ring'] or
-            label == self.label['total_count'] or
-            label == self.label['tag_count'] or
-            label == self.label['link_count']):
-
-            # Disabled Addition Info
-            #for value in values:
-                #count = value
-                #count, page, tag = value
-                #total_count.append(count)
-                #page_count.append(page)
-                #tag_count.append(tag)
-                #Also changed in mapper!
-
-            #return (key, (
-                #sum(total_count) ))#, 
-                #sum_list(page_count), 
-                #sum_list(tag_count)))
-            return  (key, sum(values))
+        # Process input from mapper based upon label
+        if label in self.standard_labels:
+            if self.additional_info:
+                for value in values:
+                    count = value
+                    count, page, tag = value
+                    total_count.append(count)
+                    page_count.append(page)
+                    tag_count.append(tag)
+                return (key, (
+                    sum(total_count), 
+                    sum_list(page_count), 
+                    sum_list(tag_count)))
+            else:
+                return (key, sum(values))
 
         elif label == self.label['all_links']:
-
-            # Disabled Addition Info
-           # for value in values:
-           #     count, page, pinfo, winfo, words = value
-           #     total_count.append(count)
-           #     page_count.append(page)
-           #     page_info.append(pinfo)
-           #     words_info.append(winfo)
-           #     words_count.append(words)
-
-           # return (key, ( 
-           #     sum(total_count), 
-           #     sum_list(page_count),
-           #     compress_list(page_info),
-           #     compress_list(words_info),
-           #     sum_list(words_count)))
-            return  (key, sum(values))
+            if self.additional_info:
+                for value in values:
+                    count, page, pinfo, winfo, words = value
+                    total_count.append(count)
+                    page_count.append(page)
+                    page_info.append(pinfo)
+                    words_info.append(winfo)
+                    words_count.append(words)
+                return (key, ( 
+                    sum(total_count), 
+                    sum_list(page_count),
+                    compress_list(page_info),
+                    compress_list(words_info),
+                    sum_list(words_count)))
+            else:
+                return  (key, sum(values))
 
         elif label == self.label['external_links']:
-
-           # # Disabled Addition Info
-           # for value in values:
-           #     count, page, pinfo, winfo, words, link = value
-           #     total_count.append(count)
-           #     page_count.append(page)
-           #     page_info.append(pinfo)
-           #     words_info.append(winfo)
-           #     words_count.append(words)
-           #     link_count.append(link)
-
-           # return (key, ( 
-           #     sum(total_count), 
-           #     sum_list(page_count),
-           #     compress_list(page_info),
-           #     compress_list(words_info),
-           #     sum_list(words_count),
-           #     sum_list(link_count)))
-            return  (key, sum(values))
+            if self.additional_info:
+                for value in values:
+                    count, page, pinfo, winfo, words, link = value
+                    total_count.append(count)
+                    page_count.append(page)
+                    page_info.append(pinfo)
+                    words_info.append(winfo)
+                    words_count.append(words)
+                    link_count.append(link)
+                return (key, ( 
+                    sum(total_count), 
+                    sum_list(page_count),
+                    compress_list(page_info),
+                    compress_list(words_info),
+                    sum_list(words_count),
+                    sum_list(link_count)))
+            else:
+                return  (key, sum(values))
 
         elif label == self.label['context_word']:
-
-           # # Disable Additional Info
-           # for value in values:
-           #     count, page, tag, context = value
-           #     total_count.append(count)
-           #     page_count.append(page)
-           #     tag_count.append(tag)
-
-           # return (key, ( 
-           #     sum(total_count), 
-           #     sum_list(page_count),
-           #     sum_list(tag_count),
-           #     context))
-
-            for value in values:
-                count, context = value
-                total_count.append(count)
-            return (key, (sum(total_count), context))
+            if self.additional_info:
+                for value in values:
+                    count, page, tag, context = value
+                    total_count.append(count)
+                    page_count.append(page)
+                    tag_count.append(tag)
+                return (key, ( 
+                    sum(total_count), 
+                    sum_list(page_count),
+                    sum_list(tag_count),
+                    context))
+            else:
+                for value in values:
+                    count, context = value
+                    total_count.append(count)
+                return (key, (sum(total_count), context))
 
         # Currently not using
         elif label == self.label['selector']:
-
             for value in values:
                 count, page, pinfo, winfo = value
                 total_count.append(count)
                 page_count.append(page)
                 page_info.append(pinfo)
                 words_info.append(winfo)
-
             return (key, ( 
                 sum(total_count), 
                 sum_list(page_count),
@@ -544,31 +511,31 @@ class Brain(object):
 
         # Currently not using
         elif label == self.label['selector_word']:
-
             for value in values:
                 count, page, selector = value
                 total_count.append(count)
                 page_count.append(page)
-
             return (key, ( 
                 sum(total_count), 
                 sum_list(page_count),
                 selector))
 
         elif label == self.label['error_message']:
-            #return ('zmsg_error', 'error')
-            # TODO: Maybe add count for error types?
-
             for value in values:
                 message_count.append(value)
-
             return (key, sum_list(message))
 
-            #return ('zmsg_error', values)
-        
         else:
-
             return ('zmsg_error', ('unrecognized key', 1))
+
+    def initialize_reducer_labels(self):
+        """List of lables that are processed identically be reducer."""
+        standard_labels = [
+            self.label['visible_text'], self.label['headline_text'], 
+            self.label['link_text'], self.label['hidden_text'], 
+            self.label['synonym_ring'], self.label['total_count'], 
+            self.label['tag_count'], self.label['link_count']]
+        return standard_labels
 
 ###############################################################################
 ### Da Func(y) Helpers
@@ -589,21 +556,17 @@ def process_links(links, site_url, site_domain, scheme,
     Returns:
         on_site - list of on site urls to follow
         off_site - list of off site urls to follow
-        all_links - list of all link elements
-        ext_links - list of external site link elements
+        all_links - list of all links for analysis
+        ext_links - list of external links for analysis
     """
 
-    # Lists to hold internal and external links
     on_site = []
     off_site = []
-    
-    # List to hold link elements
     all_links = []
     ext_links = []
     
-    # Process all the links
     for link_tuple in links:
-      
+
         link = link_tuple[0]
         element = link_tuple[1]
 
@@ -620,29 +583,24 @@ def process_links(links, site_url, site_domain, scheme,
         all_links.append(element)
 
         # If absolute url
-        if link[0:4] == "http" or link[0:5] == "https":
-            
+        if link[0:4] == "http" or link[0:5] == "https":          
             # With site name add to on site list, else off site list
             if (site_domain in link and
                 robots_txt.can_fetch('*', link)):
                 on_site.append(link)
-
             else:
                 off_site.append(link)
                 ext_links.append(element)
-
         # If schemeless add scheme
         elif (link and link[0:2] == '//'):
             link_abs = scheme + link
             if robots_txt.can_fetch('*', link_abs):
                 on_site.append(link_abs)
-
         # If relative add site
         elif (link and link[0] == '/' and len(link) > 1):            
             link_abs = site_url + link
             if robots_txt.can_fetch('*', link_abs):
-                on_site.append(link_abs)
-        
+                on_site.append(link_abs)        
         # Relative without backslash so add
         else:
             if (link and link != '/' and (';' not in link)
@@ -651,7 +609,6 @@ def process_links(links, site_url, site_domain, scheme,
                 if robots_txt.can_fetch('*', link_abs):
                     on_site.append(link_abs)
 
-            
     return (on_site, off_site, all_links, ext_links)
 
 
@@ -672,15 +629,10 @@ def decode(site_url):
         only the subdomains will be searched on the site
     """
         
-    # Remove the scheme
-    scheme, delimeter, domain_path = site_url.partition("//")
-
-    # Remove the path
-    domain = domain_path.partition("/")[0]
-
+    scheme, delimeter, domain_with_path = site_url.partition("//") 
+    domain = domain_with_path.partition("/")[0]
     # Strip out host if www. so can traverse subdomains
     site_domain = domain.replace("www.", "")
-
     # Add back scheme to domain for url
     site_url = scheme + "//" + domain
 
@@ -701,35 +653,24 @@ def sum_list(list_o_tuples):
     the procedure will return: [(label1, 9), (label2, 6)]
     """
 
-    new_list = [] # list to return
-
+    new_list = []
     sorted_list = sorted(list_o_tuples)
-
-    label = "" # current label
+    label = ""
     previous_label = sorted_list[0][0]
-
     length = len(sorted_list)
     i = 0
     total_count = 0
 
     while i < length:
-
-        # Unpack current label and count
         label, count = sorted_list[i]
-
-        # If same label, just add to total
-        if label == previous_label:
-            total_count  = total_count  + count
-
-        # Otherwise, add to list and set new previous
-        else:
+        if label == previous_label: # If same label, just add to total
+            total_count  = total_count  + count     
+        else: # Otherwise, add to list and set new previous
             value = (previous_label, total_count)
             new_list.append(value)
             previous_label = label
             total_count = count
-
-        i = i + 1
-    
+        i = i + 1   
     # clean up the last one
     value = (label, total_count)
     new_list.append(value)
@@ -750,36 +691,26 @@ def compress_list(list_o_tuples):
     the procedure will return: [(label1, ["f","off"]), (label2, ["a'hole"])]
     """
 
-    new_list = [] # list to return
-
+    new_list = []
     sorted_list = sorted(list_o_tuples)
-
-    label = "" # current label
+    label = "" 
     previous_label = sorted_list[0][0]
-
     length = len(sorted_list)
     i = 0
     text_list = [] # list for the text values
 
     while i < length:
-
-        # Unpack current label and count
-        label, text = sorted_list[i]
-
-        # If same label, just add to total
-        if label == previous_label:
+        label, text = sorted_list[i]     
+        if label == previous_label: # If same label, just add to total
             if text:
                 text_list.append(text)
-
-        # Otherwise, add to list and set new previous
-        else:
+        else: # Otherwise, add to list and set new previous
             text_list = list(set(text_list))  # remove duplicates
             value = (previous_label, text_list)
             new_list.append(value)
             previous_label = label
             if text:
                 text_list = [text]
-
         i = i + 1
     
     # clean up the last one
