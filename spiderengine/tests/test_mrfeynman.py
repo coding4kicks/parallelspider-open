@@ -671,19 +671,15 @@ if __name__ == '__main__':
 
     usage = "usage: %prog [options]"
     parser = optparse.OptionParser(usage)
-
     parser.add_option(
             "-o", "-O", "--outputType", action="store", dest="outputType", 
             help="Type of output to generate: map or reduce")
-
     parser.add_option(
             "-t", "-T", "--testType", action="store", dest="testType", 
             help="Type of test to generate output for: summary, visible, ...")
-
     parser.add_option(
             "-l", "-L", "--links", action="store", dest="links", 
             help="dis displays links, int/ext saves output")
-
     (options, args) = parser.parse_args()
 
     # If testType then generate output 

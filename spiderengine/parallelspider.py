@@ -8,6 +8,7 @@
     with information to connect to Redis, a data structure server used 
     to maintain link state.
 
+    TODO: speed this fucking thing up!
     * TODO: id mappers by incrementing a counter. *
     * Use this id to replace sharing temp keys *
 """
@@ -32,6 +33,8 @@ class Mapper():
         import sys
         import redis
         import urllib2
+
+        self.test = True;
                       
         # Convert Redis info to Python Dictionary
         self.redis_info = {}
@@ -121,10 +124,9 @@ class Mapper():
             if temp_count:
                 link_count = int(temp_count)
             still_links = r.exists(new_links)
-            
             # Check conditions and break if done
             # Goes over by the number of mappers?
-            if link_count > max_pages or not still_links:
+            if link_count >= max_pages or not still_links:
                 break
 
             # Try to pop a link
@@ -146,10 +148,9 @@ class Mapper():
                           """ % (type(exc), exc)                
                 yield 'zmsg__error', (message, 1)
                 break
-
+            
             # Try to download and parse the page
             try:
-
                 # If link is external, set flag and adjust link
                 external = False
                 if link[0:4] == 'ext_':
@@ -159,7 +160,7 @@ class Mapper():
                 # Download and parse page
                 if 'https' in link:
                     page = lxml.html.parse(urllib2.urlopen(link))
-                elif 'http' in link:
+                elif 'http' in link or self.test == True:
                     page = lxml.html.parse(link)
                 else: # file type not supported
                     msg = ('File type not supported: {!s}').format(link) 
