@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 """
     Test Suite for Parallel Spider
+
+    TODO: figure out off by 1 error?
+    Eventually mapper output test fails and is different from saved results.
+    The only difference i linkci_internal and linkci_external.
+    somehow 1 link is moving from internal to external in the map output?
+    map int=296,ext=29 ; results int=295, ext=30
 """
 
 import os
@@ -26,14 +32,22 @@ class TestParallelSpider(unittest.TestCase):
     def testMapperOutput(self):
         """Test analysis ouput from parallelspider mapper."""
         final_output = _generate_mapper_output(self.mapper)
+        # Only looking at start and end, since easier to compare on failure
         self.assertEqual(final_output[0:100], _get_results('mapper')[0:100])
-        self.assertEqual(final_output[-100:], _get_results('mapper')[-100:])
+        self.assertEqual(final_output[-100:], _get_results('mapper')[-100:])        
 
     def testReducerOutput(self):
         """Test processing ouput from parallelspider reducer."""
-        mapper_output = _generate_mapper_output(self.mapper)
+        final_output = []
+        mapper_output = []
+        for out in self.mapper("",""):
+            mapper_output.append(out)
         reducer_input = _sort_output(mapper_output)
-        print reducer_input
+        for out in reducer_input:
+            key, value = out
+            for reducer_output in self.reducer(key, value):
+                final_output.append(str(reducer_output))
+        self.assertEqual("\n".join(final_output), _get_results('reducer'))
 
     def testNewLinkOutput(self):
         """Test new links are generated and stored correctly in Engine Redis."""
@@ -74,6 +88,52 @@ class TestParallelSpider(unittest.TestCase):
         self.assertTrue(self.redis.ttl(finished_links) > 3500)
         self.assertTrue(self.redis.ttl(count) > 3500)
         
+class TestParallelSpiderFailures(unittest.TestCase):
+
+    def setUp(self):
+        self.redis = _initialize_redis_for_failure()
+        self.mapper, self.reducer = _setup_map_reduce()
+
+    def testParseFail(self):
+        """Test that mapper fails to parse"""
+        msg = "[('zmsg__error', ('Unable to download and parse: broken_path"
+        final_output = _generate_mapper_output(self.mapper)
+        processing_links = _get_fake_base_id() + "::processing"
+        self.redis.spop(processing_links) #clean up for other tests
+        self.assertEqual(final_output[:60], msg)
+
+    def testBadKey(self):
+        """Test non-existant key"""
+        final_output = []
+        key, value = ('junk','input')
+        for reducer_output in self.reducer(key, value):
+            final_output.append(str(reducer_output))
+        msg = """["('zmsg_error', ('unrecognized key', 1))"]"""
+        self.assertEqual(str(final_output), msg)
+
+    def testBadReducerInput(self):
+        """Test malformed reducer input handling."""
+        final_output = []
+        key, value = ('tagci_link',('bad', 'input'))
+        for reducer_output in self.reducer(key, value):
+            final_output.append(str(reducer_output))
+        msg = """('zmsg__error', ("Unable to reduce: tagci_link"""
+        final_output = " ".join(final_output)
+        self.assertEqual(final_output[:46], msg)
+
+    def testNoNewLinks(self):
+        """Test that an empty new link set is hanled okay."""
+        new_links = _get_fake_base_id() + "::new_links"
+        self.redis.spop(new_links)
+        final_output = _generate_mapper_output(self.mapper)
+        self.assertEqual(final_output, '[]')
+
+    # TODO: handle bad redis connection
+    #def testBadRedis(self):
+    #    params = {'redisInfo':_set_engine_redis_info(9999)}
+    #    Mapper.params = params
+    #    final_output = _generate_mapper_output(Mapper())
+    #    print final_output
 
         
 ###############################################################################
@@ -95,6 +155,18 @@ def _initialize_engine_redis():
     r.set(count, 0)
     return r
 
+def _initialize_redis_for_failure():
+    r = redis.Redis('localhost', 6380)
+    new_links = _get_fake_base_id() + "::new_links"
+    r.delete(new_links) # clean out keys added from previous runs
+    r.sadd(new_links, "broken_path")
+    config = {}
+    json_config = json.dumps(config)
+    r.set(_generate_fake_crawl_id(), json_config)
+    count = _get_fake_base_id() + "::count"
+    r.set(count, 0)
+    return r
+
 def _stop_engine_redis():
     """Stop Engine Redis."""
     data.stop('kvs', 'engine')
@@ -104,9 +176,11 @@ def _stop_engine_redis():
 ###############################################################################
 def _generate_output(test_type):
     """Generate output for testing."""
+
+    redis = _initialize_engine_redis()
+    mapper, reducer = _setup_map_reduce()
+
     if test_type == 'mapper':
-        redis = _initialize_engine_redis()
-        mapper, reducer = _setup_map_reduce()
         mapper_output = _generate_mapper_output(mapper)
         test_file = ('{0}/parallelspider_results_mapper').format(
             _test_results_dir())
@@ -125,6 +199,20 @@ def _generate_output(test_type):
         with open(test_file, 'w') as f:
             f.write(str(link_output))
 
+    if test_type == 'reducer':
+        final_output = []
+        mapper_output = []
+        for out in mapper("",""):
+            mapper_output.append(out)
+        reducer_input = _sort_output(mapper_output)
+        for out in reducer_input:
+            key, value = out
+            for reducer_output in reducer(key, value):
+                final_output.append(str(reducer_output))
+        test_file = ('{0}/parallelspider_results_reducer').format(
+            _test_results_dir())
+        with open(test_file, 'w') as f:
+            f.write("\n".join(final_output))
 
 ###############################################################################
 ### Helper Delper Classes & Functions
@@ -159,10 +247,10 @@ def _generate_fake_crawl_id():
     fake_crawl_id = urllib.quote_plus(fake_crawl_id)
     return fake_crawl_id
 
-def _set_engine_redis_info():
+def _set_engine_redis_info(port=6380):
     """Sets Engine Redis info for Parallel Spider initialization."""
     engine_redis_host = 'localhost'
-    engine_redis_port = 6380
+    engine_redis_port = port
     max_pages = 1
     fake_base_id = _get_fake_base_id()
     redis_info = ('host:{0},port:{1},base:{2},maxPages:{3}').format(
@@ -249,7 +337,8 @@ if __name__ == '__main__':
             action="store", dest="redis", 
             help="Start/Stop Engine Redis datastore with fake crawl info.")
     parser.add_option(
-            "-t", "-T", "--testType", action="store", dest="testType", 
+            "-g", "-G", "--generateTestOutput", 
+            action="store", dest="testType", 
             help="Type of test output to generate: map, reduce, ...")
     (options, args) = parser.parse_args()
 
