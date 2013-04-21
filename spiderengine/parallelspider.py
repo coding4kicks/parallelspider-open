@@ -1,57 +1,50 @@
 """
-    parallelspider
+    Parallel Spider - Websites parsing and analysis via Hadoop
 
-    Parallel Spider performs website analysis. The input is a document of 
-    web pages to download, each separated by a line.  For each page, a 
-    mapper will be called that both parses and analyzes the data.  The 
-    particular analysis to be performed is included in the input, along 
-    with information to connect to Redis, a data structure server used 
-    to maintain link state.
+    Parallel Spider performs website parsing and analysis. Current input is a
+    text file with number of mappers to generate.  All parameters for analysis
+    are passed in either the command line or exist in redis.
 
     TODO: speed this fucking thing up!
     * TODO: id mappers by incrementing a counter. *
     * Use this id to replace sharing temp keys *
 """
 
+import sys
+import json
+import urllib2
+import robotparser
+
+import redis
+import lxml.html
+
+from mrfeynman import Brain
+
+###############################################################################
+### Mapper
+###############################################################################
 class Mapper():
     """
-    Downloads and analyzes web pages on parallel computers
+    Downloads and analyzes web pages on parallel computers.
 
-    __init__ -- initializes redis info
-    __call__ -- downloads and analyzes pages with links from redis
+    __init__ -- initializes redis info (for crawl info and links to follow)
+    __call__ -- downloads and passes pages to Mr. Feynman for analysis.
     """
+
     def __init__(self):
         """ 
         Initializes redis info and config file
 
-        Arguments:
+        Redis info provides information about required crawl analysis,
+        as well as link processing information.
+
+        Args:
         param - dictionary passed by dumbo
-           redisInfo : host, port, base key, max mappers
+           redisInfo : host, port, base key, and max mappers
         """
 
-        import json
-        import sys
-        import redis
-        import urllib2
-
-        self.test = True;
-                      
-        # Convert Redis info to Python Dictionary
-        self.redis_info = {}
-        param = self.params["redisInfo"]
-        temp_list = param.split(",")
-        for item in temp_list:
-            key, delimiter, value = item.partition(':')
-            self.redis_info[key] = value
-
-        # Kill if no Redis info for host
-        if not self.redis_info['host']:
-            sys.stderr.write('Must specify Redis host information! Please.')
-            sys.exit(1)
-
-        # Set default port
-        if not self.redis_info['port']:
-            redis_info['port'] = 6380
+        self.test = True; # Set to true for testing on local file                      
+        self.redis_info = _load_engine_redis_info(self.params)
     
         # Connect to redis
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
@@ -86,12 +79,6 @@ class Mapper():
         or the max pages has been reached.
        """
         
-        import redis
-        import urllib2
-        import lxml.html
-        import robotparser
-
-        from mrfeynman import Brain
 
         # Redis
         r = self.redis
@@ -273,6 +260,10 @@ class Mapper():
         if r.exists(finished): r.expire(finished, hour)
         if r.exists(count):r.expire(count, hour)
 
+
+###############################################################################
+### Reducer
+###############################################################################
 class Reducer():
     """
     Condenses web analysis output from mappers
@@ -291,27 +282,9 @@ class Reducer():
         Option to remove or keep later, to remove, config must 
         be initialized in the analyzer and not __init__.
         """
-        import json
-        import sys
-        import redis
                       
         # Convert Redis info to Python Dictionary
-        self.redis_info = {}
-        param = self.params["redisInfo"]
-        temp_list = param.split(",")
-        for item in temp_list:
-            key, delimiter, value = item.partition(':')
-            self.redis_info[key] = value
-
-        # Kill if no Redis info for host
-        if not self.redis_info['host']:
-            sys.stderr.write('Must specify Redis host information! Please.')
-            sys.exit(1)
-
-        # Set default port
-        # TODO: set Engine Redis port 6380
-        if not self.redis_info['port']:
-            redis_info['port'] = 6379
+        self.redis_info = _load_engine_redis_info(self.params)
     
         # Connect to redis
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
@@ -336,7 +309,6 @@ class Reducer():
         values -- a list of tubles depending upon key type
        """
         
-        from mrfeynman import Brain
 
         try:
 
@@ -354,9 +326,30 @@ class Reducer():
                       """ % (key, type(exc), exc)
             yield 'zmsg__error', (message, 1)
 
+
+###############################################################################
+### Helper Funcs
+###############################################################################
+def _load_engine_redis_info(params):
+    """Convert Redis info to Python Dictionary"""
+    redis_info = {}
+    param = params["redisInfo"]
+    temp_list = param.split(",")
+    for item in temp_list:
+        key, _, value = item.partition(':')
+        redis_info[key] = value
+    if not redis_info['host']:
+        sys.stderr.write('Must specify Redis host information! Please.')
+        sys.exit(1)
+    if not redis_info['port']:
+        redis_info['port'] = 6380
+    return redis_info
+
+
+### STARTER ###
 if __name__ == "__main__":
     import dumbo
-    # TODO: is this running the reducer as a combiner?
+    # TODO: is this running the reducer as a combiner? I think, No?
     dumbo.run(Mapper, Reducer)
     
     

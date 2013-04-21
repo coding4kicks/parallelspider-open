@@ -346,7 +346,7 @@ class CrawlTracker(object):
                 # Only update to crawling vice initializing if total > 0
                 if total_count > 0:
                     self.central_redis.set(crawl_id + "_count", total_count) 
-                    if total_count > self.total_max or not not_done:
+                    if total_count >= self.total_max or not not_done:
                         done = True
 
                         # Logging

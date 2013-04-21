@@ -4,9 +4,13 @@
 
     TODO: figure out off by 1 error?
     Eventually mapper output test fails and is different from saved results.
-    The only difference i linkci_internal and linkci_external.
+    The only difference is linkci_internal and linkci_external.
     somehow 1 link is moving from internal to external in the map output?
     map int=296,ext=29 ; results int=295, ext=30
+    failed - map 295/30 and results 296/29 ...wtf?
+
+    TODO: figure out why having issues with HTTPS:
+    freezes on page 1? Or is the just HN?
 """
 
 import os
@@ -144,6 +148,7 @@ def _start_engine_redis():
     data.start('kvs', 'engine')
 
 def _initialize_engine_redis():
+    """Connect to Redis on 6380 and set up for test crawl."""
     r = redis.Redis('localhost', 6380)
     new_links = _get_fake_base_id() + "::new_links"
     r.delete(new_links) # clean out keys added from previous runs
@@ -156,6 +161,7 @@ def _initialize_engine_redis():
     return r
 
 def _initialize_redis_for_failure():
+    """Connect to Redis, but set up a bad path for crawl file."""
     r = redis.Redis('localhost', 6380)
     new_links = _get_fake_base_id() + "::new_links"
     r.delete(new_links) # clean out keys added from previous runs
