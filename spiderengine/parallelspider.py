@@ -8,6 +8,9 @@
     TODO: speed this fucking thing up!
     * TODO: id mappers by incrementing a counter. *
     * Use this id to replace sharing temp keys *
+
+    TODO: add combiner
+    TODO: try to remove eval
 """
 
 import sys
@@ -39,8 +42,8 @@ class Mapper():
         as well as link processing information.
 
         Args:
-        param - dictionary passed by dumbo
-           redisInfo : host, port, base key, and max mappers
+            param - dictionary passed by dumbo
+                    redisInfo : host, port, base key, and max mappers
         """
 
         self.test = True; # Set to true for testing on a local file                      
@@ -56,35 +59,36 @@ class Mapper():
         """ 
         Performs parallel website downloading, parsing, and analysis 
         
-        Arguments:
-        key -- not used
-        value -- not used
+        Sets up Redis information. Loops downloading pages, feeding them to
+        an analysis engine which emits info to the Reducer.  Stops when no 
+        more new links or the max pages has been reached.
 
-        Sets up Redis information.
-        Loops downloading pages, feeding them to
-        an analysis engine which emits info to
-        the Reducer.  Stops when no more new links
-        or the max pages has been reached.
-       """
+        Args:
+            key, value - not used
+
+        Yields:
+            key, value - tuple for reducer, either Mr. Feynmans output 
+                         or an error message.
+        """
         
-        r = self.redis
-        (new_links, processing, finished, count, temp1, temp2
+        r = self.redis # analysis Engine Redis instance
+        redis_keys = (new_links, processing, finished, count, temp1, temp2
                 ) = _create_redis_keys(self.base)
         robots_txt = _init_robot_txt(self.site)
         brain = Brain(self.site, self.config)
         max_pages = int(self.redis_info["maxPages"]) 
 
-        while True: # Here we go... yee hah
+        while True: # Here we go... yee hah!
 
             if _no_more_to_scrape(r, max_pages, new_links, count):
                 break
 
-            try: # to pop a link and add to processing
+            try: # to pop a link and add it to processing
                 link = r.spop(new_links)
                 r.sadd(processing, link) 
             except Exception as e:
                 msg = ('Unable to pop a link - Exception: {} '
-                       'Exception args: {}').format(type(e), e)                
+                       '- Exception args: {}').format(type(e), e)
                 yield 'zmsg__error', (msg, 1)
                 break
             
@@ -95,101 +99,45 @@ class Mapper():
                     msg = ('File type not supported: {!s}').format(link) 
                     yield 'zmsg__error', (msg, 1)
                     continue
+            except Exception as e:
+                msg = ('Unable to download and parse: {} - Exception: {} '
+                       '- Exception args: {}').format(link, type(e), e)
+                yield 'zmsg__error', (msg, 1)
+                continue
+
+            try: # to process the page information
                 output = brain.analyze(page, link, robots_txt,
                                        external=external)
                 links = brain.on_site_links
                 if self.external_analysis:
                     links.extend(_add_external_links(brain))
             except Exception as e:
-                msg = ('Unable to download and parse: {} - Exception: {} '
-                       'Exception args: {}').format(link, type(e), e)
+                msg = ('Unable to process info for: {} - Exception: {} '
+                       '- Exception args: {}').format(link, type(e), e)
                 yield 'zmsg__error', (msg, 1)
                 continue
 
-            # Try to process / emit information
-            try:           
+            try: # to emit the information return by Mr. Feynman 
                 for put in output:
                     key, value = put
                     yield key, value
-
-            # Alert that can't process info
-            except Exception as exc:
-                message = """Unable to process info for: %s
-                             Exception: %s
-                             Exception args: %s
-                          """ % (link, type(exc), exc)
-                yield 'zmsg__error', (message, 1)
+            except Exception as e:
+                msg = ('Unable to emit info for: {} - Exception: {} '
+                       '- Exception args: {}').format(link, type(e), e)
+                yield 'zmsg__error', (msg, 1)
                 continue
 
-            # Try to finish processing link
-            try:
+            try: # to finish processing the link and to add new links
+                _add_link_to_finished(r, link, redis_keys)
+                _batch_add_links_to_new(r, links, redis_keys) 
+            except Exception as e:
+                msg = ('Unable to finish processing: {} - Exception: {} '
+                       ' - Exception args: {}').format(link, type(e), e)
+                yield 'zmsg__error', (msg, 1)
+                continue
 
-                # Add link to finished
-                r.sadd(finished, link)
-
-                # increase total pages processed
-                r.incr(count)
-
-                # Remove from processing
-                r.srem(processing, link)
-
-                # Transaction to store new links
-                pipe = r.pipeline()
-
-                # Add any new links found
-                # Attempting to process as batch vice adding 1 at a time
-                # Can only add 255 elements max at a time
-                size = len(links)
-
-                # Calculate number of breaks
-                breaks, remainder = divmod(size, 250)
-                if remainder > 0:   # Reminder: crack babies are sad.
-                    breaks = breaks + 1
-
-                # Initialize indices based upon batch size
-                start = 0
-                finish = 250
-                i = 0
-
-                while i < breaks:
-                    links_part = links[start:finish]
-
-                    #Add single quotes around each element in list: map
-                    #   Then combine elements to form a string for eval: join
-                    link_string = (',').join(map(lambda x: "'" + x + "'",
-                                                 links_part))
-
-                    # ??? SECURITY ??? - site name is user provided
-                    eval("pipe.sadd('" + temp1 + "'," + link_string + ")") 
-
-                    # Increment indices
-                    start = start + 250
-                    finish = finish + 250
-                    i = i + 1
-
-                # new links = temp - new links - processing - finished
-                pipe.sdiffstore(temp2, temp1, new_links, processing, finished)
-                pipe.sunionstore(new_links, new_links, temp2)
-                pipe.delete(temp1)
-                pipe.delete(temp2)
-                pipe.execute()
- 
-            # Alert that can't process info
-            except Exception as exc:
-                message = """Unable to finish processing: %s
-                             Exception: %s
-                             Exception args: %s
-                          """ % (link, type(exc), exc)
-                yield 'zmsg__error', (message, 1)
-                continue          
+        _set_key_expiration(r, redis_keys)
             
-        # Set 1 hour expirations on all keys
-        hour = 60 * 60 # 60 seconds/minute * 60 minutes
-        if r.exists(new_links): r.expire(new_links, hour)
-        if r.exists(processing): r.expire(processing, hour)
-        if r.exists(finished): r.expire(finished, hour)
-        if r.exists(count):r.expire(count, hour)
-
 
 ###############################################################################
 ### Reducer
@@ -327,7 +275,68 @@ def _add_external_links(brain):
         new_links.append(new_link)
     return new_links
 
-### STARTER ###
+def _add_link_to_finished(r, link, redis_keys):
+    """Add link to finished set, incr counter, remove from processing"""
+    _, processing, finished, count, _, _ = redis_keys
+    r.sadd(finished, link) 
+    r.incr(count) 
+    r.srem(processing, link) 
+
+def _batch_add_links_to_new(r, links, redis_keys):
+    """
+    Add new links as a batch to Engine Redis
+
+    Max batch size possible is 255
+    Set difference operation is performed to make sure no links
+    that are in processing, or finished, or already in new,
+    are added to new links.  Thus, this transaction makes sure 
+    that only "new" links are added to the new links set.
+    """
+    new_links, processing, finished, count, temp1, temp2 = redis_keys
+    pipe = r.pipeline() # start transaction to add new links
+    size = len(links) 
+    batch_size = 250
+    breaks, remainder = divmod(size, batch_size) # calc number of breaks
+    if remainder > 0:   # Reminder: crack babies are sad.
+        breaks = breaks + 1
+    start, finish, i = 0, batch_size, 0 # indices
+
+    while i < breaks:
+        links_part = links[start:finish]
+
+        #Add single quotes around each element in list: map
+        #   Then combine elements to form a string for eval: join
+        link_string = (',').join(map(lambda x: "'" + x + "'",
+                                     links_part))
+
+        # ??? SECURITY ??? - site name is user provided
+        eval("pipe.sadd('" + temp1 + "'," + link_string + ")") 
+
+        # Increment indices
+        start += 250
+        finish += 250
+        i += 1
+
+    # set of new_links = temp - new_links - processing - finished
+    pipe.sdiffstore(temp2, temp1, new_links, processing, finished)
+    pipe.sunionstore(new_links, new_links, temp2)
+    pipe.delete(temp1)
+    pipe.delete(temp2)
+    pipe.execute() # finish transaction
+
+def _set_key_expiration(r, redis_keys):
+    """Set key expirations, must be done after every change."""
+    new_links, processing, finished, count, _, _ = redis_keys
+    hour = 60 * 60 # 60 seconds/minute * 60 minutes
+    if r.exists(new_links): r.expire(new_links, hour)
+    if r.exists(processing): r.expire(processing, hour)
+    if r.exists(finished): r.expire(finished, hour)
+    if r.exists(count): r.expire(count, hour)
+
+
+###############################################################################
+### Starter
+###############################################################################
 if __name__ == "__main__":
     import dumbo
     # TODO: is this running the reducer as a combiner? I think, No?
