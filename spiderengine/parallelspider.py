@@ -43,26 +43,13 @@ class Mapper():
            redisInfo : host, port, base key, and max mappers
         """
 
-        self.test = True; # Set to true for testing on local file                      
+        self.test = True; # Set to true for testing on a local file                      
         self.redis_info = _load_engine_redis_info(self.params)
-    
-        # Connect to redis
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
-
         self.base = self.redis_info["base"]
-
-        # TODO: fix crawl id
-        self.site, d, crawl_id = self.base.partition("::")
-
-        # Set up configuration file
-        config_file = self.redis.get(crawl_id)
-        self.config = json.loads(config_file)
-
-        # make sure external analysis flag is set
-        if 'analyze_external_pages' not in self.config:
-            self.config['analyze_external_pages'] = False
-
+        self.site, _, crawl_id = self.base.partition("::")
+        self.config = _initialize_config(self.redis.get(crawl_id))
 
     def __call__(self, key, value):
         """ 
@@ -272,7 +259,6 @@ class Reducer():
     __call__ -- takes in key - values, and compresses/counts values
     """
 
-
     def __init__(self):
         """ 
         Initializes redis info and config file
@@ -283,22 +269,12 @@ class Reducer():
         be initialized in the analyzer and not __init__.
         """
                       
-        # Convert Redis info to Python Dictionary
         self.redis_info = _load_engine_redis_info(self.params)
-    
-        # Connect to redis
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
-
         self.base = self.redis_info["base"]
-
-        # TODO: fix crawl id
         self.site, d, crawl_id = self.base.partition("::")
-
-        # Set up configuration file 
-        config_file = self.redis.get(crawl_id)
-        self.config = json.loads(config_file)
-
+        self.config = _initialize_config(self.redis.get(crawl_id))
 
     def __call__(self, key, values):
         """ 
@@ -344,6 +320,13 @@ def _load_engine_redis_info(params):
     if not redis_info['port']:
         redis_info['port'] = 6380
     return redis_info
+
+def _initialize_config(config_file):
+    """Converts json config to python dict and validates ext page analysi."""
+    config = json.loads(config_file)
+    if 'analyze_external_pages' not in config:
+        config['analyze_external_pages'] = False
+    return config
 
 
 ### STARTER ###

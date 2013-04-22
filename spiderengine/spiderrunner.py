@@ -13,6 +13,8 @@
         http://www.foxnews.com/ 
         -r host:ec2-50-17-32-136.compute-1.amazonaws.com,port:6379
         -m 3
+
+    TODO: figure out why Redis pipeline of new link addition breaks sometimes?
 """
 
 import sys
