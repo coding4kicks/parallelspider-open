@@ -50,6 +50,7 @@ class Mapper():
         self.base = self.redis_info["base"]
         self.site, _, crawl_id = self.base.partition("::")
         self.config = _initialize_config(self.redis.get(crawl_id))
+        self.external_analysis = self.config['analyze_external_pages']
 
     def __call__(self, key, value):
         """ 
@@ -66,101 +67,43 @@ class Mapper():
         or the max pages has been reached.
        """
         
-
-        # Redis
         r = self.redis
-
-        # Create keys for Redis
-        new_links = self.base + "::new_links"        # new links
-        processing = self.base + "::processing"      # links being processed
-        finished = self.base + "::finished"          # links done being processed
-        count = self.base + "::count"                # total pages scraped
-        temp1 = self.base + "::temp1"                # temp keys for set ops
-        temp2 = self.base + "::temp2"
-
-        # Get robots.txt
-        robots_txt = robotparser.RobotFileParser()
-        robots_txt.set_url(self.site + "robots.txt")
-        robots_txt.read() 
-
-        # Set up analysis engine
+        (new_links, processing, finished, count, temp1, temp2
+                ) = _create_redis_keys(self.base)
+        robots_txt = _init_robot_txt(self.site)
         brain = Brain(self.site, self.config)
+        max_pages = int(self.redis_info["maxPages"]) 
 
-        stuff_to_scrape = True
-        link_count = 0 # Total links downloaded by all mappers
-        max_pages = int(self.redis_info["maxPages"]) # Total pages to scrape
+        while True: # Here we go... yee hah
 
-        # Here we go... yee hah
-        while stuff_to_scrape:
-            
-            # Update total count and check still links to download
-            temp_count = r.get(count)
-            if temp_count:
-                link_count = int(temp_count)
-            still_links = r.exists(new_links)
-            # Check conditions and break if done
-            # Goes over by the number of mappers?
-            if link_count >= max_pages or not still_links:
+            if _no_more_to_scrape(r, max_pages, new_links, count):
                 break
 
-            # Try to pop a link
-            try:
-
-                # Retrieve a a link
-                # later retrieve 5+? 
-                #Asynchronously, batch process links to Redis
+            try: # to pop a link and add to processing
                 link = r.spop(new_links)
-
-                # Add link to processing
-                r.sadd(processing, link)
-
-            # Alert that can't pop a link
-            except Exception as exc:
-                message = """Unable to pop a link
-                             Exception: %s
-                             Exception args: %s
-                          """ % (type(exc), exc)                
-                yield 'zmsg__error', (message, 1)
+                r.sadd(processing, link) 
+            except Exception as e:
+                msg = ('Unable to pop a link - Exception: {} '
+                       'Exception args: {}').format(type(e), e)                
+                yield 'zmsg__error', (msg, 1)
                 break
             
-            # Try to download and parse the page
-            try:
-                # If link is external, set flag and adjust link
-                external = False
-                if link[0:4] == 'ext_':
-                    external = True
-                    link = link[4:len(link)]
-            
-                # Download and parse page
-                if 'https' in link:
-                    page = lxml.html.parse(urllib2.urlopen(link))
-                elif 'http' in link or self.test == True:
-                    page = lxml.html.parse(link)
-                else: # file type not supported
+            try: # to download and parse the page
+                external, link = _check_if_external(link)
+                page = _parse(link, self.test)
+                if page == None: 
                     msg = ('File type not supported: {!s}').format(link) 
-                    self.logger.error(msg, extra=self.log_header)
-                    break
-
+                    yield 'zmsg__error', (msg, 1)
+                    continue
                 output = brain.analyze(page, link, robots_txt,
                                        external=external)
                 links = brain.on_site_links
-
-                if self.config['analyze_external_pages']:
-                    ext_links = brain.off_site_links
-                    
-                    for link in ext_links:
-                        new_link = "ext_" + link
-                        links.append(new_link)
-                    #links.extend(new_links)
-                #yield('zmsg_error', (links, 1)
-
-            # Alert that can't parse and restart loop
-            except Exception as exc:
-                message = """Unable to download and parse: %s
-                             Exception: %s
-                             Exception args: %s
-                          """ % (link, type(exc), exc)
-                yield 'zmsg__error', (message, 1)
+                if self.external_analysis:
+                    links.extend(_add_external_links(brain))
+            except Exception as e:
+                msg = ('Unable to download and parse: {} - Exception: {} '
+                       'Exception args: {}').format(link, type(e), e)
+                yield 'zmsg__error', (msg, 1)
                 continue
 
             # Try to process / emit information
@@ -263,7 +206,7 @@ class Reducer():
         """ 
         Initializes redis info and config file
 
-        Config file is only used to initialize the Brain, 
+        Config file is used to initialize the Brain, 
         but process doesn't make use of parameters.
         Option to remove or keep later, to remove, config must 
         be initialized in the analyzer and not __init__.
@@ -328,6 +271,61 @@ def _initialize_config(config_file):
         config['analyze_external_pages'] = False
     return config
 
+def _create_redis_keys(base):
+    """Create keys to access data in Engine Redis."""
+    new_links = base + "::new_links"       
+    processing = base + "::processing"      # links being processed
+    finished = base + "::finished"          # links done being processed
+    count = base + "::count"                # total pages scraped
+    temp1 = base + "::temp1"                # temp keys for set ops
+    temp2 = base + "::temp2"
+    return (new_links, processing, finished, count, temp1, temp2)
+
+def _init_robot_txt(site_url):
+    """Initialize robot.txt for the specified site."""
+    robots_txt = robotparser.RobotFileParser()
+    robots_txt.set_url(site_url + "robots.txt")
+    robots_txt.read()
+    return robots_txt
+
+def  _no_more_to_scrape(r, max_pages, new_links, count):
+    """Return True if no more links or hit max pages."""            
+    link_count = 0
+    temp_count = r.get(count)
+    if temp_count:
+        link_count = int(temp_count)
+    more_links = r.exists(new_links)
+    if link_count >= max_pages or not more_links:
+        return True
+    else:
+        return False
+
+def _check_if_external(link):
+    """Check if ext_ is prepended to link indicating an external page."""
+    external = False
+    if link[0:4] == 'ext_':
+        external = True
+        link = link[4:len(link)]
+    return (external, link)
+
+def _parse(link, test):
+    """Download and parse page depending upon scheme."""
+    if 'https' in link:
+        page = lxml.html.parse(urllib2.urlopen(link))
+    elif 'http' in link or test == True:
+        page = lxml.html.parse(link)
+    else: 
+        page = None
+    return page
+
+def _add_external_links(brain):
+    """Return a list of flagged ('ext_') external links."""
+    new_links = []   
+    ext_links = brain.off_site_links
+    for link in ext_links:
+        new_link = "ext_" + link # Add ext_ flag
+        new_links.append(new_link)
+    return new_links
 
 ### STARTER ###
 if __name__ == "__main__":
