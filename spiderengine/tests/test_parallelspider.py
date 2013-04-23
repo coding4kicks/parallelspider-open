@@ -11,6 +11,7 @@
 
     TODO: figure out why having issues with HTTPS:
     freezes on page 1? Or is the just HN?
+    TODO: Test for bad redis connection (commented out code)
 """
 
 import os
@@ -345,7 +346,7 @@ if __name__ == '__main__':
     parser.add_option(
             "-g", "-G", "--generateTestOutput", 
             action="store", dest="testType", 
-            help="Type of test output to generate: map, reduce, ...")
+            help="Type of test output to generate: mapper, reduce, ...")
     (options, args) = parser.parse_args()
 
     if options.redis == 'start':

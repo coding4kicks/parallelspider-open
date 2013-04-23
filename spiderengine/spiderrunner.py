@@ -34,7 +34,6 @@ import lxml.html
 from mrfeynman import Brain
 
 
-
 class SpiderRunner(object):
     """
     Downloads initial links and runs parallelspider
@@ -67,7 +66,8 @@ class SpiderRunner(object):
         load and available resources and max_pages should be specified by the
         user.
 
-        TODO: save initial link into new_links???
+        TODO: save initial link into new_links
+        TODO: turn new links into set so don't add multiples
         """
 
         self.site_list = site_list         
@@ -85,7 +85,6 @@ class SpiderRunner(object):
         d = datetime.datetime.now()
         self.timestamp = '%d-%d-%d-%d-%d' % (d.year, d.month, d.day, 
                 d.hour, d.minute)
-        print self.timestamp
            
     def execute(self):
         """

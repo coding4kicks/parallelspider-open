@@ -11,6 +11,8 @@
       on something
     TODO: id mappers by incrementing a counter to eliminate temp keys?
     TODO: add job for cleanup?
+    TODO: clean up redis info, should only be host and port, base and  
+          max_pages should be a separate parameters. So matches spdrrunner.
 """
 
 import sys
