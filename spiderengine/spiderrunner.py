@@ -20,15 +20,16 @@
 import sys
 import json
 import copy
-import redis
 import logging
 import urllib2
 import datetime
 import optparse
-import lxml.html
 import contextlib
 import subprocess
 import robotparser
+
+import redis
+import lxml.html
 
 from mrfeynman import Brain
 

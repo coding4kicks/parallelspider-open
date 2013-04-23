@@ -49,7 +49,7 @@ class Mapper():
     __call__ -- downloads and passes pages to Mr. Feynman for analysis.
     """
 
-    def __init__(self):
+    def __init__(self, test=False):
         """ 
         Initializes redis info and config file
 
@@ -61,7 +61,7 @@ class Mapper():
                     redisInfo : host, port, base key, and max mappers
         """
 
-        self.test = True; # Set to true for testing on a local file                      
+        self.test = test; # Set to true for testing on a local file 
         self.redis_info = _load_engine_redis_info(self.params)
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)

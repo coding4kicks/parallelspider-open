@@ -228,7 +228,7 @@ def _setup_map_reduce():
     params = {'redisInfo':_set_engine_redis_info()}
     Mapper.params = params
     Reducer.params = params
-    return (Mapper(), Reducer())
+    return (Mapper(test=True), Reducer())
 
 def _generate_mapper_output(mapper):
     """Join together all mapper output for a run."""
