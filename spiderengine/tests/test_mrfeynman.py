@@ -23,11 +23,7 @@ class TestSummaryInfo(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'summary'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('summary')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -44,11 +40,7 @@ class TestVisibleText(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'text'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('text')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -65,11 +57,7 @@ class TestHeadlineText(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'header'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('header')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -86,11 +74,7 @@ class TestHiddenText(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'meta'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('meta')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -107,11 +91,7 @@ class TestLinkText(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'a_tags'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('a_tags')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -128,11 +108,7 @@ class TestAllLinks(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'all_links'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('all_links')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -149,11 +125,7 @@ class TestExternalLinks(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'external_links'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('external_links')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -170,11 +142,7 @@ class TestWordContext(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'context_search'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('context_search')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -191,11 +159,7 @@ class TestSynonymRings(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'wordnet_lists'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('wordnet_lists')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -212,11 +176,7 @@ class TestXpathSelectors(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'xpath_selector'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('xpath_selector')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -233,11 +193,7 @@ class TestCssSelectors(unittest.TestCase):
 
     def setUp(self):
         """Load test file and output, plus robot.txt."""
-        test = 'css_selector'
-        self.params = _load_parameters()
-        config = _get_config(test) 
-        self.brain = Brain(self.params['test_site'], config)
-        self.results = _get_results(self.params['test_file'], test)
+        self.params, self.brain, self.results = _init('css_selector')
 
     def test_analysis(self):
         """Test generation of mapper output"""
@@ -429,6 +385,14 @@ def _get_test_file():
 def _get_test_site():
     """Single source for test site."""
     return 'http://www.nbcnews.com/'
+
+def _init(test_type):
+    """Initialize all test parameters/config/results based on type."""
+    params = _load_parameters()
+    config = _get_config(test_type) 
+    brain = Brain(params['test_site'], config)
+    results = _get_results(params['test_file'], test_type)
+    return (params, brain, results)
 
 def _get_config(test_type):
     """Single source for config creation"""

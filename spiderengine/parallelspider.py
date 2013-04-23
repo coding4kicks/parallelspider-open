@@ -305,18 +305,10 @@ def _batch_add_links_to_new(r, links, redis_keys):
     breaks, remainder = divmod(size, batch_size) # calc number of breaks
     if remainder > 0:   # reminder: crack babies are sad.
         breaks = breaks + 1
-    start, finish, i = 0, batch_size, 0 # indices
+    start, finish, i = 0, batch_size, 0
 
     while i < breaks:
         link_batch = links[start:finish]
-        #print link_batch[0:3]
-        #Add single quotes around each element in list: map
-        #   Then combine elements to form a string for eval: join
-        #link_string = (',').join(map(lambda x: "'" + x + "'", link_batch))
-        #link_string = (',').join(link_part)
-        # ??? SECURITY ??? - site name is user provided
-        #print link_string
-        #eval("pipe.sadd('" + temp1 + "'," + link_string + ")") 
         pipe.sadd(temp1, *link_batch)
         start += batch_size
         finish += batch_size
