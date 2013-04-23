@@ -6,11 +6,7 @@
     are passed in either via the command line or Redis.
 
     TODO: speed this fucking thing up!
-    * TODO: id mappers by incrementing a counter. *
-    * Use this id to replace sharing temp keys *
-
-    TODO: add combiner
-    TODO: try to remove eval
+    TODO: id mappers by incrementing a counter to eliminate temp keys?
 """
 
 import sys
@@ -336,8 +332,7 @@ def _set_key_expiration(r, redis_keys):
 ###############################################################################
 if __name__ == "__main__":
     import dumbo
-    # TODO: is this running the reducer as a combiner? I think, No?
-    dumbo.run(Mapper, Reducer)
+    dumbo.run(Mapper, Reducer, combiner=Reducer)
     
     
 
