@@ -6,7 +6,11 @@
     are passed in either via the command line or Redis.
 
     TODO: speed this fucking thing up!
+    - combiner may have helped
+    - may need a timer if parsing takes to long just quit, since hung up on
+      on something
     TODO: id mappers by incrementing a counter to eliminate temp keys?
+    TODO: add job for cleanup?
 """
 
 import sys

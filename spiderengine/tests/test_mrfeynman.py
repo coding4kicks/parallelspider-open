@@ -277,18 +277,34 @@ class TestSpeed(unittest.TestCase):
         """Run all analysis types on all test files."""
 
         for file_name in os.listdir(_test_pages_dir()):
-
+            
             # un/comment to turn on/off speed test
             #continue
             # Current Run is about 4.6-4.9 seconds
+            # limit analysis to 1 page
+            #if file_name != 'wiki1':
+            #    continue
 
             # Brain is filename minus number on the end
             brain = self.site_brains[file_name[:-1]]
             file_path = _test_pages_dir() + '/' + file_name
             page = lxml.html.parse(file_path)       
-            mapper_output = brain.analyze(page, file_name, self.robots_txt)
+            mapper_output = brain.analyze(page, file_name, self.robots_txt)    
             sorter_output = _sort_output(mapper_output)
-            reducer_output = _process_output(sorter_output, brain) 
+            reducer_output = _process_output(sorter_output, brain)
+            
+            # display links for all sites to visually analyze
+            #print "---------------------"
+            #print "    On Site Links: " + file_name
+            #print "---------------------"
+            #for link in brain.on_site_links:
+            #    print link
+            #print "---------------------"
+            #print "    Off Site Links:" + file_name
+            #print "---------------------"
+            #for link in brain.off_site_links:
+            #    print link
+
 
 
 ###############################################################################
@@ -424,7 +440,7 @@ def _get_config(test_type):
     if test_type == 'css_selector' or test_type == 'all':
         config['css_selectors'] = [{'selector': 'p.abstr', 
             'name': "testCss", 'analyze': True, 'css_text': True}]
-    if test_type == 'paths' or test_type == 'all':
+    if test_type == 'paths':
         config['paths_to_follow'] = ['travel', 'technology']
     config['stop_list'] = _get_stop_list()
     return config

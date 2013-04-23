@@ -564,12 +564,12 @@ def process_links(links, site_url, site_domain, scheme,
     off_site = []
     all_links = []
     ext_links = []
-    
+
     for link_tuple in links:
 
         link = link_tuple[0]
         element = link_tuple[1]
-
+        
         # if a paths to follow given, break if not in url
         follow = True
         if paths_to_follow:
@@ -579,7 +579,7 @@ def process_links(links, site_url, site_domain, scheme,
                     follow = True
         if follow is False:
             continue
-
+        
         all_links.append(element)
 
         # If absolute url
