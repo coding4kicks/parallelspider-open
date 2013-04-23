@@ -3,7 +3,7 @@
 
     Parallel Spider performs website parsing and analysis. Current input is a
     text file with number of mappers to generate.  All parameters for analysis
-    are passed in either the command line or exist in redis.
+    are passed in either via the command line or Redis.
 
     TODO: speed this fucking thing up!
     * TODO: id mappers by incrementing a counter. *
@@ -23,12 +23,27 @@ import lxml.html
 
 from mrfeynman import Brain
 
+
 ###############################################################################
 ### Mapper
 ###############################################################################
 class Mapper():
     """
     Downloads and analyzes web pages on parallel computers.
+
+    Recieves redis information indicating what parameters to pass to  
+    Mr. Feynman for the analysis and where to get new links and place 
+    processing and finished links as well as a count of how many pages 
+    have been analyzed.  The Engine Redis instance is essentially used 
+    to maintain link state in the MapReduce solution.  The input file 
+    is essentially meaningless and just matches the number of mappers 
+    requested in the processing.  All the page analysis is performed by
+    Mr Feynman's Brain's analysis method.  It recieves the lxml parsed 
+    page and returns a list of key-value pairs to be emmitted by the mapper.
+    Link state, or not analyzing the same page twice, is done through 
+    set difference operations.  Only links which are not in the new_link,
+    processing, and finished sets are added to the new_link set.  This is 
+    done by executing a transaction on Redis.
 
     __init__ -- initializes redis info (for crawl info and links to follow)
     __call__ -- downloads and passes pages to Mr. Feynman for analysis.
@@ -42,7 +57,7 @@ class Mapper():
         as well as link processing information.
 
         Args:
-            param - dictionary passed by dumbo
+            param - dictionary passed in by dumbo
                     redisInfo : host, port, base key, and max mappers
         """
 
@@ -151,14 +166,7 @@ class Reducer():
     """
 
     def __init__(self):
-        """ 
-        Initializes redis info and config file
-
-        Config file is used to initialize the Brain, 
-        but process doesn't make use of parameters.
-        Option to remove or keep later, to remove, config must 
-        be initialized in the analyzer and not __init__.
-        """
+        """Initializes redis info and config file."""
                       
         self.redis_info = _load_engine_redis_info(self.params)
         self.redis = redis.StrictRedis(host=self.redis_info["host"],
@@ -169,29 +177,27 @@ class Reducer():
 
     def __call__(self, key, values):
         """ 
-        Performs parallel website downloading, parsing, and analysis 
+        Passes key-value pairs recieved from mapper to Mr. Feynman.
+
+        Mr. Feynmans Brain processes (reduces) the information
+        recieved from the mapper (Mr. Feynman's brain's analysis).
+        The operations are cumulative and associative so the reducer
+        can be used as a combiner.  It's output is disigned to 
+        specifically match its input.
         
-        Arguments:
-        key -- a text key with a label followed by value
-        values -- a list of tubles depending upon key type
+        Args:
+            key -- a text key with a label followed by value
+            values -- a list of tubles depending upon key type
        """
-        
 
         try:
-
-            # Reduce key-value pairs
             brain = Brain(self.site, self.config)
-            output = brain.process(key, values)
-            key, new_values = output
-
+            key, new_values = brain.process(key, values)
             yield key, new_values
-
-        except Exception as exc:
-            message = """Unable to reduce: %s
-                         Exception: %s
-                         Exception args: %s
-                      """ % (key, type(exc), exc)
-            yield 'zmsg__error', (message, 1)
+        except Exception as e:
+            msg = ('Unable to reduce: {} - Exception: {}'
+                   ' - Exception args: {}').format(key, type(e), e)
+            yield 'zmsg__error', (msg, 1)
 
 
 ###############################################################################
@@ -297,27 +303,26 @@ def _batch_add_links_to_new(r, links, redis_keys):
     size = len(links) 
     batch_size = 250
     breaks, remainder = divmod(size, batch_size) # calc number of breaks
-    if remainder > 0:   # Reminder: crack babies are sad.
+    if remainder > 0:   # reminder: crack babies are sad.
         breaks = breaks + 1
     start, finish, i = 0, batch_size, 0 # indices
 
     while i < breaks:
-        links_part = links[start:finish]
-
+        link_batch = links[start:finish]
+        #print link_batch[0:3]
         #Add single quotes around each element in list: map
         #   Then combine elements to form a string for eval: join
-        link_string = (',').join(map(lambda x: "'" + x + "'",
-                                     links_part))
-
+        #link_string = (',').join(map(lambda x: "'" + x + "'", link_batch))
+        #link_string = (',').join(link_part)
         # ??? SECURITY ??? - site name is user provided
-        eval("pipe.sadd('" + temp1 + "'," + link_string + ")") 
-
-        # Increment indices
-        start += 250
-        finish += 250
+        #print link_string
+        #eval("pipe.sadd('" + temp1 + "'," + link_string + ")") 
+        pipe.sadd(temp1, *link_batch)
+        start += batch_size
+        finish += batch_size
         i += 1
 
-    # set of new_links = temp - new_links - processing - finished
+    # set diff: new_links = temp - new_links - processing - finished
     pipe.sdiffstore(temp2, temp1, new_links, processing, finished)
     pipe.sunionstore(new_links, new_links, temp2)
     pipe.delete(temp1)
