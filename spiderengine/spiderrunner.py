@@ -105,7 +105,7 @@ class SpiderRunner(object):
             output = brain.analyze(page, site, robots_txt, no_emit=True)
             links = brain.on_site_links
             links.append(site) # make sure main page is analyzed
-            links = brain.on_site_links
+            links = list(set(links)) # remove duplicates
             base = ('{}::{}').format(site, config['crawl_id'])
             _batch_add_links_to_new(r, links, base)
 
