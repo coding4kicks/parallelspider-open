@@ -6,6 +6,8 @@ Tests SpiderRunner to determine if
     1) New links are parsed and uploaded to Engine Redis correctly
     2) Dumbo psuedo, distributed, and file upload commands are correct
     3) Brain process with no emit returns None
+    4) New link key expiration set
+    5) Input file is created correctly
 
 TODO: handle failures
 """
@@ -70,6 +72,13 @@ class TestSpiderRunner(unittest.TestCase):
         with open(_input_file(), 'r') as f:
             out = f.read()
         self.assertEqual(out, 'mapper1\n')
+
+    def testKeyExpirationsSet(self):
+        """Test that key expirations are set to an hour."""
+        _ = self.spider.execute()
+        new_links = _get_fake_base_id() + "::new_links"
+        self.assertTrue(self.redis.ttl(new_links) > 3500)
+
       
 #class TestSpiderFail(unittest.TestCase):
 #    """Test for failure."""

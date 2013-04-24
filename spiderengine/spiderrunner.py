@@ -144,46 +144,13 @@ class SpiderRunner(object):
             # TODO: fix crawl id
             base = '%s::%s' % (site, config['crawl_id'])
             new_link_set = '%s::new_links' % (base)
-            
-            # Add new links to Redis
-            # Calculate number of breaks
-            size = len(links)
-            breaks, remainder = divmod(size, 250)
-            if remainder > 0:
-                breaks = breaks + 1
-    
-            # Initialize indices based upon batch size
-            start = 0
-            finish = 250
-            i = 0
 
-            #for link in links:
-            #    print link
-            #break
+            _batch_add_links_to_new(r, links, new_link_set)
 
-            # Add links to Engine Redis as a batch 
-            # vice adding 1 at a time (max 255)
-            while i < breaks:
-                links_part = links[start:finish]
+            # Set key expiration to 1 hour
+            hour = 60 * 60
+            r.expire(new_link_set, hour)
 
-                # map: add single quotes around each element in list
-                # join: combine elements to form a string for eval
-                link_string = (',').join(map(lambda x: "'" + x + "'",
-                                             links_part))
-
-                # Add links, SECURITY - site name is user provided
-                # but lxml.html.parse will catch if invalid link
-                eval("r.sadd('" + new_link_set + "'," + link_string + ")") 
-
-                # Set key expiration to 1 hour
-                hour = 60 * 60
-                r.expire(new_link_set, hour)
-
-                # Increment all indices
-                start = start + 250
-                finish = finish + 250
-                i = i + 1
-              
             # Create valid file name for output 
             # TODO: file name should be based on crawl id
             base_path = base.replace("/","_").replace(":","-")
@@ -264,6 +231,30 @@ class SpiderRunner(object):
 
 # Helper Funcs
 ###############################################################################
+def _batch_add_links_to_new(r, links, new_links):
+    """
+    Add new links as a batch to Engine Redis
+
+    Max batch size possible is 255
+    Set difference operation is performed to make sure no links
+    that are in processing, or finished, or already in new,
+    are added to new links.  Thus, this transaction makes sure 
+    that only "new" links are added to the new links set.
+    """
+    size = len(links) 
+    batch_size = 250
+    breaks, remainder = divmod(size, batch_size) # calc number of breaks
+    if remainder > 0:   # reminder: crack babies are sad.
+        breaks = breaks + 1
+    start, finish, i = 0, batch_size, 0
+
+    while i < breaks:
+        link_batch = links[start:finish]
+        r.sadd(new_links, *link_batch)
+        start += batch_size
+        finish += batch_size
+        i += 1
+
 def set_logging_level(level="production"):
     """
     Initialize logging parameters
