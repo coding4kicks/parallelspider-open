@@ -109,34 +109,10 @@ class SpiderRunner(object):
             base = ('{}::{}').format(site, config['crawl_id'])
             _batch_add_links_to_new(r, links, base)
 
-            # Create valid file name for output 
-            # TODO: file name should be based on crawl id
-            base_path = base.replace("/","_").replace(":","-")
-            file_name = '%s.txt' % (base_path)
-            path_out = "/home/parallelspider/jobs/"
-
-            if self.test:
-                path = os.path.realpath(__file__).partition('spiderengine')[0]
-                path_out = path + 'spiderengine/tests/jobs/'
-
-            file_path = path_out + file_name
-
-            # Create input file: file name equals base key
-            with open(file_path, "w+") as mapper_file:
-                i = 1
-                while i < self.max_mappers + 1:
-                    mapper_file.write("mapper" + str(i) + "\n")
-                    i = i + 1
-
-            # Put input file on HDFS and call parallelspider
-            # TODO: must switch to asynchronous for multiple sites
-            # and deal with notifying calling process when complete?
-            #cmds = []
-            add_file = ("dumbo put " + file_path + \
-                        " /HDFS/parallelspider/jobs/" + file_name + \
-                        " -hadoop starcluster")
+            file_info = self._create_input_file(base)
+            upload_cmd = _construct_upload_cmd(file_info)
             if not self.test:
-                subprocess.call(add_file, shell=True)
+                subprocess.call(upload_cmd, shell=True)
 
             # Construct and execute dumbo command for parallel spider
             dist_cmd = self._construct_ps_cmd('dist', base)
