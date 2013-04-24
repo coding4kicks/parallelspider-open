@@ -91,9 +91,9 @@ class SpiderRunner(object):
         r = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)   
         config = json.loads(r.get(self.crawl_id))
-
+        
         for site in self.site_list:
-            
+
             robots_txt = _init_robot_txt(site, self.test)
             page = _parse(site, self.test)
             if page == None:
@@ -106,15 +106,8 @@ class SpiderRunner(object):
             links = brain.on_site_links
             links.append(site) # make sure main page is analyzed
             links = brain.on_site_links
-
-            base = '%s::%s' % (site, config['crawl_id'])
-            new_link_set = '%s::new_links' % (base)
-
+            base = ('{}::{}').format(site, config['crawl_id'])
             _batch_add_links_to_new(r, links, base)
-
-            # Set key expiration to 1 hour
-            hour = 60 * 60
-            r.expire(new_link_set, hour)
 
             # Create valid file name for output 
             # TODO: file name should be based on crawl id
@@ -379,6 +372,4 @@ def main():
 
 if __name__ == "__main__":
     """ enable command line execution """
-    sys.exit(main())    
-
-
+    sys.exit(main())

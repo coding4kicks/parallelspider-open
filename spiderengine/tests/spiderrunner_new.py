@@ -61,7 +61,7 @@ class SpiderRunner(object):
             indicate to the Spider Client through Engine Redis when they 
             are complete.
         """
-        
+
         self.site_list = site_list         
         self.redis_info = redis_info      
         self.max_mappers = max_mappers
@@ -69,7 +69,7 @@ class SpiderRunner(object):
         self.crawl_id = crawl_id
         self.psuedo, self.test = psuedo, test
         self._init_logging(log_info)
-           
+
     def execute(self):
         """
         Downloads the first page and calls parallelspider
@@ -91,8 +91,8 @@ class SpiderRunner(object):
         r = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)   
         config = json.loads(r.get(self.crawl_id))
-
-        for site in self.site_list: 
+        
+        for site in self.site_list:
 
             robots_txt = _init_robot_txt(site, self.test)
             page = _parse(site, self.test)
@@ -349,5 +349,3 @@ def main():
 if __name__ == "__main__":
     """ enable command line execution """
     sys.exit(main())
-    
-
