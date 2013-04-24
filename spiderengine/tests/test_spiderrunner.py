@@ -1,6 +1,13 @@
 #!/usr/bin/env python
-""" 
+"""
+Test spider_runner.py
 
+Tests SpiderRunner to determine if 
+    1) New links are parsed and uploaded to Engine Redis correctly
+    2) Dumbo psuedo, distributed, and file upload commands are correct
+    3) Brain process with no emit returns None
+
+TODO: handle failures
 """
 
 import os
@@ -14,37 +21,72 @@ import redis
 from spiderdepot import data
 from spiderengine.spiderrunner import SpiderRunner, set_logging_level 
 
+
 ###############################################################################
 ### Test Cases
 ###############################################################################
 class TestSpiderRunner(unittest.TestCase):
+    """Test for success."""
 
     def setUp(self):
+        """Intialize Engine Redis and SpiderRunner."""
         self.redis = _initialize_engine_redis()
         self.spider = _setup_spider()
 
-    def testMapperOutput(self):
-        """Test analysis ouput from parallelspider mapper."""
-        pass
-        #final_output = _generate_mapper_output(self.mapper)
-        # Only looking at start and end, since easier to compare on failure
-        #self.assertEqual(final_output[0:100], _get_results('mapper')[0:100])
-        #self.assertEqual(final_output[-100:], _get_results('mapper')[-100:])
+    def tearDown(self):
+        """Delete input file created for parallelspider."""
+        with open(_input_file(), 'w') as f:
+            f.write("")
 
     def testNewLinkOutput(self):
-        """Test new links are generated and stored correctly in Engine Redis."""
-        pass
-        #_generate_mapper_output(self.mapper)
-        #new_links = _get_fake_base_id() + "::new_links"
-        #link_output = str(self.redis.smembers(new_links))
-        #self.assertEqual(link_output[0:100], _get_results('new_links')[0:100])
-        #self.assertEqual(link_output[-100:], _get_results('new_links')[-100:])
+        """Test new links are generated/stored correctly in Engine Redis."""
+        _ = self.spider.execute()
+        new_links = _get_fake_base_id() + "::new_links"
+        link_output = str(self.redis.smembers(new_links))
+        self.assertEqual(link_output, _get_results('new_links'))
 
-# Test output is none
+    def testDumboCall(self):
+        """Test that Dumbo is called with appropriate parameters."""
+        output = self.spider.execute()
+        self.assertEqual(output[0], _get_results('dumbo_cmd'))
 
-# Test newlinks
+    def testPsuedoCall(self):
+        """Test that Psuedo is called with appropriate parameters."""
+        output = self.spider.execute()
+        self.assertEqual(output[1], _get_results('psuedo_cmd'))
 
-# Test bad parameters
+    def testFileCall(self):
+        """Test that file upload is called with appropriate parameters."""
+        output = self.spider.execute()
+        self.assertEqual(output[2], _get_results('file_cmd'))
+
+    def testBrainOutput(self):
+        """Test that brain output is None."""
+        output = self.spider.execute()
+        self.assertEqual(str(output[3]), _get_results('spdr_out'))
+
+    def testInputFile(self):
+        _ = self.spider.execute()
+        with open(_input_file(), 'r') as f:
+            out = f.read()
+        self.assertEqual(out, 'mapper1\n')
+      
+#class TestSpiderFail(unittest.TestCase):
+#    """Test for failure."""
+#
+#    def setUp(self):
+#        """Intialize Engine Redis and SpiderRunner for failure, ha ha ha."""
+#        self.redis = _initialize_redis_for_failure()
+#        self.spider = _setup_spider()
+#
+#    def tearDown(self):
+#        """Delete input file created for parallelspider."""
+#        with open(_input_file(), 'w') as f:
+#            f.write("")
+#
+#    def testNewLinkOutput(self):
+#        """Test new links are generated/stored correctly in Engine Redis."""
+#        _ = self.spider.execute()
 
 
 ###############################################################################
@@ -57,27 +99,17 @@ def _start_engine_redis():
 def _initialize_engine_redis():
     """Connect to Redis on 6380 and set up for test crawl."""
     r = redis.Redis('localhost', 6380)
-    new_links = _get_fake_base_id() + "::new_links"
-    r.delete(new_links) # clean out keys added from previous runs
-    r.sadd(new_links, _test_file_path())
-    config = {}
+    config = {'crawl_id': _get_fake_crawl_id() }
     json_config = json.dumps(config)
     r.set(_get_fake_crawl_id(), json_config)
-    count = _get_fake_base_id() + "::count"
-    r.set(count, 0)
     return r
 
 def _initialize_redis_for_failure():
     """Connect to Redis, but set up a bad path for crawl file."""
     r = redis.Redis('localhost', 6380)
-    new_links = _get_fake_base_id() + "::new_links"
-    r.delete(new_links) # clean out keys added from previous runs
-    r.sadd(new_links, "broken_path")
     config = {}
     json_config = json.dumps(config)
     r.set(_get_fake_crawl_id(), json_config)
-    count = _get_fake_base_id() + "::count"
-    r.set(count, 0)
     return r
 
 def _stop_engine_redis():
@@ -88,24 +120,33 @@ def _stop_engine_redis():
 ###############################################################################
 ### Output Generator for Testing
 ###############################################################################
-def _generate_output(test_type):
+def _generate_output():
     """Generate output for testing."""
 
     redis = _initialize_engine_redis()
-    mapper, reducer = _setup_map_reduce()
-
-    if test_type == 'mapper':
-        mapper_output = _generate_mapper_output(mapper)
-        #test_file = ('{0}/spiderrunner_results_mapper').format(
-        #    _test_results_dir())
-        #with open(test_file, 'w') as f:
-        #    f.write(mapper_output)
-        new_links = _get_fake_base_id() + "::new_links"
-        link_output = redis.smembers(new_links)
-        test_file = ('{0}/spiderrunner_results_new_links').format(
-            _test_results_dir())
-        with open(test_file, 'w') as f:
-            f.write(str(link_output))
+    output = _setup_spider().execute()
+    new_links = _get_fake_base_id() + "::new_links"
+    link_output = redis.smembers(new_links)
+    test_file = ('{0}/spiderrunner_results_new_links').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(str(link_output))
+    test_file = ('{0}/spiderrunner_results_dumbo_cmd').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(str(output[0]))
+    test_file = ('{0}/spiderrunner_results_psuedo_cmd').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(str(output[1]))
+    test_file = ('{0}/spiderrunner_results_file_cmd').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(str(output[2]))
+    test_file = ('{0}/spiderrunner_results_spdr_out').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(str(output[3]))
 
 
 ###############################################################################
@@ -113,19 +154,27 @@ def _generate_output(test_type):
 ###############################################################################
 def _setup_spider(port=6380):
     """Create a SpiderRunner instance."""
-    site_list = _test_file_path()
-    redis_info = {'host': 'localhost', 'port': port}
-    max_mappers = 1
-    max_pages = 1
+    site_list = [_test_file_path()]
+    redis_info = {'host': 'localhost', 'port': str(port)}
+    max_mappers, max_pages = 1, 1
     crawl_info = _get_fake_crawl_id()
     psuedo = False
     log_info = set_logging_level('develop')
     return SpiderRunner(site_list, redis_info, max_mappers, max_pages,
-                 crawl_info, psuedo, log_info)
+                 crawl_info, psuedo, log_info, test=True)
+
+def _get_results(test_type):
+    """Load the saved test results."""
+    test_path = ('{0}/spiderrunner_results_{1}').format(
+            _test_results_dir(), test_type)
+    with open(test_path) as f:
+        test_results = f.read()
+    return test_results
 
 def _get_fake_base_id():
     """Generates a base id for a crawl: site name + crawl id."""
-    fake_site = 'http://www.foxnews.com/'
+    #fake_site = 'http://www.foxnews.com/'
+    fake_site = _test_file_path()
     fake_crawl_id = _get_fake_crawl_id()
     fake_base_id = ('{0}::{1}').format(fake_site, fake_crawl_id)
     return fake_base_id
@@ -151,6 +200,14 @@ def _test_results_dir():
     """Return directory containing test results"""
     return os.path.realpath(__file__).rpartition('/')[0] + '/testresults'
 
+def _input_file():
+    """Constructs a path to the input file created for parallelspider."""
+    phil = _get_fake_base_id().replace("/","_").replace(":","-") + ".txt"
+    path = (os.path.realpath(__file__).partition('spiderengine')[0] + 
+                'spiderengine/tests/jobs/')
+    return path + phil
+
+
 
 ###############################################################################
 ### Commad Line Gook
@@ -166,17 +223,17 @@ if __name__ == '__main__':
             action="store", dest="redis", 
             help="Start/Stop Engine Redis datastore with fake crawl info.")
     parser.add_option(
-            "-g", "-G", "--generateTestOutput", 
-            action="store", dest="testType", 
-            help="Type of test output to generate: mapper, reduce, ...")
+            "-g", "-G", "--generateOutput", 
+            action="store_true", dest="genOutput", 
+            help="Generate test output")
     (options, args) = parser.parse_args()
 
     if options.redis == 'start':
         _start_engine_redis()
     elif options.redis == 'stop':
         _stop_engine_redis()
-    elif options.testType:
-        _generate_output(options.testType)
+    elif options.genOutput:
+        _generate_output()
     else: # run tests
         unittest.main()
 

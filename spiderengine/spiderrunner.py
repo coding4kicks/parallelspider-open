@@ -16,7 +16,7 @@
 
     TODO: figure out why Redis pipeline of new link addition breaks sometimes?
 """
-
+import os
 import sys
 import json
 import copy
@@ -44,7 +44,7 @@ class SpiderRunner(object):
     """
 
     def __init__(self, site_list, redis_info, max_mappers, max_pages,
-                 crawl_info, psuedo, log_info):
+                 crawl_info, psuedo, log_info, test=False):
         """ 
         Initializes inputs and creates a timestamp
 
@@ -69,7 +69,7 @@ class SpiderRunner(object):
         TODO: save initial link into new_links
         TODO: turn new links into set so don't add multiples
         """
-
+        self.test = test
         self.site_list = site_list         
         self.redis_info = redis_info      
         self.max_mappers = max_mappers
@@ -114,7 +114,7 @@ class SpiderRunner(object):
         # Download initial page for each site
         # TODO: make asynchronous to speed things up for multiple sites
         for site in self.site_list:
-
+            
             # Get robots.txt
             robots_txt = robotparser.RobotFileParser()
             robots_txt.set_url(site)
@@ -125,7 +125,7 @@ class SpiderRunner(object):
             # and need to report back failure to Spider Web
             if 'https' in site:
                 page = lxml.html.parse(urllib2.urlopen(site))
-            elif 'http' in site:
+            elif 'http' in site or self.test == True:
                 page = lxml.html.parse(site)
             else: # file type not supported
                 msg = ('File type not supported: {!s}').format(site) 
@@ -157,8 +157,8 @@ class SpiderRunner(object):
             finish = 250
             i = 0
 
-            for link in links:
-                print link
+            #for link in links:
+            #    print link
             #break
 
             # Add links to Engine Redis as a batch 
@@ -189,6 +189,11 @@ class SpiderRunner(object):
             base_path = base.replace("/","_").replace(":","-")
             file_name = '%s.txt' % (base_path)
             path_out = "/home/parallelspider/jobs/"
+
+            if self.test:
+                path = os.path.realpath(__file__).partition('spiderengine')[0]
+                path_out = path + 'spiderengine/tests/jobs/'
+
             file_path = path_out + file_name
 
             # Create input file: file name equals base key
@@ -205,7 +210,8 @@ class SpiderRunner(object):
             add_file = ("dumbo put " + file_path + \
                         " /HDFS/parallelspider/jobs/" + file_name + \
                         " -hadoop starcluster")
-            subprocess.call(add_file, shell=True)
+            if not self.test:
+                subprocess.call(add_file, shell=True)
 
             # Distributed mode
             parallel_spider = ("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
@@ -244,6 +250,9 @@ class SpiderRunner(object):
                 # Logging
                 msg = ('cmd_line: {!s}').format(psuedo_dist) 
                 self.logger.debug(msg, extra=self.log_header)
+
+            elif self.test:
+                return (psuedo_dist, parallel_spider, add_file, output)
 
             else:
                 subprocess.Popen(parallel_spider, shell=True)

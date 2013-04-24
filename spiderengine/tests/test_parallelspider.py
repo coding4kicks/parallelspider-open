@@ -55,7 +55,7 @@ class TestParallelSpider(unittest.TestCase):
         self.assertEqual("\n".join(final_output), _get_results('reducer'))
 
     def testNewLinkOutput(self):
-        """Test new links are generated and stored correctly in Engine Redis."""
+        """Test new links are generated/stored correctly in Engine Redis."""
         _generate_mapper_output(self.mapper)
         new_links = _get_fake_base_id() + "::new_links"
         link_output = str(self.redis.smembers(new_links))
@@ -63,7 +63,7 @@ class TestParallelSpider(unittest.TestCase):
         self.assertEqual(link_output[-100:], _get_results('new_links')[-100:])
 
     def testFinishedLinkOutput(self):
-        """Test that the processed link is stored correctly in finished_links in Engine Redis."""
+        """Test processed link is stored in finished_links in Engine Redis."""
         _generate_mapper_output(self.mapper)
         finished_links = _get_fake_base_id() + "::finished"
         link_output = str(self.redis.smembers(finished_links))
