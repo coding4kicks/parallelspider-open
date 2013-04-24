@@ -61,6 +61,7 @@ class SpiderRunner(object):
             indicate to the Spider Client through Engine Redis when they 
             are complete.
         """
+
         self.site_list = site_list         
         self.redis_info = redis_info      
         self.max_mappers = max_mappers
@@ -94,28 +95,22 @@ class SpiderRunner(object):
         for site in self.site_list:
             
             robots_txt = _init_robot_txt(site, self.test)
+            page = _parse(site, self.test)
+            if page == None:
+                self.logger.error('File type not support for: ', site, 
+                                  extra=self.log_header)
+                continue
 
-            # Download and parse page
-            # TODO: need try catch so failure to parse doesn't loop forever
-            # and need to report back failure to Spider Web
-            if 'https' in site:
-                page = lxml.html.parse(urllib2.urlopen(site))
-            elif 'http' in site or self.test == True:
-                page = lxml.html.parse(site)
-            else: # file type not supported
-                msg = ('File type not supported: {!s}').format(site) 
-                self.logger.error(msg, extra=self.log_header)
-                break
             brain = Brain(site, config)
             output = brain.analyze(page, site, robots_txt, no_emit=True)
             links = brain.on_site_links
+            links.append(site) # make sure main page is analyzed
+            links = brain.on_site_links
 
-            # Create base part of Redis key from timestamp and site name
-            # TODO: fix crawl id
             base = '%s::%s' % (site, config['crawl_id'])
             new_link_set = '%s::new_links' % (base)
 
-            _batch_add_links_to_new(r, links, new_link_set)
+            _batch_add_links_to_new(r, links, base)
 
             # Set key expiration to 1 hour
             hour = 60 * 60
@@ -150,53 +145,15 @@ class SpiderRunner(object):
             if not self.test:
                 subprocess.call(add_file, shell=True)
 
-            # Distributed mode
-            parallel_spider = ("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
-                         " -input /HDFS/parallelspider/jobs/" + file_name + \
-                         " -output /HDFS/parallelspider/out/" + base_path + \
-                         " -file mrfeynman.py" + \
-                         " -nummaptasks " + str(self.max_mappers) + \
-                         " -cmdenv PYTHONIOENCODING=utf-8" + \
-                         " -param redisInfo=" + \
-                         "host:" + self.redis_info["host"] + \
-                         ",port:" + self.redis_info["port"] + \
-                         ",base:" + base + \
-                         ",maxPages:" + str(self.max_pages) + \
-                         " -hadoop starcluster")
-
-            # Psuedo-distributed for testing
-            psuedo_dist = ("dumbo start /home/parallelspider/parallelspider/spiderengine/parallelspider.py" \
-                         " -input /home/parallelspider/jobs/" + file_name + \
-                         " -output /home/parallelspider/out/" + base_path + \
-                         " -file mrfeynman.py" + \
-                         " -nummaptasks " + str(self.max_mappers) + \
-                         " -cmdenv PYTHONIOENCODING=utf-8" + \
-                         " -param redisInfo=" + \
-                         "host:" + self.redis_info["host"] + \
-                         ",port:" + self.redis_info["port"] + \
-                         ",base:" + base + \
-                         ",maxPages:" + str(self.max_pages))
-
-            # Logging
-            msg = ('psuedo: {!s}').format(self.psuedo) 
-            self.logger.debug(msg, extra=self.log_header)
-
-            if self.psuedo:
-                subprocess.Popen(psuedo_dist, shell=True)
-
-                # Logging
-                msg = ('cmd_line: {!s}').format(psuedo_dist) 
-                self.logger.debug(msg, extra=self.log_header)
-
-            elif self.test:
-                return (psuedo_dist, parallel_spider, add_file, output)
-
-            else:
-                subprocess.Popen(parallel_spider, shell=True)
-
-                # Logging
-                msg = ('cmd_line: {!s}').format(parallel_spider) 
-                self.logger.debug(msg, extra=self.log_header)
+            # Construct and execute dumbo command for parallel spider
+            dist_cmd = self._construct_ps_cmd('dist', base)
+            psuedo_cmd = self._construct_ps_cmd('psuedo', base)
+            if self.psuedo: # execute in psuedo distributed mode
+                subprocess.Popen(psuedo_cmd, shell=True)
+            elif self.test: # return values for testing
+                return (dist_cmd, psuedo_cmd, upload_cmd, output)
+            else: # execute in distributed mode
+                subprocess.Popen(dist_cmd, shell=True)
 
             #if self.debug:
             #    self.logger.debug('output: %s', output, extra=self.log_header)
@@ -269,29 +226,30 @@ def _parse(link, test):
         page = None
     return page
 
-def _batch_add_links_to_new(r, links, new_links):
-    """
-    Add new links as a batch to Engine Redis
-
-    Max batch size possible is 255
-    Set difference operation is performed to make sure no links
-    that are in processing, or finished, or already in new,
-    are added to new links.  Thus, this transaction makes sure 
-    that only "new" links are added to the new links set.
-    """
+def _batch_add_links_to_new(r, links, base):
+    """Add new links as a batch to Engine Redis, Max batch size is 255."""
+    new_links = ('{}::new_links').format(base)
     size = len(links) 
     batch_size = 250
     breaks, remainder = divmod(size, batch_size) # calc number of breaks
     if remainder > 0:   # reminder: crack babies are sad.
         breaks = breaks + 1
     start, finish, i = 0, batch_size, 0
-
     while i < breaks:
         link_batch = links[start:finish]
         r.sadd(new_links, *link_batch)
         start += batch_size
         finish += batch_size
         i += 1
+    hour = 60 * 60
+    r.expire(new_links, hour)
+
+def _construct_upload_cmd(file_info):
+    """Construct command to upload file to HDFS."""
+    file_path, file_name = file_info
+    cmd = ('dumbo put {} /HDFS/parallelspider/jobs/{} '
+           '-hadoop starcluster').format(file_path, file_name)
+    return cmd
 
 def set_logging_level(level="production"):
     """
@@ -422,4 +380,5 @@ def main():
 if __name__ == "__main__":
     """ enable command line execution """
     sys.exit(main())    
+
 
