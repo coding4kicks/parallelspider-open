@@ -9,7 +9,7 @@
     distributed mode, passing the required starting parameters.
 
 
-    TODO: need try catch so failure to parse doesn't loop forever
+    TODO: need try-catch so failure to parse doesn't loop forever
           and need to report back failure to Spider Web 
           (or check earlier in client?)
     TODO: import loggin vice copy and paste?
