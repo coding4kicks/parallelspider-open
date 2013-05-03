@@ -90,9 +90,15 @@ class TestSpiderRunner(unittest.TestCase):
         self.assertTrue(self.engine_redis.ttl(_get_fake_crawl_id()) > 3500)
 
     def testTimeIncrements(self):
-        """Test that crawl time increments by end."""
-        pass 
-
+        """Test that crawl time increments by the end."""
+        self.client.checkRedisQueue()
+        output = self.engine_redis.get(_get_fake_crawl_id())
+        time1 = json.loads(output)['time']
+        _ = _run_client(self.client, self.engine_redis)
+        output = self.engine_redis.get(_get_fake_crawl_id())
+        time2 = json.loads(output)['time']
+        self.assertTrue((time2-time1) > 0)
+ 
     def testCompleteNotification(self):
         """Test Central Redis is updated to indicate complete."""
         self.client.cleanQueue.append(_get_fake_crawl_id())
