@@ -67,55 +67,70 @@ class TestSpiderRunner(unittest.TestCase):
 
     def testTotalCount(self):
         """Test total count passed to Central Redis."""
-        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
-        self.client.crawlQueue.append(_get_fake_crawl_id())
-        self.engine_redis.set(_get_fake_base_id() + "::count", 1)
-        self.client.checkCrawlStatus()
+        _ = _run_client(self.client, self.engine_redis)
         count = self.central_redis.get(_get_fake_crawl_id() + "_count")
         self.assertEqual(count, '1')
 
     def testSuccessCommand(self):
         """Test correct command to check for success file."""
-        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
-        self.client.crawlQueue.append(_get_fake_crawl_id())
-        self.engine_redis.set(_get_fake_base_id() + "::count", 1)
-        command = self.client.checkCrawlStatus()
+        #self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        #self.client.crawlQueue.append(_get_fake_crawl_id())
+        #self.engine_redis.set(_get_fake_base_id() + "::count", 1)
+        #command = self.client.checkCrawlStatus()
+        command = _run_client(self.client, self.engine_redis)
         self.assertEqual(command[1], _get_results('success_cmd'))
 
     def testCleanerCommand(self):
         """Test spider cleaner command is correct."""
-        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
-        self.client.crawlQueue.append(_get_fake_crawl_id())
-        self.engine_redis.set(_get_fake_base_id() + "::count", 1)
-        command = self.client.checkCrawlStatus()
+        #self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        #self.client.crawlQueue.append(_get_fake_crawl_id())
+        #self.engine_redis.set(_get_fake_base_id() + "::count", 1)
+        #command = self.client.checkCrawlStatus()
+        command = _run_client(self.client, self.engine_redis)
         self.assertEqual(command[0], _get_results('clean_cmd'))
 
     def testCrawlQueueEmpty(self):
         """Test crawl is removed from crawl queue upon cleanup"""
-        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
-        self.client.crawlQueue.append(_get_fake_crawl_id())
-        self.engine_redis.set(_get_fake_base_id() + "::count", 1)
-        self.client.checkCrawlStatus()
+        #self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        #self.client.crawlQueue.append(_get_fake_crawl_id())
+        #self.engine_redis.set(_get_fake_base_id() + "::count", 1)
+        #self.client.checkCrawlStatus()
+        _ = _run_client(self.client, self.engine_redis)
         self.assertEqual(self.client.crawlQueue, [])
 
     def testCompleteNotification(self):
         """Test Central Redis is updated to indicate complete."""
-        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
-        self.client.crawlQueue.append(_get_fake_crawl_id())
-        self.engine_redis.set(_get_fake_base_id() + "::count", -2)
+        #self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        #self.client.crawlQueue.append(_get_fake_crawl_id())
+        #self.engine_redis.set(_get_fake_base_id() + "::count", -2)
         self.client.cleanQueue.append(_get_fake_crawl_id())
-        self.client.checkCrawlStatus()
+        #self.client.checkCrawlStatus()
+        _ = _run_client(self.client, self.engine_redis, count=-2)
         count = self.central_redis.get(_get_fake_crawl_id() + "_count")
         self.assertEqual(count, '-2')
 
     def testCleanQueueEmpty(self):
         """Test clients cleanup queue removes completed crawl"""
-        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
-        self.client.crawlQueue.append(_get_fake_crawl_id())
-        self.engine_redis.set(_get_fake_base_id() + "::count", -2)
+        #self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        #self.client.crawlQueue.append(_get_fake_crawl_id())
+        #self.engine_redis.set(_get_fake_base_id() + "::count", -2)
         self.client.cleanQueue.append(_get_fake_crawl_id())
-        self.client.checkCrawlStatus()
+        #self.client.checkCrawlStatus()
+        _ = _run_client(self.client, self.engine_redis, count=-2)
         self.assertEqual(self.client.cleanQueue, [])
+
+    def testKeyExpirationsSet(self):
+        """Test that crawl info key expiration is set to an hour."""
+        #self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        #self.client.crawlQueue.append(_get_fake_crawl_id())
+        #self.engine_redis.set(_get_fake_base_id() + "::count", 1)
+        #self.client.checkCrawlStatus()
+        _ = _run_client(self.client, self.engine_redis)
+        self.assertTrue(self.engine_redis.ttl(_get_fake_crawl_id()) > 3500)
+
+    # test mock crawl
+
+    # test time change and crawl info upload at completion
 
 
 
@@ -194,6 +209,14 @@ def _setup_client(central_redis, engine_redis):
     log_info = set_logging_level('develop')
     return CrawlTracker(central_redis, engine_redis, 'localhost', 
             log_info=log_info)
+
+def _run_client(client, e_redis, count=1):
+    """Execute the client's Check Redis."""
+    client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+    client.crawlQueue.append(_get_fake_crawl_id())
+    e_redis.set(_get_fake_base_id() + "::count", count)
+    command = client.checkCrawlStatus()
+    return command
 
 def _load_crawl_json(redis):
     crawl_json = json.dumps(_sample_crawl_input())
