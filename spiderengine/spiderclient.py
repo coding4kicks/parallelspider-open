@@ -293,6 +293,7 @@ class CrawlTracker(object):
         """
 
         self.log_header['msg_type'] = "checkCrawlStatus - "
+        success_command = "" # only in outerscope for testing (fix with mocks)
 
         # Fake the funk
         if self.mock:
@@ -311,7 +312,7 @@ class CrawlTracker(object):
             # Monitor the crawl queue
             for crawl_id in self.crawlQueue:
                 total_count = 0
-
+                
                 # Crawl Completion Variables
                 not_done = False            # True if still new links
                 really_not_done = False     # True if no success files
@@ -324,7 +325,6 @@ class CrawlTracker(object):
                     site_count = self.engine_redis.get(base + "::count")
                     if site_count:
                         total_count += int(site_count)
-  
                         # Check if new links empty (only if count has started)
                         new_links = \
                             self.engine_redis.scard(base + "::new_links")
@@ -390,27 +390,29 @@ class CrawlTracker(object):
                             # TODO: add deferred (will break on psuedo dist)
                             cmd = "dumbo ls /HDFS/parallelspider/out/" + \
                                    base_path + " -hadoop starcluster"
-                            files = subprocess.check_output(cmd, shell=True)
+                            if self.test:
+                                success_command = cmd
+                            else:
+                                files = subprocess.check_output(cmd, shell=True)
         
-                            # Logging
-                            msg = """Checking for success file in: %s""" \
-                                    % (files)
-                            self.logger.debug(msg, extra=self.log_header)
-
-                            # If success file then we're not really done yet
-                            if "_SUCCESS" not in files:
-                                really_not_done = True
-
                                 # Logging
-                                msg = """No success file""" 
+                                msg = """Checking for success file in: %s""" \
+                                        % (files)
                                 self.logger.debug(msg, extra=self.log_header)
-  
-  
+
+                                # If success file then we're not really done yet
+                                if "_SUCCESS" not in files:
+                                    really_not_done = True
+
+                                    # Logging
+                                    msg = """No success file""" 
+                                    self.logger.debug(msg, extra=self.log_header)
+    
                 # If all sites are done, crawl is complete so cleanup.
                 # done (> max pages or new links are empty) 
                 # really done (success files exist)
                 if done and not really_not_done:
-  
+
                     # Kick crawl out of the queue
                     self.crawlQueue.remove(crawl_id)
   
@@ -441,7 +443,10 @@ class CrawlTracker(object):
                     msg = """cmd_line: %s""" % (cmd_line)
                     self.logger.debug(msg, extra=self.log_header)
 
-                    p = subprocess.Popen(cmd_line, shell=True) 
+                    if self.test:
+                        return (cmd_line, success_command)
+                    else:
+                        p = subprocess.Popen(cmd_line, shell=True) 
                     
              
             # Monitor clean queue            

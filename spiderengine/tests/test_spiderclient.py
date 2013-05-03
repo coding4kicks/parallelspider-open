@@ -58,15 +58,37 @@ class TestSpiderRunner(unittest.TestCase):
         results['time'], crawl['time'] = 0, 0
         self.assertEqual(crawl, results)
 
-    def testCommand(self):
+    def testRunnerCommand(self):
         """Test spider runner command is correct."""
         _load_crawl_json(self.central_redis)
         self.central_redis.rpush('crawl_queue', _get_fake_crawl_id())
         command = self.client.checkRedisQueue()
-        print command
+        self.assertEqual(command, _get_results('command'))
 
+    def testTotalCount(self):
+        """Test total count passed to Central Redis."""
+        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        self.client.crawlQueue.append(_get_fake_crawl_id())
+        self.engine_redis.set(_get_fake_base_id() + "::count", 1)
+        self.client.checkCrawlStatus()
+        count = self.central_redis.get(_get_fake_crawl_id() + "_count")
+        self.assertEqual(count, '1')
 
+    def testSuccessCommand(self):
+        """Test correct command to check for success file."""
+        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        self.client.crawlQueue.append(_get_fake_crawl_id())
+        self.engine_redis.set(_get_fake_base_id() + "::count", 1)
+        command = self.client.checkCrawlStatus()
+        self.assertEqual(command[1], _get_results('success_cmd'))
 
+    def testCleanerCommand(self):
+        """Test spider cleaner command is correct."""
+        self.client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+        self.client.crawlQueue.append(_get_fake_crawl_id())
+        self.engine_redis.set(_get_fake_base_id() + "::count", 1)
+        command = self.client.checkCrawlStatus()
+        self.assertEqual(command[0], _get_results('clean_cmd'))
 
 ###############################################################################
 ### Redis Initialization
@@ -105,18 +127,35 @@ def _stop_engine_redis():
 ###############################################################################
 def _generate_output():
     """Generate output for testing."""
-
     central_redis = _initialize_redis('central')
     engine_redis = _initialize_redis('engine')
     client = _setup_client(central_redis, engine_redis )
     _load_crawl_json(central_redis)
     central_redis.rpush('crawl_queue', _get_fake_crawl_id())
-    client.checkRedisQueue()
+    command = client.checkRedisQueue()
     output = engine_redis.get(_get_fake_crawl_id())
     test_file = ('{0}/spiderclient_results_crawl_init').format(
         _test_results_dir())
     with open(test_file, 'w') as f:
         f.write(output)
+    test_file = ('{0}/spiderclient_results_command').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(command)
+
+    client.site_list[_get_fake_crawl_id()] = [_fake_site()]
+    client.crawlQueue.append(_get_fake_crawl_id())
+    engine_redis.set(_get_fake_base_id() + "::count", 1)
+    command = client.checkCrawlStatus()
+    test_file = ('{0}/spiderclient_results_success_cmd').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(command[1])
+    test_file = ('{0}/spiderclient_results_clean_cmd').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(command[0])
+
 
 ###############################################################################
 ### Helper Delper Classes & Functions
@@ -139,6 +178,13 @@ def _get_results(test_type):
         test_results = f.read()
     return test_results
 
+def _get_fake_base_id():
+    """Generates a base id for a crawl: site name + crawl id."""
+    fake_site = _fake_site()
+    fake_crawl_id = _get_fake_crawl_id()
+    fake_base_id = ('{0}::{1}').format(fake_site, fake_crawl_id)
+    return fake_base_id
+
 def _get_fake_crawl_id():
     """Create a fake crawl id with all parameters fixed."""
     fake_user = "yankeecharlie"
@@ -147,6 +193,9 @@ def _get_fake_crawl_id():
     fake_crawl_id = ('{0}__{1}__{2}').format(fake_user, fake_name, fake_time)
     fake_crawl_id = urllib.quote_plus(fake_crawl_id)
     return fake_crawl_id
+
+def _fake_site():
+    return 'http://www.fakesite.com'
 
 def _test_results_dir():
     """Return directory containing test results"""
