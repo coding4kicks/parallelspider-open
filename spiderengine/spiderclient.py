@@ -294,6 +294,7 @@ class CrawlTracker(object):
 
         self.log_header['msg_type'] = "checkCrawlStatus - "
         success_command = "" # only in outerscope for testing (fix with mocks)
+        clean_command = ""
 
         # Fake the funk
         if self.mock:
@@ -444,14 +445,14 @@ class CrawlTracker(object):
                     self.logger.debug(msg, extra=self.log_header)
 
                     if self.test:
-                        return (cmd_line, success_command)
+                        clean_command = cmd_line
                     else:
                         p = subprocess.Popen(cmd_line, shell=True) 
                     
              
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
- 
+                
                 # Check the first site for -2 (complete)
                 site = self.site_list[crawl_id][0]
                 base = '%s::%s' % (site, crawl_id)
@@ -469,6 +470,9 @@ class CrawlTracker(object):
                     # Logging
                     msg = """Cleanup Success"""
                     self.logger.debug(msg, extra=self.log_header)
+
+                if self.test:
+                        return (clean_command, success_command)
 
 
         # Continue to montitor crawl statuses (default every 5 seconds).
