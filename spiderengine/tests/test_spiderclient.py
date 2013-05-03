@@ -24,16 +24,47 @@ class TestSpiderRunner(unittest.TestCase):
     """Test for success."""
 
     def setUp(self):
-        """Intialize Engine Redis and SpiderRunner."""
-        #self.redis = _initialize_engine_redis()
-        #self.spider = _setup_spider()
-        pass
+        """Intialize Central and Engine Redis and SpiderClient."""
+        self.central_redis = _initialize_redis('central')
+        self.engine_redis = _initialize_redis('engine')
+        self.client = _setup_client(self.central_redis, self.engine_redis )
 
     def tearDown(self):
         pass
 
-    def testNewLinkOutput(self):
-        pass
+    def testInitialization(self):
+        """Test initial parameters are set correctly."""
+        self.assertEqual(self.client.crawlQueue, [])
+        self.assertEqual(self.client.cleanQueue, [])
+        self.assertEqual(self.client.site_list, {})
+        self.assertEqual(self.client.central_redis, self.central_redis)
+        self.assertEqual(self.client.engine_redis, self.engine_redis)
+        self.assertEqual(self.client.max_pages, 20)
+        self.assertEqual(self.client.total_max, 20)
+        self.assertEqual(self.client.mappers, 3)
+        self.assertEqual(self.client.engine_redis_host, 'localhost')
+        self.assertEqual(self.client.engine_redis_port, '6380')
+        self.assertFalse(self.client.mock)
+        self.assertFalse(self.client.psuedo_dist)
+
+    def testCrawlInfo(self):
+        """Test correct crawl info placed in engine redis."""
+        _load_crawl_json(self.central_redis)
+        self.central_redis.rpush('crawl_queue', _get_fake_crawl_id())
+        self.client.checkRedisQueue()
+        output = self.engine_redis.get(_get_fake_crawl_id())
+        crawl = json.loads(output)
+        results = json.loads(_get_results('crawl_init'))
+        results['time'], crawl['time'] = 0, 0
+        self.assertEqual(crawl, results)
+
+    def testCommand(self):
+        """Test spider runner command is correct."""
+        _load_crawl_json(self.central_redis)
+        self.central_redis.rpush('crawl_queue', _get_fake_crawl_id())
+        command = self.client.checkRedisQueue()
+        print command
+
 
 
 
@@ -45,14 +76,17 @@ def _start_engine_redis():
     data.start('kvs', 'central')
     data.start('kvs', 'engine')
 
-#def _initialize_engine_redis():
-#    """Connect to Redis on 6380 and set up for test crawl."""
-#    r = redis.Redis('localhost', 6380)
-#    config = {'crawl_id': _get_fake_crawl_id() }
-#    json_config = json.dumps(config)
-#    r.set(_get_fake_crawl_id(), json_config)
-#    return r
-#
+def _initialize_redis(redis_type):
+    """Connect to Redis"""
+    if redis_type == 'central':
+        r = redis.Redis('localhost', 6379)
+    else: # engine redis
+        r = redis.Redis('localhost', 6380)
+    #config = {'crawl_id': _get_fake_crawl_id() }
+    #json_config = json.dumps(config)
+    #r.set(_get_fake_crawl_id(), json_config)
+    return r
+
 #def _initialize_redis_for_failure():
 #    """Connect to Redis, but set up a bad path for crawl file."""
 #    r = redis.Redis('localhost', 6380)
@@ -66,66 +100,108 @@ def _stop_engine_redis():
     data.stop('kvs', 'central')
     data.stop('kvs', 'engine')
 
+###############################################################################
+### Output Generator for Testing
+###############################################################################
+def _generate_output():
+    """Generate output for testing."""
 
-
+    central_redis = _initialize_redis('central')
+    engine_redis = _initialize_redis('engine')
+    client = _setup_client(central_redis, engine_redis )
+    _load_crawl_json(central_redis)
+    central_redis.rpush('crawl_queue', _get_fake_crawl_id())
+    client.checkRedisQueue()
+    output = engine_redis.get(_get_fake_crawl_id())
+    test_file = ('{0}/spiderclient_results_crawl_init').format(
+        _test_results_dir())
+    with open(test_file, 'w') as f:
+        f.write(output)
 
 ###############################################################################
 ### Helper Delper Classes & Functions
 ###############################################################################
-#def _setup_spider(port=6380):
-#    """Create a SpiderRunner instance."""
-#    site_list = [_test_file_path()]
-#    redis_info = {'host': 'localhost', 'port': str(port)}
-#    max_mappers, max_pages = 1, 1
-#    crawl_info = _get_fake_crawl_id()
-#    psuedo = False
-#    log_info = set_logging_level('develop')
-#    return SpiderRunner(site_list, redis_info, max_mappers, max_pages,
-#                 crawl_info, psuedo, log_info, test=True)
-#
-#def _get_results(test_type):
-#    """Load the saved test results."""
-#    test_path = ('{0}/spiderrunner_results_{1}').format(
-#            _test_results_dir(), test_type)
-#    with open(test_path) as f:
-#        test_results = f.read()
-#    return test_results
-#
-#def _get_fake_base_id():
-#    """Generates a base id for a crawl: site name + crawl id."""
-#    #fake_site = 'http://www.foxnews.com/'
-#    fake_site = _test_file_path()
-#    fake_crawl_id = _get_fake_crawl_id()
-#    fake_base_id = ('{0}::{1}').format(fake_site, fake_crawl_id)
-#    return fake_base_id
-#
-#def _get_fake_crawl_id():
-#    """Create a fake crawl id with all parameters fixed."""
-#    fake_user = "yankeecharlie"
-#    fake_name = "badpolitics"
-#    fake_time = "Fri Mar 15 2020 21:00:15 GMT-0700 (PDT)"
-#    fake_crawl_id = ('{0}__{1}__{2}').format(fake_user, fake_name, fake_time)
-#    fake_crawl_id = urllib.quote_plus(fake_crawl_id)
-#    return fake_crawl_id
-#
-#def _test_file_path():
-#    """Test file to crawl."""
-#    return _test_pages_dir() + '/fox0'
-#
-#def _test_pages_dir():
-#    """Return directory containing test pages"""
-#    return os.path.realpath(__file__).rpartition('/')[0] + '/testpages'
-#
-#def _test_results_dir():
-#    """Return directory containing test results"""
-#    return os.path.realpath(__file__).rpartition('/')[0] + '/testresults'
-#
-#def _input_file():
-#    """Constructs a path to the input file created for parallelspider."""
-#    phil = _get_fake_base_id().replace("/","_").replace(":","-") + ".txt"
-#    path = (os.path.realpath(__file__).partition('spiderengine')[0] + 
-#                'spiderengine/tests/jobs/')
-#    return path + phil
+def _setup_client(central_redis, engine_redis):
+    """Create instance of CrawlTracker for client testing."""
+    log_info = set_logging_level('develop')
+    return CrawlTracker(central_redis, engine_redis, 'localhost', 
+            log_info=log_info)
+
+def _load_crawl_json(redis):
+    crawl_json = json.dumps(_sample_crawl_input())
+    redis.set(_get_fake_crawl_id(), crawl_json) 
+
+def _get_results(test_type):
+    """Load the saved test results."""
+    test_path = ('{0}/spiderclient_results_{1}').format(
+            _test_results_dir(), test_type)
+    with open(test_path) as f:
+        test_results = f.read()
+    return test_results
+
+def _get_fake_crawl_id():
+    """Create a fake crawl id with all parameters fixed."""
+    fake_user = "yankeecharlie"
+    fake_name = "badpolitics"
+    fake_time = "Fri Mar 15 2020 21:00:15 GMT-0700 (PDT)"
+    fake_crawl_id = ('{0}__{1}__{2}').format(fake_user, fake_name, fake_time)
+    fake_crawl_id = urllib.quote_plus(fake_crawl_id)
+    return fake_crawl_id
+
+def _test_results_dir():
+    """Return directory containing test results"""
+    return os.path.realpath(__file__).rpartition('/')[0] + '/testresults'
+
+def _sample_crawl_input():
+    sample_crawl = \
+    {        
+     "shortSession":"Q1610Y/rT4K829Pj5b5Cz",
+     "longSession":"U3VwZXIgTW8gRm8vLy9hLy8vPGJ1aWx0LWluIG1ldGhvZCBub3"\
+                   "cgb2YgdHlwZSBvYmplY3QgYXQgMHgxMDljZGU0MjA+/Bqy",
+     "crawl":{
+         "name":"http://ccn.com",
+         "additionalSites":["http://www.foxnews.com"],
+         "wordSearches":["andax"],
+         "wordContexts":["contextwordy"],
+         "wordnets":["nettyword"],
+         "customSynRings":[
+              {
+                   "name":"custring",
+                   "text":"a, word, ring"
+              }
+         ],
+         "xpathSelectors":["xpathing"],
+         "cssSelectors":[
+              {
+                   "selector":"selcting",
+                   "text":True
+              }
+         ],
+         "maxPages":100,
+         "totalResults":100,
+         "externalSites":True,
+         "text":{
+              "visible": True,
+              "headlines": True,
+              "hidden": True
+         },
+         "links":{
+              "text": True,
+              "all": True,
+              "external": True
+         },
+         "stopWords":"a, stop, word",
+          "predefinedSynRings":[
+               #{
+               #     "name":"curseWords",
+               #     "title":"Curse Words"
+               #}
+          ],
+         "primarySite":"http://ccn.com",
+         "time":"Thu Mar 21 2013 01:03:56 GMT-0700 (PDT)"
+        }
+    }
+    return sample_crawl
 
 
 
@@ -142,11 +218,19 @@ if __name__ == '__main__':
             "-r", "-R", "--redis", 
             action="store", dest="redis", 
             help="Start/Stop Redis datastores.")
+    parser.add_option(
+            "-g", "-G", "--generateOutput", 
+            action="store_true", dest="genOutput", 
+            help="Generate test output")
     (options, args) = parser.parse_args()
 
     if options.redis == 'start':
         _start_engine_redis()
     elif options.redis == 'stop':
         _stop_engine_redis()
+    elif options.genOutput:
+        _generate_output()
     else: # run tests
         unittest.main()
+
+    

@@ -44,7 +44,7 @@ class CrawlTracker(object):
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,
-            engine_redis_port=6380, mock=False, psuedo=False, log_info=None):
+            engine_redis_port='6380', mock=False, psuedo=False, log_info=None):
         """
         Construct a singleton Crawl Tracker
 
@@ -61,7 +61,7 @@ class CrawlTracker(object):
         self.engine_redis_host = engine_redis_host
         self.engine_redis_port = engine_redis_port
         self.mock = mock
-        self.psuedo_dist = psuedo
+        self.psuedo_dist, self.test = psuedo, True
         self.logger, log_header = log_info
         self.log_header = copy.deepcopy(log_header)
 
@@ -234,8 +234,8 @@ class CrawlTracker(object):
                         print 'error error should not be here'
 
             # Logging
-            msg = """Crawl info to Spider Runner: %s""" % (crawl)
-            self.logger.info(msg, extra=self.log_header)
+            #msg = """Crawl info to Spider Runner: %s""" % (crawl)
+            #self.logger.info(msg, extra=self.log_header)
 
             # Add crawl info to local engine redis
             crawl_info = json.dumps(crawl)
@@ -246,28 +246,31 @@ class CrawlTracker(object):
             # Add crawl to the crawl queue for monitoring by checkCrawlStatus
             self.crawlQueue.append(crawl_id)
 
+            # Execute the crawl
+            # TODO: Incorporate Sun Grid Engine
+            cmd_line = "python spiderrunner.py " + site_list + \
+                       " -r host:" + self.engine_redis_host + "," + \
+                           "port:" + self.engine_redis_port + \
+                       " -m " + str(self.mappers) + \
+                       " -t " + str(self.max_pages) + \
+                       " -c " + crawl_id
+            if self.psuedo_dist:
+                cmd_line += " -d"
+
+            # Logging
+            msg = """Cmd Line: %s""" % (cmd_line)
+            self.logger.debug(msg, extra=self.log_header)
+
             # If mocking then fake the funk.
             if self.mock:
                 mocker = MockCrawl(crawl_id, self.max_pages, engine_redis)
                 mocker.run()
-  
+
+            elif self.test:
+                return cmd_line
+
             # Otherwise it's the real deal
             else:
-                # Execute the crawl
-                # TODO: Incorporate Sun Grid Engine
-                cmd_line = "python spiderrunner.py " + site_list + \
-                           " -r host:" + self.engine_redis_host + "," + \
-                               "port:" + self.engine_redis_port + \
-                           " -m " + str(self.mappers) + \
-                           " -t " + str(self.max_pages) + \
-                           " -c " + crawl_id
-                if self.psuedo_dist:
-                    cmd_line += " -d"
-
-                # Logging
-                msg = """Cmd Line: %s""" % (cmd_line)
-                self.logger.debug(msg, extra=self.log_header)
-
                 p = subprocess.Popen(cmd_line, shell=True) 
   
         # Continue to check the Central Redis queue (default every second).
