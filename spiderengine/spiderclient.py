@@ -106,35 +106,7 @@ class CrawlTracker(object):
             # Logging
             msg = """Crawl info from Spider Web: %s""" % (web_crawl)
             self.logger.debug(msg, extra=self.log_header)
-  
-            # Set text analysis details
-            if 'text' in web_crawl:
-                if 'visible' in web_crawl['text']:
-                    if web_crawl['text']['visible'] == True:
-                        crawl['text_request'] = True
-                if 'headlines' in web_crawl['text']:
-                    if web_crawl['text']['headlines'] == True:
-                        crawl['header_request'] = True
-                if 'hidden' in web_crawl['text']:
-                    if web_crawl['text']['hidden'] == True:
-                        crawl['meta_request'] = True
-
-            # Set link analysis details
-            if 'links' in web_crawl:
-                if 'text' in web_crawl['links']:
-                    if web_crawl['links']['text'] == True:
-                        crawl['a_tags_request'] = True
-                if 'all' in web_crawl['links']:
-                    if web_crawl['links']['all'] == True:
-                        crawl['all_links_request'] = True
-                if 'external' in web_crawl['links']:
-                    if web_crawl['links']['external'] == True:
-                        crawl['external_links_request'] = True
- 
-            # Set context analysis details
-            if 'wordContexts' in web_crawl:
-                crawl['context_search_tag'] = web_crawl['wordContexts']
-  
+    
             # Predefined synonym ring lists 
             # TODO: make more, put into redis, load in init
             predefinedRings = {'stopWords': ['and','but','a',
@@ -492,6 +464,28 @@ def _reformat_crawl_info(crawl_id, web_crawl):
     crawl['analyze_external_pages'] = (web_crawl['externalSites'] if 
                         'externalSites' in web_crawl else "")
     crawl['stop_list'] = _construct_stop_list(web_crawl)
+    if 'text' in web_crawl:
+        if 'visible' in web_crawl['text']:
+            if web_crawl['text']['visible'] == True:
+                crawl['text_request'] = True
+        if 'headlines' in web_crawl['text']:
+            if web_crawl['text']['headlines'] == True:
+                crawl['header_request'] = True
+        if 'hidden' in web_crawl['text']:
+            if web_crawl['text']['hidden'] == True:
+                crawl['meta_request'] = True
+    if 'links' in web_crawl:
+        if 'text' in web_crawl['links']:
+            if web_crawl['links']['text'] == True:
+                crawl['a_tags_request'] = True
+        if 'all' in web_crawl['links']:
+            if web_crawl['links']['all'] == True:
+                crawl['all_links_request'] = True
+        if 'external' in web_crawl['links']:
+            if web_crawl['links']['external'] == True:
+                crawl['external_links_request'] = True
+    if 'wordContexts' in web_crawl:
+        crawl['context_search_tag'] = web_crawl['wordContexts']
     return crawl
 
 def _construct_stop_list(web_crawl):
@@ -507,7 +501,7 @@ def _construct_stop_list(web_crawl):
 def _get_default_stop_list():
     """Retrieve the default stop list from a file."""
     stop_list = []
-    path = os.path.realpath(__file__).rpartition('/')[0] + '/misc/'
+    path = os.path.realpath(__file__).rpartition('/')[0] + '/misc/stoplists/'
     with open(path + 'default_stop_list.txt') as f:
         for line in f:
             stop_list.append(line.rstrip())
