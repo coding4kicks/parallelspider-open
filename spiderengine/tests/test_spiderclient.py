@@ -204,7 +204,7 @@ def _setup_client(central_redis, engine_redis):
     """Create instance of CrawlTracker for client testing."""
     log_info = set_logging_level('develop')
     return CrawlTracker(central_redis, engine_redis, 'localhost', 
-            log_info=log_info)
+            log_info=log_info, test=True)
 
 def _run_client(client, e_redis, count=1):
     """Execute the client's Check Redis."""

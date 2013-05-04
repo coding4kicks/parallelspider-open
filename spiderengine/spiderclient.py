@@ -21,7 +21,9 @@ import subprocess
 import redis
 from twisted.internet import reactor
 
-
+###############################################################################
+### CrawlTracker
+###############################################################################
 class CrawlTracker(object):
     """ 
     Miidleman between Spider Server and Spider Engine
@@ -44,7 +46,8 @@ class CrawlTracker(object):
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,
-            engine_redis_port='6380', mock=False, psuedo=False, log_info=None):
+            engine_redis_port='6380', mock=False, psuedo=False, log_info=None,
+            test=False):
         """
         Construct a singleton Crawl Tracker
 
@@ -60,10 +63,8 @@ class CrawlTracker(object):
         self.engine_redis = engine_redis
         self.engine_redis_host = engine_redis_host
         self.engine_redis_port = engine_redis_port
-        self.mock = mock
-        self.psuedo_dist, self.test = psuedo, True
-        self.logger, log_header = log_info
-        self.log_header = copy.deepcopy(log_header)
+        self.mock, self.psuedo_dist, self.test = mock, psuedo, test
+        self._init_logging(log_info)
 
         self.crawlQueue = [] # Queue of IDs of Crawls being executed
         self.cleanQueue = [] # Queue of IDs of Crawls being cleaned up
@@ -90,21 +91,14 @@ class CrawlTracker(object):
         Args
             poll_time - how often in seconds to check Central Redis crawl queue
         """
-                
+
         self.log_header['msg_type'] = "checkRedisQueue - "
-        
+
         # Process a crawlid  from the Central Redis queue
         crawl_id = self.central_redis.lpop('crawl_queue') 
         if crawl_id is not None:
-  
-            # Get the crawl info from Central Redis
-            web_crawl_json = self.central_redis.get(crawl_id)       
-            web_crawl_info = json.loads(web_crawl_json)
-            web_crawl = web_crawl_info['crawl']
-  
-            crawl = {} # crawl info formatted for Spider Engine
-            crawl['crawl_id'] = crawl_id
-            crawl['user_id'] = get_crawl_components(crawl_id)[0]
+            web_crawl = _get_crawl_info(crawl_id, self.central_redis)
+            crawl = _reformat_crawl_info(crawl_id, web_crawl)
 
             # Logging
             msg = """Crawl info from Spider Web: %s""" % (web_crawl)
@@ -130,23 +124,6 @@ class CrawlTracker(object):
   
             # Add sites to crawl info for spidercleaner
             crawl['sites'] = site_list
-
-            # Set crawl name as either passed name or primary site
-            if 'name' in web_crawl:
-                crawl['name'] = web_crawl['name']
-            else:
-                crawl['name'] = web_crawl['primarySite']
-  
-            # Set crawl date and time
-            if 'time' in web_crawl:
-                # TODO: web_crawl['time'] should be date
-                crawl['date'] = web_crawl['time']
-            else:
-                msg = """Time not set."""
-                self.logger.warning(msg, extra=self.log_header)
-                crawl['date'] = 'error'
-
-            crawl['time'] = time.time()
   
             # Set max pages to crawl
             if 'maxPages' in web_crawl:
@@ -478,7 +455,15 @@ class CrawlTracker(object):
         # Continue to montitor crawl statuses (default every 5 seconds).
         reactor.callLater(status_poll_time, self.checkCrawlStatus)
 
+    def _init_logging(self, log_info):
+        "Initilize logging parameters."""
+        self.logger, log_header = log_info
+        self.log_header = copy.deepcopy(log_header)
+        self.debug = True if self.logger.getEffectiveLevel() == 10 else False
 
+###############################################################################
+### Mock Crawl
+###############################################################################
 class MockCrawl(object):
     """ 
         Similuates a crawl for development.
@@ -519,6 +504,7 @@ class MockCrawl(object):
 
         reactor.callLater(5, self.run)
 
+###############################################################################
 # Helper Funcs
 ###############################################################################
 def get_crawl_components(crawl_id):
@@ -526,6 +512,24 @@ def get_crawl_components(crawl_id):
 
     u, n, t  = urllib.unquote_plus(crawl_id).split("__")
     return (u, n, t)
+
+def _get_crawl_info(crawl_id, central_redis):
+    """Download crawl info in Central Redis passed by Spider Web."""
+    web_crawl_json = central_redis.get(crawl_id)       
+    web_crawl_info = json.loads(web_crawl_json)
+    return web_crawl_info['crawl']
+
+def _reformat_crawl_info(crawl_id, web_crawl):
+    """Construct crawl info for Spider Engine from Spider Web crawl info."""
+    crawl = {}
+    crawl['crawl_id'] = crawl_id
+    crawl['user_id'] = get_crawl_components(crawl_id)[0]
+    crawl['name'] = (web_crawl['name'] if 'name' in web_crawl 
+                        else web_crawl['primarySite'])
+    crawl['date'] = (web_crawl['time'] if 'time' in web_crawl
+                        else "Time not set")
+    crawl['time'] = time.time()
+    return crawl
 
 def set_logging_level(level="production"):
     """
@@ -574,10 +578,9 @@ def set_logging_level(level="production"):
 
     return (logger, log_header)
 
-
-# Command Line Crap & Initialization
 ###############################################################################
-
+### Command Line Crap & Initialization
+###############################################################################
 if __name__ == "__main__":
     """
     Command line gook
