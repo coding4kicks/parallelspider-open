@@ -107,23 +107,6 @@ class CrawlTracker(object):
             msg = """Crawl info from Spider Web: %s""" % (web_crawl)
             self.logger.debug(msg, extra=self.log_header)
   
-            # Default stop word list.  
-            # TODO: Enable deslection
-            # TODO: Enable site dependent stoplists
-            path = os.path.realpath(__file__).rpartition('/')[0] + '/misc/'
-            stop_list = []
-            with open(path + 'default_stop_list.txt') as f:
-                for line in f:
-                    stop_list.append(line.rstrip())
-
-            # Add additional words to default stop list
-            if 'stopWords' in web_crawl:
-                # stopWords is a string with possible white space
-                new_list = [w.strip() for w in web_crawl['stopWords'].split(',')]
-                for word in new_list:
-                    stop_list.append(word)
-            crawl['stop_list'] = stop_list
-
             # Set text analysis details
             if 'text' in web_crawl:
                 if 'visible' in web_crawl['text']:
@@ -508,8 +491,28 @@ def _reformat_crawl_info(crawl_id, web_crawl):
     crawl['sites'] = _get_sites(web_crawl)
     crawl['analyze_external_pages'] = (web_crawl['externalSites'] if 
                         'externalSites' in web_crawl else "")
+    crawl['stop_list'] = _construct_stop_list(web_crawl)
     return crawl
 
+def _construct_stop_list(web_crawl):
+    """Add user passed stop list to default."""
+    # TODO: enable deselection of default and site dependent lists
+    stop_list = _get_default_stop_list()
+    if 'stopWords' in web_crawl:
+        new_list = [w.strip() for w in web_crawl['stopWords'].split(',')]
+        for word in new_list:
+            stop_list.append(word)
+    return stop_list
+
+def _get_default_stop_list():
+    """Retrieve the default stop list from a file."""
+    stop_list = []
+    path = os.path.realpath(__file__).rpartition('/')[0] + '/misc/'
+    with open(path + 'default_stop_list.txt') as f:
+        for line in f:
+            stop_list.append(line.rstrip())
+    return stop_list
+            
 def _get_sites(web_crawl):
     """Construct list of primary and additional sites."""
     site_list = ""
