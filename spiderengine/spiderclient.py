@@ -99,71 +99,29 @@ class CrawlTracker(object):
         if crawl_id is not None:
             web_crawl = _get_crawl_info(crawl_id, self.central_redis)
             crawl = _reformat_crawl_info(crawl_id, web_crawl)
+            site_list = _get_sites(web_crawl)
+            self.site_list[crawl_id] = site_list.split(',')
+            self._construct_call_parameters(web_crawl)
 
             # Logging
             msg = """Crawl info from Spider Web: %s""" % (web_crawl)
             self.logger.debug(msg, extra=self.log_header)
-
-
-            # Add primary site to crawl site list
-            if 'primarySite' in web_crawl:
-                site_list = web_crawl['primarySite']    
-            else:
-                # TODO: throw exception
-                msg = """No primary site to crawl."""
-                self.logger.error(msg, extra=self.log_header)
-  
-            # Add other sites to crawl site list
-            if 'additionalSites' in web_crawl:
-                for site in web_crawl['additionalSites']:
-                    site_list += "," + site
-
-            # Add crawls site to the site list
-            sites = site_list.split(',')
-            self.site_list[crawl_id] = sites
-  
-            # Add sites to crawl info for spidercleaner
-            crawl['sites'] = site_list
-  
-            # Set max pages to crawl
-            if 'maxPages' in web_crawl:
-                self.max_pages = web_crawl['maxPages']
-            else:
-                self.max_pages = 20
-  
-            # Adjust mappers based upon max pages 
-            # TODO: benchmark
-            if self.max_pages > 100:
-                self.mappers = 15
-            elif self.max_pages > 20:
-                self.mappers = 5
-
-            # Adjust mappers for number of sites so don't max out the engine
-            self.mappers = self.mappers/(len(web_crawl['additionalSites']) + 1)
-  
-            # Calculate max pages for each site (total/# of sites)
-            if 'additionalSites' in web_crawl:
-                total_num_sites = 1 + len(web_crawl['additionalSites'])
-                pages_per_site = float(self.max_pages)/total_num_sites
-                self.total_max = self.max_pages # used for completion check
-                # Round up to make sure we hit total max pages and finish
-                self.max_pages = int(math.ceil(pages_per_site))
-  
-            # Set external sites
-            if 'externalSites' in web_crawl:
-                crawl['analyze_external_pages'] = web_crawl['externalSites']
   
             # Default stop word list.  
             # TODO: Enable deslection
             # TODO: Enable site dependent stoplists
-            stop_list = ['a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', "can't", 'cannot', 'could', "couldn't", 'did', "didn't", 'do', 'does', "doesn't", 'doing', "don't", 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had', "hadn't", 'has', "hasn't", 'have', "haven't", 'having', 'he', "he'd", "he'll", "he's", 'her', 'here', "here's", 'hers', 'herself', 'him', 'himself', 'his', 'how', "how's", 'i', "i'd", "i'll", "i'm", "i've", 'if', 'in', 'into', 'is', "isn't", 'it', "it's", 'its', 'itself', "let's", 'me', 'more', 'most', "mustn't", 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', "shan't", 'she', "she'd", "she'll", "she's", 'should', "shouldn't", 'so', 'some', 'such', 'than', 'that', "that's", 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', "there's", 'these', 'they', "they'd", "they'll", "they're", "they've", 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', "wasn't", 'we', "we'd", "we'll", "we're", "we've", 'were', "weren't", 'what', "what's", 'when', "when's", 'where', "where's", 'which', 'while', 'who', "who's", 'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't", 'you', "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves', '&', '<', '>', '^', '(', ')']
-            
+            path = os.path.realpath(__file__).rpartition('/')[0] + '/misc/'
+            stop_list = []
+            with open(path + 'default_stop_list.txt') as f:
+                for line in f:
+                    stop_list.append(line.rstrip())
+
             # Add additional words to default stop list
             if 'stopWords' in web_crawl:
                 # stopWords is a string with possible white space
                 new_list = [w.strip() for w in web_crawl['stopWords'].split(',')]
                 for word in new_list:
-                    stop_list.append(word) 
+                    stop_list.append(word)
             crawl['stop_list'] = stop_list
 
             # Set text analysis details
@@ -252,7 +210,25 @@ class CrawlTracker(object):
   
         # Continue to check the Central Redis queue (default every second).
         reactor.callLater(queue_poll_time, self.checkRedisQueue)
-    
+
+    def _construct_call_parameters(self, web_crawl):
+        """Determine SpiderRunner parameters: max pages & mappers."""
+        self.max_pages = (web_crawl['maxPages'] if 'maxPages' in web_crawl
+                            else 20)
+        # TODO: benchmark
+        if self.max_pages > 100:
+            self.mappers = 15
+        elif self.max_pages > 20:
+            self.mappers = 5
+        # Adjust mappers for number of sites so don't max out the engine
+        self.mappers = self.mappers/(len(web_crawl['additionalSites']) + 1)
+        # Calculate max pages for each site (total/# of sites)
+        if 'additionalSites' in web_crawl:
+            total_num_sites = 1 + len(web_crawl['additionalSites'])
+            pages_per_site = float(self.max_pages)/total_num_sites
+            self.total_max = self.max_pages # used for completion check
+            # Round up to make sure we hit total max pages and finish
+            self.max_pages = int(math.ceil(pages_per_site))
 
     def checkCrawlStatus(self, status_poll_time=5):
         """ 
@@ -529,7 +505,23 @@ def _reformat_crawl_info(crawl_id, web_crawl):
     crawl['date'] = (web_crawl['time'] if 'time' in web_crawl
                         else "Time not set")
     crawl['time'] = time.time()
+    crawl['sites'] = _get_sites(web_crawl)
+    crawl['analyze_external_pages'] = (web_crawl['externalSites'] if 
+                        'externalSites' in web_crawl else "")
     return crawl
+
+def _get_sites(web_crawl):
+    """Construct list of primary and additional sites."""
+    site_list = ""
+    if 'primarySite' in web_crawl:
+        site_list = web_crawl['primarySite']    
+    else:
+        # TODO: throw exception, must have primary site
+        pass
+    if 'additionalSites' in web_crawl:
+        for site in web_crawl['additionalSites']:
+            site_list += "," + site
+    return site_list
 
 def set_logging_level(level="production"):
     """
