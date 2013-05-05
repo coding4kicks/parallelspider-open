@@ -59,8 +59,7 @@ class TestParallelSpider(unittest.TestCase):
         _generate_mapper_output(self.mapper)
         new_links = _get_fake_base_id() + "::new_links"
         link_output = str(self.redis.smembers(new_links))
-        self.assertEqual(link_output[0:100], _get_results('new_links')[0:100])
-        self.assertEqual(link_output[-100:], _get_results('new_links')[-100:])
+        self.assertEqual(sorted(link_output), sorted(_get_results('new_links')))
 
     def testFinishedLinkOutput(self):
         """Test processed link is stored in finished_links in Engine Redis."""
