@@ -7,6 +7,7 @@ TODO: handle failures
 
 import os
 import json
+import time
 import urllib
 import unittest
 import optparse
@@ -69,46 +70,41 @@ class TestSpiderRunner(unittest.TestCase):
 
     def testTotalCount(self):
         """Test total count passed to Central Redis."""
-        #_add_crawl(self.client, self.central_redis)
         _run_client(self.client, self.engine_redis, self.central_redis)
         count = self.central_redis.get(_get_fake_crawl_id() + "_count")
         self.assertEqual(count, '1')
 
     def testSuccessCommand(self):
         """Test correct command to check for success file."""
-        #_add_crawl(self.client, self.central_redis)
         command = _run_client(
                 self.client, self.engine_redis, self.central_redis)
         self.assertEqual(command[1], _get_results('success_cmd'))
 
     def testCleanerCommand(self):
         """Test spider cleaner command is correct."""
-        #_add_crawl(self.client, self.central_redis)
         command = _run_client(
                 self.client, self.engine_redis, self.central_redis)
         self.assertEqual(command[0], _get_results('clean_cmd'))
 
     def testCrawlQueueEmpty(self):
         """Test crawl is removed from crawl queue upon cleanup"""
-        #_add_crawl(self.client, self.central_redis)
         _run_client(self.client, self.engine_redis, self.central_redis)
         self.assertEqual(self.client.crawlQueue, [])
 
     def testKeyExpirationsSet(self):
         """Test that crawl info key expiration is set to an hour."""
-        #_add_crawl(self.client, self.central_redis)
         _run_client(self.client, self.engine_redis, self.central_redis)
         self.assertTrue(self.engine_redis.ttl(_get_fake_crawl_id()) > 3500)
 
-#    def testTimeIncrements(self):
-#        """Test that crawl time increments by the end."""
-#        self.client.checkRedisQueue()
-#        output = self.engine_redis.get(_get_fake_crawl_id())
-#        time1 = json.loads(output)['time']
-#        _ = _run_client(self.client, self.engine_redis)
-#        output = self.engine_redis.get(_get_fake_crawl_id())
-#        time2 = json.loads(output)['time']
-#        self.assertTrue((time2-time1) > 0)
+    def testTimer(self):
+        """Test that crawl timer is greater than 0 and less than outer."""  
+        start_time = time.time()
+        _run_client(self.client, self.engine_redis, self.central_redis)
+        output = self.engine_redis.get(_get_fake_crawl_id())
+        crawl_time = json.loads(output)['time']
+        outer_time = time.time() - start_time
+        self.assertTrue(crawl_time > 0)
+        self.assertTrue((outer_time-crawl_time) > 0)
  
     def testCompleteNotification(self):
         """Test Central Redis is updated to indicate complete."""

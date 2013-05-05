@@ -100,7 +100,6 @@ class CrawlTracker(object):
         # Process a crawlid  from the Central Redis queue
         crawl_id = self.central_redis.lpop('crawl_queue') 
         if crawl_id is not None:
-            print 'heeeeeer'
             web_crawl = _get_crawl_info(crawl_id, self.central_redis)
             crawl = _reformat_crawl_info(crawl_id, web_crawl)
             site_list = _get_sites(web_crawl)
@@ -456,7 +455,6 @@ def _get_crawl_info(crawl_id, central_redis):
 
 def _reformat_crawl_info(crawl_id, web_crawl):
     """Construct crawl info for Spider Engine from Spider Web crawl info."""
-    print 'heeeerio'
     crawl = {}
     crawl['crawl_id'] = crawl_id
     crawl['user_id'] = get_crawl_components(crawl_id)[0]
