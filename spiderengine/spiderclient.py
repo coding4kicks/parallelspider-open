@@ -48,6 +48,8 @@ class CrawlTracker(object):
           problem is with mock
 
     TODO: implement predefined synonym rings
+
+    TODO: pass back -3 to indicate cleaning up
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,
@@ -176,10 +178,8 @@ class CrawlTracker(object):
         success_command, clean_command = "", "" 
 
         if self.mock: # Fake the funk
-            self._mock_backend()
-
-        # Real Sexy Crawl
-        else: 
+            self._mock_backend()   
+        else: # Real Sexy Crawl 
 
             # Monitor the crawl queue
             for crawl_id in self.crawlQueue:
@@ -215,7 +215,7 @@ class CrawlTracker(object):
                         self.logger.debug(msg, extra=self.log_header)
   
                 # Logging
-                msg = ('Total count: {!s}').format(total_count)                            
+                msg = ('Total count: {!s}').format(total_count)
                 self.logger.debug(msg, extra=self.log_header)
 
                 # Only update to crawling vice initializing if total > 0
@@ -284,50 +284,25 @@ class CrawlTracker(object):
                 # done (> max pages or new links are empty) 
                 # really done (success files exist)
                 if done and not really_not_done:
-
-                    # Kick crawl out of the queue
                     self.crawlQueue.remove(crawl_id)
-  
-                    # Add crawl to cleaning queue
-                    self.cleanQueue.append(crawl_id)
-  
-                    # Get start time details and set elapsed time
-                    config_file = self.engine_redis.get(crawl_id)
-                    config = json.loads(config_file)
-                    start_time = config['time']
-                    stop_time = time.time()
-                    config['time'] = stop_time - start_time
-                    config_json = json.dumps(config)
-                    self.engine_redis.set(crawl_id, config_json)
-                    self.engine_redis.expire(crawl_id, 60*60)
-
-                    # TODO: should add a -3 for cleaning up
-  
-                    # Call cleanup
-                    cmd_line = "python spidercleaner.py " +  \
-                        "-r host:" + self.engine_redis_host + "," + \
-                        "port:6380 " + \
-                        "-c " + crawl_id
-                    if self.psuedo_dist:
-                        cmd_line += " -d"
-
+                    self.cleanQueue.append(crawl_id) # monitor cleaning
+                    _mark_timer_complete(crawl_id, self.engine_redis)
+                    cmd_line = self._cleanup_command(crawl_id)
+                    if self.test:
+                        clean_command = cmd_line
+                    else:
+                        p = subprocess.Popen(cmd_line, shell=True)
                     # Logging
                     msg = """cmd_line: %s""" % (cmd_line)
                     self.logger.debug(msg, extra=self.log_header)
 
-                    if self.test:
-                        clean_command = cmd_line
-                    else:
-                        p = subprocess.Popen(cmd_line, shell=True) 
-                    
-             
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
-                
+                site_count = self._check_complete(crawl_id)
                 # Check the first site for -2 (complete)
-                site = self.site_list[crawl_id][0]
-                base = '%s::%s' % (site, crawl_id)
-                site_count = self.engine_redis.get(base + "::count")
+                #site = self.site_list[crawl_id][0]
+                #base = '%s::%s' % (site, crawl_id)
+                #site_count = self.engine_redis.get(base + "::count")
 
                 # Logging
                 msg = """Cleanup Queue base: %s count: %s""" \
@@ -358,6 +333,22 @@ class CrawlTracker(object):
             self.central_redis.expire(crawl_id + "_count", 60*60)
             if page_count == "-2": # if complete
                 self.crawlQueue.remove(crawl_id)
+
+    def _cleanup_command(self, crawl_id):
+        """Construct command to run Spider Cleaner."""
+        cmd_line = ("python spidercleaner.py -r host:{},port:{} -c {}"
+                   ).format(self.engine_redis_host,
+                            self.engine_redis_port, crawl_id)
+        if self.psuedo_dist:
+            cmd_line += " -d"
+        return cmd_line
+
+    def _check_complete(self, crawl_id):
+        """Check primary site count for -2 to indicate cleaning is complete."""
+        site = self.site_list[crawl_id][0]
+        base = '%s::%s' % (site, crawl_id)
+        site_count = self.engine_redis.get(base + "::count")
+        return site_count
 
     def _init_logging(self, log_info):
         "Initilize logging parameters."""
@@ -507,6 +498,17 @@ def _get_sites(web_crawl):
         for site in web_crawl['additionalSites']:
             site_list += "," + site
     return site_list
+
+def _mark_timer_complete(crawl_id, engine_redis):
+    """Get start time details and determine/set elapsed time."""
+    config_file = engine_redis.get(crawl_id)
+    config = json.loads(config_file)
+    start_time = config['time']
+    stop_time = time.time()
+    config['time'] = stop_time - start_time
+    config_json = json.dumps(config)
+    engine_redis.set(crawl_id, config_json)
+    engine_redis.expire(crawl_id, 60*60)
 
 def set_logging_level(level="production"):
     """
