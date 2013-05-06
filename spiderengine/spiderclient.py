@@ -89,14 +89,14 @@ class CrawlTracker(object):
         Polls Central Redis for crawls.  When one is found, id is retrieved and
         used to obtain crawl info from Central Redis.  After validating and
         converting info to what is expected by Spider Engine, the info is saved
-        into the local Engine Redis and Spider Engine is called.  The crawl id
+        into the local Engine Redis and Spider Runner is called.  The crawl id
         is then saved into the Crawl Tracker's internal crawl queue for
-        monitoring.  The Central Redis crawl queue is monitored every 1 second.
+        monitoring.  The Central Redis crawl queue is monitored every second.
 
         Args
-            poll_time - how often in seconds to check Central Redis crawl queue
+            poll_time - how often in seconds to check the Central Redis 
+                        crawl queue
         """
-
         self.log_header['msg_type'] = "checkRedisQueue - "
 
         # Process a crawlid  from the Central Redis queue
@@ -108,49 +108,22 @@ class CrawlTracker(object):
             self.site_list[crawl_id] = site_list.split(',')
             self._construct_call_parameters(web_crawl)
             _add_crawl_info(crawl, crawl_id, self.engine_redis)
-            # Logging
-            msg = """Crawl info from Spider Web: %s""" % (web_crawl)
-            self.logger.debug(msg, extra=self.log_header)
-    
-            # Logging
-            #msg = """Crawl info to Spider Runner: %s""" % (crawl)
-            #self.logger.info(msg, extra=self.log_header)
-
-            # Add crawl info to local engine redis
-            #crawl_info = json.dumps(crawl)
-            #self.engine_redis.set(crawl_id, crawl_info)
-            #hour = 60 * 60 # Expiration
-            #self.engine_redis.expire(crawl_id, hour)
-  
-            # Add crawl to the crawl queue for monitoring by checkCrawlStatus
-            self.crawlQueue.append(crawl_id)
-
-            # Execute the crawl
-            # TODO: Incorporate Sun Grid Engine
-            cmd_line = "python spiderrunner.py " + site_list + \
-                       " -r host:" + self.engine_redis_host + "," + \
-                           "port:" + self.engine_redis_port + \
-                       " -m " + str(self.mappers) + \
-                       " -t " + str(self.max_pages) + \
-                       " -c " + crawl_id
-            if self.psuedo_dist:
-                cmd_line += " -d"
-
-            # Logging
-            msg = """Cmd Line: %s""" % (cmd_line)
-            self.logger.debug(msg, extra=self.log_header)
-
-            # If mocking then fake the funk.
-            if self.mock:
+            cmd_line = self._construct_crawl_command(site_list, crawl_id)
+            self.crawlQueue.append(crawl_id) # add for monitoring
+            if self.mock: # If mocking then fake the funk.
                 mocker = MockCrawl(crawl_id, self.max_pages, engine_redis)
                 mocker.run()
-
             elif self.test:
                 return cmd_line
-
-            # Otherwise it's the real deal
-            else:
-                p = subprocess.Popen(cmd_line, shell=True) 
+            else: # the real deal
+                p = subprocess.Popen(cmd_line, shell=True)
+            if self.debug:
+                msg = """Crawl info from Spider Web: %s""" % (web_crawl)
+                self.logger.debug(msg, extra=self.log_header)
+                msg = """Cmd Line: %s""" % (cmd_line)
+                self.logger.debug(msg, extra=self.log_header)
+            #msg = """Crawl info to Spider Runner: %s""" % (crawl)
+            #self.logger.info(msg, extra=self.log_header)
   
         # Continue to check the Central Redis queue (default every second).
         reactor.callLater(queue_poll_time, self.checkRedisQueue)
@@ -174,6 +147,16 @@ class CrawlTracker(object):
             # Round up to make sure we hit total max pages and finish
             self.max_pages = int(math.ceil(pages_per_site))
 
+    def _construct_crawl_command(self, site_list, crawl_id):
+        """Create command line code to execute Spider Runner."""
+        cmd_line = ("python spiderrunner.py {} -r host:{},port:{} -m {}"                           " -t {} -c {}").format(
+                        site_list, self.engine_redis_host,
+                        self.engine_redis_port, self.mappers,
+                        self.max_pages, crawl_id)
+        if self.psuedo_dist:
+            cmd_line += " -d"
+        return cmd_line
+
     def checkCrawlStatus(self, status_poll_time=5):
         """ 
         Tracks the crawl progress of the Spider Engine
@@ -188,21 +171,12 @@ class CrawlTracker(object):
         Args
             poll_time - how often in seconds to check Central Redis crawl queue
         """
-
         self.log_header['msg_type'] = "checkCrawlStatus - "
-        success_command = "" # only in outerscope for testing (fix with mocks)
-        clean_command = ""
+        # only in outerscope for testing (fix with mock testing)
+        success_command, clean_command = "", "" 
 
-        # Fake the funk
-        if self.mock:
-            for crawl_id in self.crawlQueue:
-                # Retrieve page count from engine and set in central redis
-                page_count = self.engine_redis.get(crawl_id + "_count")
-                self.central_redis.set(crawl_id + "_count", page_count)
-                self.central_redis.expire(crawl_id + "_count", 60*60)
-                # If page count is complete (-2), remove from queue
-                if page_count == "-2":
-                    self.crawlQueue.remove(crawl_id)
+        if self.mock: # Fake the funk
+            self._mock_backend()
 
         # Real Sexy Crawl
         else: 
@@ -375,6 +349,16 @@ class CrawlTracker(object):
         # Continue to montitor crawl statuses (default every 5 seconds).
         reactor.callLater(status_poll_time, self.checkCrawlStatus)
 
+    def _mock_backend(self):
+        """Mock backend for Spider Web/Server testing."""
+        for crawl_id in self.crawlQueue:
+            # Retrieve page count from engine and set in central redis
+            page_count = self.engine_redis.get(crawl_id + "_count")
+            self.central_redis.set(crawl_id + "_count", page_count)
+            self.central_redis.expire(crawl_id + "_count", 60*60)
+            if page_count == "-2": # if complete
+                self.crawlQueue.remove(crawl_id)
+
     def _init_logging(self, log_info):
         "Initilize logging parameters."""
         self.logger, log_header = log_info
@@ -429,7 +413,6 @@ class MockCrawl(object):
 ###############################################################################
 def get_crawl_components(crawl_id):
     """Construct sanitized engine crawl id"""
-
     u, n, t  = urllib.unquote_plus(crawl_id).split("__")
     return (u, n, t)
 
