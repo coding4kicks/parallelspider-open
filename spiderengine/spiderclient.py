@@ -110,22 +110,6 @@ class CrawlTracker(object):
             msg = """Crawl info from Spider Web: %s""" % (web_crawl)
             self.logger.debug(msg, extra=self.log_header)
     
-            # Predefined synonym ring lists 
-            # TODO: make more, put into redis, load in init
-            predefinedRings = {'stopWords': ['and','but','a',
-                                             'on','off','again']}
-  
-            # Set synonym ring analysis
-            if 'predefinedSynRings' in web_crawl:
-                for ring in web_crawl['predefinedSynRings']:
-                    name = ring['name']
-                    crawl['wordnet_lists'] = {}
-                    if name in predefinedRings:
-                        list = predefinedRings[name]
-                        crawl['wordnet_lists'][name] = list
-                    else:
-                        print 'error error should not be here'
-
             # Logging
             #msg = """Crawl info to Spider Runner: %s""" % (crawl)
             #self.logger.info(msg, extra=self.log_header)
@@ -465,30 +449,39 @@ def _reformat_crawl_info(crawl_id, web_crawl):
     crawl['time'] = time.time()
     crawl['sites'] = _get_sites(web_crawl)
     crawl['analyze_external_pages'] = (web_crawl['externalSites'] if 
-                        'externalSites' in web_crawl else "")
+                                        'externalSites' in web_crawl else "")
     crawl['stop_list'] = _construct_stop_list(web_crawl)
-    if 'text' in web_crawl:
-        if 'visible' in web_crawl['text']:
-            if web_crawl['text']['visible'] == True:
-                crawl['text_request'] = True
-        if 'headlines' in web_crawl['text']:
-            if web_crawl['text']['headlines'] == True:
-                crawl['header_request'] = True
-        if 'hidden' in web_crawl['text']:
-            if web_crawl['text']['hidden'] == True:
-                crawl['meta_request'] = True
-    if 'links' in web_crawl:
-        if 'text' in web_crawl['links']:
-            if web_crawl['links']['text'] == True:
-                crawl['a_tags_request'] = True
-        if 'all' in web_crawl['links']:
-            if web_crawl['links']['all'] == True:
-                crawl['all_links_request'] = True
-        if 'external' in web_crawl['links']:
-            if web_crawl['links']['external'] == True:
-                crawl['external_links_request'] = True
+    crawl['text_request'] = (True if 'text' in web_crawl and 'visible' in 
+                                web_crawl['text'] else False)
+    crawl['header_request'] = (True if 'text' in web_crawl and 'headlines' in 
+                                web_crawl['text'] else False)
+    crawl['meta_request'] = (True if 'text' in web_crawl and 'hidden' in 
+                                web_crawl['text'] else False)
+    crawl['a_tags_request'] = (True if 'links' in web_crawl and 'text' in 
+                                web_crawl['links'] else False)
+    crawl['all_links_request'] = (True if 'links' in web_crawl and 'all' in 
+                                web_crawl['links'] else False)
+    # Annoying broken symmetry 
+    crawl['external_links_request'] = (True if 'links' in web_crawl and 
+                                'external' in web_crawl['links'] else False)
+
     if 'wordContexts' in web_crawl:
         crawl['context_search_tag'] = web_crawl['wordContexts']
+    
+    # TODO: make more, put into redis, load in init
+    predefinedRings = {'stopWords': ['and','but','a',
+                                     'on','off','again']}
+
+    # Set synonym ring analysis
+    if 'predefinedSynRings' in web_crawl:
+        for ring in web_crawl['predefinedSynRings']:
+            name = ring['name']
+            crawl['wordnet_lists'] = {}
+            if name in predefinedRings:
+                list = predefinedRings[name]
+                crawl['wordnet_lists'][name] = list
+            else:
+                print 'error error should not be here'
     return crawl
 
 def _construct_stop_list(web_crawl):
