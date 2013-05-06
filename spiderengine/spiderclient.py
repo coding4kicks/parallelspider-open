@@ -50,6 +50,8 @@ class CrawlTracker(object):
     TODO: implement predefined synonym rings
 
     TODO: pass back -3 to indicate cleaning up
+
+    TODO: use deferreds
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,
@@ -183,67 +185,53 @@ class CrawlTracker(object):
 
             # Monitor the crawl queue
             for crawl_id in self.crawlQueue:
-                total_count = 0
-                
+                total_count = 0    
                 # Crawl Completion Variables
                 not_done = False            # True if still new links
                 really_not_done = False     # True if no success files
                 done = False                # True if count > max pages
-
                 # Check counter and new link queue for each site
                 # If either indicates complete, then check Success files exist
                 for site in self.site_list[crawl_id]:
                     base = '%s::%s' % (site, crawl_id)
                     site_count = self.engine_redis.get(base + "::count")
-                    if site_count:
+                    if site_count: # started
                         total_count += int(site_count)
                         # Check if new links empty (only if count has started)
                         new_links = \
                             self.engine_redis.scard(base + "::new_links")
                         if new_links > 0:
                             not_done = True
-
-                            # Logging
-                            msg = 'Not Done, still links'                            
-                            self.logger.debug(msg, extra=self.log_header)
-
-                    else: # Haven't started so definitely not done
-                        not_done = True
-
-                        # Logging
-                        msg = 'Not Done, no count yet'                            
-                        self.logger.debug(msg, extra=self.log_header)
-  
-                # Logging
-                msg = ('Total count: {!s}').format(total_count)
-                self.logger.debug(msg, extra=self.log_header)
-
+                            if self.debug:
+                                self.logger.debug('Not Done, still links', 
+                                                  extra=self.log_header)
+                    else: # Haven't started 
+                        not_done = True                    
+                        if self.debug:
+                            self.logger.debug('Not Done, no count yet', 
+                                              extra=self.log_header)
+                if self.debug:
+                    self.logger.debug('Total count: {!s}', total_count, 
+                                      extra=self.log_header)
                 # Only update to crawling vice initializing if total > 0
                 if total_count > 0:
                     self.central_redis.set(crawl_id + "_count", total_count) 
                     if total_count >= self.total_max or not not_done:
                         done = True
-
-                        # Logging
-                        msg = ('total_count: {!s} max_pages: {!s} '
-                               'links_not_done {!s}'
-                               ).format(total_count, self.total_max, not_done) 
-                        self.logger.debug(msg, extra=self.log_header)
-
-  
+                        if self.debug:
+                            self.logger.debug(
+                                    'total_count: {!s} max_pages: {!s} '
+                                    'links_not_done {!s}', self.total_max, 
+                                    not_done, extra=self.log_header)
                 # If done check all sites for a success file
                 if done:
                     for site in self.site_list[crawl_id]:
                         base = '%s::%s' % (site, crawl_id)
                         base_path = base.replace("/","_").replace(":","-")
-
-                        # Logging
-                        msg = """Done, checking: %s""" % (base_path) 
-                        self.logger.debug(msg, extra=self.log_header)
-  
-                        # Special case: testing in psuedo distributed mode
-                        # No success file so check path exists, TODO: broken
-                        if self.psuedo_dist:
+                        if self.debug:
+                            self.logger.debug("Done, checking: %s", base_path,
+                                              extra=self.log_header)
+                        if self.psuedo_dist: # psuedo dist for testing
                             path = "/home/parallelspider/out/"
                             with open(path + base_path) as f:
                                 line = f.readline()
@@ -251,34 +239,27 @@ class CrawlTracker(object):
                                     extra=self.log_header)
                                 if line == "":
                                     really_not_done = True
-
-                                    # Logging
-                                    msg = """Path doesn't exist""" 
-                                    self.logger.debug(msg, extra=self.log_header)
-
-                        # Distributed Crawl 
-                        else:
-                            # list output files and look for success
-                            # TODO: add deferred (will break on psuedo dist)
-                            cmd = "dumbo ls /HDFS/parallelspider/out/" + \
-                                   base_path + " -hadoop starcluster"
+                                    if self.debug:
+                                        self.logger.debug("Path doesn't exist",
+                                                        extra=self.log_header)
+                        else: # Distributed Crawl
+                            cmd = ("dumbo ls /HDFS/parallelspider/out/{} "
+                                   "-hadoop starcluster").format(base_path)
                             if self.test:
                                 success_command = cmd
                             else:
-                                files = subprocess.check_output(cmd, shell=True)
-        
-                                # Logging
-                                msg = """Checking for success file in: %s""" \
-                                        % (files)
-                                self.logger.debug(msg, extra=self.log_header)
-
-                                # If success file then we're not really done yet
-                                if "_SUCCESS" not in files:
+                                files = subprocess.check_output(
+                                            cmd, shell=True)
+                                if self.debug:
+                                    self.logger.debug(
+                                        "Checking for success file in: %s", 
+                                        files, extra=self.log_header)
+                                if "_SUCCESS" not in files: # still processing
                                     really_not_done = True
-
-                                    # Logging
-                                    msg = """No success file""" 
-                                    self.logger.debug(msg, extra=self.log_header)
+                                    if self.debug:
+                                        self.logger.debug(
+                                            "No success file", 
+                                            extra=self.log_header)
     
                 # If all sites are done, crawl is complete so cleanup.
                 # done (> max pages or new links are empty) 
@@ -292,34 +273,24 @@ class CrawlTracker(object):
                         clean_command = cmd_line
                     else:
                         p = subprocess.Popen(cmd_line, shell=True)
-                    # Logging
-                    msg = """cmd_line: %s""" % (cmd_line)
-                    self.logger.debug(msg, extra=self.log_header)
+                    if self.debug:
+                        self.logger.debug(
+                            "cmd_line: %s", cmd_line, extra=self.log_header)
 
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
                 site_count = self._check_complete(crawl_id)
-                # Check the first site for -2 (complete)
-                #site = self.site_list[crawl_id][0]
-                #base = '%s::%s' % (site, crawl_id)
-                #site_count = self.engine_redis.get(base + "::count")
-
-                # Logging
-                msg = """Cleanup Queue base: %s count: %s""" \
-                            % (base, site_count)
-                self.logger.debug(msg, extra=self.log_header)
-
                 if site_count == "-2":
                     self.central_redis.set(crawl_id + "_count", site_count)
                     self.cleanQueue.remove(crawl_id)
-
-                    # Logging
-                    msg = """Cleanup Success"""
-                    self.logger.debug(msg, extra=self.log_header)
-
+                    if self.debug:
+                        self.logger.debug(
+                                "Cleanup Success", extra=self.log_header)
                 if self.test:
                         return (clean_command, success_command)
-
+                if self.debug:
+                    self.logger.debug("Cleanup Queue base: %s count: %s", base,
+                            site_count, extra=self.log_header)
 
         # Continue to montitor crawl statuses (default every 5 seconds).
         reactor.callLater(status_poll_time, self.checkCrawlStatus)
