@@ -46,6 +46,8 @@ class CrawlTracker(object):
 
     TODO: fix _count so only in Central Redis and ::count so only in Engine.
           problem is with mock
+
+    TODO: implement predefined synonym rings
     """
 
     def __init__(self, central_redis, engine_redis, engine_redis_host,
@@ -74,8 +76,8 @@ class CrawlTracker(object):
         self.site_list = {} # List of sites for each Crawl being tracked
 
         # Defaults
-        self.max_pages = 20 # Default Free Ride
-        self.total_max = 20 # total for all sites
+        self.max_pages = 20 # max pages per site, assuming 1
+        self.total_max = 20 # total pages for all sites
         self.mappers = 3
         
   
@@ -105,7 +107,7 @@ class CrawlTracker(object):
             site_list = _get_sites(web_crawl)
             self.site_list[crawl_id] = site_list.split(',')
             self._construct_call_parameters(web_crawl)
-
+            _add_crawl_info(crawl, crawl_id, self.engine_redis)
             # Logging
             msg = """Crawl info from Spider Web: %s""" % (web_crawl)
             self.logger.debug(msg, extra=self.log_header)
@@ -115,10 +117,10 @@ class CrawlTracker(object):
             #self.logger.info(msg, extra=self.log_header)
 
             # Add crawl info to local engine redis
-            crawl_info = json.dumps(crawl)
-            self.engine_redis.set(crawl_id, crawl_info)
-            hour = 60 * 60 # Expiration
-            self.engine_redis.expire(crawl_id, hour)
+            #crawl_info = json.dumps(crawl)
+            #self.engine_redis.set(crawl_id, crawl_info)
+            #hour = 60 * 60 # Expiration
+            #self.engine_redis.expire(crawl_id, hour)
   
             # Add crawl to the crawl queue for monitoring by checkCrawlStatus
             self.crawlQueue.append(crawl_id)
@@ -164,7 +166,7 @@ class CrawlTracker(object):
             self.mappers = 5
         # Adjust mappers for number of sites so don't max out the engine
         self.mappers = self.mappers/(len(web_crawl['additionalSites']) + 1)
-        # Calculate max pages for each site (total/# of sites)
+        # Adjust max pages for each site (total/# of sites)
         if 'additionalSites' in web_crawl:
             total_num_sites = 1 + len(web_crawl['additionalSites'])
             pages_per_site = float(self.max_pages)/total_num_sites
@@ -436,6 +438,13 @@ def _get_crawl_info(crawl_id, central_redis):
     web_crawl_json = central_redis.get(crawl_id)       
     web_crawl_info = json.loads(web_crawl_json)
     return web_crawl_info['crawl']
+
+def _add_crawl_info(crawl, crawl_id, engine_redis):
+    """Upload crawl info to Engine Redis as JSON."""
+    crawl_info = json.dumps(crawl)
+    engine_redis.set(crawl_id, crawl_info)
+    hour = 60 * 60 
+    engine_redis.expire(crawl_id, hour)
 
 def _reformat_crawl_info(crawl_id, web_crawl):
     """Construct crawl info for Spider Engine from Spider Web crawl info."""
