@@ -301,7 +301,11 @@ def _batch_add_links_to_new(r, links, redis_keys):
     that only "new" links are added to the new links set.
     """
     new_links, processing, finished, count, temp1, temp2 = redis_keys
-    pipe = r.pipeline() # start transaction to add new links
+    pipe = r.pipeline() # start pipeline to add new links
+
+    # Insert Transacton
+    # pipe.multi() ???
+
     size = len(links) 
     batch_size = 250
     breaks, remainder = divmod(size, batch_size) # calc number of breaks
@@ -321,7 +325,11 @@ def _batch_add_links_to_new(r, links, redis_keys):
     pipe.sunionstore(new_links, new_links, temp2)
     pipe.delete(temp1)
     pipe.delete(temp2)
-    pipe.execute() # finish transaction
+
+    # Finish Transaction
+    # pipe.exec() 
+
+    pipe.execute() # finish pipeline
 
 def _set_key_expiration(r, redis_keys):
     """Set key expirations, must be done after every change."""
