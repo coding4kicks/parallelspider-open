@@ -82,7 +82,7 @@ class CrawlTracker(object):
 
         # Defaults
         self.max_pages = 20 # max pages per site, assuming 1 site
-        self.total_max = 20 # total pages for all sites
+        self.total_pages = 20 # total pages for all sites
         self.mappers = 3
         
   
@@ -149,7 +149,7 @@ class CrawlTracker(object):
         if 'additionalSites' in web_crawl:
             total_num_sites = 1 + len(web_crawl['additionalSites'])
             pages_per_site = float(self.max_pages)/total_num_sites
-            self.total_max = self.max_pages # used for completion check
+            self.total_pages = self.max_pages # used for completion check
             # Round up to make sure we hit total max pages and finish
             self.max_pages = int(math.ceil(pages_per_site))
 
@@ -198,39 +198,15 @@ class CrawlTracker(object):
                 # Check counter and new link queue for each site
                 # If either indicates complete, then check Success files exist
                 for site in self.site_list[crawl_id]:
-                    total_count, still_new_links = self._check_crawl_status(
+                    total_count, still_new_links = self._check_site_status(
                             site, crawl_id, total_count, still_new_links)
-                   # base = '%s::%s' % (site, crawl_id)
-                   # site_count = self.engine_redis.get(base + "::count")
-                   # #site_count = self._get_site_count(site, crawl_id)
-                   # if site_count: # started
-                   #     total_count += int(site_count)
-                   #     # Check if new links empty (only if count has started)
-                   #     new_links = \
-                   #         self.engine_redis.scard(base + "::new_links")
-                   #     if new_links > 0:
-                   #         still_new_links = True
-                   #         if self.debug:
-                   #             self.logger.debug('Not Done, still links', 
-                   #                               extra=self.log_header)
-                   # else: # Haven't started 
-                   #     still_new_links = True                    
-                   #     if self.debug:
-                   #         self.logger.debug('Not Done, no count yet', 
-                   #                           extra=self.log_header)
                 if self.debug:
                     self.logger.debug('Total count: {!s}', total_count, 
                                       extra=self.log_header)
-                # Only update to crawling vice initializing if total > 0
-                if total_count > 0:
-                    self.central_redis.set(crawl_id + "_count", total_count) 
-                    if total_count >= self.total_max or not still_new_links:
-                        done = True
-                        if self.debug:
-                            self.logger.debug(
-                                    'total_count: {!s} max_pages: {!s} '
-                                    'links_not_done {!s}', self.total_max, 
-                                    still_new_links, extra=self.log_header)
+
+                done = self._update_crawl_status(
+                        crawl_id, total_count, still_new_links)
+
                 # If done check all sites for a success file
                 if done:
                     for site in self.site_list[crawl_id]:
@@ -303,9 +279,9 @@ class CrawlTracker(object):
         # Continue to montitor crawl statuses (default every 5 seconds).
         reactor.callLater(status_poll_time, self.checkCrawlStatus)
 
-    def _check_crawl_status(self, site, crawl_id, 
+    def _check_site_status(self, site, crawl_id, 
                             total_count, still_new_links):
-        """Checks the page count and new link queue to see if crawl is over."""
+        """Checks the page count and new link queue for a site."""
         base = '%s::%s' % (site, crawl_id)
         site_count = self.engine_redis.get(base + "::count")
         if site_count: # started
@@ -324,6 +300,24 @@ class CrawlTracker(object):
                 self.logger.debug('Not Done, no count yet', 
                                   extra=self.log_header)
         return (total_count, still_new_links)
+
+    def _update_crawl_status(self, crawl_id, total_count, new_links):
+        """Checks if a crawl has reached the max pages and is done.
+           Updates Central Redis with new crawl count.
+           Returns a boolean indicating the the status of the crawl."""
+        done = False
+        # Only update to crawling vice initializing if total > 0
+        if total_count > 0:
+            self.central_redis.set(crawl_id + "_count", total_count) 
+            if total_count >= self.total_pages or not new_links:
+                done = True
+                if self.debug:
+                    self.logger.debug(
+                            'total_count: {!s} max_pages: {!s} '
+                            'links_not_done {!s}', 
+                            total_count, self.total_pages,
+                            new_links, extra=self.log_header)
+        return done
 
     def _mock_backend(self):
         """Mock backend for Spider Web/Server testing."""

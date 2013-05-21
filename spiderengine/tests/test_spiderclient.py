@@ -45,7 +45,7 @@ class TestSpiderRunner(unittest.TestCase):
         self.assertEqual(self.client.central_redis, self.central_redis)
         self.assertEqual(self.client.engine_redis, self.engine_redis)
         self.assertEqual(self.client.max_pages, 20)
-        self.assertEqual(self.client.total_max, 20)
+        self.assertEqual(self.client.total_pages, 20)
         self.assertEqual(self.client.mappers, 3)
         self.assertEqual(self.client.engine_redis_host, 'localhost')
         self.assertEqual(self.client.engine_redis_port, '6380')
