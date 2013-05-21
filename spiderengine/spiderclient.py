@@ -180,7 +180,7 @@ class CrawlTracker(object):
         """
         self.log_header['msg_type'] = "checkCrawlStatus - "
         # only in outerscope for testing (fix with mock testing)
-        success_command, clean_command = "", "" 
+        self.success_command, clean_command = "", "" 
 
         if self.mock: # Fake the funk
             self._mock_backend()   
@@ -209,45 +209,44 @@ class CrawlTracker(object):
 
                 # If done check all sites for a success file
                 if done:
-                    for site in self.site_list[crawl_id]:
-                        base = '%s::%s' % (site, crawl_id)
-                        base_path = base.replace("/","_").replace(":","-")
-                        if self.debug:
-                            self.logger.debug("Done, checking: %s", base_path,
-                                              extra=self.log_header)
-                        if self.psuedo_dist: # psuedo dist for testing
-                            path = "/home/parallelspider/out/"
-                            with open(path + base_path) as f:
-                                line = f.readline()
-                                self.logger.debug("Reducing...", 
-                                    extra=self.log_header)
-                                if line == "":
-                                    no_succ_file = True
-                                    if self.debug:
-                                        self.logger.debug("Path doesn't exist",
-                                                        extra=self.log_header)
-                        else: # Distributed Crawl
-                            cmd = ("dumbo ls /HDFS/parallelspider/out/{} "
-                                   "-hadoop starcluster").format(base_path)
-                            if self.test:
-                                success_command = cmd
-                            else:
-                                files = subprocess.check_output(
-                                            cmd, shell=True)
-                                if self.debug:
-                                    self.logger.debug(
-                                        "Checking for success file in: %s", 
-                                        files, extra=self.log_header)
-                                if "_SUCCESS" not in files: # still processing
-                                    no_succ_file = True
-                                    if self.debug:
-                                        self.logger.debug(
-                                            "No success file", 
-                                            extra=self.log_header)
+                    no_succ_file = self._check_for_success(crawl_id)
+                   # for site in self.site_list[crawl_id]:
+                   #     base = '%s::%s' % (site, crawl_id)
+                   #     base_path = base.replace("/","_").replace(":","-")
+                   #     if self.debug:
+                   #         self.logger.debug("Done, checking: %s", base_path,
+                   #                           extra=self.log_header)
+                   #     if self.psuedo_dist: # psuedo dist for testing
+                   #         path = "/home/parallelspider/out/"
+                   #         with open(path + base_path) as f:
+                   #             line = f.readline()
+                   #             self.logger.debug("Reducing...", 
+                   #                 extra=self.log_header)
+                   #             if line == "":
+                   #                 no_succ_file = True
+                   #                 if self.debug:
+                   #                     self.logger.debug("Path doesn't exist",
+                   #                                     extra=self.log_header)
+                   #     else: # Distributed Crawl
+                   #         cmd = ("dumbo ls /HDFS/parallelspider/out/{} "
+                   #                "-hadoop starcluster").format(base_path)
+                   #         if self.test:
+                   #             self.success_command = cmd
+                   #         else:
+                   #             files = subprocess.check_output(
+                   #                         cmd, shell=True)
+                   #             if self.debug:
+                   #                 self.logger.debug(
+                   #                     "Checking for success file in: %s", 
+                   #                     files, extra=self.log_header)
+                   #             if "_SUCCESS" not in files: # still processing
+                   #                 no_succ_file = True
+                   #                 if self.debug:
+                   #                     self.logger.debug(
+                   #                         "No success file", 
+                   #                         extra=self.log_header)
     
-                # If all sites are done, crawl is complete so cleanup.
-                # done (> max pages or new links are empty) 
-                # really done (success files exist)
+                # Cleanup - and love the double negative.
                 if done and not no_succ_file:
                     self.crawlQueue.remove(crawl_id)
                     self.cleanQueue.append(crawl_id) # monitor cleaning
@@ -271,7 +270,7 @@ class CrawlTracker(object):
                         self.logger.debug(
                                 "Cleanup Success", extra=self.log_header)
                 if self.test:
-                        return (clean_command, success_command)
+                        return (clean_command, self.success_command)
                 if self.debug:
                     self.logger.debug("Cleanup Queue base: %s count: %s", base,
                             site_count, extra=self.log_header)
@@ -318,6 +317,43 @@ class CrawlTracker(object):
                             total_count, self.total_pages,
                             new_links, extra=self.log_header)
         return done
+
+    def _check_for_success(self, crawl_id):
+        """Check if a success file exists, i.e. hadoop is complete."""
+        no_succ_file = False
+        for site in self.site_list[crawl_id]:
+            base = '%s::%s' % (site, crawl_id)
+            base_path = base.replace("/","_").replace(":","-")
+            if self.debug:
+                self.logger.debug("Done, checking: %s", base_path,
+                                  extra=self.log_header)
+            if self.psuedo_dist: # psuedo dist for testing
+                path = "/home/parallelspider/out/"
+                with open(path + base_path) as f:
+                    line = f.readline()
+                    if self.debug:
+                        self.logger.debug("Reducing...", extra=self.log_header)
+                    if line == "":
+                        no_succ_file = True
+                        if self.debug:
+                            self.logger.debug("Path doesn't exist",
+                                            extra=self.log_header)
+            else: # Distributed Crawl
+                cmd = ("dumbo ls /HDFS/parallelspider/out/{} "
+                       "-hadoop starcluster").format(base_path)
+                if self.test:
+                    self.success_command = cmd
+                else:
+                    files = subprocess.check_output(cmd, shell=True)
+                    if self.debug:
+                        self.logger.debug("Checking for success file in: %s", 
+                                          files, extra=self.log_header)
+                    if "_SUCCESS" not in files: # still processing
+                        no_succ_file = True
+                        if self.debug:
+                            self.logger.debug("No success file", 
+                                              extra=self.log_header)
+        return no_succ_file
 
     def _mock_backend(self):
         """Mock backend for Spider Web/Server testing."""
