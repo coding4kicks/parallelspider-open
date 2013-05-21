@@ -200,9 +200,9 @@ class CrawlTracker(object):
                 for site in self.site_list[crawl_id]:
                     total_count, still_new_links = self._check_site_status(
                             site, crawl_id, total_count, still_new_links)
-                if self.debug:
-                    self.logger.debug('Total count: {!s}', total_count, 
-                                      extra=self.log_header)
+                #if self.debug:
+                #    self.logger.debug('Total count: {!s}', str(total_count), 
+                #                      extra=self.log_header)
 
                 done = self._update_crawl_status(
                         crawl_id, total_count, still_new_links)
@@ -226,9 +226,9 @@ class CrawlTracker(object):
                                 "Cleanup Success", extra=self.log_header)
                 if self.test:
                         return (self.clean_command, self.success_command)
-                if self.debug:
-                    self.logger.debug("Cleanup Queue base: %s count: %s", base,
-                            site_count, extra=self.log_header)
+                #if self.debug:
+                #    self.logger.debug("Cleanup Queue base: %s count: %s", base,
+                #            site_count, extra=self.log_header)
 
         # Continue to montitor crawl statuses (default every 5 seconds).
         reactor.callLater(status_poll_time, self.checkCrawlStatus)
@@ -269,7 +269,7 @@ class CrawlTracker(object):
                     self.logger.debug(
                             'total_count: {!s} max_pages: {!s} '
                             'links_not_done {!s}', 
-                            total_count, self.total_pages,
+                            str(total_count), str(self.total_pages),
                             new_links, extra=self.log_header)
         return done
 
