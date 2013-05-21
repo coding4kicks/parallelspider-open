@@ -214,17 +214,6 @@ class CrawlTracker(object):
                 # Cleanup - and love the double negative.
                 if done and not no_succ_file:
                     self._cleanup_crawl(crawl_id)
-                   # self.crawlQueue.remove(crawl_id)
-                   # self.cleanQueue.append(crawl_id) # monitor cleaning
-                   # _mark_timer_complete(crawl_id, self.engine_redis)
-                   # cmd_line = self._cleanup_command(crawl_id)
-                   # if self.test:
-                   #     self.clean_command = cmd_line
-                   # else:
-                   #     p = subprocess.Popen(cmd_line, shell=True)
-                   # if self.debug:
-                   #     self.logger.debug(
-                   #         "cmd_line: %s", cmd_line, extra=self.log_header)
 
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
@@ -415,7 +404,7 @@ class MockCrawl(object):
 ###############################################################################
 # Helper Funcs
 ###############################################################################
-def get_crawl_components(crawl_id):
+def _get_crawl_components(crawl_id):
     """Construct sanitized engine crawl id"""
     u, n, t  = urllib.unquote_plus(crawl_id).split("__")
     return (u, n, t)
@@ -437,7 +426,7 @@ def _reformat_crawl_info(crawl_id, web_crawl):
     """Construct crawl info for Spider Engine from Spider Web crawl info."""
     crawl = {}
     crawl['crawl_id'] = crawl_id
-    crawl['user_id'] = get_crawl_components(crawl_id)[0]
+    crawl['user_id'] = _get_crawl_components(crawl_id)[0]
     crawl['name'] = (web_crawl['name'] if 'name' in web_crawl 
                         else web_crawl['primarySite'])
     crawl['date'] = (web_crawl['time'] if 'time' in web_crawl
@@ -675,3 +664,4 @@ if __name__ == "__main__":
     reactor.callWhenRunning(tracker.checkCrawlStatus,
                             int(options.statusPollTime))
     reactor.run()
+
