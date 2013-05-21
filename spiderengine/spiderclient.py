@@ -198,7 +198,7 @@ class CrawlTracker(object):
                 # Check counter and new link queue for each site
                 # If either indicates complete, then check Success files exist
                 for site in self.site_list[crawl_id]:
-                    total_count, still_new_links = _check_crawl_status(
+                    total_count, still_new_links = self._check_crawl_status(
                             site, crawl_id, total_count, still_new_links)
                    # base = '%s::%s' % (site, crawl_id)
                    # site_count = self.engine_redis.get(base + "::count")
