@@ -180,7 +180,7 @@ class CrawlTracker(object):
         """
         self.log_header['msg_type'] = "checkCrawlStatus - "
         # only in outerscope for testing (fix with mock testing)
-        self.success_command, clean_command = "", "" 
+        self.success_command, self.clean_command = "", "" 
 
         if self.mock: # Fake the funk
             self._mock_backend()   
@@ -210,55 +210,21 @@ class CrawlTracker(object):
                 # If done check all sites for a success file
                 if done:
                     no_succ_file = self._check_for_success(crawl_id)
-                   # for site in self.site_list[crawl_id]:
-                   #     base = '%s::%s' % (site, crawl_id)
-                   #     base_path = base.replace("/","_").replace(":","-")
-                   #     if self.debug:
-                   #         self.logger.debug("Done, checking: %s", base_path,
-                   #                           extra=self.log_header)
-                   #     if self.psuedo_dist: # psuedo dist for testing
-                   #         path = "/home/parallelspider/out/"
-                   #         with open(path + base_path) as f:
-                   #             line = f.readline()
-                   #             self.logger.debug("Reducing...", 
-                   #                 extra=self.log_header)
-                   #             if line == "":
-                   #                 no_succ_file = True
-                   #                 if self.debug:
-                   #                     self.logger.debug("Path doesn't exist",
-                   #                                     extra=self.log_header)
-                   #     else: # Distributed Crawl
-                   #         cmd = ("dumbo ls /HDFS/parallelspider/out/{} "
-                   #                "-hadoop starcluster").format(base_path)
-                   #         if self.test:
-                   #             self.success_command = cmd
-                   #         else:
-                   #             files = subprocess.check_output(
-                   #                         cmd, shell=True)
-                   #             if self.debug:
-                   #                 self.logger.debug(
-                   #                     "Checking for success file in: %s", 
-                   #                     files, extra=self.log_header)
-                   #             if "_SUCCESS" not in files: # still processing
-                   #                 no_succ_file = True
-                   #                 if self.debug:
-                   #                     self.logger.debug(
-                   #                         "No success file", 
-                   #                         extra=self.log_header)
     
                 # Cleanup - and love the double negative.
                 if done and not no_succ_file:
-                    self.crawlQueue.remove(crawl_id)
-                    self.cleanQueue.append(crawl_id) # monitor cleaning
-                    _mark_timer_complete(crawl_id, self.engine_redis)
-                    cmd_line = self._cleanup_command(crawl_id)
-                    if self.test:
-                        clean_command = cmd_line
-                    else:
-                        p = subprocess.Popen(cmd_line, shell=True)
-                    if self.debug:
-                        self.logger.debug(
-                            "cmd_line: %s", cmd_line, extra=self.log_header)
+                    self._cleanup_crawl(crawl_id)
+                   # self.crawlQueue.remove(crawl_id)
+                   # self.cleanQueue.append(crawl_id) # monitor cleaning
+                   # _mark_timer_complete(crawl_id, self.engine_redis)
+                   # cmd_line = self._cleanup_command(crawl_id)
+                   # if self.test:
+                   #     self.clean_command = cmd_line
+                   # else:
+                   #     p = subprocess.Popen(cmd_line, shell=True)
+                   # if self.debug:
+                   #     self.logger.debug(
+                   #         "cmd_line: %s", cmd_line, extra=self.log_header)
 
             # Monitor clean queue            
             for crawl_id in self.cleanQueue:
@@ -270,7 +236,7 @@ class CrawlTracker(object):
                         self.logger.debug(
                                 "Cleanup Success", extra=self.log_header)
                 if self.test:
-                        return (clean_command, self.success_command)
+                        return (self.clean_command, self.success_command)
                 if self.debug:
                     self.logger.debug("Cleanup Queue base: %s count: %s", base,
                             site_count, extra=self.log_header)
@@ -354,6 +320,22 @@ class CrawlTracker(object):
                             self.logger.debug("No success file", 
                                               extra=self.log_header)
         return no_succ_file
+
+    def _cleanup_crawl(self, crawl_id):
+        """Remove crawl id from crawl queue and place in clean queue.
+           Calculate and set the time to complete the crawl.
+           Launch Spider Cleaner.
+        """
+        self.crawlQueue.remove(crawl_id)
+        self.cleanQueue.append(crawl_id) # monitor cleaning
+        _mark_timer_complete(crawl_id, self.engine_redis)
+        cmd_line = self._cleanup_command(crawl_id)
+        if self.test:
+            self.clean_command = cmd_line
+        else:
+            p = subprocess.Popen(cmd_line, shell=True)
+        if self.debug:
+            self.logger.debug("cmd_line: %s", cmd_line, extra=self.log_header)
 
     def _mock_backend(self):
         """Mock backend for Spider Web/Server testing."""
