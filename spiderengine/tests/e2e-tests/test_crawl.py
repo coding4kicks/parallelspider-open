@@ -34,14 +34,7 @@ def e2e_tester(generating=False):
     print("Setting up test crawl...")
     crawl_info = _setup_crawl()    
     crawl_json = json.dumps(crawl_info)
-
-    # Create fake crawl id
-    # Create random fake time so files don't collide
-    random_year = str(random.random() * 10000)[:4]
-    fake_time = "Fri Mar 15 " + random_year + " 21:00:15 GMT-0700 (PDT)"
-    fake_crawl_id = 'test' + "__" + 'politic' + "__" + \
-                    fake_time
-    fake_crawl_id = urllib.quote_plus(fake_crawl_id)
+    fake_crawl_id = _generate_id()
 
     print("Placing crawl into redis...")
     # Push into Central Redis (hardcoded)
@@ -88,6 +81,16 @@ def e2e_tester(generating=False):
 ###############################################################################
 ### Helper Delper Classes & Functions
 ###############################################################################
+def _generate_id():
+    """Create a fake crawl id."""
+    # Create random fake time so files don't collide
+    random_year = str(random.random() * 10000)[:4]
+    fake_time = "Fri Mar 15 " + random_year + " 21:00:15 GMT-0700 (PDT)"
+    fake_crawl_id = 'test' + "__" + 'politic' + "__" + \
+                    fake_time
+    fake_crawl_id = urllib.quote_plus(fake_crawl_id)
+    return fake_crawl_id
+
 def _setup_crawl():
     """Set up crawl info."""
 
