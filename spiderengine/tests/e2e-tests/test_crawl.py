@@ -48,20 +48,7 @@ def e2e_tester(generating=False):
 
     print("Performing checks ...")
     key = _get_crawl_key(fake_crawl_id, _e_redis_info())
-    #r = redis.StrictRedis(host='localhost', port=6380, db=0)
-    #config_file = r.get(fake_crawl_id)
-    #config = json.loads(config_file)
-    #user_id = config['user_id']
-    #full_crawl_id = config['crawl_id']
-    #key = user_id + '/' + full_crawl_id + '.json'
-
-    # Upload to S3 (assumes AWS keys are in .bashrc / env)
-    s3conn = boto.connect_s3()
-    bucket_name = "ps_users" # TODO: put in config init
-    bucket = s3conn.create_bucket(bucket_name)
-    k = boto.s3.key.Key(bucket)
-    k.key = key
-    results = k.get_contents_as_string()
+    results = _get_results_from_s3(key)
 
     if generating:
         _save_results(results)
@@ -148,6 +135,17 @@ def _load_results():
     """Load json crawl results for comparison."""
     with open(_test_file_path(), 'w') as f:
         f.write(results)
+
+def _get_results_from_s3(key):
+    """Fetches and returns crawl results from S3."""
+    # assumes AWS keys are in .bashrc / env
+    s3conn = boto.connect_s3()
+    bucket_name = "ps_users" # hardcode
+    bucket = s3conn.create_bucket(bucket_name)
+    k = boto.s3.key.Key(bucket)
+    k.key = key
+    results = k.get_contents_as_string()
+    return results
 
 def _save_results(results):
     """Save json crawl results to file for future tests."""
