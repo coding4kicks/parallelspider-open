@@ -32,32 +32,7 @@ def e2e_tester(generating=False):
     """
 
     print("Setting up test crawl...")
-    crawl = {}
-    crawl["primarySite"] = ("https://s3.amazonaws.com/parallel_spider_test/"
-                            "index.html")
-    crawl["text"] = {"visible":True,"headlines":True,"hidden":True}
-    crawl["links"] = {"text":True,"all":True,"external":True}
-    crawl["wordContexts"] = [] 
-    crawl["predefinedSynRings"] = [] 
-    crawl["maxPages"] = 20
-    crawl["externalSites"] = False
-    crawl["stopWords"] = ""
-    crawl["name"] = "Hackalicious News"
-    crawl["time"] = "April 11, 2013" 
-    crawl["additionalSites"] = []
-    
-    # Not Implement
-    crawl["totalResults"] = 100
-    crawl["wordSearches"] = ["content", "crazy"]
-    crawl["wordnets"] = ["violence", "love"]
-    crawl["xpathSelectors"] = ["xpathing"]
-    crawl["cssSelectors"] = [{"selector":"selcting","text":True}]
-
-    crawl_info = {}
-    crawl_info["shortSession"] = "Q1610Y/rT4K829Pj5b5Cz"
-    crawl_info["longSession"] = "U3VwZXIgTW8gRm8vLy9hLy8vPGJ1aWx0LWluIG1"
-    crawl_info["crawl"] = crawl
-    
+    crawl_info = _setup_crawl()    
     crawl_json = json.dumps(crawl_info)
 
     # Create fake crawl id
@@ -113,6 +88,36 @@ def e2e_tester(generating=False):
 ###############################################################################
 ### Helper Delper Classes & Functions
 ###############################################################################
+def _setup_crawl():
+    """Set up crawl info."""
+
+    crawl = {}
+    crawl["primarySite"] = ("https://s3.amazonaws.com/parallel_spider_test/"
+                            "index.html")
+    crawl["text"] = {"visible":True,"headlines":True,"hidden":True}
+    crawl["links"] = {"text":True,"all":True,"external":True}
+    crawl["wordContexts"] = [] 
+    crawl["predefinedSynRings"] = [] 
+    crawl["maxPages"] = 20
+    crawl["externalSites"] = False
+    crawl["stopWords"] = ""
+    crawl["name"] = "Hackalicious News"
+    crawl["time"] = "April 11, 2013" 
+    crawl["additionalSites"] = []
+    # Not Implement
+    crawl["totalResults"] = 100
+    crawl["wordSearches"] = ["content", "crazy"]
+    crawl["wordnets"] = ["violence", "love"]
+    crawl["xpathSelectors"] = ["xpathing"]
+    crawl["cssSelectors"] = [{"selector":"selcting","text":True}]
+
+    crawl_info = {}
+    crawl_info["shortSession"] = "Q1610Y/rT4K829Pj5b5Cz"
+    crawl_info["longSession"] = "U3VwZXIgTW8gRm8vLy9hLy8vPGJ1aWx0LWluIG1"
+    crawl_info["crawl"] = crawl
+
+    return crawl_info
+
 def _load_results():
     """Load json crawl results for comparison."""
     with open(_test_file_path(), 'w') as f:
