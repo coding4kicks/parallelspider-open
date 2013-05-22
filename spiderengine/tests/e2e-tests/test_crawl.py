@@ -15,6 +15,7 @@ import json
 import urllib
 import random
 import base64
+import difflib
 import datetime
 import optparse
 
@@ -54,10 +55,14 @@ def e2e_tester(generating=False):
         _save_results(results)
         print("Results saved to file.")
     else:
-        
-        pass
-        
-    print results
+        # Ignore very end with crawl time
+        if results[0:12320] == _saved_test_results()[0:12320]:
+            print("Test passed successfully.")
+        else:
+            print("ERROR: test failed comparison.")
+            s = difflib.SequenceMatcher(a=results, b=_saved_test_results())
+            for block in s.get_matching_blocks():
+                print "match at a[%d] and b[%d] of length %d" % block
 
 ###############################################################################
 ### Helper Delper Classes & Functions
@@ -131,11 +136,6 @@ def _get_crawl_key(fake_crawl_id, redis_info):
     key = user_id + '/' + full_crawl_id + '.json'
     return key
 
-def _load_results():
-    """Load json crawl results for comparison."""
-    with open(_test_file_path(), 'w') as f:
-        f.write(results)
-
 def _get_results_from_s3(key):
     """Fetches and returns crawl results from S3."""
     # assumes AWS keys are in .bashrc / env
@@ -151,6 +151,13 @@ def _save_results(results):
     """Save json crawl results to file for future tests."""
     with open(_test_file_path(), 'w') as f:
         f.write(results)
+
+
+def _saved_test_results():
+    """Load json crawl results for comparison."""
+    with open(_test_file_path(), 'r') as f:
+        results = f.read()
+    return results
 
 def _test_file_path():
     """Return the full path to the test file."""
