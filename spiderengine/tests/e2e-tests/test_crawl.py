@@ -37,15 +37,9 @@ def e2e_tester(generating=False):
     fake_crawl_id = _generate_id()
 
     print("Placing crawl into redis...")
-    # Push into Central Redis (hardcoded)
-    c = redis.Redis('localhost', 6379)
-    c.set(fake_crawl_id, crawl_json)
-    c.expire(fake_crawl_id, (60*60))
-    c.set(fake_crawl_id + "_count", -1)
-    c.expire(fake_crawl_id + "_count", (60*60))
-    c.rpush("crawl_queue", fake_crawl_id)
+    c = _push_central_redis(fake_crawl_id, crawl_json, c_redis_info())
 
-    # Print out count till done
+    # Print out count till crawl done
     count = -1
     while count != -2:
         count = int(c.get(fake_crawl_id + '_count'))
@@ -81,19 +75,8 @@ def e2e_tester(generating=False):
 ###############################################################################
 ### Helper Delper Classes & Functions
 ###############################################################################
-def _generate_id():
-    """Create a fake crawl id."""
-    # Create random fake time so files don't collide
-    random_year = str(random.random() * 10000)[:4]
-    fake_time = "Fri Mar 15 " + random_year + " 21:00:15 GMT-0700 (PDT)"
-    fake_crawl_id = 'test' + "__" + 'politic' + "__" + \
-                    fake_time
-    fake_crawl_id = urllib.quote_plus(fake_crawl_id)
-    return fake_crawl_id
-
 def _setup_crawl():
     """Set up crawl info."""
-
     crawl = {}
     crawl["primarySite"] = ("https://s3.amazonaws.com/parallel_spider_test/"
                             "index.html")
@@ -120,6 +103,31 @@ def _setup_crawl():
     crawl_info["crawl"] = crawl
 
     return crawl_info
+
+def _generate_id():
+    """Create a fake crawl id."""
+    # Create random fake time so files don't collide
+    random_year = str(random.random() * 10000)[:4]
+    fake_time = "Fri Mar 15 " + random_year + " 21:00:15 GMT-0700 (PDT)"
+    fake_crawl_id = 'test' + "__" + 'politic' + "__" + \
+                    fake_time
+    fake_crawl_id = urllib.quote_plus(fake_crawl_id)
+    return fake_crawl_id
+
+def c_redis_info():
+    """Return redis host and port."""
+    # Hard coded for now, may switch to option
+    return('localhost', 6379)
+
+def _push_central_redis(fake_crawl_id, crawl_json, redis_info):
+    """Place crawl into Central Redis to initiate."""
+    c = redis.Redis(*redis_info)
+    c.set(fake_crawl_id, crawl_json)
+    c.expire(fake_crawl_id, (60*60))
+    c.set(fake_crawl_id + "_count", -1)
+    c.expire(fake_crawl_id + "_count", (60*60))
+    c.rpush("crawl_queue", fake_crawl_id)
+    return c
 
 def _load_results():
     """Load json crawl results for comparison."""
