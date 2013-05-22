@@ -265,12 +265,12 @@ class CrawlTracker(object):
             self.central_redis.set(crawl_id + "_count", total_count) 
             if total_count >= self.total_pages or not new_links:
                 done = True
-                if self.debug:
-                    self.logger.debug(
-                            'total_count: {!s} max_pages: {!s} '
-                            'links_not_done {!s}', 
-                            str(total_count), str(self.total_pages),
-                            new_links, extra=self.log_header)
+                #if self.debug:
+                #    self.logger.debug(
+                #            'total_count: {!s} max_pages: {!s} '
+                #            'links_not_done {!s}', 
+                #            str(total_count), str(self.total_pages),
+                #            new_links, extra=self.log_header)
         return done
 
     def _check_for_success(self, crawl_id):

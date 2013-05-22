@@ -82,6 +82,11 @@ def deploy():
                "~/projects/parallelspider/spiderengine/spidercleaner.py " + \
                "/home/parallelspider/parallelspider/spiderengine/"
     p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    cmd_line = "starcluster put fvmcluster " + \
+        "~/projects/parallelspider/spiderengine/" + \
+        "tests/e2e-tests/test_crawl.py " + \
+        "/home/parallelspider/parallelspider/spiderengine/tests/e2e-tests/"
+    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
 @fab.task
 def deploy_production():

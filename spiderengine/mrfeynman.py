@@ -10,6 +10,7 @@
     TODO: Add Selectors and Synonym Rings
     TODO: Make variables more consitent with Spider Client and Spider Web
     TODO: QA tags associated with each analysis: visible text add div/span
+    TODO: Add meta keywords to hidden text analysis
 """
 
 import copy
