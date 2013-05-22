@@ -3,8 +3,12 @@
 """
   Places a crawl in the Central Redis Queue to test the SpiderEngine.
   Verifies results of the crawl are correctly uploaded to S3.
+
+  Bug: on a single page crawl, on one occasion didn't finish
+       because count didn't increment to 1 in Central Redis.
 """
 
+import os
 import sys
 import time
 import json
@@ -12,28 +16,37 @@ import urllib
 import random
 import base64
 import datetime
+import optparse
 
 import boto
 import redis
 
-def mocker():
+def e2e_tester(generating=False):
+    """
+    Test e2e crawl
 
+    Tests crawl from Spider Client to Spider Cleaner.
+    Places crawl in Central Redis and checks results in S3.
+    Uses a static test page.
+    Set generating to true to save new results for future tests.
+    """
+
+    print("Setting up test crawl...")
     crawl = {}
     crawl["primarySite"] = ("https://s3.amazonaws.com/parallel_spider_test/"
                             "index.html")
     crawl["text"] = {"visible":True,"headlines":True,"hidden":True}
     crawl["links"] = {"text":True,"all":True,"external":True}
-    crawl["wordContexts"] = [] #["Obama", "democrat", "republican", "sequester"]
-    crawl["predefinedSynRings"] = [] #[{"name":"stopWords","title":"Curse Words"}]
+    crawl["wordContexts"] = [] 
+    crawl["predefinedSynRings"] = [] 
     crawl["maxPages"] = 20
     crawl["externalSites"] = False
     crawl["stopWords"] = ""
     crawl["name"] = "Hackalicious News"
     crawl["time"] = "April 11, 2013" 
-    crawl["additionalSites"] = [] #["http://www.dhs.gov/"] #, "http://www.cnn.com"]
-
+    crawl["additionalSites"] = []
     
-    # TODO: Implement
+    # Not Implement
     crawl["totalResults"] = 100
     crawl["wordSearches"] = ["content", "crazy"]
     crawl["wordnets"] = ["violence", "love"]
@@ -55,6 +68,7 @@ def mocker():
                     fake_time
     fake_crawl_id = urllib.quote_plus(fake_crawl_id)
 
+    print("Placing crawl into redis...")
     # Push into Central Redis (hardcoded)
     c = redis.Redis('localhost', 6379)
     c.set(fake_crawl_id, crawl_json)
@@ -70,11 +84,7 @@ def mocker():
         print count
         time.sleep(5)
 
-    
-    print fake_crawl_id
-    print crawl_json
-
-
+    print("Performing checks ...")
     r = redis.StrictRedis(host='localhost', port=6380, db=0)
     config_file = r.get(fake_crawl_id)
     config = json.loads(config_file)
@@ -89,11 +99,54 @@ def mocker():
     bucket = s3conn.create_bucket(bucket_name)
     k = boto.s3.key.Key(bucket)
     k.key = key
-    results = k.get_contents_as_string() 
+    results = k.get_contents_as_string()
+
+    if generating:
+        _save_results(results)
+        print("Results saved to file.")
+    else:
+        
+        pass
+        
     print results
 
+###############################################################################
+### Helper Delper Classes & Functions
+###############################################################################
+def _load_results():
+    """Load json crawl results for comparison."""
+    with open(_test_file_path(), 'w') as f:
+        f.write(results)
 
+def _save_results(results):
+    """Save json crawl results to file for future tests."""
+    with open(_test_file_path(), 'w') as f:
+        f.write(results)
+
+def _test_file_path():
+    """Return the full path to the test file."""
+    return _test_results_dir() + _test_file()
+
+def _test_file():
+    """Return the test file name."""
+    return "e2e_test_results.json"
+
+def _test_results_dir():
+    """Return directory containing test results"""
+    return os.path.realpath(__file__).rpartition('/')[0] + '/testresults/'
+
+
+###############################################################################
+### Command Line
+###############################################################################
 if __name__ == "__main__":
     """ enable command line execution """
-    sys.exit(mocker())
+    usage = "usage: %prog [options]"
+    parser = optparse.OptionParser(usage)
+    parser.add_option(
+            "-g", "-G", "--generate", action="store_true", 
+            default="", dest="generate", 
+            help="Generate results to test. [default: False]")
+    (options, args) = parser.parse_args()
+    sys.exit(e2e_tester(options.generate))
 
