@@ -37,7 +37,7 @@ def e2e_tester(generating=False):
     fake_crawl_id = _generate_id()
 
     print("Placing crawl into redis...")
-    c = _push_central_redis(fake_crawl_id, crawl_json, c_redis_info())
+    c = _push_central_redis(fake_crawl_id, crawl_json, _c_redis_info())
 
     # Print out count till crawl done
     count = -1
@@ -47,13 +47,13 @@ def e2e_tester(generating=False):
         time.sleep(5)
 
     print("Performing checks ...")
-    r = redis.StrictRedis(host='localhost', port=6380, db=0)
-    config_file = r.get(fake_crawl_id)
-    config = json.loads(config_file)
-
-    user_id = config['user_id']
-    full_crawl_id = config['crawl_id']
-    key = user_id + '/' + full_crawl_id + '.json'
+    key = _get_crawl_key(fake_crawl_id, _e_redis_info())
+    #r = redis.StrictRedis(host='localhost', port=6380, db=0)
+    #config_file = r.get(fake_crawl_id)
+    #config = json.loads(config_file)
+    #user_id = config['user_id']
+    #full_crawl_id = config['crawl_id']
+    #key = user_id + '/' + full_crawl_id + '.json'
 
     # Upload to S3 (assumes AWS keys are in .bashrc / env)
     s3conn = boto.connect_s3()
@@ -114,10 +114,15 @@ def _generate_id():
     fake_crawl_id = urllib.quote_plus(fake_crawl_id)
     return fake_crawl_id
 
-def c_redis_info():
-    """Return redis host and port."""
+def _c_redis_info():
+    """Return Central Redis host and port."""
     # Hard coded for now, may switch to option
     return('localhost', 6379)
+
+def _e_redis_info():
+    """Return Engine Redis host and port."""
+    # Hard coded for now, may switch to option
+    return('localhost', 6380)
 
 def _push_central_redis(fake_crawl_id, crawl_json, redis_info):
     """Place crawl into Central Redis to initiate."""
@@ -128,6 +133,16 @@ def _push_central_redis(fake_crawl_id, crawl_json, redis_info):
     c.expire(fake_crawl_id + "_count", (60*60))
     c.rpush("crawl_queue", fake_crawl_id)
     return c
+
+def _get_crawl_key(fake_crawl_id, redis_info):
+    """Create a key from user_id and crawl_id."""
+    e = redis.StrictRedis(*redis_info)
+    config_file = e.get(fake_crawl_id)
+    config = json.loads(config_file)
+    user_id = config['user_id']
+    full_crawl_id = config['crawl_id']
+    key = user_id + '/' + full_crawl_id + '.json'
+    return key
 
 def _load_results():
     """Load json crawl results for comparison."""
