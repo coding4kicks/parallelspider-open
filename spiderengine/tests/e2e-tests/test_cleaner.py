@@ -14,7 +14,23 @@ import subprocess
 
 def clean_tester():
     """e2e test for Spider Cleaner."""
+
+    # Setup
     result = _upload_test_file()
+    if result != 0:
+        print("Problem uploading test file to HDFS.")
+        sys.exit(1)
+
+    # Call Spider Cleaner
+
+    # Verify Results
+
+    # Cleanup
+    result = _remove_test_file()
+    if result != 0:
+        print("Problem removing test file from HDFS.")
+        sys.exit(1)
+
 
 ###############################################################################
 ### Helper Delper Classes & Functions
@@ -26,11 +42,20 @@ def _upload_test_file():
     result = subprocess.call(command, shell=True)
     return result
 
-#def _put_command():
-#    """Returns the command to upload the test files to HDFS."""
-#    command = ('dumbo put {} {} -hadoop starcluster').format(
-#                    _hdfs_path(), _test_file_path())
-#    return command
+def _cleanup_command(self, crawl_id):
+    """Construct command to run Spider Cleaner."""
+    cmd_line = ("python spidercleaner.py -r host:{},port:{} -c {}"
+               ).format(self.engine_redis_host,
+                        self.engine_redis_port, crawl_id)
+    if self.psuedo_dist:
+        cmd_line += " -d"
+    return cmd_line
+
+def _remove_test_file():
+    """Uploads the test file to HDFS"""
+    command = ('dumbo rm {} -hadoop starcluster').format(_hdfs_path())
+    result = subprocess.call(command, shell=True)
+    return result
 
 def _hdfs_path():
     """Return test file directory on hdfs."""
