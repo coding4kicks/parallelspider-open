@@ -10,6 +10,7 @@ Compares these results to one's previously saved.
 
 import os
 import sys
+import json
 import subprocess
 
 import redis
@@ -18,6 +19,7 @@ def clean_tester():
     """e2e test for Spider Cleaner."""
 
     # Setup
+    print("Setting up info for cleaner test...")
     result = _upload_test_file()
     if result != 0:
         print("Problem uploading test file to HDFS.")
@@ -26,10 +28,15 @@ def clean_tester():
     _push_engine_redis(fake_crawl_id, _crawl_json(), _e_redis_info())
 
     # Call Spider Cleaner
+    result = _call_cleaner(fake_crawl_id, *_e_redis_info())
 
     # Verify Results
+    print("Performing checks ...")
+    key = _get_crawl_key(fake_crawl_id, _e_redis_info())
+    #results = _get_results_from_s3(key)
 
     # Cleanup
+    print("Cleaning up...")
     result = _remove_test_file()
     if result != 0:
         print("Problem removing test file from HDFS.")
@@ -46,14 +53,14 @@ def _upload_test_file():
     result = subprocess.call(command, shell=True)
     return result
 
-def _cleanup_command(self, crawl_id):
+
+
+def _call_cleaner( crawl_id, e_redis_host, e_redis_port):
     """Construct command to run Spider Cleaner."""
-    cmd_line = ("python spidercleaner.py -r host:{},port:{} -c {}"
-               ).format(self.engine_redis_host,
-                        self.engine_redis_port, crawl_id)
-    if self.psuedo_dist:
-        cmd_line += " -d"
-    return cmd_line
+    command = ("python spidercleaner.py -r host:{},port:{} -c {}"
+               ).format(e_redis_host, e_redis_port, crawl_id)
+    result = subprocess.call(command, shell=True)
+    return result
 
 def _e_redis_info():
     """Return Engine Redis host and port."""
