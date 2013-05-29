@@ -58,81 +58,34 @@ class SpiderCleaner(object):
         site_list = _get_site(config)
         self._log_setup(site_list, analysis_types, content_types)
 
-        # Format results for each site
-        for site in site_list:
+        for site in site_list: # Format results for each site
 
             site_results = {}
-            
-            # Construct file name details
-            base = '%s::%s' % (site, config['crawl_id'])
-            base_path = base.replace("/","_").replace(":","-")
-
-            if not self.psuedo_dist:
+            base, base_path = _constuct_bases(site, config)
+            if not self.psuedo_dist: # Download file if on HDFS
                 _download_file(base_path)
-                # TODO: unix tee into separate files & filter and sort and head
-                # if able, or move to MapReduce solution
-                #cmd_line = ("dumbo cat /HDFS/parallelspider/out/{!s}/part-00000 "
-                #           "-hadoop starcluster > /home/parallelspider/out/{!s} "
-                #           ).format(base_path, base_path)
-                #out = subprocess.call(cmd_line, shell=True)
 
             # Format both internal and external results
             for c_type in ['internal','external']:
-                # If analysis not performed, create empty placeholders and exit
+
+                # If analysis not performed, create empty placeholders
                 if c_type not in content_types:
                     site_results = _add_dummy_values(site_results, c_type)
-                    #placeholders = {'visibleText': {}, 'hiddenText': {}, 'headlineText': {},
-                    #'allLinks': {}, 'externalDomains': {}, 'linkText': {},
-                    #'searchWords': {}, 'context': [],
-                    #'synonymRings': [], 'summary': {'pages':{'count':0}, 'words':{'count':0}},
-                    #'selectors': {} }
-                    
-                    #if c_type == 'internal':
-                    #    site_results['internalResults'] = placeholders
-                    #else:
-                    #    site_results['externalResults'] = placeholders
-                        
-                    # exit loop
                     continue
                 
-                results = {} # Holder for specific results
+                results = {} # Holder for content type results
                 
                 for a_type in all_analyses:
+
                     # Create the correct key for Spider Web name
-                    results[analysis[a_type]['web_name']] = {}
-                    
-                    # Break from loop if no analysis performed
-                    # or if it require special handling
+                    results[analysis[a_type]['web_name']] = {} 
+
+                    # Break from loop if no analysis performed or special
                     if a_type not in analysis_types or a_type == 'wordContexts':
                         continue
 
-                    # Logging
-                    msg = ('{!s} cleaning up analysis: {!s}'
-                           ).format(site, analysis[a_type]['web_name']) 
-                    self.logger.debug(msg, extra=self.log_header)
-
-                    # Create the key to grep/filter the master file by
-                    key = analysis[a_type]['key'] + analysis[c_type]['key']
-
-                    # Cat the master file into the sort filter
-                    cwd = "/home/parallelspider/out/"
-                    cmd_line = ("cat {!s} | "
-                                "grep '{!s}' | "
-                                "sort -k 2 -n -r | "
-                                "head -n 150"
-                                ).format(base_path, key)
-                    
-                    try:
-                        out = subprocess.check_output(cmd_line, shell=True,
-                                                      cwd=cwd)
-                    except:
-                        msg = ('Failed to process pipeline for {0}'
-                               ).format(a_type) 
-                        self.logger.debug(msg, extra=self.log_header)
- 
-
-                    self.logger.debug("Done with subprocess",
-                                       extra=self.log_header)
+                    out, key = self._get_analysis_from_master(
+                                  site, analysis, a_type, c_type, base_path)
 
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'hidden', 'text']:
@@ -514,6 +467,35 @@ class SpiderCleaner(object):
         msg = ('content: {!s}').format(content_types) 
         self.logger.debug(msg, extra=self.log_header)
 
+    def _get_analysis_from_master(self, site, analysis, 
+                                  a_type, c_type, base_path):
+        """Process analysis info from master file."""
+        out = ""
+        # Logging
+        msg = ('{!s} cleaning up analysis: {!s}'
+               ).format(site, analysis[a_type]['web_name']) 
+        self.logger.debug(msg, extra=self.log_header)
+        # Create the key to grep/filter the master file by
+        key = analysis[a_type]['key'] + analysis[c_type]['key']
+        # Cat the master file into the sort filter
+        cwd = "/home/parallelspider/out/"
+        cmd_line = ("cat {!s} | "
+                    "grep '{!s}' | "
+                    "sort -k 2 -n -r | "
+                    "head -n 150"
+                    ).format(base_path, key)
+        try:
+            out = subprocess.check_output(cmd_line, shell=True,
+                                          cwd=cwd)
+        except:
+            msg = ('Failed to process pipeline for {0}'
+                   ).format(a_type) 
+            self.logger.debug(msg, extra=self.log_header)
+        self.logger.debug("Done with subprocess",
+                           extra=self.log_header)
+        return out, key
+
+
 
 # Helper Funcs
 ###############################################################################
@@ -612,6 +594,12 @@ def _get_site(config):
     else:
         site_list = config['sites']
     return site_list
+
+def _constuct_bases(site, config):
+    """Construct base & base_path for Redis and file access."""
+    base = '%s::%s' % (site, config['crawl_id'])
+    base_path = base.replace("/","_").replace(":","-")
+    return base, base_path
 
 def _download_file(base_path):
     """In distributed mode, download file from HDFS."""
