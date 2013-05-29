@@ -74,7 +74,7 @@ def _setup_crawl():
                             "index.html")
     crawl["text"] = {"visible":True,"headlines":True,"hidden":True}
     crawl["links"] = {"text":True,"all":True,"external":True}
-    crawl["wordContexts"] = [] 
+    crawl["wordContexts"] = ['yo', 'test'] 
     crawl["predefinedSynRings"] = [] 
     crawl["maxPages"] = 20
     crawl["externalSites"] = False
