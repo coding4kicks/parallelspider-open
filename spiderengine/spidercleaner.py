@@ -89,110 +89,86 @@ class SpiderCleaner(object):
 
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'hidden', 'text']:
-                         
-                        # Process words
-                        #words = []
-
-                        # Last line of split is junk
-                        #for i, line in enumerate(out.split('\n')[:-1]):
-
-                        #    try:
-                        #        word = {}
-                        #        word['rank'] = i + 1
-                        #        w, c = line.split('\t')
-                        #        # Remove the key 
-                        #        if self.psuedo_dist:
-                        #            # and end quote
-                        #            word['word'] = w.split(key)[1][:-1]
-                        #        else:
-                        #            word['word'] = w.split(key)[1]
-                        #        word['count'] = c
-                        #        word['pages'] = []
-                        #        word['tags'] = []
-                        #        words.append(word)
-
-                        #    except:
-                        #        # error unpacking line
-                        #        # TODO: figure out why it blows up sometimes.
-                        #        pass
-
-
                         results[analysis[a_type]['web_name']]['words'] = \
                                 _clean_analysis(out, a_type, key, self.psuedo_dist,
                                                 self.logger, self.log_header)
-                                #words 
-
-                        #self.logger.debug("Done handling text",
-                        #                   extra=self.log_header)
+                    if a_type in ['all']:
+                        results[analysis[a_type]['web_name']]['links'] = \
+                                _clean_analysis(out, a_type, key, self.psuedo_dist,
+                                                self.logger, self.log_header)
+                    if a_type in ['external']:
+                        results[analysis[a_type]['web_name']]['domains'] = \
+                                _clean_analysis(out, a_type, key, self.psuedo_dist,
+                                                self.logger, self.log_header)
 
                     #TODO: Handle Links
-                    if a_type in ['all']:
-                         
-                        # Process words
-                        links = []
+                   # if a_type in ['all']:
+                   #      
+                   #     # Process words
+                   #     links = []
 
-                        # Last line of split is junk
-                        for i, line in enumerate(out.split('\n')[:-1]):
-                            try:
-                                link = {}
-                                link['rank'] = i + 1
-                                l, c = line.split('\t')
-                                # Remove the key 
-                                if self.psuedo_dist:
-                                    # and end quote
-                                    link['link'] = l.split(key)[1][:-1]
-                                else:
-                                    link['link'] = l.split(key)[1]
-                                link['count'] = c
-                                link['pages'] = []
-                                link['words'] = []
-                                links.append(link)
-                            except:
-                                # Why is the split blowing up?
-                                pass
+                   #     # Last line of split is junk
+                   #     for i, line in enumerate(out.split('\n')[:-1]):
+                   #         try:
+                   #             link = {}
+                   #             link['rank'] = i + 1
+                   #             l, c = line.split('\t')
+                   #             # Remove the key 
+                   #             if self.psuedo_dist:
+                   #                 # and end quote
+                   #                 link['link'] = l.split(key)[1][:-1]
+                   #             else:
+                   #                 link['link'] = l.split(key)[1]
+                   #             link['count'] = c
+                   #             link['pages'] = []
+                   #             link['words'] = []
+                   #             links.append(link)
+                   #         except:
+                   #             # Why is the split blowing up?
+                   #             pass
 
-                        results[analysis[a_type]['web_name']]['links'] = links 
+                   #     results[analysis[a_type]['web_name']]['links'] = links 
 
-                        self.logger.debug("Done handling all links",
-                                           extra=self.log_header)
+                   #     self.logger.debug("Done handling all links",
+                   #                        extra=self.log_header)
 
                     
                     #TODO: Handle Domains
-                    if a_type in ['external']:
-                         
-                        # Process words
-                        domains = []
+                   # if a_type in ['external']:
+                   #      
+                   #     # Process words
+                   #     domains = []
 
-                        # Last line of split is junk
-                        for i, line in enumerate(out.split('\n')[:-1]):
+                   #     # Last line of split is junk
+                   #     for i, line in enumerate(out.split('\n')[:-1]):
 
-                            try:
-                                domain = {}
-                                domain['rank'] = i + 1
-                                d, c = line.split('\t')
-                                # Remove the key 
-                                if self.psuedo_dist:
-                                    # and end quote
-                                    domain['domain'] = d.split(key)[1][:-1]
-                                else:
-                                    domain['domain'] = d.split(key)[1]
-                                domain['count'] = c
-                                domain['pages'] = []
-                                domain['words'] = []
-                                domain['links'] = []
-                                domains.append(domain)
+                   #         try:
+                   #             domain = {}
+                   #             domain['rank'] = i + 1
+                   #             d, c = line.split('\t')
+                   #             # Remove the key 
+                   #             if self.psuedo_dist:
+                   #                 # and end quote
+                   #                 domain['domain'] = d.split(key)[1][:-1]
+                   #             else:
+                   #                 domain['domain'] = d.split(key)[1]
+                   #             domain['count'] = c
+                   #             domain['pages'] = []
+                   #             domain['words'] = []
+                   #             domain['links'] = []
+                   #             domains.append(domain)
 
-                            except:
-                                # error unpacking line
-                                # TODO: figure out why it blows up sometimes.
-                                pass
+                   #         except:
+                   #             # error unpacking line
+                   #             # TODO: figure out why it blows up sometimes.
+                   #             pass
 
 
-                        results[analysis[a_type]['web_name']]['domains'] \
-                            = domains 
+                   #     results[analysis[a_type]['web_name']]['domains'] \
+                   #         = domains 
 
-                        self.logger.debug("Done handling external links",
-                                           extra=self.log_header)
+                   #     self.logger.debug("Done handling external links",
+                   #                        extra=self.log_header)
 
                 # Handle Context
                 # Handling as a Python string, may blow up on large data
@@ -650,15 +626,21 @@ def _clean_analysis(out, a_type, key, psuedo_dist, logger, log_header):
                 word['word'] = w.split(key)[1]
             word['count'] = c
             word['pages'] = []
-            word['tags'] = []
+            if a_type in ['visible','headline', 'hidden', 'text']:
+                word['tags'] = []
+            elif a_type in ['all', 'external']:
+                word['words'] = []
+            elif a_type in ['external']:
+                word['links']
             words.append(word)
         except:
             print 'error ranger.'
             # error unpacking line
             # TODO: figure out why it blows up sometimes.
             pass
-    logger.debug("Done handling text", extra=log_header)
+    logger.debug("Done handling {}", a_type, extra=log_header)
     return words
+
 
 
 def set_logging_level(level="production"):
