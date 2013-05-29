@@ -45,11 +45,11 @@ class SpiderCleaner(object):
         """
         """
 
-        config = _get_config(self.crawl_info, self.redis_info)
+        config, r = _get_config(self.crawl_info, self.redis_info)
 
         # Connect to Redis
         #r = redis.StrictRedis(host=self.redis_info["host"],
-                              port=int(self.redis_info["port"]), db=0)
+        #                      port=int(self.redis_info["port"]), db=0)
 
         # Set up configuration file
         #config_file = r.get('config')
@@ -122,32 +122,33 @@ class SpiderCleaner(object):
        # analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
        # analysis["predefinedSynRings"] = {"key": "wdnt", "web_name": "synonymRings"}
 
+        finished_analysis = _init_finished_analysis(config, content_types)
         # Analysis to be output (converted to json and uploaded to S3)
-        finished_analysis = {}
-        finished_analysis['name'] = config['name']
-        finished_analysis['date'] = config['date']
+        #finished_analysis = {}
+        #finished_analysis['name'] = config['name']
+        #finished_analysis['date'] = config['date']
         crawl_time = config['time']
         start_time = time.time()
         
         #TODO: pull from config/calculate end here prior to upload
 
-        if 'internal' in content_types:
-            finished_analysis['internal'] = True
-        else:
-            finished_analysis['internal'] = True
-            
-        if 'external' in content_types:
-            finished_analysis['external'] = True
-        else:
-            finished_analysis['external'] = False
+       # if 'internal' in content_types:
+       #     finished_analysis['internal'] = True
+       # else:
+       #     finished_analysis['internal'] = True
+       #     
+       # if 'external' in content_types:
+       #     finished_analysis['external'] = True
+       # else:
+       #     finished_analysis['external'] = False
 
-        finished_analysis['sites'] = []
+       # finished_analysis['sites'] = []
 
-        if isinstance(config['sites'], (str, unicode)):
-            site_list = config['sites'].split(',')
-        else:
-            site_list = config['sites']
-
+       # if isinstance(config['sites'], (str, unicode)):
+       #     site_list = config['sites'].split(',')
+       # else:
+       #     site_list = config['sites']
+        site_list = _get_site(config)
         # Logging
         msg = ('sites: {!s}').format(site_list) 
         self.logger.debug(msg, extra=self.log_header)
@@ -604,13 +605,13 @@ class SpiderCleaner(object):
 
 # Helper Funcs
 ###############################################################################
-def _get_config(crawl_info, redis_info)
+def _get_config(crawl_info, redis_info):
     """Connect to Engine Redis to get config info."""    
     r = redis.StrictRedis(host=redis_info["host"],
                           port=int(redis_info["port"]), db=0)
-    config_file = r.get(self.crawl_info)
+    config_file = r.get(crawl_info)
     config = json.loads(config_file)
-    return config
+    return config, r
 
 def _get_analysis(config):
     """Determine analysis types to perform from config file info."""
@@ -671,6 +672,34 @@ def _construct_analysis_keys():
     analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
     analysis["predefinedSynRings"] = {"key": "wdnt", "web_name": "synonymRings"}
     return analysis
+
+def _init_finished_analysis(config, content_types):
+    """Initialize finished analysis variable using info passed in config."""
+    # Analysis to be output (converted to json and uploaded to S3)
+    finished_analysis = {}
+    finished_analysis['name'] = config['name']
+    finished_analysis['date'] = config['date']
+    #crawl_time = config['time']
+    #start_time = time.time()
+    if 'internal' in content_types:
+        finished_analysis['internal'] = True
+    else:
+        finished_analysis['internal'] = True
+        
+    if 'external' in content_types:
+        finished_analysis['external'] = True
+    else:
+        finished_analysis['external'] = False
+    finished_analysis['sites'] = []
+    return finished_analysis
+
+def _get_site(config):
+    """Get sites to analyze from config."""
+    if isinstance(config['sites'], (str, unicode)):
+        site_list = config['sites'].split(',')
+    else:
+        site_list = config['sites']
+    return site_list
 
 def set_logging_level(level="production"):
     """

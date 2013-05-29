@@ -32,6 +32,9 @@ def clean_tester():
     # Call Spider Cleaner
     clean_dir = _spider_dir() + 'spiderengine'
     result = _call_cleaner(clean_dir, fake_crawl_id, *_e_redis_info())
+    if result != 0:
+        print("Problem with Spider Cleaner. Test Failed.")
+        sys.exit(1)
 
     # Verify Results
     print("Performing checks ...")
