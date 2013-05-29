@@ -45,14 +45,16 @@ class SpiderCleaner(object):
         """
         """
 
+        config = _get_config(self.crawl_info, self.redis_info)
+
         # Connect to Redis
-        r = redis.StrictRedis(host=self.redis_info["host"],
+        #r = redis.StrictRedis(host=self.redis_info["host"],
                               port=int(self.redis_info["port"]), db=0)
 
         # Set up configuration file
         #config_file = r.get('config')
-        config_file = r.get(self.crawl_info)
-        config = json.loads(config_file)
+        #config_file = r.get(self.crawl_info)
+        #config = json.loads(config_file)
 
         # All possible analysis types
         all_analyses = ['visible', 'headline', 'hidden', 'text', 'all',
@@ -597,6 +599,15 @@ class SpiderCleaner(object):
 
 # Helper Funcs
 ###############################################################################
+def _get_config(crawl_info, redis_info)
+    """Connect to Engine Redis to get config info."""    
+    r = redis.StrictRedis(host=redis_info["host"],
+                          port=int(redis_info["port"]), db=0)
+    config_file = r.get(self.crawl_info)
+    config = json.loads(config_file)
+    return config
+
+
 def set_logging_level(level="production"):
     """
     Initialize logging parameters

@@ -11,8 +11,10 @@ Compares these results to one's previously saved.
 import os
 import sys
 import json
+import difflib
 import subprocess
 
+import boto
 import redis
 
 def clean_tester():
@@ -28,12 +30,22 @@ def clean_tester():
     _push_engine_redis(fake_crawl_id, _crawl_json(), _e_redis_info())
 
     # Call Spider Cleaner
-    result = _call_cleaner(fake_crawl_id, *_e_redis_info())
+    clean_dir = _spider_dir() + 'spiderengine'
+    result = _call_cleaner(clean_dir, fake_crawl_id, *_e_redis_info())
 
     # Verify Results
     print("Performing checks ...")
     key = _get_crawl_key(fake_crawl_id, _e_redis_info())
-    #results = _get_results_from_s3(key)
+    new_results = _get_results_from_s3(key)
+    with open(_result_file_path(), 'r') as f:
+        old_results = f.read()
+    if new_results[0:12260] == old_results[0:12260]:
+        print("Test passed successfully.")
+    else:
+        print("ERROR: test failed comparison.")
+        s = difflib.SequenceMatcher(a=new_results, b=old_results)
+        for block in s.get_matching_blocks():
+            print "match at a[%d] and b[%d] of length %d" % block
 
     # Cleanup
     print("Cleaning up...")
@@ -55,11 +67,12 @@ def _upload_test_file():
 
 
 
-def _call_cleaner( crawl_id, e_redis_host, e_redis_port):
+def _call_cleaner( clean_dir, crawl_id, e_redis_host, e_redis_port):
     """Construct command to run Spider Cleaner."""
+    print clean_dir
     command = ("python spidercleaner.py -r host:{},port:{} -c {}"
                ).format(e_redis_host, e_redis_port, crawl_id)
-    result = subprocess.call(command, shell=True)
+    result = subprocess.call(command, shell=True, cwd=clean_dir)
     return result
 
 def _e_redis_info():
@@ -138,6 +151,11 @@ def _results_file():
 def _test_dir():
     """Return directory containing test results"""
     return os.path.realpath(__file__).rpartition('/')[0]
+
+def _spider_dir():
+    """Return parallelspider directory."""
+    path = os.path.realpath(__file__).rpartition('parallelspider')[0]
+    return path + '/parallelspider/'
 
 if __name__ == "__main__":
     sys.exit(clean_tester())
