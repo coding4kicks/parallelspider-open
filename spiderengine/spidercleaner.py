@@ -91,36 +91,39 @@ class SpiderCleaner(object):
                     if a_type in ['visible','headline', 'hidden', 'text']:
                          
                         # Process words
-                        words = []
+                        #words = []
 
                         # Last line of split is junk
-                        for i, line in enumerate(out.split('\n')[:-1]):
+                        #for i, line in enumerate(out.split('\n')[:-1]):
 
-                            try:
-                                word = {}
-                                word['rank'] = i + 1
-                                w, c = line.split('\t')
-                                # Remove the key 
-                                if self.psuedo_dist:
-                                    # and end quote
-                                    word['word'] = w.split(key)[1][:-1]
-                                else:
-                                    word['word'] = w.split(key)[1]
-                                word['count'] = c
-                                word['pages'] = []
-                                word['tags'] = []
-                                words.append(word)
+                        #    try:
+                        #        word = {}
+                        #        word['rank'] = i + 1
+                        #        w, c = line.split('\t')
+                        #        # Remove the key 
+                        #        if self.psuedo_dist:
+                        #            # and end quote
+                        #            word['word'] = w.split(key)[1][:-1]
+                        #        else:
+                        #            word['word'] = w.split(key)[1]
+                        #        word['count'] = c
+                        #        word['pages'] = []
+                        #        word['tags'] = []
+                        #        words.append(word)
 
-                            except:
-                                # error unpacking line
-                                # TODO: figure out why it blows up sometimes.
-                                pass
+                        #    except:
+                        #        # error unpacking line
+                        #        # TODO: figure out why it blows up sometimes.
+                        #        pass
 
 
-                        results[analysis[a_type]['web_name']]['words'] = words 
+                        results[analysis[a_type]['web_name']]['words'] = \
+                                _clean_analysis(out, a_type, key, self.psuedo_dist,
+                                                self.logger, self.log_header)
+                                #words 
 
-                        self.logger.debug("Done handling text",
-                                           extra=self.log_header)
+                        #self.logger.debug("Done handling text",
+                        #                   extra=self.log_header)
 
                     #TODO: Handle Links
                     if a_type in ['all']:
@@ -622,6 +625,41 @@ def _add_dummy_values(site_results, c_type):
     else:
         site_results['externalResults'] = placeholders
     return site_results
+
+def _clean_analysis(out, a_type, key, psuedo_dist, logger, log_header):
+    """
+    Cleans up analysis.
+
+    Places analysis info into dictionary,
+    readying for a json conversion.
+    """
+    # Handle Word Analysis Types
+    #if a_type in ['visible','headline', 'hidden', 'text']:
+    words = []
+    for i, line in enumerate(out.split('\n')[:-1]):
+        # Last line of split is junk?
+        try:
+            word = {}
+            word['rank'] = i + 1
+            w, c = line.split('\t')
+            # Remove the key 
+            if psuedo_dist:
+                # and end quote
+                word['word'] = w.split(key)[1][:-1]
+            else:
+                word['word'] = w.split(key)[1]
+            word['count'] = c
+            word['pages'] = []
+            word['tags'] = []
+            words.append(word)
+        except:
+            print 'error ranger.'
+            # error unpacking line
+            # TODO: figure out why it blows up sometimes.
+            pass
+    logger.debug("Done handling text", extra=log_header)
+    return words
+
 
 def set_logging_level(level="production"):
     """
