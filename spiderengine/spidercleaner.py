@@ -67,30 +67,30 @@ class SpiderCleaner(object):
             base = '%s::%s' % (site, config['crawl_id'])
             base_path = base.replace("/","_").replace(":","-")
 
-            # Download master file from HDFS if psudeo distributed
             if not self.psuedo_dist:
+                _download_file(base_path)
                 # TODO: unix tee into separate files & filter and sort and head
                 # if able, or move to MapReduce solution
-                cmd_line = ("dumbo cat /HDFS/parallelspider/out/{!s}/part-00000 "
-                           "-hadoop starcluster > /home/parallelspider/out/{!s} "
-                           ).format(base_path, base_path)
-                out = subprocess.call(cmd_line, shell=True)
+                #cmd_line = ("dumbo cat /HDFS/parallelspider/out/{!s}/part-00000 "
+                #           "-hadoop starcluster > /home/parallelspider/out/{!s} "
+                #           ).format(base_path, base_path)
+                #out = subprocess.call(cmd_line, shell=True)
 
             # Format both internal and external results
             for c_type in ['internal','external']:
                 # If analysis not performed, create empty placeholders and exit
                 if c_type not in content_types:
+                    site_results = _add_dummy_values(site_results, c_type)
+                    #placeholders = {'visibleText': {}, 'hiddenText': {}, 'headlineText': {},
+                    #'allLinks': {}, 'externalDomains': {}, 'linkText': {},
+                    #'searchWords': {}, 'context': [],
+                    #'synonymRings': [], 'summary': {'pages':{'count':0}, 'words':{'count':0}},
+                    #'selectors': {} }
                     
-                    placeholders = {'visibleText': {}, 'hiddenText': {}, 'headlineText': {},
-                    'allLinks': {}, 'externalDomains': {}, 'linkText': {},
-                    'searchWords': {}, 'context': [],
-                    'synonymRings': [], 'summary': {'pages':{'count':0}, 'words':{'count':0}},
-                    'selectors': {} }
-                    
-                    if c_type == 'internal':
-                        site_results['internalResults'] = placeholders
-                    else:
-                        site_results['externalResults'] = placeholders
+                    #if c_type == 'internal':
+                    #    site_results['internalResults'] = placeholders
+                    #else:
+                    #    site_results['externalResults'] = placeholders
                         
                     # exit loop
                     continue
@@ -612,6 +612,28 @@ def _get_site(config):
     else:
         site_list = config['sites']
     return site_list
+
+def _download_file(base_path):
+    """In distributed mode, download file from HDFS."""
+    # TODO: unix tee into separate files & filter and sort and head
+    # if able, or move to MapReduce solution
+    cmd_line = ("dumbo cat /HDFS/parallelspider/out/{!s}/part-00000 "
+               "-hadoop starcluster > /home/parallelspider/out/{!s} "
+               ).format(base_path, base_path)
+    out = subprocess.call(cmd_line, shell=True)
+
+def _add_dummy_values(site_results, c_type):
+    """Add dummy json values for analysis types not performed."""
+    placeholders = {'visibleText': {}, 'hiddenText': {}, 'headlineText': {},
+    'allLinks': {}, 'externalDomains': {}, 'linkText': {},
+    'searchWords': {}, 'context': [],
+    'synonymRings': [], 'summary': {'pages':{'count':0}, 'words':{'count':0}},
+    'selectors': {} }
+    if c_type == 'internal':
+        site_results['internalResults'] = placeholders
+    else:
+        site_results['externalResults'] = placeholders
+    return site_results
 
 def set_logging_level(level="production"):
     """
