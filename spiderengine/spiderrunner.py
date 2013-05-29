@@ -95,6 +95,10 @@ class SpiderRunner(object):
         for site in self.site_list:
 
             robots_txt = _init_robot_txt(site, self.test)
+            print 'robots_txt'
+            print robots_txt
+            print robots_txt == None
+            print robots_txt.can_fetch('*', 'http://www.google.com')
             # Need to handle error here: i.e. 403
             page = _parse(site, self.test)
             
@@ -187,9 +191,14 @@ def _init_robot_txt(site_url, test):
         robots_txt.set_url(site_url + "robots.txt")
     try:
         robots_txt.read()
+
+        # Handle 403 for robots.txt
+        if robots_txt.disallow_all == True:
+            robots_txt.disallow_all = False
+            robots_txt.allow_all = True
     except:
-        rotots_txt = None
-    print robots_txt
+        robots_txt = None
+
     return robots_txt
 
 def _parse(link, test):

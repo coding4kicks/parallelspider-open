@@ -582,21 +582,16 @@ def process_links(links, site_url, site_domain, scheme,
             continue
         
         all_links.append(element)
-        print site_domain
-        print link
-        print(site_domain in link)
         # If absolute url
         if link[0:4] == "http" or link[0:5] == "https": 
-            print 'in absolut'
             # With site name add to on site list, else off site list
-            print robots_txt
             if (site_domain in link and
                 not robots_txt):
                 on_site.append(link)
             elif (site_domain in link and
                 robots_txt.can_fetch('*', link)):
                 on_site.append(link)
-            else:
+            elif (site_domain not in link):
                 off_site.append(link)
                 ext_links.append(element)
         # If schemeless add scheme
@@ -622,8 +617,6 @@ def process_links(links, site_url, site_domain, scheme,
                     on_site.append(link_abs)
                 elif robots_txt.can_fetch('*', link_abs):
                     on_site.append(link_abs)
-    print on_site
-    print off_site
     return (on_site, off_site, all_links, ext_links)
 
 
