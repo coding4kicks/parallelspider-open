@@ -60,62 +60,67 @@ class SpiderCleaner(object):
         all_analyses = ['visible', 'headline', 'hidden', 'text', 'all',
                         'external', 'wordContexts', 'predefinedSynRings']
 
+        analysis_types = _get_analysis(config)
+        content_types = _get_content_types(config)
+        analysis = _construct_analysis_keys()
+
         # Types of anlayis acutally performed
-        analysis_types = []
+        #analysis_types = []
+
 
         # TEXT
-        if ('text_request' in config and 
-            config['text_request'] == True):
-            analysis_types.append('visible')
+        #if ('text_request' in config and 
+       #     config['text_request'] == True):
+       #     analysis_types.append('visible')
 
-        if ('header_request' in config and 
-            config['header_request'] == True):
-            analysis_types.append('headline')
+       # if ('header_request' in config and 
+       #     config['header_request'] == True):
+       #     analysis_types.append('headline')
 
-        if ('meta_request' in config and 
-            config['meta_request'] == True):
-            analysis_types.append('hidden')
+       # if ('meta_request' in config and 
+       #     config['meta_request'] == True):
+       #     analysis_types.append('hidden')
 
-        # LINKS
-        if ('a_tags_request' in config and 
-            config['a_tags_request'] == True):
-            analysis_types.append('text')
+       # # LINKS
+       # if ('a_tags_request' in config and 
+       #     config['a_tags_request'] == True):
+       #     analysis_types.append('text')
 
-        if ('all_links_request' in config and 
-            config['all_links_request'] == True):
-            analysis_types.append('all')
+       # if ('all_links_request' in config and 
+       #     config['all_links_request'] == True):
+       #     analysis_types.append('all')
 
-        if ('external_links_request' in config and 
-            config['external_links_request'] == True):
-            analysis_types.append('external')
+       # if ('external_links_request' in config and 
+       #     config['external_links_request'] == True):
+       #     analysis_types.append('external')
 
-        # CONTEXT
-        if ('context_search_tag' in config and
-            len(config['context_search_tag']) > 0):
-            analysis_types.append('wordContexts')                
+       # # CONTEXT
+       # if ('context_search_tag' in config and
+       #     len(config['context_search_tag']) > 0):
+       #     analysis_types.append('wordContexts')                
 
-        # SYNONYMS
-        if 'wordnet_lists' in config:
-            analysis_types.append('predefinedSynRings')
+       # # SYNONYMS
+       # if 'wordnet_lists' in config:
+       #     analysis_types.append('predefinedSynRings')
 
-        # Content (internal/external) types performed
-        content_types = ['internal'] # TODO: allow no internal
-        if ('analyze_external_pages' in config and
-           config['analyze_external_pages'] == True):
-            content_types.append('external')
+       # # Content (internal/external) types performed
+       # content_types = ['internal'] # TODO: allow no internal
+       # if ('analyze_external_pages' in config and
+       #    config['analyze_external_pages'] == True):
+       #     content_types.append('external')
 
         # Variables for analysis types
-        analysis = {}
-        analysis['internal'] = {"key": "i_", "web_name": ""}
-        analysis['external'] = {"key": "e_", "web_name": ""}
-        analysis["visible"] = {"key": "text", "web_name": "visibleText"} 
-        analysis["headline"] = {"key": "head", "web_name": "headlineText"} 
-        analysis["hidden"] = {"key": "meta", "web_name": "hiddenText"}
-        analysis["text"] = {"key": "atag", "web_name": "linkText"}
-        analysis["all"] = {"key": "link", "web_name": "allLinks"}
-        analysis["external"] = {"key": "extl", "web_name": "externalDomains"}
-        analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
-        analysis["predefinedSynRings"] = {"key": "wdnt", "web_name": "synonymRings"}
+       # analysis = {}
+       # analysis['internal'] = {"key": "i_", "web_name": ""}
+       # analysis['external'] = {"key": "e_", "web_name": ""}
+       # analysis["visible"] = {"key": "text", "web_name": "visibleText"} 
+       # analysis["headline"] = {"key": "head", "web_name": "headlineText"} 
+       # analysis["hidden"] = {"key": "meta", "web_name": "hiddenText"}
+       # analysis["text"] = {"key": "atag", "web_name": "linkText"}
+       # analysis["all"] = {"key": "link", "web_name": "allLinks"}
+       # analysis["external"] = {"key": "extl", "web_name": "externalDomains"}
+       # analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
+       # analysis["predefinedSynRings"] = {"key": "wdnt", "web_name": "synonymRings"}
 
         # Analysis to be output (converted to json and uploaded to S3)
         finished_analysis = {}
@@ -607,6 +612,65 @@ def _get_config(crawl_info, redis_info)
     config = json.loads(config_file)
     return config
 
+def _get_analysis(config):
+    """Determine analysis types to perform from config file info."""
+    analysis_types = []
+    # TEXT
+    if ('text_request' in config and 
+        config['text_request'] == True):
+        analysis_types.append('visible')
+
+    if ('header_request' in config and 
+        config['header_request'] == True):
+        analysis_types.append('headline')
+
+    if ('meta_request' in config and 
+        config['meta_request'] == True):
+        analysis_types.append('hidden')
+    # LINKS
+    if ('a_tags_request' in config and 
+        config['a_tags_request'] == True):
+        analysis_types.append('text')
+
+    if ('all_links_request' in config and 
+        config['all_links_request'] == True):
+        analysis_types.append('all')
+
+    if ('external_links_request' in config and 
+        config['external_links_request'] == True):
+        analysis_types.append('external')
+    # CONTEXT
+    if ('context_search_tag' in config and
+        len(config['context_search_tag']) > 0):
+        analysis_types.append('wordContexts')                
+    # SYNONYMS
+    if 'wordnet_lists' in config:
+        analysis_types.append('predefinedSynRings')
+    # Content (internal/external) types performed
+    return analysis_types
+
+def _get_content_types(config):
+    """Determine content type analysis to perform from config info."""
+    content_types = ['internal'] # TODO: allow no internal
+    if ('analyze_external_pages' in config and
+       config['analyze_external_pages'] == True):
+        content_types.append('external')
+    return content_types
+
+def _construct_analysis_keys():
+    """Construct a dictionary of analysis key types."""
+    analysis = {}
+    analysis['internal'] = {"key": "i_", "web_name": ""}
+    analysis['external'] = {"key": "e_", "web_name": ""}
+    analysis["visible"] = {"key": "text", "web_name": "visibleText"} 
+    analysis["headline"] = {"key": "head", "web_name": "headlineText"} 
+    analysis["hidden"] = {"key": "meta", "web_name": "hiddenText"}
+    analysis["text"] = {"key": "atag", "web_name": "linkText"}
+    analysis["all"] = {"key": "link", "web_name": "allLinks"}
+    analysis["external"] = {"key": "extl", "web_name": "externalDomains"}
+    analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
+    analysis["predefinedSynRings"] = {"key": "wdnt", "web_name": "synonymRings"}
+    return analysis
 
 def set_logging_level(level="production"):
     """
