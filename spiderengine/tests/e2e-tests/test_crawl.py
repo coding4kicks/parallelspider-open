@@ -70,8 +70,8 @@ def e2e_tester(generating=False):
 def _setup_crawl():
     """Set up crawl info."""
     crawl = {}
-    crawl["primarySite"] = ("https://s3.amazonaws.com/parallel_spider_test/"
-                            "index.html")
+    crawl["primarySite"] = ("http://www.parallelspider-test.com."
+                            "s3-website-us-east-1.amazonaws.com/")
     crawl["text"] = {"visible":True,"headlines":True,"hidden":True}
     crawl["links"] = {"text":True,"all":True,"external":True}
     crawl["wordContexts"] = ['yo', 'test'] 
@@ -82,7 +82,7 @@ def _setup_crawl():
     crawl["name"] = "Hackalicious News"
     crawl["time"] = "April 11, 2013" 
     crawl["additionalSites"] = []
-    # Not Implement
+    # Not Implemented
     crawl["totalResults"] = 100
     crawl["wordSearches"] = ["content", "crazy"]
     crawl["wordnets"] = ["violence", "love"]

@@ -582,11 +582,18 @@ def process_links(links, site_url, site_domain, scheme,
             continue
         
         all_links.append(element)
-
+        print site_domain
+        print link
+        print(site_domain in link)
         # If absolute url
-        if link[0:4] == "http" or link[0:5] == "https":          
+        if link[0:4] == "http" or link[0:5] == "https": 
+            print 'in absolut'
             # With site name add to on site list, else off site list
+            print robots_txt
             if (site_domain in link and
+                not robots_txt):
+                on_site.append(link)
+            elif (site_domain in link and
                 robots_txt.can_fetch('*', link)):
                 on_site.append(link)
             else:
@@ -595,11 +602,15 @@ def process_links(links, site_url, site_domain, scheme,
         # If schemeless add scheme
         elif (link and link[0:2] == '//'):
             link_abs = scheme + link
-            if robots_txt.can_fetch('*', link_abs):
+            if not robots_txt:
+                on_site.append(link_abs)
+            elif robots_txt.can_fetch('*', link_abs):
                 on_site.append(link_abs)
         # If relative add site
         elif (link and link[0] == '/' and len(link) > 1):            
             link_abs = site_url + link
+            if not robots_txt:
+                on_site.append(link_abs)
             if robots_txt.can_fetch('*', link_abs):
                 on_site.append(link_abs)        
         # Relative without backslash so add
@@ -607,9 +618,12 @@ def process_links(links, site_url, site_domain, scheme,
             if (link and link != '/' and (';' not in link)
                 and ('javascript' not in link)):
                 link_abs = site_url + '/' + link
-                if robots_txt.can_fetch('*', link_abs):
+                if not robots_txt:
                     on_site.append(link_abs)
-
+                elif robots_txt.can_fetch('*', link_abs):
+                    on_site.append(link_abs)
+    print on_site
+    print off_site
     return (on_site, off_site, all_links, ext_links)
 
 

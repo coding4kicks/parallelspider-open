@@ -213,7 +213,7 @@ def _input_file():
     """Constructs a path to the input file created for parallelspider."""
     phil = _get_fake_base_id().replace("/","_").replace(":","-") + ".txt"
     path = (os.path.realpath(__file__).partition('spiderengine')[0] + 
-                'spiderengine/tests/jobs/')
+                'spiderengine/tests/unit-tests/jobs/')
     return path + phil
 
 

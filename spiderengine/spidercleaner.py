@@ -570,7 +570,7 @@ def _clean_analysis(out, a_type, key, psuedo_dist, logger, log_header):
             # error unpacking line
             # TODO: figure out why it blows up sometimes.
             pass
-    logger.debug("Done handling {}", a_type, extra=log_header)
+    logger.debug("Done handling %s", a_type, extra=log_header)
     return words
 
 

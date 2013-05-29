@@ -95,15 +95,19 @@ class SpiderRunner(object):
         for site in self.site_list:
 
             robots_txt = _init_robot_txt(site, self.test)
+            # Need to handle error here: i.e. 403
             page = _parse(site, self.test)
+            
             if page == None:
-                self.logger.error('File type not support for: ', site, 
+                self.logger.error('File type not support for: %s', site, 
                                   extra=self.log_header)
                 continue
 
             brain = Brain(site, config)
             output = brain.analyze(page, site, robots_txt, no_emit=True)
             links = brain.on_site_links
+            print "Here da links"
+            print links
             links.append(site) # make sure main page is analyzed
             links = list(set(links)) # remove duplicates
             base = ('{}::{}').format(site, config['crawl_id'])
@@ -134,7 +138,7 @@ class SpiderRunner(object):
         path_out = "/home/parallelspider/jobs/"
         if self.test:
             path = os.path.realpath(__file__).partition('spiderengine')[0]
-            path_out = path + 'spiderengine/tests/jobs/'
+            path_out = path + 'spiderengine/tests/unit-tests/jobs/'
         file_path = path_out + file_name
         with open(file_path, "w+") as mapper_file:
             i = 1
@@ -181,7 +185,10 @@ def _init_robot_txt(site_url, test):
         robots_txt.set_url(file_path)
     else:
         robots_txt.set_url(site_url + "robots.txt")
-    robots_txt.read()
+    try:
+        robots_txt.read()
+    except:
+        rotots_txt = None
     print robots_txt
     return robots_txt
 
