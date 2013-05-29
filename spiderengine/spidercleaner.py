@@ -46,116 +46,17 @@ class SpiderCleaner(object):
         """
 
         config, r = _get_config(self.crawl_info, self.redis_info)
-
-        # Connect to Redis
-        #r = redis.StrictRedis(host=self.redis_info["host"],
-        #                      port=int(self.redis_info["port"]), db=0)
-
-        # Set up configuration file
-        #config_file = r.get('config')
-        #config_file = r.get(self.crawl_info)
-        #config = json.loads(config_file)
-
         # All possible analysis types
         all_analyses = ['visible', 'headline', 'hidden', 'text', 'all',
                         'external', 'wordContexts', 'predefinedSynRings']
-
         analysis_types = _get_analysis(config)
         content_types = _get_content_types(config)
         analysis = _construct_analysis_keys()
-
-        # Types of anlayis acutally performed
-        #analysis_types = []
-
-
-        # TEXT
-        #if ('text_request' in config and 
-       #     config['text_request'] == True):
-       #     analysis_types.append('visible')
-
-       # if ('header_request' in config and 
-       #     config['header_request'] == True):
-       #     analysis_types.append('headline')
-
-       # if ('meta_request' in config and 
-       #     config['meta_request'] == True):
-       #     analysis_types.append('hidden')
-
-       # # LINKS
-       # if ('a_tags_request' in config and 
-       #     config['a_tags_request'] == True):
-       #     analysis_types.append('text')
-
-       # if ('all_links_request' in config and 
-       #     config['all_links_request'] == True):
-       #     analysis_types.append('all')
-
-       # if ('external_links_request' in config and 
-       #     config['external_links_request'] == True):
-       #     analysis_types.append('external')
-
-       # # CONTEXT
-       # if ('context_search_tag' in config and
-       #     len(config['context_search_tag']) > 0):
-       #     analysis_types.append('wordContexts')                
-
-       # # SYNONYMS
-       # if 'wordnet_lists' in config:
-       #     analysis_types.append('predefinedSynRings')
-
-       # # Content (internal/external) types performed
-       # content_types = ['internal'] # TODO: allow no internal
-       # if ('analyze_external_pages' in config and
-       #    config['analyze_external_pages'] == True):
-       #     content_types.append('external')
-
-        # Variables for analysis types
-       # analysis = {}
-       # analysis['internal'] = {"key": "i_", "web_name": ""}
-       # analysis['external'] = {"key": "e_", "web_name": ""}
-       # analysis["visible"] = {"key": "text", "web_name": "visibleText"} 
-       # analysis["headline"] = {"key": "head", "web_name": "headlineText"} 
-       # analysis["hidden"] = {"key": "meta", "web_name": "hiddenText"}
-       # analysis["text"] = {"key": "atag", "web_name": "linkText"}
-       # analysis["all"] = {"key": "link", "web_name": "allLinks"}
-       # analysis["external"] = {"key": "extl", "web_name": "externalDomains"}
-       # analysis["wordContexts"] = {"key": "cntw", "web_name": "context"}
-       # analysis["predefinedSynRings"] = {"key": "wdnt", "web_name": "synonymRings"}
-
         finished_analysis = _init_finished_analysis(config, content_types)
-        # Analysis to be output (converted to json and uploaded to S3)
-        #finished_analysis = {}
-        #finished_analysis['name'] = config['name']
-        #finished_analysis['date'] = config['date']
         crawl_time = config['time']
         start_time = time.time()
-        
-        #TODO: pull from config/calculate end here prior to upload
-
-       # if 'internal' in content_types:
-       #     finished_analysis['internal'] = True
-       # else:
-       #     finished_analysis['internal'] = True
-       #     
-       # if 'external' in content_types:
-       #     finished_analysis['external'] = True
-       # else:
-       #     finished_analysis['external'] = False
-
-       # finished_analysis['sites'] = []
-
-       # if isinstance(config['sites'], (str, unicode)):
-       #     site_list = config['sites'].split(',')
-       # else:
-       #     site_list = config['sites']
         site_list = _get_site(config)
-        # Logging
-        msg = ('sites: {!s}').format(site_list) 
-        self.logger.debug(msg, extra=self.log_header)
-        msg = ('analysis: {!s}').format(analysis_types) 
-        self.logger.debug(msg, extra=self.log_header)
-        msg = ('content: {!s}').format(content_types) 
-        self.logger.debug(msg, extra=self.log_header)
+        self._log_setup(site_list, analysis_types, content_types)
 
         # Format results for each site
         for site in site_list:
@@ -601,6 +502,17 @@ class SpiderCleaner(object):
             base = '%s::%s' % (site, engine_crawl_id)
             r.set(base + "::count", "-2")
             r.expire(base + "::count", (60*60))
+
+    # Helper Methods
+    ###########################################################################
+    def _log_setup(self, site_list, analysis_types, content_types):
+        """Log setup info."""
+        msg = ('sites: {!s}').format(site_list) 
+        self.logger.debug(msg, extra=self.log_header)
+        msg = ('analysis: {!s}').format(analysis_types) 
+        self.logger.debug(msg, extra=self.log_header)
+        msg = ('content: {!s}').format(content_types) 
+        self.logger.debug(msg, extra=self.log_header)
 
 
 # Helper Funcs
