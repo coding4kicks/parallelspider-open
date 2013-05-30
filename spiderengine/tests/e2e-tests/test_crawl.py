@@ -56,7 +56,7 @@ def e2e_tester(generating=False):
         print("Results saved to file.")
     else:
         # Ignore very end with crawl time
-        if results[0:12320] == _saved_test_results()[0:12320]:
+        if results[0:17000] == _saved_test_results()[0:17000]:
             print("Test passed successfully.")
         else:
             print("ERROR: test failed comparison.")
