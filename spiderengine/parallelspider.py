@@ -241,7 +241,14 @@ def _init_robot_txt(site_url):
     """Initialize robot.txt for the specified site."""
     robots_txt = robotparser.RobotFileParser()
     robots_txt.set_url(site_url + "robots.txt")
-    robots_txt.read()
+    try:
+        robots_txt.read()
+        # Handle 403 for robots.txt
+        if robots_txt.disallow_all == True:
+            robots_txt.disallow_all = False
+            robots_txt.allow_all = True
+    except:
+        robots_txt = None
     return robots_txt
 
 def  _no_more_to_scrape(r, max_pages, new_links, count):
