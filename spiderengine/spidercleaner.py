@@ -140,12 +140,8 @@ class SpiderCleaner(object):
 
                     # Extract info and put into list for each context word
                     for line in out.split('\n')[:-1]:
-                        print line
+                        
                         try:
-                            # Extract word and tuple
-                            #w, t = line.split('\t')
-                            #w, ct, cw = line.split('\t')
-
                             if self.psuedo_dist:
                                 # special handling
                                 w, t = line.split('\t')
@@ -158,17 +154,12 @@ class SpiderCleaner(object):
                                 w, count, context = line.split('\t')
                                 # Strip key and clean word
                                 word = w.split(key)[1]
-
-                            print context
-
                             contexts[context].append((int(count), word))
  
                         except Exception as e:
-                            print 'error charlie'
+                            print "Error unpacking context words"
                             print type(e)
-                            print e
-                            # error unpacking line
-                            # TODO: figure out why it blows up sometimes.
+                            print e.args
                             pass
 
                     # Sort and reformat words list for each context word
@@ -202,10 +193,6 @@ class SpiderCleaner(object):
                         context_details['words'] = words
                         context_details['pages'] = []
                         context_details['tags'] = []
-
-                        print 'Here da content details'
-                        print context_details
-                        print
 
                         # Add context word details to the results
                         results[analysis['wordContexts']['web_name']] \

@@ -12,12 +12,13 @@ import os
 import sys
 import json
 import difflib
+import optparse
 import subprocess
 
 import boto
 import redis
 
-def clean_tester():
+def clean_tester(generating=False):
     """e2e test for Spider Cleaner."""
 
     # Setup
@@ -36,19 +37,25 @@ def clean_tester():
         print("Problem with Spider Cleaner. Test Failed.")
         sys.exit(1)
 
-    # Verify Results
-    print("Performing checks ...")
     key = _get_crawl_key(fake_crawl_id, _e_redis_info())
     new_results = _get_results_from_s3(key)
-    with open(_result_file_path(), 'r') as f:
-        old_results = f.read()
-    if new_results[0:12260] == old_results[0:12260]:
-        print("Test passed successfully.")
+
+    if generating:
+        with open(_result_file_path(), 'w') as f:
+            f.write(new_results)
+        print("Results saved to file.")
     else:
-        print("ERROR: test failed comparison.")
-        s = difflib.SequenceMatcher(a=new_results, b=old_results)
-        for block in s.get_matching_blocks():
-            print "match at a[%d] and b[%d] of length %d" % block
+        # Verify Results
+        print("Performing checks ...")
+        with open(_result_file_path(), 'r') as f:
+            old_results = f.read()
+        if new_results[0:16520] == old_results[0:16520]:
+            print("Test passed successfully.")
+        else:
+            print("ERROR: test failed comparison.")
+            s = difflib.SequenceMatcher(a=new_results, b=old_results)
+            for block in s.get_matching_blocks():
+                print "match at a[%d] and b[%d] of length %d" % block
 
     # Cleanup
     print("Cleaning up...")
@@ -161,5 +168,13 @@ def _spider_dir():
     return path + 'parallelspider/'
 
 if __name__ == "__main__":
-    sys.exit(clean_tester())
+    """ enable command line execution """
+    usage = "usage: %prog [options]"
+    parser = optparse.OptionParser(usage)
+    parser.add_option(
+            "-g", "-G", "--generate", action="store_true", 
+            default="", dest="generate", 
+            help="Generate results to test. [default: False]")
+    (options, args) = parser.parse_args()
+    sys.exit(clean_tester(options.generate))
 
