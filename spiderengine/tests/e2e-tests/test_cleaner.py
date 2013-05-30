@@ -52,7 +52,7 @@ def clean_tester():
 
     # Cleanup
     print("Cleaning up...")
-    result = _remove_test_file()
+    #result = _remove_test_file()
     if result != 0:
         print("Problem removing test file from HDFS.")
         sys.exit(1)
@@ -67,8 +67,6 @@ def _upload_test_file():
                     _test_file_path(), _hdfs_path())
     result = subprocess.call(command, shell=True)
     return result
-
-
 
 def _call_cleaner( clean_dir, crawl_id, e_redis_host, e_redis_port):
     """Construct command to run Spider Cleaner."""
@@ -125,7 +123,9 @@ def _remove_test_file():
 
 def _hdfs_path():
     """Return test file directory on hdfs."""
-    return '/HDFS/parallelspider/test/' + _test_file()
+    path = ('/HDFS/parallelspider/out/https-__s3.amazonaws.com_parallel'
+            '_spider_test_index.html--fake_test_crawl/part-00000')
+    return path
 
 def _test_file_path():
     """Return the full path to the test file to clean."""
@@ -158,7 +158,7 @@ def _test_dir():
 def _spider_dir():
     """Return parallelspider directory."""
     path = os.path.realpath(__file__).rpartition('parallelspider')[0]
-    return path + '/parallelspider/'
+    return path + 'parallelspider/'
 
 if __name__ == "__main__":
     sys.exit(clean_tester())

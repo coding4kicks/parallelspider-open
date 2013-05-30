@@ -129,7 +129,6 @@ class SpiderCleaner(object):
                         msg = ('Failed to process pipeline for {0}'
                                ).format('wordContexts') 
                         self.logger.debug(msg, extra=self.log_header)
-
                     self.logger.debug("Done with subprocess",
                                        extra=self.log_header)
 
@@ -141,22 +140,33 @@ class SpiderCleaner(object):
 
                     # Extract info and put into list for each context word
                     for line in out.split('\n')[:-1]:
-
+                        print line
                         try:
                             # Extract word and tuple
-                            w, t = line.split('\t')
+                            #w, t = line.split('\t')
+                            #w, ct, cw = line.split('\t')
 
-                            # Strip key and clean word
-                            word = w.split(key)[1][:-1]
+                            if self.psuedo_dist:
+                                # special handling
+                                w, t = line.split('\t')
+                                word = w.split(key)[1][:-1]
+                                # Split and clean tuple
+                                ct, cw = t.split(", u'")
+                                count = ct[1:]
+                                context = cw[:-2]
+                            else:
+                                w, count, context = line.split('\t')
+                                # Strip key and clean word
+                                word = w.split(key)[1]
 
-                            # Split and clean tuple
-                            ct, cw = t.split(", u'")
-                            count = ct[1:]
-                            context = cw[:-2]
+                            print context
 
                             contexts[context].append((int(count), word))
  
-                        except:
+                        except Exception as e:
+                            print 'error charlie'
+                            print type(e)
+                            print e
                             # error unpacking line
                             # TODO: figure out why it blows up sometimes.
                             pass
@@ -192,6 +202,10 @@ class SpiderCleaner(object):
                         context_details['words'] = words
                         context_details['pages'] = []
                         context_details['tags'] = []
+
+                        print 'Here da content details'
+                        print context_details
+                        print
 
                         # Add context word details to the results
                         results[analysis['wordContexts']['web_name']] \
@@ -346,8 +360,8 @@ class SpiderCleaner(object):
         self.logger.info(msg, extra=self.log_header)
         msg = ('Posting to S3, key: {!s}').format(key) 
         self.logger.debug(msg, extra=self.log_header)
-        msg = ('Data: {!s}').format(json_data) 
-        self.logger.debug(msg, extra=self.log_header)
+        #msg = ('Data: {!s}').format(json_data) 
+        #self.logger.debug(msg, extra=self.log_header)
 
 
         # Upload to S3 (assumes AWS keys are in .bashrc / env)
