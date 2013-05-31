@@ -119,93 +119,10 @@ class SpiderCleaner(object):
                                   site, analysis, 'wordContexts', c_type, 
                                   base_path, wordcount_analysis)
 
-                   # # Create the key to grep/filter the master file by
-                   # key = analysis['wordContexts']['key'] + analysis[c_type]['key']
-                   # 
-                   # cwd = "/home/parallelspider/out/"
-                   # cmd_line = ("cat {!s} | "
-                   #             "grep '{!s}' "
-                   #             ).format(base_path, key)
-
-                   # try:
-                   #     out = subprocess.check_output(cmd_line, shell=True,
-                   #                                   cwd=cwd)
-                   # except:
-                   #     msg = ('Failed to process pipeline for {0}'
-                   #            ).format('wordContexts') 
-                   #     self.logger.debug(msg, extra=self.log_header)
-                   # self.logger.debug("Done with subprocess",
-                   #                    extra=self.log_header)
-                   # print out
-                    # Set up dictioary for context words
-                    contexts = {}
-                    for word in config['context_search_tag']:
-                        contexts[word] = []
-
-
-                    # Extract info and put into list for each context word
-                    for line in out.split('\n')[:-1]:
-                        
-                        try:
-                            if self.psuedo_dist:
-                                # special handling
-                                w, t = line.split('\t')
-                                word = w.split(key)[1][:-1]
-                                # Split and clean tuple
-                                ct, cw = t.split(", u'")
-                                count = ct[1:]
-                                context = cw[:-2]
-                            else:
-                                w, count, context = line.split('\t')
-                                # Strip key and clean word
-                                word = w.split(key)[1]
-                            contexts[context].append((int(count), word))
- 
-                        except Exception as e:
-                            print "Error unpacking context words"
-                            print type(e)
-                            print e.args
-                            pass
-
-                    # Sort and reformat words list for each context word
-                    for j, context in enumerate(contexts):
-
-                        # Sort the word for the context
-                        contexts[context].sort(reverse=True)
-
-                        words = []
-                        total_count = 0
-
-                        for i, tup in enumerate(contexts[context]):
-                            word = {}
-                            word['rank'] = i + 1
-                            c, w = tup
-                            # Remove the key 
-                            word['word'] = w
-                            word['count'] = c
-                            word['pages'] = []
-                            word['tags'] = []
-                            words.append(word)
-                            total_count += c
-
-                            # Only add top 150
-                            if i > 150:
-                                break
-
-                        context_details = {}
-                        context_details['word'] = context
-                        context_details['count'] = total_count
-                        context_details['words'] = words
-                        context_details['pages'] = []
-                        context_details['tags'] = []
-
-                        # Add context word details to the results
-                        results[analysis['wordContexts']['web_name']] \
-                                .append(context_details)
-
-                    self.logger.debug("Done handling context",
-                                       extra=self.log_header)
-
+                    #results[wordContexts['web_name']]['words'] = \
+                    results = _clean_context_analysis(
+                            out, key, self.psuedo_dist, results, analysis,
+                            config, self.logger, self.log_header)
                     
                 #TODO: Handle Synonyms
 
@@ -585,6 +502,76 @@ def _clean_analysis(out, a_type, key, psuedo_dist, logger, log_header):
     logger.debug("Done handling %s", a_type, extra=log_header)
     return words
 
+def _clean_context_analysis(out, key, psuedo_dist, results, analysis,
+                            config, logger, log_header): 
+    """
+    Cleans up analysis.
+
+    Places analysis info into dictionary,
+    readying for a json conversion.
+    """
+    # Set up dictioary for context words
+    contexts = {}
+    for word in config['context_search_tag']:
+        contexts[word] = []
+
+    # Extract info and put into list for each context word
+    for line in out.split('\n')[:-1]:        
+        try:
+            if psuedo_dist:
+                # special handling
+                w, t = line.split('\t')
+                word = w.split(key)[1][:-1]
+                # Split and clean tuple
+                ct, cw = t.split(", u'")
+                count = ct[1:]
+                context = cw[:-2]
+            else:
+                w, count, context = line.split('\t')
+                # Strip key and clean word
+                word = w.split(key)[1]
+            contexts[context].append((int(count), word)) 
+        except Exception as e:
+            print "Error unpacking context words"
+            print type(e)
+            print e.args
+            pass
+
+    # Sort and reformat words list for each context word
+    for j, context in enumerate(contexts):
+        # Sort the word for the context
+        contexts[context].sort(reverse=True)
+        words = []
+        total_count = 0
+        for i, tup in enumerate(contexts[context]):
+            word = {}
+            word['rank'] = i + 1
+            c, w = tup
+            # Remove the key 
+            word['word'] = w
+            word['count'] = c
+            word['pages'] = []
+            word['tags'] = []
+            words.append(word)
+            total_count += c
+            # Only add top 150
+            if i > 150:
+                break
+
+        context_details = {}
+        context_details['word'] = context
+        context_details['count'] = total_count
+        context_details['words'] = words
+        context_details['pages'] = []
+        context_details['tags'] = []
+
+        # Add context word details to the results
+        results[analysis['wordContexts']['web_name']] \
+                .append(context_details)
+
+    logger.debug("Done handling context", log_header)
+
+    return results
 
 
 def set_logging_level(level="production"):
