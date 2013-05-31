@@ -133,30 +133,39 @@ class SpiderCleaner(object):
                 msg = ('{!s} finishing with summary'
                            ).format(site) 
                 self.logger.debug(msg, extra=self.log_header)
-                    
+
+                out, key = self._get_analysis_from_master(
+                              site, analysis, 'summary', c_type, 
+                              base_path, wordcount_analysis)
+
+                #results[wordContexts['web_name']]['words'] = \
+                #results = _clean_context_analysis(
+                #        out, key, self.psuedo_dist, results, analysis,
+                #        config, self.logger, self.log_header)
+
                 # Summary Information
                 results['summary'] = {}
 
                 # Create the key to grep/filter the master file by
-                key = ('totl{0}{1}|lnkc{0}{1}|tagc{0}'
-                       ).format(analysis[c_type]['key'], "\\")
+                #key = ('totl{0}{1}|lnkc{0}{1}|tagc{0}'
+                #       ).format(analysis[c_type]['key'], "\\")
 
                 # Cat the master file into the filter
-                cwd = "/home/parallelspider/out/"
-                cmd_line = ("cat {!s} | "
-                            "grep '{!s}'"
-                            ).format(base_path, key)
+                #cwd = "/home/parallelspider/out/"
+                #cmd_line = ("cat {!s} | "
+                #            "grep '{!s}'"
+                #            ).format(base_path, key)
 
-                try:
-                    out = subprocess.check_output(cmd_line, shell=True,
-                                                  cwd=cwd)
-                except:
-                    msg = ('Failed to process pipeline for {0}'
-                           ).format('summary') 
-                    self.logger.debug(msg, extra=self.log_header)
+                #try:
+                #    out = subprocess.check_output(cmd_line, shell=True,
+                #                                  cwd=cwd)
+                #except:
+                #    msg = ('Failed to process pipeline for {0}'
+                #           ).format('summary') 
+                #    self.logger.debug(msg, extra=self.log_header)
                 
-                self.logger.debug("Done with subprocess",
-                                   extra=self.log_header)
+                #self.logger.debug("Done with subprocess",
+                #                   extra=self.log_header)
 
                 total_count = 0
                 int_link_count = 0
@@ -306,12 +315,16 @@ class SpiderCleaner(object):
                                   wordcount_analysis):
         """Process analysis info from master file."""
         out = ""
-        # Logging
-        msg = ('{!s} cleaning up analysis: {!s}'
-               ).format(site, analysis[a_type]['web_name']) 
-        self.logger.debug(msg, extra=self.log_header)
-        # Create the key to grep/filter the master file by
-        key = analysis[a_type]['key'] + analysis[c_type]['key']
+        if a_type == 'summary':
+            key = ('totl{0}{1}|lnkc{0}{1}|tagc{0}'
+                    ).format(analysis[c_type]['key'], "\\")
+        else:
+            # Logging
+            msg = ('{!s} cleaning up analysis: {!s}'
+                   ).format(site, analysis[a_type]['web_name']) 
+            self.logger.debug(msg, extra=self.log_header)
+            # Create the key to grep/filter the master file by
+            key = analysis[a_type]['key'] + analysis[c_type]['key']
         # Cat the master file into the sort filter
         cwd = "/home/parallelspider/out/"
         if a_type in wordcount_analysis:
@@ -320,7 +333,7 @@ class SpiderCleaner(object):
                         "sort -k 2 -n -r | "
                         "head -n 150"
                         ).format(base_path, key)
-        elif a_type == 'wordContexts':
+        elif a_type in ['wordContexts', 'summary']:
             cmd_line = ("cat {!s} | "
                         "grep '{!s}' "
                         ).format(base_path, key)
@@ -334,7 +347,6 @@ class SpiderCleaner(object):
         self.logger.debug("Done with subprocess",
                            extra=self.log_header)
         return out, key
-
 
 
 # Helper Funcs
