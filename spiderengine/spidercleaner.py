@@ -138,120 +138,98 @@ class SpiderCleaner(object):
                               site, analysis, 'summary', c_type, 
                               base_path, wordcount_analysis)
 
-                #results[wordContexts['web_name']]['words'] = \
-                #results = _clean_context_analysis(
-                #        out, key, self.psuedo_dist, results, analysis,
-                #        config, self.logger, self.log_header)
+                results = _clean_summary_analysis(
+                            out, key, self.psuedo_dist, results, analysis,
+                            config, base, r, self.logger, self.log_header)
 
-                # Summary Information
-                results['summary'] = {}
+               # # Summary Information
+               # results['summary'] = {}
 
-                # Create the key to grep/filter the master file by
-                #key = ('totl{0}{1}|lnkc{0}{1}|tagc{0}'
-                #       ).format(analysis[c_type]['key'], "\\")
+               # total_count = 0
+               # int_link_count = 0
+               # ext_link_count = 0
+               # tag_total = 0
+               # tag_list = []
 
-                # Cat the master file into the filter
-                #cwd = "/home/parallelspider/out/"
-                #cmd_line = ("cat {!s} | "
-                #            "grep '{!s}'"
-                #            ).format(base_path, key)
+               # for line in out.split('\n'):
+               #     
+               #     try:
 
-                #try:
-                #    out = subprocess.check_output(cmd_line, shell=True,
-                #                                  cwd=cwd)
-                #except:
-                #    msg = ('Failed to process pipeline for {0}'
-                #           ).format('summary') 
-                #    self.logger.debug(msg, extra=self.log_header)
-                
-                #self.logger.debug("Done with subprocess",
-                #                   extra=self.log_header)
+               #         w, c = line.split('\t')
 
-                total_count = 0
-                int_link_count = 0
-                ext_link_count = 0
-                tag_total = 0
-                tag_list = []
+               #         if 'tagc' in w:
+               #             tag = w.split('_')[1]
+               #             dic = {}
+               #             dic['type'] = tag
+               #             dic['count'] = int(c)
 
-                for line in out.split('\n'):
-                    
-                    try:
+               #             tag_list.append(dic)
+               #             tag_total += int(c)
+               #             
+               #         elif 'lnkc' in w:
+               #             if 'internal' in w:
+               #                 int_link_count = c
+               #             else: 
+               #                 ext_link_count = c
 
-                        w, c = line.split('\t')
+               #         elif 'totl' in w:
+               #             total_count = c
 
-                        if 'tagc' in w:
-                            tag = w.split('_')[1]
-                            dic = {}
-                            dic['type'] = tag
-                            dic['count'] = int(c)
+               #         else:
+               #             msg = 'No proper tag in summary output'
+               #             self.logger.error(msg, extra=self.log_header)
 
-                            tag_list.append(dic)
-                            tag_total += int(c)
-                            
-                        elif 'lnkc' in w:
-                            if 'internal' in w:
-                                int_link_count = c
-                            else: 
-                                ext_link_count = c
+               #     except:
+               #         # error unpacking line
+               #         # TODO: figure out why it blows up sometimes.
+               #         pass
 
-                        elif 'totl' in w:
-                            total_count = c
+               # # Bug fix: sometimes total words is not in out
+               # # so pull from file
+               # # TODO: fix grep? so hack not necessary?
+               # # or just do Parallel Cleaner
+               # if total_count == 0:
+               #     key = 'totl' + analysis[c_type]['key']
+               #     with open('/home/parallelspider/out/' + base_path) as f:
+               #         string = f.read()
+               #         index = string.find(key)
+               #         upper_newline = string.rfind('\n', 0, index)
+               #         bottom_newline = string.find('\n', index)
+               #         line = string[upper_newline:bottom_newline]
+               #         try:
+               #             w, c = line.split('\t')
+               #             total_count = c
+               #         except:
+               #             msg = 'Not able to process total count.'
+               #             self.logger.error(msg, extra=self.log_header)
 
-                        else:
-                            msg = 'No proper tag in summary output'
-                            self.logger.error(msg, extra=self.log_header)
-
-                    except:
-                        # error unpacking line
-                        # TODO: figure out why it blows up sometimes.
-                        pass
-
-                # Bug fix: sometimes total words is not in out
-                # so pull from file
-                # TODO: fix grep? so hack not necessary?
-                # or just do Parallel Cleaner
-                if total_count == 0:
-                    key = 'totl' + analysis[c_type]['key']
-                    with open('/home/parallelspider/out/' + base_path) as f:
-                        string = f.read()
-                        index = string.find(key)
-                        upper_newline = string.rfind('\n', 0, index)
-                        bottom_newline = string.find('\n', index)
-                        line = string[upper_newline:bottom_newline]
-                        try:
-                            w, c = line.split('\t')
-                            total_count = c
-                        except:
-                            msg = 'Not able to process total count.'
-                            self.logger.error(msg, extra=self.log_header)
-
-                results['summary']['links'] = {}
-                results['summary']['links']['external'] = int(ext_link_count)
-                results['summary']['links']['internal'] = int(int_link_count) 
+               # results['summary']['links'] = {}
+               # results['summary']['links']['external'] = int(ext_link_count)
+               # results['summary']['links']['internal'] = int(int_link_count) 
  
-                # Pull page download info from engine redis
-                finished = base + "::finished"
-                page_count = r.scard(finished)
-                pages = r.smembers(finished)
-                first_pages = []
-                for i, page in enumerate(pages):
-                    first_pages.append(page)
-                    if i > 100:
-                        break
+               # # Pull page download info from engine redis
+               # finished = base + "::finished"
+               # page_count = r.scard(finished)
+               # pages = r.smembers(finished)
+               # first_pages = []
+               # for i, page in enumerate(pages):
+               #     first_pages.append(page)
+               #     if i > 100:
+               #         break
 
-                results['summary']['pages'] = {}
-                results['summary']['pages']['count'] = page_count 
-                results['summary']['pages']['list'] = first_pages
+               # results['summary']['pages'] = {}
+               # results['summary']['pages']['count'] = page_count 
+               # results['summary']['pages']['list'] = first_pages
 
-                results['summary']['tags'] = {}
-                results['summary']['tags']['list'] = tag_list
-                results['summary']['tags']['total'] = tag_total
+               # results['summary']['tags'] = {}
+               # results['summary']['tags']['list'] = tag_list
+               # results['summary']['tags']['total'] = tag_total
 
-                results['summary']['words'] = {}
-                results['summary']['words']['count'] = int(total_count)
+               # results['summary']['words'] = {}
+               # results['summary']['words']['count'] = int(total_count)
 
-                self.logger.debug("Done handling summary",
-                                    extra=self.log_header)
+               # self.logger.debug("Done handling summary",
+               #                     extra=self.log_header)
 
                 if c_type == 'internal':
                     site_results['internalResults'] = results
@@ -583,6 +561,92 @@ def _clean_context_analysis(out, key, psuedo_dist, results, analysis,
 
     logger.debug("Done handling context", log_header)
 
+    return results
+
+def _clean_summary_analysis(out, key, psuedo_dist, results, analysis,
+                            config, base, r, logger, log_header):
+    """
+    Cleans up analysis.
+
+    Places analysis info into dictionary,
+    readying for a json conversion.
+    """
+    # Summary Information
+    results['summary'] = {}
+    total_count = 0
+    int_link_count = 0
+    ext_link_count = 0
+    tag_total = 0
+    tag_list = []
+
+    for line in out.split('\n'):
+        try:
+            w, c = line.split('\t')
+            if 'tagc' in w:
+                tag = w.split('_')[1]
+                dic = {}
+                dic['type'] = tag
+                dic['count'] = int(c)
+                tag_list.append(dic)
+                tag_total += int(c)  
+            elif 'lnkc' in w:
+                if 'internal' in w:
+                    int_link_count = c
+                else: 
+                    ext_link_count = c
+            elif 'totl' in w:
+                total_count = c
+            else:
+                msg = 'No proper tag in summary output'
+                self.logger.error(msg, extra=self.log_header)
+        except:
+            # error unpacking line
+            # TODO: figure out why it blows up sometimes.
+            pass
+
+    # Bug fix: sometimes total words is not in out
+    # so pull from file
+    # TODO: fix grep? so hack not necessary?
+    # or just do Parallel Cleaner
+    if total_count == 0:
+        key = 'totl' + analysis[c_type]['key']
+        with open('/home/parallelspider/out/' + base_path) as f:
+            string = f.read()
+            index = string.find(key)
+            upper_newline = string.rfind('\n', 0, index)
+            bottom_newline = string.find('\n', index)
+            line = string[upper_newline:bottom_newline]
+            try:
+                w, c = line.split('\t')
+                total_count = c
+            except:
+                msg = 'Not able to process total count.'
+                logger.error(msg, extra=log_header)
+
+    results['summary']['links'] = {}
+    results['summary']['links']['external'] = int(ext_link_count)
+    results['summary']['links']['internal'] = int(int_link_count) 
+
+    # Pull page download info from engine redis
+    finished = base + "::finished"
+    page_count = r.scard(finished)
+    pages = r.smembers(finished)
+    first_pages = []
+    for i, page in enumerate(pages):
+        first_pages.append(page)
+        if i > 100:
+            break
+
+    results['summary']['pages'] = {}
+    results['summary']['pages']['count'] = page_count 
+    results['summary']['pages']['list'] = first_pages
+    results['summary']['tags'] = {}
+    results['summary']['tags']['list'] = tag_list
+    results['summary']['tags']['total'] = tag_total
+    results['summary']['words'] = {}
+    results['summary']['words']['count'] = int(total_count)
+
+    logger.debug("Done handling summary", extra=log_header)
     return results
 
 
