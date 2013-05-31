@@ -47,7 +47,7 @@ class SpiderCleaner(object):
 
         config, r = _get_config(self.crawl_info, self.redis_info)
         # All possible analysis types
-        all_analyses = ['visible', 'headline', 'hidden', 'text', 'all',
+        wordcount_analysis = ['visible', 'headline', 'hidden', 'text', 'all',
                         'external', 'wordContexts', 'predefinedSynRings']
         analysis_types = _get_analysis(config)
         content_types = _get_content_types(config)
@@ -75,7 +75,7 @@ class SpiderCleaner(object):
                 
                 results = {} # Holder for content type results
                 
-                for a_type in all_analyses:
+                for a_type in wordcount_analysis:
 
                     # Create the correct key for Spider Web name
                     results[analysis[a_type]['web_name']] = {} 
@@ -85,7 +85,8 @@ class SpiderCleaner(object):
                         continue
 
                     out, key = self._get_analysis_from_master(
-                                  site, analysis, a_type, c_type, base_path)
+                                  site, analysis, a_type, c_type, base_path,
+                                  wordcount_analysis)
 
                     # Handle Word Analysis Types
                     if a_type in ['visible','headline', 'hidden', 'text']:
@@ -114,24 +115,28 @@ class SpiderCleaner(object):
                     # Word contexts are in a list
                     results[analysis['wordContexts']['web_name']] = []
 
-                    # Create the key to grep/filter the master file by
-                    key = analysis['wordContexts']['key'] + analysis[c_type]['key']
-                    
-                    cwd = "/home/parallelspider/out/"
-                    cmd_line = ("cat {!s} | "
-                                "grep '{!s}' "
-                                ).format(base_path, key)
+                    out, key = self._get_analysis_from_master(
+                                  site, analysis, 'wordContexts', c_type, 
+                                  base_path, wordcount_analysis)
 
-                    try:
-                        out = subprocess.check_output(cmd_line, shell=True,
-                                                      cwd=cwd)
-                    except:
-                        msg = ('Failed to process pipeline for {0}'
-                               ).format('wordContexts') 
-                        self.logger.debug(msg, extra=self.log_header)
-                    self.logger.debug("Done with subprocess",
-                                       extra=self.log_header)
+                   # # Create the key to grep/filter the master file by
+                   # key = analysis['wordContexts']['key'] + analysis[c_type]['key']
+                   # 
+                   # cwd = "/home/parallelspider/out/"
+                   # cmd_line = ("cat {!s} | "
+                   #             "grep '{!s}' "
+                   #             ).format(base_path, key)
 
+                   # try:
+                   #     out = subprocess.check_output(cmd_line, shell=True,
+                   #                                   cwd=cwd)
+                   # except:
+                   #     msg = ('Failed to process pipeline for {0}'
+                   #            ).format('wordContexts') 
+                   #     self.logger.debug(msg, extra=self.log_header)
+                   # self.logger.debug("Done with subprocess",
+                   #                    extra=self.log_header)
+                   # print out
                     # Set up dictioary for context words
                     contexts = {}
                     for word in config['context_search_tag']:
@@ -380,7 +385,8 @@ class SpiderCleaner(object):
         self.logger.debug(msg, extra=self.log_header)
 
     def _get_analysis_from_master(self, site, analysis, 
-                                  a_type, c_type, base_path):
+                                  a_type, c_type, base_path, 
+                                  wordcount_analysis):
         """Process analysis info from master file."""
         out = ""
         # Logging
@@ -391,11 +397,16 @@ class SpiderCleaner(object):
         key = analysis[a_type]['key'] + analysis[c_type]['key']
         # Cat the master file into the sort filter
         cwd = "/home/parallelspider/out/"
-        cmd_line = ("cat {!s} | "
-                    "grep '{!s}' | "
-                    "sort -k 2 -n -r | "
-                    "head -n 150"
-                    ).format(base_path, key)
+        if a_type in wordcount_analysis:
+            cmd_line = ("cat {!s} | "
+                        "grep '{!s}' | "
+                        "sort -k 2 -n -r | "
+                        "head -n 150"
+                        ).format(base_path, key)
+        elif a_type == 'wordContexts':
+            cmd_line = ("cat {!s} | "
+                        "grep '{!s}' "
+                        ).format(base_path, key)
         try:
             out = subprocess.check_output(cmd_line, shell=True,
                                           cwd=cwd)
