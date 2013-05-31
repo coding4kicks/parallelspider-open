@@ -31,14 +31,17 @@ def clean_tester(generating=False):
     _push_engine_redis(fake_crawl_id, _crawl_json(), _e_redis_info())
 
     # Call Spider Cleaner
-    clean_dir = _spider_dir() + 'spiderengine'
-    result = _call_cleaner(clean_dir, fake_crawl_id, *_e_redis_info())
+    #clean_dir = _spider_dir() + 'spiderengine'
+    #result = _call_cleaner(clean_dir, fake_crawl_id, *_e_redis_info())
+    result = _call_parallel_cleaner(
+            _engine_dir(), fake_crawl_id, *_e_redis_info())
     if result != 0:
-        print("Problem with Spider Cleaner. Test Failed.")
+        print("Problem with Parallel Cleaner. Test Failed.")
         sys.exit(1)
 
     key = _get_crawl_key(fake_crawl_id, _e_redis_info())
     new_results = _get_results_from_s3(key)
+    # new_results = _get_results_from_hdfs(path)
 
     if generating:
         with open(_result_file_path(), 'w') as f:
@@ -77,11 +80,33 @@ def _upload_test_file():
 
 def _call_cleaner( clean_dir, crawl_id, e_redis_host, e_redis_port):
     """Construct command to run Spider Cleaner."""
-    print clean_dir
     command = ("python spidercleaner.py -r host:{},port:{} -c {}"
                ).format(e_redis_host, e_redis_port, crawl_id)
     result = subprocess.call(command, shell=True, cwd=clean_dir)
     return result
+
+def _call_parallel_cleaner(clean_dir, crawl_id, e_redis_host, e_redis_port):
+    """Construct and execute command to run Parallel Cleaner."""
+    max_mappers = 3 #hardcode for now
+    base = crawl_id #?
+    dist = '-hadoop starcluster'
+    files_location = '/HDFS/parallelspider/'
+    base_path = crawl_id #?
+    #file_name = base_path + '.txt'
+    file_name = _input_file()
+    clean_file = clean_dir + 'parallelcleaner.py'
+
+    cmd= ('dumbo start {0} -input {1}jobs/{2} '
+          '-output {1}out/{3} -file mrfeynman.py -nummaptasks {4} '
+          '-cmdenv PYTHONIOENCODING=utf-8 -param redisInfo=host:{5},'
+          'port:{6},base:{7} {8}'
+          ).format(clean_file, files_location, file_name, 
+                   base_path, str(max_mappers), 
+                   e_redis_host, e_redis_port, 
+                   base, dist)
+    result = subprocess.call(cmd, shell=True, cwd=clean_dir)
+    return result
+
 
 def _e_redis_info():
     """Return Engine Redis host and port."""
@@ -128,6 +153,12 @@ def _remove_test_file():
     result = subprocess.call(command, shell=True)
     return result
 
+def _input_file():
+    """Return test file directory on hdfs."""
+    f_path = ('https-__s3.amazonaws.com_parallel'
+              '_spider_test_index.html--fake_test_crawl/part-00000')
+    return f_path
+
 def _hdfs_path():
     """Return test file directory on hdfs."""
     path = ('/HDFS/parallelspider/out/https-__s3.amazonaws.com_parallel'
@@ -162,10 +193,18 @@ def _test_dir():
     """Return directory containing test results"""
     return os.path.realpath(__file__).rpartition('/')[0]
 
+def _engine_dir():
+    """Return spiderengine directory."""
+    return _spider_dir() + 'spiderengine/'
+
 def _spider_dir():
     """Return parallelspider directory."""
     path = os.path.realpath(__file__).rpartition('parallelspider')[0]
     return path + 'parallelspider/'
+
+def _parallelcleaner_path():
+    """Path to parallelcleaner file."""
+    return _spider_dir() + 'spiderengine/parallelcleaner.py'
 
 if __name__ == "__main__":
     """ enable command line execution """
