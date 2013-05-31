@@ -319,10 +319,10 @@ def _download_file(base_path):
 def _add_dummy_values(site_results, c_type):
     """Add dummy json values for analysis types not performed."""
     placeholders = {'visibleText': {}, 'hiddenText': {}, 'headlineText': {},
-    'allLinks': {}, 'externalDomains': {}, 'linkText': {},
-    'searchWords': {}, 'context': [],
-    'synonymRings': [], 'summary': {'pages':{'count':0}, 'words':{'count':0}},
-    'selectors': {} }
+                    'allLinks': {}, 'externalDomains': {}, 'linkText': {},
+                    'searchWords': {}, 'context': [], 'synonymRings': [], 
+                    'summary': {'pages':{'count':0}, 'words':{'count':0}},
+                    'selectors': {} }
     if c_type == 'internal':
         site_results['internalResults'] = placeholders
     else:
@@ -611,6 +611,7 @@ def set_logging_level(level="production"):
 
     return (logger, log_header)
 
+
 ###############################################################################
 # Command Line Crap & Initialization
 ###############################################################################
@@ -664,7 +665,6 @@ def main():
     for item in temp_list:
         key, delimiter, value = item.partition(':')
         redis_info[key] = value
-
     
     #  Initialize and execute spider runner
     spider_cleaner = SpiderCleaner(redis_info, options.crawlInfo, 
