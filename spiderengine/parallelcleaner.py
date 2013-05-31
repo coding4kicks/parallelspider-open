@@ -1,12 +1,14 @@
 """TODO: push cleanup into MapReduce"""
 
 def mapper(key, value):
-    for word in value.split():
-        yield word, 1
+    yield key, value
+    #for word in value.split():
+    #    yield word, 1
 
 def reducer(key, values):
-    yield key, sum(values)
+    yield key, values
+    #yield key, sum(values)
 
 if __name__ == "__main__":
     import dumbo
-    dumbo.run(mapper, reducer)
+    dumbo.run(mapper) #, reducer)

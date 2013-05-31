@@ -39,10 +39,10 @@ def clean_tester(generating=False):
         print("Problem with Parallel Cleaner. Test Failed.")
         sys.exit(1)
 
-    key = _get_crawl_key(fake_crawl_id, _e_redis_info())
-    new_results = _get_results_from_s3(key)
-    # new_results = _get_results_from_hdfs(path)
-
+    #key = _get_crawl_key(fake_crawl_id, _e_redis_info())
+    #new_results = _get_results_from_s3(key)
+    new_results = _get_results_from_hdfs(_out_path())
+    print new_results
     if generating:
         with open(_result_file_path(), 'w') as f:
             f.write(new_results)
@@ -62,9 +62,13 @@ def clean_tester(generating=False):
 
     # Cleanup
     print("Cleaning up...")
-    #result = _remove_test_file()
+    result = _remove_test_file()
     if result != 0:
         print("Problem removing test file from HDFS.")
+        sys.exit(1)
+    result = _remove_out_file()
+    if result != 0:
+        print("Problem removing output file from HDFS.")
         sys.exit(1)
 
 
@@ -147,11 +151,28 @@ def _get_results_from_s3(key):
     results = k.get_contents_as_string()
     return results
 
+def _get_results_from_hdfs(out_path):
+    """Get output from HDFS."""
+    cmd = ("dumbo cat {} -hadoop starcluster").format(out_path)
+    out = subprocess.call(cmd, shell=True)
+    return out
+
 def _remove_test_file():
-    """Uploads the test file to HDFS"""
+    """Removes the test file from HDFS"""
     command = ('dumbo rm {} -hadoop starcluster').format(_hdfs_path())
     result = subprocess.call(command, shell=True)
     return result
+
+def _remove_out_file():
+    """Removes the output file from HDFS"""
+    out_path = _out_path()
+    command = ('dumbo rm {} -hadoop starcluster').format(out_path)
+    result = subprocess.call(command, shell=True)
+    return result
+
+def _out_path():
+    """Return path to output file on HDFS."""
+    return '/HDFS/parallelspider/jobs/fake_crawl_id'
 
 def _input_file():
     """Return test file directory on hdfs."""
