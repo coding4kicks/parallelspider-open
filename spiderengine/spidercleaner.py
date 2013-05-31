@@ -102,7 +102,6 @@ class SpiderCleaner(object):
                                 _clean_analysis(out, a_type, key, self.psuedo_dist,
                                                 self.logger, self.log_header)
 
-
                 # Handle Context
                 # Handling as a Python string, may blow up on large data
                 if 'wordContexts' in analysis_types:
@@ -125,7 +124,6 @@ class SpiderCleaner(object):
                             config, self.logger, self.log_header)
                     
                 #TODO: Handle Synonyms
-
                 #TODO: Handle Search Words
                 # just add to grep for summary info?
                 # or do separate?
@@ -150,13 +148,6 @@ class SpiderCleaner(object):
         json_data = json.dumps(finished_analysis)
         _upload_to_s3(config, json_data, self.logger, self.log_header)
         _signal_crawl_complete(config, site_list, r)
-        # Update first site's count in Engine Redis
-        # TODO: fix crawl id
-        #engine_crawl_id = config['crawl_id']
-        #for site in site_list:
-        #    base = '%s::%s' % (site, engine_crawl_id)
-        #    r.set(base + "::count", "-2")
-        #    r.expire(base + "::count", (60*60))
 
     ###########################################################################
     # Helper Methods
