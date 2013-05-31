@@ -161,7 +161,7 @@ def _input_file():
 
 def _hdfs_path():
     """Return test file directory on hdfs."""
-    path = ('/HDFS/parallelspider/out/https-__s3.amazonaws.com_parallel'
+    path = ('/HDFS/parallelspider/jobs/https-__s3.amazonaws.com_parallel'
             '_spider_test_index.html--fake_test_crawl/part-00000')
     return path
 
