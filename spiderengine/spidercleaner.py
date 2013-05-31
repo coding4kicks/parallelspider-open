@@ -130,10 +130,6 @@ class SpiderCleaner(object):
                 # just add to grep for summary info?
                 # or do separate?
 
-                msg = ('{!s} finishing with summary'
-                           ).format(site) 
-                self.logger.debug(msg, extra=self.log_header)
-
                 out, key = self._get_analysis_from_master(
                               site, analysis, 'summary', c_type, 
                               base_path, wordcount_analysis)
@@ -181,6 +177,7 @@ class SpiderCleaner(object):
             r.set(base + "::count", "-2")
             r.expire(base + "::count", (60*60))
 
+    ###########################################################################
     # Helper Methods
     ###########################################################################
     def _log_setup(self, site_list, analysis_types, content_types):
@@ -198,6 +195,9 @@ class SpiderCleaner(object):
         """Process analysis info from master file."""
         out = ""
         if a_type == 'summary':
+            msg = ('{!s} finishing with summary').format(site) 
+                self.logger.debug(msg, extra=self.log_header)
+
             key = ('totl{0}{1}|lnkc{0}{1}|tagc{0}'
                     ).format(analysis[c_type]['key'], "\\")
         else:
@@ -231,6 +231,7 @@ class SpiderCleaner(object):
         return out, key
 
 
+###############################################################################
 # Helper Funcs
 ###############################################################################
 def _get_config(crawl_info, redis_info):
@@ -629,10 +630,9 @@ def set_logging_level(level="production"):
 
     return (logger, log_header)
 
-
+###############################################################################
 # Command Line Crap & Initialization
 ###############################################################################
-
 def main():
     """Handle command line options"""
 
