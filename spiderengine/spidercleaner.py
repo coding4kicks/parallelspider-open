@@ -142,109 +142,19 @@ class SpiderCleaner(object):
                             out, key, self.psuedo_dist, results, analysis,
                             config, base, r, self.logger, self.log_header)
 
-               # # Summary Information
-               # results['summary'] = {}
-
-               # total_count = 0
-               # int_link_count = 0
-               # ext_link_count = 0
-               # tag_total = 0
-               # tag_list = []
-
-               # for line in out.split('\n'):
-               #     
-               #     try:
-
-               #         w, c = line.split('\t')
-
-               #         if 'tagc' in w:
-               #             tag = w.split('_')[1]
-               #             dic = {}
-               #             dic['type'] = tag
-               #             dic['count'] = int(c)
-
-               #             tag_list.append(dic)
-               #             tag_total += int(c)
-               #             
-               #         elif 'lnkc' in w:
-               #             if 'internal' in w:
-               #                 int_link_count = c
-               #             else: 
-               #                 ext_link_count = c
-
-               #         elif 'totl' in w:
-               #             total_count = c
-
-               #         else:
-               #             msg = 'No proper tag in summary output'
-               #             self.logger.error(msg, extra=self.log_header)
-
-               #     except:
-               #         # error unpacking line
-               #         # TODO: figure out why it blows up sometimes.
-               #         pass
-
-               # # Bug fix: sometimes total words is not in out
-               # # so pull from file
-               # # TODO: fix grep? so hack not necessary?
-               # # or just do Parallel Cleaner
-               # if total_count == 0:
-               #     key = 'totl' + analysis[c_type]['key']
-               #     with open('/home/parallelspider/out/' + base_path) as f:
-               #         string = f.read()
-               #         index = string.find(key)
-               #         upper_newline = string.rfind('\n', 0, index)
-               #         bottom_newline = string.find('\n', index)
-               #         line = string[upper_newline:bottom_newline]
-               #         try:
-               #             w, c = line.split('\t')
-               #             total_count = c
-               #         except:
-               #             msg = 'Not able to process total count.'
-               #             self.logger.error(msg, extra=self.log_header)
-
-               # results['summary']['links'] = {}
-               # results['summary']['links']['external'] = int(ext_link_count)
-               # results['summary']['links']['internal'] = int(int_link_count) 
- 
-               # # Pull page download info from engine redis
-               # finished = base + "::finished"
-               # page_count = r.scard(finished)
-               # pages = r.smembers(finished)
-               # first_pages = []
-               # for i, page in enumerate(pages):
-               #     first_pages.append(page)
-               #     if i > 100:
-               #         break
-
-               # results['summary']['pages'] = {}
-               # results['summary']['pages']['count'] = page_count 
-               # results['summary']['pages']['list'] = first_pages
-
-               # results['summary']['tags'] = {}
-               # results['summary']['tags']['list'] = tag_list
-               # results['summary']['tags']['total'] = tag_total
-
-               # results['summary']['words'] = {}
-               # results['summary']['words']['count'] = int(total_count)
-
-               # self.logger.debug("Done handling summary",
-               #                     extra=self.log_header)
-
                 if c_type == 'internal':
                     site_results['internalResults'] = results
                 else:
                     site_results['externalResults'] = results
-
                 site_results['url'] = site
-                
                 finished_analysis['sites'].append(site_results)
         
         # All done, clock time
-        finish_time = time.time()
-        cleanup_time = finish_time - start_time
-        finished_analysis['time'] = crawl_time + cleanup_time
-
+        #finish_time = time.time()
+        #cleanup_time = finish_time - start_time
+        #finished_analysis['time'] = crawl_time + cleanup_time
+        finished_analysis['time'] = _clock_time(start_time, crawl_time,
+                                                self.logger, self.log_header)
         json_data = json.dumps(finished_analysis)
 
         user_id = config['user_id']
@@ -252,8 +162,6 @@ class SpiderCleaner(object):
         key = user_id + '/' + full_crawl_id + '.json'
 
         # Logging
-        msg = ('crawl_time: {!s}').format(crawl_time + cleanup_time) 
-        self.logger.info(msg, extra=self.log_header)
         msg = ('Posting to S3, key: {!s}').format(key) 
         self.logger.debug(msg, extra=self.log_header)
         #msg = ('Data: {!s}').format(json_data) 
@@ -649,6 +557,14 @@ def _clean_summary_analysis(out, key, psuedo_dist, results, analysis,
     logger.debug("Done handling summary", extra=log_header)
     return results
 
+def _clock_time(start_time, crawl_time, logger, log_header):
+    """Calculate total crawl time."""
+    finish_time = time.time()
+    cleanup_time = finish_time - start_time
+    total_time = crawl_time + cleanup_time
+    msg = ('crawl_time: {!s}').format(crawl_time + cleanup_time) 
+    logger.info(msg, extra=log_header)
+    return total_time
 
 def set_logging_level(level="production"):
     """
