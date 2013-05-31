@@ -149,33 +149,14 @@ class SpiderCleaner(object):
                                                 self.logger, self.log_header)
         json_data = json.dumps(finished_analysis)
         _upload_to_s3(config, json_data, self.logger, self.log_header)
-       # user_id = config['user_id']
-       # full_crawl_id = config['crawl_id']
-       # key = user_id + '/' + full_crawl_id + '.json'
-
-       # # Logging
-       # msg = ('Posting to S3, key: {!s}').format(key) 
-       # self.logger.debug(msg, extra=self.log_header)
-       # #msg = ('Data: {!s}').format(json_data) 
-       # #self.logger.debug(msg, extra=self.log_header)
-
-
-       # # Upload to S3 (assumes AWS keys are in .bashrc / env)
-       # s3conn = boto.connect_s3()
-       # bucket_name = "ps_users" # TODO: put in config init
-       # bucket = s3conn.create_bucket(bucket_name)
-       # k = boto.s3.key.Key(bucket)
-       # k.key = key
-       # # TODO: add upload monitoring
-       # k.set_contents_from_string(json_data) 
-
+        _signal_crawl_complete(config, site_list, r)
         # Update first site's count in Engine Redis
         # TODO: fix crawl id
-        engine_crawl_id = config['crawl_id']
-        for site in site_list:
-            base = '%s::%s' % (site, engine_crawl_id)
-            r.set(base + "::count", "-2")
-            r.expire(base + "::count", (60*60))
+        #engine_crawl_id = config['crawl_id']
+        #for site in site_list:
+        #    base = '%s::%s' % (site, engine_crawl_id)
+        #    r.set(base + "::count", "-2")
+        #    r.expire(base + "::count", (60*60))
 
     ###########################################################################
     # Helper Methods
@@ -196,8 +177,7 @@ class SpiderCleaner(object):
         out = ""
         if a_type == 'summary':
             msg = ('{!s} finishing with summary').format(site) 
-                self.logger.debug(msg, extra=self.log_header)
-
+            self.logger.debug(msg, extra=self.log_header)
             key = ('totl{0}{1}|lnkc{0}{1}|tagc{0}'
                     ).format(analysis[c_type]['key'], "\\")
         else:
@@ -580,6 +560,16 @@ def _upload_to_s3(config, json_data, logger, log_header):
     k = boto.s3.key.Key(bucket)
     k.key = key
     k.set_contents_from_string(json_data) 
+
+def _signal_crawl_complete(config, site_list, r):
+    """Update count in Engine Redis to -2 signalling crawl complete."""
+    # Update first site's count in Engine Redis
+    # TODO: fix crawl id???
+    engine_crawl_id = config['crawl_id']
+    for site in site_list:
+        base = '%s::%s' % (site, engine_crawl_id)
+        r.set(base + "::count", "-2")
+        r.expire(base + "::count", (60*60))
 
 def set_logging_level(level="production"):
     """
