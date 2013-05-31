@@ -149,33 +149,29 @@ class SpiderCleaner(object):
                 site_results['url'] = site
                 finished_analysis['sites'].append(site_results)
         
-        # All done, clock time
-        #finish_time = time.time()
-        #cleanup_time = finish_time - start_time
-        #finished_analysis['time'] = crawl_time + cleanup_time
         finished_analysis['time'] = _clock_time(start_time, crawl_time,
                                                 self.logger, self.log_header)
         json_data = json.dumps(finished_analysis)
+        _upload_to_s3(config, json_data, self.logger, self.log_header)
+       # user_id = config['user_id']
+       # full_crawl_id = config['crawl_id']
+       # key = user_id + '/' + full_crawl_id + '.json'
 
-        user_id = config['user_id']
-        full_crawl_id = config['crawl_id']
-        key = user_id + '/' + full_crawl_id + '.json'
-
-        # Logging
-        msg = ('Posting to S3, key: {!s}').format(key) 
-        self.logger.debug(msg, extra=self.log_header)
-        #msg = ('Data: {!s}').format(json_data) 
-        #self.logger.debug(msg, extra=self.log_header)
+       # # Logging
+       # msg = ('Posting to S3, key: {!s}').format(key) 
+       # self.logger.debug(msg, extra=self.log_header)
+       # #msg = ('Data: {!s}').format(json_data) 
+       # #self.logger.debug(msg, extra=self.log_header)
 
 
-        # Upload to S3 (assumes AWS keys are in .bashrc / env)
-        s3conn = boto.connect_s3()
-        bucket_name = "ps_users" # TODO: put in config init
-        bucket = s3conn.create_bucket(bucket_name)
-        k = boto.s3.key.Key(bucket)
-        k.key = key
-        # TODO: add upload monitoring
-        k.set_contents_from_string(json_data) 
+       # # Upload to S3 (assumes AWS keys are in .bashrc / env)
+       # s3conn = boto.connect_s3()
+       # bucket_name = "ps_users" # TODO: put in config init
+       # bucket = s3conn.create_bucket(bucket_name)
+       # k = boto.s3.key.Key(bucket)
+       # k.key = key
+       # # TODO: add upload monitoring
+       # k.set_contents_from_string(json_data) 
 
         # Update first site's count in Engine Redis
         # TODO: fix crawl id
@@ -565,6 +561,24 @@ def _clock_time(start_time, crawl_time, logger, log_header):
     msg = ('crawl_time: {!s}').format(crawl_time + cleanup_time) 
     logger.info(msg, extra=log_header)
     return total_time
+
+def _upload_to_s3(config, json_data, logger, log_header):
+    """Upload analysis data to S3."""
+    # TODO: add upload monitoring
+    user_id = config['user_id']
+    full_crawl_id = config['crawl_id']
+    key = user_id + '/' + full_crawl_id + '.json'
+    msg = ('Posting to S3, key: {!s}').format(key) 
+    logger.debug(msg, extra=log_header)
+    #msg = ('Data: {!s}').format(json_data) 
+    #logger.debug(msg, extra=log_header)
+    # Upload to S3 (assumes AWS keys are in .bashrc / env)
+    s3conn = boto.connect_s3()
+    bucket_name = "ps_users"
+    bucket = s3conn.create_bucket(bucket_name)
+    k = boto.s3.key.Key(bucket)
+    k.key = key
+    k.set_contents_from_string(json_data) 
 
 def set_logging_level(level="production"):
     """
