@@ -1,6 +1,7 @@
 """TODO: push cleanup into MapReduce"""
 
 def mapper(key, value):
+  
     yield key, value
     #for word in value.split():
     #    yield word, 1

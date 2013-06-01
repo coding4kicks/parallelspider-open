@@ -21,9 +21,11 @@ import redis
 def clean_tester(generating=False):
     """e2e test for Spider Cleaner."""
 
+    distributed = False
+
     # Setup
     print("Setting up info for cleaner test...")
-    result = _upload_test_file()
+    result = _upload_test_file(distributed)
     if result != 0:
         print("Problem uploading test file to HDFS.")
         sys.exit(1)
@@ -34,14 +36,14 @@ def clean_tester(generating=False):
     #clean_dir = _spider_dir() + 'spiderengine'
     #result = _call_cleaner(clean_dir, fake_crawl_id, *_e_redis_info())
     result = _call_parallel_cleaner(
-            _engine_dir(), fake_crawl_id, *_e_redis_info())
+            _engine_dir(), fake_crawl_id, distributed, *_e_redis_info())
     if result != 0:
         print("Problem with Parallel Cleaner. Test Failed.")
         sys.exit(1)
 
     #key = _get_crawl_key(fake_crawl_id, _e_redis_info())
     #new_results = _get_results_from_s3(key)
-    new_results = _get_results_from_hdfs(_out_path())
+    new_results = _get_new_results(distributed)
     print new_results
    # if generating:
    #     with open(_result_file_path(), 'w') as f:
@@ -62,21 +64,23 @@ def clean_tester(generating=False):
 
     # Cleanup
     print("Cleaning up...")
-   # result = _remove_test_file()
-   # if result != 0:
-   #     print("Problem removing test file from HDFS.")
-   #     sys.exit(1)
-   # result = _remove_out_file()
-   # if result != 0:
-   #     print("Problem removing output file from HDFS.")
-   #     sys.exit(1)
+    result = _remove_test_file(distributed)
+    if result != 0:
+        print("Problem removing test file from HDFS.")
+        sys.exit(1)
+    result = _remove_out_file(distributed)
+    if result != 0:
+        print("Problem removing output file from HDFS or local.")
+        sys.exit(1)
 
 
 ###############################################################################
 ### Helper Delper Classes & Functions
 ###############################################################################
-def _upload_test_file():
+def _upload_test_file(distributed):
     """Uploads the test file to HDFS"""
+    if not distributed: # no need to upload the file
+        return 0
     command = ('dumbo put {} {} -hadoop starcluster').format(
                     _test_file_path(), _hdfs_path())
     result = subprocess.call(command, shell=True)
@@ -89,25 +93,40 @@ def _upload_test_file():
 #    result = subprocess.call(command, shell=True, cwd=clean_dir)
 #    return result
 
-def _call_parallel_cleaner(clean_dir, crawl_id, e_redis_host, e_redis_port):
+def _call_parallel_cleaner(clean_dir, crawl_id, distributed,
+                           e_redis_host, e_redis_port):
     """Construct and execute command to run Parallel Cleaner."""
     max_mappers = 3 #hardcode for now
     base = crawl_id #?
-    dist = '-hadoop starcluster'
-    files_location = '/HDFS/parallelspider/'
-    base_path = crawl_id #?
-    #file_name = base_path + '.txt'
-    file_name = _input_file()
     clean_file = clean_dir + 'parallelcleaner.py'
-
-    cmd= ('dumbo start {0} -input {1}jobs/{2} '
-          '-output {1}out/{3} -file mrfeynman.py -nummaptasks {4} '
-          '-cmdenv PYTHONIOENCODING=utf-8 -param redisInfo=host:{5},'
-          'port:{6},base:{7} {8}'
-          ).format(clean_file, files_location, file_name, 
-                   base_path, str(max_mappers), 
-                   e_redis_host, e_redis_port, 
-                   base, dist)
+    if distributed:
+        dist = '-hadoop starcluster'
+        files_location = '/HDFS/parallelspider/'
+        base_path = crawl_id #?
+        file_name = _input_file()    
+        cmd= ('dumbo start {0} -input {1}jobs/{2} '
+              '-output {1}out/{3} -file mrfeynman.py -nummaptasks {4} '
+              '-cmdenv PYTHONIOENCODING=utf-8 -param redisInfo=host:{5},'
+              'port:{6},base:{7} {8}'
+              ).format(clean_file, files_location, file_name, 
+                       base_path, str(max_mappers), 
+                       e_redis_host, e_redis_port, 
+                       base, dist)
+    else:
+        dist = ""
+        files_location = _test_file_path()
+        local_out_path = ('/home/parallelspider/parallelspider/spiderengine/'
+                     'tests/e2e-tests/out')
+        file_name = _test_file_path()
+        cmd= ('dumbo start {0} -input {1} '
+              '-output {2} -file mrfeynman.py -nummaptasks {3} '
+              '-cmdenv PYTHONIOENCODING=utf-8 -param redisInfo=host:{4},'
+              'port:{5},base:{6}'
+              ).format(clean_file, file_name, 
+                       local_out_path, str(max_mappers), 
+                       e_redis_host, e_redis_port, 
+                       base)
+        print cmd
     result = subprocess.call(cmd, shell=True, cwd=clean_dir)
     return result
 
@@ -151,23 +170,34 @@ def _get_results_from_s3(key):
     results = k.get_contents_as_string()
     return results
 
-def _get_results_from_hdfs(out_path):
+def _get_new_results(distributed):
     """Get output from HDFS."""
-    out_file = out_path + '/part-00000'
-    cmd = ("dumbo cat {} -hadoop starcluster").format(out_file)
+    if distributed:
+        out_file = _out_path() + '/part-00000'
+        cmd = ("dumbo cat {} -hadoop starcluster").format(out_file)
+    else:
+        cmd = ('cat /home/parallelspider/parallelspider/spiderengine/'
+               'tests/e2e-tests/out')
     out = subprocess.call(cmd, shell=True)
     return out
 
-def _remove_test_file():
+def _remove_test_file(distributed):
     """Removes the test file from HDFS"""
-    command = ('dumbo rm {} -hadoop starcluster').format(_hdfs_path())
-    result = subprocess.call(command, shell=True)
+    if distributed:
+        command = ('dumbo rm {} -hadoop starcluster').format(_hdfs_path())
+        result = subprocess.call(command, shell=True)
+    else:
+        result = 0 #don't delete the file
     return result
 
-def _remove_out_file():
+def _remove_out_file(distributed):
     """Removes the output file from HDFS"""
-    out_path = _out_path()
-    command = ('dumbo rm {} -hadoop starcluster').format(out_path)
+    if distributed:
+        out_path = _out_path()
+        command = ('dumbo rm {} -hadoop starcluster').format(out_path)
+    else:
+        command = ('rm -f /home/parallelspider/parallelspider/'
+                   'spiderengine/tests/e2e-tests/out')
     result = subprocess.call(command, shell=True)
     return result
 
