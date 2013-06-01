@@ -6,8 +6,8 @@ def mapper(key, value):
     #    yield word, 1
 
 def reducer(key, values):
-    yield key, values
-    #yield key, sum(values)
+    #yield key, values
+    yield key, sum(values)
 
 if __name__ == "__main__":
     import dumbo

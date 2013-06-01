@@ -62,14 +62,14 @@ def clean_tester(generating=False):
 
     # Cleanup
     print("Cleaning up...")
-    result = _remove_test_file()
-    if result != 0:
-        print("Problem removing test file from HDFS.")
-        sys.exit(1)
-    result = _remove_out_file()
-    if result != 0:
-        print("Problem removing output file from HDFS.")
-        sys.exit(1)
+   # result = _remove_test_file()
+   # if result != 0:
+   #     print("Problem removing test file from HDFS.")
+   #     sys.exit(1)
+   # result = _remove_out_file()
+   # if result != 0:
+   #     print("Problem removing output file from HDFS.")
+   #     sys.exit(1)
 
 
 ###############################################################################
@@ -82,12 +82,12 @@ def _upload_test_file():
     result = subprocess.call(command, shell=True)
     return result
 
-def _call_cleaner( clean_dir, crawl_id, e_redis_host, e_redis_port):
-    """Construct command to run Spider Cleaner."""
-    command = ("python spidercleaner.py -r host:{},port:{} -c {}"
-               ).format(e_redis_host, e_redis_port, crawl_id)
-    result = subprocess.call(command, shell=True, cwd=clean_dir)
-    return result
+#def _call_cleaner( clean_dir, crawl_id, e_redis_host, e_redis_port):
+#    """Construct command to run Spider Cleaner."""
+#    command = ("python spidercleaner.py -r host:{},port:{} -c {}"
+#               ).format(e_redis_host, e_redis_port, crawl_id)
+#    result = subprocess.call(command, shell=True, cwd=clean_dir)
+#    return result
 
 def _call_parallel_cleaner(clean_dir, crawl_id, e_redis_host, e_redis_port):
     """Construct and execute command to run Parallel Cleaner."""
