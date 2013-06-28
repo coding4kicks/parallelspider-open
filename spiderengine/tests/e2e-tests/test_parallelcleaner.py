@@ -105,7 +105,7 @@ def _call_parallel_cleaner(clean_dir, crawl_id, distributed,
         base_path = crawl_id #?
         file_name = _input_file()    
         cmd= ('dumbo start {0} -input {1}jobs/{2} '
-              '-output {1}out/{3} -file mrfeynman.py -nummaptasks {4} '
+              '-output {1}out/{3} -nummaptasks {4} '
               '-cmdenv PYTHONIOENCODING=utf-8 -param redisInfo=host:{5},'
               'port:{6},base:{7} {8}'
               ).format(clean_file, files_location, file_name, 
@@ -118,8 +118,8 @@ def _call_parallel_cleaner(clean_dir, crawl_id, distributed,
         local_out_path = ('/home/parallelspider/parallelspider/spiderengine/'
                      'tests/e2e-tests/out')
         file_name = _test_file_path()
-        cmd= ('dumbo start {0} -input {1} '
-              '-output {2} -file mrfeynman.py -nummaptasks {3} '
+        cmd= ('dumbo start {0} -input {1} -inputformat sequencefile '
+              '-output {2} -outputformat text -nummaptasks {3} '
               '-cmdenv PYTHONIOENCODING=utf-8 -param redisInfo=host:{4},'
               'port:{5},base:{6}'
               ).format(clean_file, file_name, 
