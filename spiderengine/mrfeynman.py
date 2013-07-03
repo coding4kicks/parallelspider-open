@@ -606,7 +606,7 @@ def process_links(links, site_url, site_domain, scheme,
             link_abs = site_url + link
             if not robots_txt:
                 on_site.append(link_abs)
-            if robots_txt.can_fetch('*', link_abs):
+            elif robots_txt.can_fetch('*', link_abs):
                 on_site.append(link_abs)        
         # Relative without backslash so add
         else:
