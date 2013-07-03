@@ -338,7 +338,7 @@ class CrawlTracker(object):
 
     def _cleanup_command(self, crawl_id):
         """Construct command to run Spider Cleaner."""
-        cmd_line = ("python spidercleaner.py -r host:{},port:{} -c {}"
+        cmd_line = ("qsub -V -b y -cwd python spidercleaner.py -r host:{},port:{} -c {}"
                    ).format(self.engine_redis_host,
                             self.engine_redis_port, crawl_id)
         if self.psuedo_dist:
