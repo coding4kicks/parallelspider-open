@@ -12,6 +12,7 @@ import json
 import time
 import copy
 import redis
+import shlex
 import urllib
 import logging
 import optparse
@@ -191,8 +192,12 @@ class SpiderCleaner(object):
                         "grep '{!s}' "
                         ).format(base_path, key)
         try:
-            out = subprocess.check_output(cmd_line, shell=True,
-                                          cwd=cwd)
+            # Not sure why communicate doesn't work for summary?
+            if a_type in wordcount_analysis:
+                p = run_shell_command(cmd_line, cwd)
+                out, error = p.communicate()
+            elif a_type in ['wordContexts', 'summary']:
+                out = subprocess.check_output(cmd_line, shell=True, cwd=cwd)
         except:
             msg = ('Failed to process pipeline for {0}'
                    ).format(a_type) 
@@ -561,6 +566,27 @@ def _signal_crawl_complete(config, site_list, r):
         base = '%s::%s' % (site, engine_crawl_id)
         r.set(base + "::count", "-2")
         r.expire(base + "::count", (60*60))
+
+# http://stackoverflow.com/questions/4106565/newbie-python-subprocess-problem-write-error-broken-pipe
+def run_shell_command(cmds, cwd):
+    """ Run commands and return output from last call to subprocess.Popen.
+    """
+    # split the commands
+    cmds = cmds.split("|")
+    cmds = list(map(shlex.split,cmds))
+
+    #print(cmds)
+
+    # run the commands
+    stdout_old = None
+    stderr_old = None
+    p = []
+    for cmd in cmds:
+        #print(cmd)
+        p.append(subprocess.Popen(cmd,stdin=stdout_old,stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=cwd))
+        stdout_old = p[-1].stdout
+        stderr_old = p[-1].stderr
+    return p[-1]
 
 def set_logging_level(level="production"):
     """
