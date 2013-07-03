@@ -54,53 +54,32 @@ def restart(type='local', args=None):
 
 @fab.task
 def deploy():
-    """Push server.py to the server and restart"""
+    """Push spider engine components to cluster"""
 
-    # Use Starcluster to push up client, runner, spider, and feynman
     cwd = path + "spiderengine/"
-    cmd_line = "starcluster put fvmcluster " + \
-               "~/projects/parallelspider/spiderengine/spiderclient.py " + \
-               "/home/parallelspider/parallelspider/spiderengine/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-               "~/projects/parallelspider/spiderengine/spiderrunner.py " + \
-               "/home/parallelspider/parallelspider/spiderengine/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-               "~/projects/parallelspider/spiderengine/parallelspider.py " + \
-               "/home/parallelspider/parallelspider/spiderengine/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-               "~/projects/parallelspider/spiderengine/mrfeynman.py " + \
-               "/home/parallelspider/parallelspider/spiderengine/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-               "~/projects/parallelspider/spiderengine/mock_crawl.py " + \
-               "/home/parallelspider/parallelspider/spiderengine/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-               "~/projects/parallelspider/spiderengine/spidercleaner.py " + \
-               "/home/parallelspider/parallelspider/spiderengine/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-               "~/projects/parallelspider/spiderengine/parallelcleaner.py " + \
-               "/home/parallelspider/parallelspider/spiderengine/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-        "~/projects/parallelspider/spiderengine/" + \
-        "tests/e2e-tests/test_crawl.py " + \
-        "/home/parallelspider/parallelspider/spiderengine/tests/e2e-tests/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-        "~/projects/parallelspider/spiderengine/" + \
-        "tests/e2e-tests/test_cleaner.py " + \
-        "/home/parallelspider/parallelspider/spiderengine/tests/e2e-tests/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
-    cmd_line = "starcluster put fvmcluster " + \
-        "~/projects/parallelspider/spiderengine/" + \
-        "tests/e2e-tests/test_parallelcleaner.py " + \
-        "/home/parallelspider/parallelspider/spiderengine/tests/e2e-tests/"
-    p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+    files = ['spiderclient.py', 'parallelspider.py',
+             'mrfeynman.py', 'spidercleaner.py', 'mock_crawl.py']
+    for f in files:
+        cmd_line = ("starcluster put fvmcluster "
+                    "~/projects/parallelspider/spiderengine/{} "
+                    "/home/parallelspider/parallelspider/spiderengine/"
+                    ).format(f)
+        p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
+
+
+@fab.task
+def deploy_tests():
+    """Push spider engine components to cluster"""
+
+    cwd = path + "spiderengine/"
+    files = ['test_crawl.py', 'test_cleaner.py']
+    for f in files:
+        cmd_line = ("starcluster put fvmcluster "
+                "~/projects/parallelspider/spiderengine/"
+                "tests/e2e-tests/{} "
+                "/home/parallelspider/parallelspider/spiderengine/"
+                "tests/e2e-tests/").format(f)
+        p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
 @fab.task
 def deploy_production():
