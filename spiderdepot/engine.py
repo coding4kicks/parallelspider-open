@@ -60,9 +60,9 @@ def deploy():
     files = ['spiderclient.py', 'parallelspider.py',
              'mrfeynman.py', 'spidercleaner.py', 'mock_crawl.py']
     for f in files:
-        cmd_line = ("starcluster put fvmcluster "
+        cmd_line = ("starcluster put basecluster "
                     "~/projects/parallelspider/spiderengine/{} "
-                    "/home/parallelspider/parallelspider/spiderengine/"
+                    "/home/spideradmin/parallelspider/spiderengine/"
                     ).format(f)
         p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
@@ -74,10 +74,10 @@ def deploy_tests():
     cwd = path + "spiderengine/"
     files = ['test_crawl.py', 'test_cleaner.py']
     for f in files:
-        cmd_line = ("starcluster put fvmcluster "
+        cmd_line = ("starcluster put basecluster "
                 "~/projects/parallelspider/spiderengine/"
                 "tests/e2e-tests/{} "
-                "/home/parallelspider/parallelspider/spiderengine/"
+                "/home/spideradmin/parallelspider/spiderengine/"
                 "tests/e2e-tests/").format(f)
         p = subprocess.Popen(cmd_line, shell=True, cwd=cwd)
 
