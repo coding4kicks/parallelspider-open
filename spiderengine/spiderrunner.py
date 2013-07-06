@@ -133,7 +133,9 @@ class SpiderRunner(object):
     def _create_input_file(self, base):
         """Create input file (name equals base escaped) for parallelspider."""
         file_name = _get_base_path(base) + '.txt'
-        path_out = "/home/parallelspider/jobs/"
+        #path_out = "/home/parallelspider/jobs/"
+        path = os.path.realpath(__file__).rpartition('/')[0]
+        path_out = path + '/jobs/'
         if self.test:
             path = os.path.realpath(__file__).partition('spiderengine')[0]
             path_out = path + 'spiderengine/tests/unit-tests/jobs/'
