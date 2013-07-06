@@ -155,9 +155,10 @@ class CrawlTracker(object):
 
     def _construct_crawl_command(self, site_list, crawl_id):
         """Create command line code to execute Spider Runner."""
-        cmd_line = ("python spiderrunner.py {} -r host:{},port:{} -m {}"
+        path = os.path.realpath(__file__).rpartition('/')[0]
+        cmd_line = ("python {}/spiderrunner.py {} -r host:{},port:{} -m {}"
                     " -t {} -c {}").format(
-                        site_list, self.engine_redis_host,
+                        path, site_list, self.engine_redis_host,
                         self.engine_redis_port, self.mappers,
                         self.max_pages, crawl_id)
         if self.psuedo_dist:
