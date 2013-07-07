@@ -134,8 +134,8 @@ class SpiderRunner(object):
         """Create input file (name equals base escaped) for parallelspider."""
         file_name = _get_base_path(base) + '.txt'
         #path_out = "/home/parallelspider/jobs/"
-        path = os.path.realpath(__file__).rpartition('/')[0]
-        path_out = path + '/jobs/'
+        #path = os.path.realpath(__file__).rpartition('/')[0]
+        path_out = _spdr_engine_location() + '/jobs/'
         if self.test:
             path = os.path.realpath(__file__).partition('spiderengine')[0]
             path_out = path + 'spiderengine/tests/unit-tests/jobs/'
@@ -275,14 +275,20 @@ def set_logging_level(level="production"):
 
 def _ps_location():
     """parallelspider location on analysis engine."""
-    return '/home/parallelspider/parallelspider/spiderengine/parallelspider.py'
+    return _spdr_engine_location() + '/parallelspider.py'
+    #return '/home/parallelspider/parallelspider/spiderengine/parallelspider.py'
 
 def _get_files_location(mode):
     """Jobs & Output location on HDFS or local.""" 
     if mode == 'dist':
         return '/HDFS/parallelspider/'
     else:
-        return '/home/parallelspider/'
+        return _spdr_engine_location() + '/'
+        #return '/home/parallelspider/'
+
+def _spdr_engine_location():
+    """Return location of SpiderEngine (current) file."""
+    return os.path.realpath(__file__).rpartition('/')[0]
 
 def _get_base_path(base):
     """Construct file safe base path."""
