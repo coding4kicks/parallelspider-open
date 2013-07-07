@@ -155,10 +155,10 @@ class CrawlTracker(object):
 
     def _construct_crawl_command(self, site_list, crawl_id):
         """Create command line code to execute Spider Runner."""
-        path = os.path.realpath(__file__).rpartition('/')[0]
+        #path = os.path.realpath(__file__).rpartition('/')[0]
         cmd_line = ("python {}/spiderrunner.py {} -r host:{},port:{} -m {}"
                     " -t {} -c {}").format(
-                        path, site_list, self.engine_redis_host,
+                        _spdr_engine_location(), site_list, self.engine_redis_host,
                         self.engine_redis_port, self.mappers,
                         self.max_pages, crawl_id)
         if self.psuedo_dist:
@@ -339,8 +339,8 @@ class CrawlTracker(object):
 
     def _cleanup_command(self, crawl_id):
         """Construct command to run Spider Cleaner."""
-        cmd_line = ("qsub -V -b y -cwd python spidercleaner.py -r host:{},port:{} -c {}"
-                   ).format(self.engine_redis_host,
+        cmd_line = ("qsub -V -b y -cwd python {}/spidercleaner.py -r host:{},port:{} -c {}"
+                   ).format(_spdr_engine_location(), self.engine_redis_host,
                             self.engine_redis_port, crawl_id)
         if self.psuedo_dist:
             cmd_line += " -d"
@@ -512,6 +512,10 @@ def _mark_timer_complete(crawl_id, engine_redis):
     config_json = json.dumps(config)
     engine_redis.set(crawl_id, config_json)
     engine_redis.expire(crawl_id, 60*60)
+
+def _spdr_engine_location():
+    """Return location of SpiderEngine (current) file."""
+    return os.path.realpath(__file__).rpartition('/')[0]
 
 def set_logging_level(level="production"):
     """
