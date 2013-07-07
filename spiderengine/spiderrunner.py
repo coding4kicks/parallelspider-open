@@ -154,13 +154,13 @@ class SpiderRunner(object):
         base_path = _get_base_path(base)
         file_name = base_path + '.txt'
         cmd= ('dumbo start {0} -input {1}jobs/{2} '
-              '-output {1}out/{3} -file mrfeynman.py -nummaptasks {4} '
+              '-output {1}out/{3} -file {10}/mrfeynman.py -nummaptasks {4} '
               '-cmdenv PYTHONIOENCODING=utf-8 -param redisInfo=host:{5},'
               'port:{6},base:{7},maxPages:{8}{9}'
               ).format(_ps_location(), files_location, file_name, 
                        base_path, str(self.max_mappers), 
                        self.redis_info['host'], self.redis_info['port'], 
-                       base, str(self.max_pages), dist)
+                       base, str(self.max_pages), dist, _spdr_engine_location())
         #if self.debug:
         #    self.logger.debug('Command: %s',cmd, extra=self.log_header)
         return cmd
