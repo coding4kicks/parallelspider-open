@@ -180,7 +180,7 @@ class SpiderCleaner(object):
             # Create the key to grep/filter the master file by
             key = analysis[a_type]['key'] + analysis[c_type]['key']
         # Cat the master file into the sort filter
-        cwd = "/home/parallelspider/out/"
+        cwd = _spdr_engine_location() + "/out/"
         if a_type in wordcount_analysis:
             cmd_line = ("cat {!s} | "
                         "grep '{!s}' | "
@@ -317,8 +317,8 @@ def _download_file(base_path):
     # TODO: unix tee into separate files & filter and sort and head
     # if able, or move to MapReduce solution
     cmd_line = ("dumbo cat /HDFS/parallelspider/out/{!s}/part-00000 "
-               "-hadoop starcluster > /home/parallelspider/out/{!s} "
-               ).format(base_path, base_path)
+               "-hadoop starcluster > {!s}/out/{!s} "
+               ).format(base_path, _spdr_engine_location(), base_path)
     out = subprocess.call(cmd_line, shell=True)
 
 def _add_dummy_values(site_results, c_type):
@@ -491,7 +491,7 @@ def _clean_summary_analysis(out, key, psuedo_dist, results, analysis,
     # or just do Parallel Cleaner
     if total_count == 0:
         key = 'totl' + analysis[c_type]['key']
-        with open('/home/parallelspider/out/' + base_path) as f:
+        with open(_spdr_engine_location() + '/out/' + base_path) as f:
             string = f.read()
             index = string.find(key)
             upper_newline = string.rfind('\n', 0, index)
@@ -587,6 +587,10 @@ def run_shell_command(cmds, cwd):
         stdout_old = p[-1].stdout
         stderr_old = p[-1].stderr
     return p[-1]
+
+def _spdr_engine_location():
+    """Return location of SpiderEngine (current) file."""
+    return os.path.realpath(__file__).rpartition('/')[0]
 
 def set_logging_level(level="production"):
     """
