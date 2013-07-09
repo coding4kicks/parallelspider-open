@@ -1,1 +1,0 @@
-python spiderrunner.py http://ccn.com,http://www.foxnews.com -r host:localhost,port:6380 -m 2 -t 50 -c yankeecharlie__badpolitics__Fri+Mar+15+2020+21%3A00%3A15+GMT-0700+%28PDT%29
