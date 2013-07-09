@@ -3,6 +3,7 @@
 import fabric.api as fab
 
 import os
+import sys
 import signal
 import subprocess
 
@@ -10,6 +11,17 @@ import subprocess
 # Assumes this file is in spiderdepot or subdirectory,
 # and spiderdepot is 1 level below parallelspider.
 path = os.path.realpath(__file__).partition('spiderdepot')[0]
+
+@fab.task
+def launch_new_scratch():
+    """Start a spider engine from scratch, not an AMI."""
+    # Initial commands must be synchronous
+    # Use basecluster template
+    cmd = 'starcluster start -c basecluster basecluster'
+    p = subprocess.call(cmd, shell=True)
+    if p != 0:
+        print "Starcluster failed to start."
+        sys.exit(1)
 
 
 @fab.task
