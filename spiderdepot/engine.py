@@ -53,7 +53,15 @@ def launch_new_scratch():
 def init_config(instance_type=None, instance=None):
     print 'here'
     cmd_list = [
-            'sudo apt-get update'
+            'sudo apt-get update',
+            'sudo apt-get install --yes --force-yes libxml2-dev libxslt1-dev',
+            'sudo pip install lxml',
+            'sudo pip install beautifulsoup4',
+            'sudo pip install cssselect',
+            'sudo pip install redis',
+            'sudo pip install boto'
+            'git clone https://coding4kicks:\!6Graham9@github.com/' + \
+            'coding4kicks/parallelspider.git /home/spideradmin/parallelspider'
             ]
     for cmd in cmd_list:
         if instance_type == 'master':
@@ -63,12 +71,39 @@ def init_config(instance_type=None, instance=None):
         else:
             print('Error: Unknown Instance Type')
             sys.exit(1)
+        p = subprocess.call(full_cmd, shell=True)
+        if p != 0:
+            print 'Command failed: ' + cmd
+            print 'For instance: ' + instance
+            sys.exit(1)
+        print 'Command: ' + cmd + ' executed on ' + instance + '.'
+
+    # upload bash
+    full_cmd = 'starcluster put basecluster --node ' + instance + \
+            '~/projects/bash_profiles/.bashrc-spiderengine /root/.bash_aliases'
     p = subprocess.call(full_cmd, shell=True)
     if p != 0:
-        print 'Command failed: ' + cmd
+        print 'Command failed: upload bashrc'
         print 'For instance: ' + instance
         sys.exit(1)
-    print 'Command: ' + cmd + ' executed on ' + instance + '.'
+
+    # install redis only on master
+    cmd_list = [
+     'wget -P /home/spideradmin/ http://redis.googlecode.com/files/' + \
+             'redis-2.6.11.tar.gz',
+     'tar xzf /home/spideradmin/redis-2.6.11.tar.gz -C /home/spideradmin',
+     'make -C /home/spideradmin/redis-2.6.11' 
+            ]
+    if instance_type == 'master'
+        for cmd in cmd_list:
+            full_cmd = 'starcluster sshmaster basecluster ' + cmd
+            p = subprocess.call(full_cmd, shell=True)
+            if p != 0:
+                print 'Command failed: ' + cmd
+                print 'For instance: ' + instance
+                sys.exit(1)
+            print 'Command: ' + cmd + ' executed on ' + instance + '.'
+
 
 
 @fab.task
